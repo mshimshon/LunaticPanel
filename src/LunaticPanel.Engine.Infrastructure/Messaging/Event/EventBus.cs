@@ -1,0 +1,50 @@
+﻿using LunaticPanel.Core.Messaging.EventBus;
+using LunaticPanel.Engine.Application.Messaging.Event;
+using LunaticPanel.Engine.Infrastructure.Circuit;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace LunaticPanel.Engine.Infrastructure.Messaging.Event;
+
+internal class EventBus : IEventBus
+{
+
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IEventBusRegistry _eventBusRegistry;
+    private readonly ICircuitControl _circuitControl;
+
+    public EventBus(IServiceProvider serviceProvider, IEventBusRegistry eventBusRegistry, ICircuitControl circuitControl)
+    {
+        _serviceProvider = serviceProvider;
+        _eventBusRegistry = eventBusRegistry;
+        _circuitControl = circuitControl;
+    }
+
+    private static Task ExecuteHandler(IEventBusMessage evt, IServiceProvider serviceProvider, Type handlerType)
+    {
+        var handler = serviceProvider.GetRequiredService(handlerType) as IEventBusHandler;
+        return handler!.HandleAsync(evt);
+    }
+
+    public Task PublishAsync(IEventBusMessage evt)
+    {
+        string id = evt.GetId();
+        var registry = _eventBusRegistry;
+        var handlers = registry.GetRegistryFor(id);
+        List<Task> handlerTasks = new();
+        bool hasCrossCircuitEvents = handlers.Any(p => p.IsCrossCircuitType);
+        foreach (var item in handlers.Where(p => !p.IsCrossCircuitType))
+            handlerTasks.Add(ExecuteHandler(evt, _serviceProvider, item.HandlerType));
+
+        if (hasCrossCircuitEvents)
+            foreach (var circuit in _circuitControl.GetActiveCircuits())
+                foreach (var handlerType in handlers.Where(p => p.IsCrossCircuitType))
+                    handlerTasks.Add(ExecuteHandler(evt, circuit.ServiceProvider(), handlerType.HandlerType));
+
+        return Task.WhenAll(handlerTasks);
+    }
+
+
+    public IReadOnlyCollection<string> GetAllEventIds() => _eventBusRegistry.GetAllAvailableIds();
+
+    public IReadOnlyCollection<Type> GetAllHandlersByEventId(string eventId) => _eventBusRegistry.GetRegistryFor(eventId).Select(p => p.HandlerType).ToList().AsReadOnly();
+}

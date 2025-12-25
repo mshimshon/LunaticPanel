@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="LunaticPanel.Core/LunaticPanel.Core.csproj" />
+  <Project Path="LunaticPanel.Engine.Application/LunaticPanel.Engine.Application.csproj" />
+  <Project Path="LunaticPanel.Engine.Domain/LunaticPanel.Engine.Domain.csproj" />
+  <Project Path="LunaticPanel.Engine.Infrastructure/LunaticPanel.Engine.Infrastructure.csproj" />
+  <Project Path="LunaticPanel.Engine/LunaticPanel.Engine.csproj" />
+  <Project Path="LunaticPanel.Host/LunaticPanel.Host.csproj" />
+</Solution>
