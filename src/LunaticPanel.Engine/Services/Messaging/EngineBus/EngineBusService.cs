@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Messaging.EngineBus;
+using LunaticPanel.Core.Plugin;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Engine.Services.Messaging.EngineBus;
@@ -21,7 +22,17 @@ internal class EngineBusService : IEngineBus
         var handlers = registry.GetRegistryFor(id);
         List<Task<EngineBusResponse>> handlerTasks = new();
         foreach (var item in handlers)
-            handlerTasks.Add(ExecuteHandler(engineBusRender, _serviceProvider, item));
+            if (item.Plugin != default)
+            {
+                var pluginType = item.Plugin.GetType();
+                var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
+                var pluginService = _serviceProvider.GetRequiredService(serviceType) as IPluginService;
+                var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
+                handlerTasks.Add(ExecuteHandler(engineBusRender, pluginSp, item.HandlerType));
+
+            }
+            else
+                handlerTasks.Add(ExecuteHandler(engineBusRender, _serviceProvider, item.HandlerType));
 
         return Task.WhenAll(handlerTasks);
     }
@@ -37,5 +48,5 @@ internal class EngineBusService : IEngineBus
         => _engineBusRegistry.GetAllAvailableIds();
 
     public IReadOnlyCollection<Type> GetAllHandlersByEventId(string eventId)
-        => _engineBusRegistry.GetRegistryFor(eventId).ToList().AsReadOnly();
+        => _engineBusRegistry.GetRegistryFor(eventId).Select(p => p.HandlerType).ToList().AsReadOnly();
 }

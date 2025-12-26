@@ -4,7 +4,7 @@ namespace LunaticPanel.Engine.Services.Messaging.EngineBus;
 
 internal class EngineBusRegistry
 {
-    private readonly Dictionary<string, List<Type>> _internalRegistryEventTypes = new();
+    private readonly Dictionary<string, List<EngineBusHandlerDescriptor>> _internalRegistryEventTypes = new();
     private readonly object _lock = new();
 
     public IReadOnlyList<string> GetAllAvailableIds()
@@ -15,7 +15,7 @@ internal class EngineBusRegistry
         }
     }
 
-    public IReadOnlyList<Type> GetRegistryFor(string id)
+    public IReadOnlyList<EngineBusHandlerDescriptor> GetRegistryFor(string id)
     {
         id = id.ToLower();
         lock (_lock)
@@ -24,7 +24,7 @@ internal class EngineBusRegistry
         }
     }
 
-    public void Register(string id, Type handlerEntity)
+    public void Register(string id, EngineBusHandlerDescriptor handlerEntity)
     {
         id = id.ToLower();
 
@@ -32,15 +32,15 @@ internal class EngineBusRegistry
         {
             if (!_internalRegistryEventTypes.TryGetValue(id, out var list))
             {
-                list = new List<Type>();
-                _internalRegistryEventTypes[id] = new List<Type>();
+                list = new List<EngineBusHandlerDescriptor>();
+                _internalRegistryEventTypes[id] = new List<EngineBusHandlerDescriptor>();
             }
             if (!list.Contains(handlerEntity))
                 _internalRegistryEventTypes[id].Add(handlerEntity);
         }
     }
 
-    public void UnRegister(string id, Type handlerEntity)
+    public void UnRegister(string id, EngineBusHandlerDescriptor handlerEntity)
     {
         id = id.ToLower();
 

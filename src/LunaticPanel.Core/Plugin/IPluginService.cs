@@ -1,7 +1,11 @@
 ﻿namespace LunaticPanel.Core.Plugin;
 
-public interface IPluginService<TPlugin>
-    where TPlugin : IPlugin
+public interface IPluginService
 {
     TService GetRequired<TService>() where TService : notnull;
+
+}
+public interface IPluginService<TPlugin> : IPluginService
+    where TPlugin : IPlugin
+{
 }
