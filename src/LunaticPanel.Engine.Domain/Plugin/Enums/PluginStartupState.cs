@@ -1,4 +1,4 @@
-﻿namespace GameServerManager.Engine.Domain.Plugin.Enums;
+﻿namespace LunaticPanel.Engine.Domain.Plugin.Enums;
 
 public enum PluginStartupState
 {

@@ -31,7 +31,7 @@ public sealed class PluginScanner
         typeof(EventBusNotFoundException),
 
         typeof(IEngineBus),
-        typeof(EngineBusIdAttribute),
+        typeof(BusIdAttribute),
         typeof(EngineBusMessage),
         typeof(EngineBusResponse),
         typeof(IEngineBusHandler),

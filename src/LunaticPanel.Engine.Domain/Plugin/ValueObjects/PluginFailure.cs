@@ -1,4 +1,4 @@
-﻿namespace GameServerManager.Engine.Domain.Plugin.ValueObjects;
+﻿namespace LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 
 public sealed record PluginFailure(
     string Message,

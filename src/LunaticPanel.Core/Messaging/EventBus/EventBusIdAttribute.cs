@@ -1,15 +1,16 @@
-﻿namespace LunaticPanel.Core.Messaging.EventBus;
+﻿using LunaticPanel.Core.Messaging.Common;
+
+namespace LunaticPanel.Core.Messaging.EventBus;
 
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-public sealed class EventBusIdAttribute : Attribute
+public sealed class EventBusIdAttribute : BusIdAttribute
 {
 
-    public string EventId { get; }
     public bool IsCrossCircuitReceiver { get; set; } = false;
 
-    public EventBusIdAttribute(string eventId)
+    public EventBusIdAttribute(string id) : base(id)
     {
-        EventId = eventId;
+
     }
 }

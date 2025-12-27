@@ -1,12 +1,12 @@
-﻿namespace LunaticPanel.Core.Messaging.QuerySystem;
+﻿using LunaticPanel.Core.Messaging.Common;
+
+namespace LunaticPanel.Core.Messaging.QuerySystem;
 
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-public sealed class QueryBusIdAttribute : Attribute
+public sealed class QueryBusIdAttribute : BusIdAttribute
 {
-    public string QueryId { get; }
-    public QueryBusIdAttribute(string eventId)
+    public QueryBusIdAttribute(string id) : base(id)
     {
-        QueryId = eventId;
     }
 }

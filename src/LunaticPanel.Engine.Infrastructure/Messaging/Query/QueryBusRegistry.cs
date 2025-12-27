@@ -1,11 +1,12 @@
 ﻿using LunaticPanel.Core.Messaging.QuerySystem.Exceptions;
 using LunaticPanel.Engine.Application.Messaging.Query;
+using LunaticPanel.Engine.Domain.Messaging.Entities;
 
 namespace LunaticPanel.Engine.Infrastructure.Messaging.Query;
 
 internal class QueryBusRegistry : IQueryBusRegistry
 {
-    private readonly Dictionary<string, Type> _internalRegistryEventTypes = new();
+    private readonly Dictionary<string, QueryBusHandlerDescriptorEntity> _internalRegistryEventTypes = new();
     private readonly object _lock = new();
 
     public IReadOnlyList<string> GetAllAvailableIds()
@@ -16,7 +17,7 @@ internal class QueryBusRegistry : IQueryBusRegistry
         }
     }
 
-    public Type GetRegistryFor(string id)
+    public QueryBusHandlerDescriptorEntity GetRegistryFor(string id)
     {
         id = id.ToLower();
         lock (_lock)
@@ -25,7 +26,7 @@ internal class QueryBusRegistry : IQueryBusRegistry
         }
     }
 
-    public void Register(string id, Type handlerType)
+    public void Register(string id, BusHandlerDescriptorEntity handlerEntity)
     {
         id = id.ToLower();
 
@@ -33,18 +34,9 @@ internal class QueryBusRegistry : IQueryBusRegistry
         {
             if (_internalRegistryEventTypes.ContainsKey(id))
                 throw new QueryBusMultipleHandlerException(id);
-            _internalRegistryEventTypes[id] = handlerType;
+            _internalRegistryEventTypes[id] = new(id, handlerEntity.HandlerType, handlerEntity.BusType, handlerEntity.Plugin);
         }
     }
 
-    public void UnRegister(string id)
-    {
-        id = id.ToLower();
 
-        lock (_lock)
-        {
-            if (!_internalRegistryEventTypes.ContainsKey(id))
-                _internalRegistryEventTypes.Remove(id);
-        }
-    }
 }

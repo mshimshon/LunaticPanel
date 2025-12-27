@@ -1,10 +1,11 @@
 ﻿using LunaticPanel.Core.Messaging.EventBus.Exceptions;
+using LunaticPanel.Engine.Domain.Messaging.Entities;
 
 namespace LunaticPanel.Engine.Services.Messaging.EngineBus;
 
 internal class EngineBusRegistry
 {
-    private readonly Dictionary<string, List<EngineBusHandlerDescriptor>> _internalRegistryEventTypes = new();
+    private readonly Dictionary<string, List<EngineBusHandlerDescriptorEntity>> _internalRegistryEventTypes = new();
     private readonly object _lock = new();
 
     public IReadOnlyList<string> GetAllAvailableIds()
@@ -15,7 +16,7 @@ internal class EngineBusRegistry
         }
     }
 
-    public IReadOnlyList<EngineBusHandlerDescriptor> GetRegistryFor(string id)
+    public IReadOnlyList<EngineBusHandlerDescriptorEntity> GetRegistryFor(string id)
     {
         id = id.ToLower();
         lock (_lock)
@@ -24,7 +25,7 @@ internal class EngineBusRegistry
         }
     }
 
-    public void Register(string id, EngineBusHandlerDescriptor handlerEntity)
+    public void Register(string id, BusHandlerDescriptorEntity handlerEntity)
     {
         id = id.ToLower();
 
@@ -32,23 +33,13 @@ internal class EngineBusRegistry
         {
             if (!_internalRegistryEventTypes.TryGetValue(id, out var list))
             {
-                list = new List<EngineBusHandlerDescriptor>();
-                _internalRegistryEventTypes[id] = new List<EngineBusHandlerDescriptor>();
+                list = new List<EngineBusHandlerDescriptorEntity>();
+                _internalRegistryEventTypes[id] = new List<EngineBusHandlerDescriptorEntity>();
             }
-            if (!list.Contains(handlerEntity))
-                _internalRegistryEventTypes[id].Add(handlerEntity);
+            if (!list.Any(p => p.HandlerType.FullName == handlerEntity.HandlerType.FullName))
+                _internalRegistryEventTypes[id].Add(new(id, handlerEntity.HandlerType, handlerEntity.BusType, handlerEntity.Plugin));
         }
     }
 
-    public void UnRegister(string id, EngineBusHandlerDescriptor handlerEntity)
-    {
-        id = id.ToLower();
 
-        lock (_lock)
-        {
-            if (!_internalRegistryEventTypes.TryGetValue(id, out var list))
-                return;
-            _internalRegistryEventTypes[id].Remove(handlerEntity);
-        }
-    }
 }

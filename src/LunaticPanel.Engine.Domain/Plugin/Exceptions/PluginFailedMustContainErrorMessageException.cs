@@ -1,4 +1,4 @@
-﻿namespace GameServerManager.Engine.Domain.Plugin.Exceptions;
+﻿namespace LunaticPanel.Engine.Domain.Plugin.Exceptions;
 
 public class PluginFailedMustContainErrorMessageException : Exception
 {

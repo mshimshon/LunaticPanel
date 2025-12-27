@@ -1,11 +1,11 @@
-﻿namespace LunaticPanel.Core.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Messaging.Common;
+
+namespace LunaticPanel.Core.Messaging.EngineBus;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-public sealed class EngineBusIdAttribute : Attribute
+public sealed class EngineBusIdAttribute : BusIdAttribute
 {
-    public string Id { get; }
-    public EngineBusIdAttribute(string id)
+    public EngineBusIdAttribute(string id) : base(id)
     {
-        Id = id;
     }
 }

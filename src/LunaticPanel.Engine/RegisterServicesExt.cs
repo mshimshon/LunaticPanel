@@ -2,6 +2,7 @@
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Infrastructure.Circuit;
 using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Services.Messaging;
 using LunaticPanel.Engine.Services.Messaging.EngineBus;
 using LunaticPanel.Engine.Services.Messaging.EventBus;
 using LunaticPanel.Engine.Services.Messaging.QueryBus;

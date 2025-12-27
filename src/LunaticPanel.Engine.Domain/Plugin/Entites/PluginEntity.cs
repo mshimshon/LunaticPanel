@@ -1,6 +1,6 @@
-﻿using GameServerManager.Engine.Domain.Plugin.ValueObjects;
+﻿using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 
-namespace GameServerManager.Engine.Domain.Plugin.Entites;
+namespace LunaticPanel.Engine.Domain.Plugin.Entites;
 
 public sealed record PluginEntity
 {
