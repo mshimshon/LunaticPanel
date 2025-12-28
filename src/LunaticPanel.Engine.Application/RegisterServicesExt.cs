@@ -4,7 +4,7 @@ namespace LunaticPanel.Engine.Application;
 
 public static class RegisterServicesExt
 {
-    public static IServiceCollection AddLunaticPanelEngineApplication(this IServiceCollection services)
+    public static IServiceCollection AddEngineApplication(this IServiceCollection services)
     {
 
         return services;

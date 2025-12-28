@@ -2,6 +2,6 @@
 
 public enum PluginLoadStatus
 {
-    Success,
-    Failed
+    Success = 1,
+    Failed = 0
 }

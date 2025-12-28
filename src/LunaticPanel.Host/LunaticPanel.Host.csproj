@@ -27,7 +27,7 @@
 
 		<Copy
 		  SourceFiles="@(PluginDll)"
-		  DestinationFolder="$(OutputPath)\Plugins"
+		  DestinationFolder="$(OutputPath)\Plugins\LunaticPanel.Plugin.Test\1.0.0"
 		  SkipUnchangedFiles="true" />
 	</Target>
 </Project>

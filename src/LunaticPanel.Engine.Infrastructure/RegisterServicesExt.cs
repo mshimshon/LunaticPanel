@@ -11,9 +11,9 @@ namespace LunaticPanel.Engine.Infrastructure;
 
 public static class RegisterServicesExt
 {
-    public static IServiceCollection AddLunaticPanelEngineInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddEngineInfrastructure(this IServiceCollection services)
     {
-        services.AddLunaticPanelEngineApplication();
+        services.AddEngineApplication();
         services.AddScoped<IEventBus, EventBus>();
         services.AddSingleton<IEventBusRegistry, EventBusRegistry>();
 

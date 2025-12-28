@@ -20,7 +20,7 @@ internal class PluginServiceResolver<TPlugin> : IPluginService<TPlugin>
         foreach (var d in pluginItem.Services)
             serviceCollection.Add(d);
 
-        var hostCircuitProvider = CopyHostServicesIntoList(serviceCollection, HostServiceStorage.HostServices, serviceProvider, HostServiceStorage.SharedServiceTypes.ToArray());
+        var hostCircuitProvider = CopyHostServices(serviceCollection, HostServiceStorage.HostServices, serviceProvider);
 
         foreach (var d in hostCircuitProvider)
             serviceCollection.Add(d);
@@ -32,66 +32,44 @@ internal class PluginServiceResolver<TPlugin> : IPluginService<TPlugin>
     public TService GetRequired<TService>() where TService : notnull
         => InternalProvider.GetRequiredService<TService>();
 
-    public static List<ServiceDescriptor> CopyHostServicesIntoList(
+    public static List<ServiceDescriptor> CopyHostServices(
         IServiceCollection pluginServices,
         IReadOnlyCollection<ServiceDescriptor> hostServices,
-        IServiceProvider hostCircuitProvider,
-        Type[] allowedSharedServices)
+        IServiceProvider hostScope)
     {
         var result = new List<ServiceDescriptor>();
 
         foreach (var d in hostServices)
         {
-            // already registered in plugin
             if (pluginServices.Any(x => x.ServiceType == d.ServiceType))
                 continue;
 
-            // not allowed to be shared
-            if (!allowedSharedServices.Contains(d.ServiceType))
-                continue;
+            bool isOpenGeneric = d.ServiceType.IsGenericTypeDefinition;
+            bool isTransient = d.Lifetime == ServiceLifetime.Transient;
 
-            if (d.ImplementationInstance != null)
+            if (isOpenGeneric || isTransient)
             {
-                result.Add(new ServiceDescriptor(
+                // clone
+                result.Add(ServiceDescriptor.Describe(
                     d.ServiceType,
-                    d.ImplementationInstance
-                ));
-                continue;
+                    d.ImplementationType!,
+                    d.Lifetime));
             }
-
-            if (d.ImplementationFactory != null)
+            else
             {
-                result.Add(new ServiceDescriptor(
+                // proxy
+                result.Add(ServiceDescriptor.Describe(
                     d.ServiceType,
-                    _ => d.ImplementationFactory(hostCircuitProvider),
-                    d.Lifetime
-                ));
-                continue;
-            }
-
-            if (d.ImplementationType != null)
-            {
-                if (d.ImplementationType.IsGenericTypeDefinition)
-                {
-                    result.Add(new ServiceDescriptor(
-                        d.ServiceType,
-                        d.ImplementationType,
-                        d.Lifetime
-                    ));
-                }
-                else
-                {
-                    result.Add(new ServiceDescriptor(
-                        d.ServiceType,
-                        _ => hostCircuitProvider.GetRequiredService(d.ServiceType),
-                        d.Lifetime
-                    ));
-                }
+                    sp => hostScope.GetRequiredService(d.ServiceType),
+                    d.Lifetime));
             }
         }
 
+
         return result;
     }
+
+
 
 
 

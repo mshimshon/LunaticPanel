@@ -4,8 +4,8 @@ namespace LunaticPanel.Engine.Domain.Plugin.Entites;
 
 public sealed record PluginEntity
 {
-    public PluginIdentity Identity { get; }
-    public PluginLifecycle Lifecycle { get; }
+    public PluginIdentity Identity { get; init; }
+    public PluginLifecycle Lifecycle { get; init; }
     public PluginEntity(PluginIdentity identity, PluginLifecycle lifecycle)
     {
         Identity = identity;

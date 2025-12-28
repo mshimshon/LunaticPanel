@@ -4,8 +4,8 @@ public sealed record PluginIdentity(
         string PackageId,
         Version PakageVersion,
         string DisplayName,
-        string? Author,
-        string? CompanyName,
-        string? License,
-        string? Copyright
+        string? Author = default,
+        string? CompanyName = default,
+        string? License = default,
+        string? Copyright = default
     );

@@ -1,31 +1,28 @@
 using LunaticPanel.Engine;
+using LunaticPanel.Engine.Boostrap;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddLunaticPanelEngine();
-
-var app = builder.Build();
-
-app.UseLunaticPanelEngine();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+var app = Bootstrap.Load(() =>
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-app.UseHttpsRedirection();
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+    return builder;
+});
 
-app.UseAntiforgery();
+await Bootstrap.RunAsync(() =>
+{
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Error", createScopeForErrors: true);
+        app.UseHsts();
+    }
 
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+    app.UseHttpsRedirection();
 
-app.Run();
+    app.UseAntiforgery();
+
+    app.MapStaticAssets();
+    app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
+    return app;
+});

@@ -63,38 +63,45 @@ public sealed class PluginScanner
         {
             if (!processed.Add(Path.GetFullPath(dll)))
                 continue;
+            try
+            {
+                var loader = PluginLoader.CreateFromAssemblyFile(
+                    dll,
+                    sharedTypes: _sharedTypes,
+                    c => c.IsUnloadable = true
+                );
 
-            var loader = PluginLoader.CreateFromAssemblyFile(
-                dll,
-                sharedTypes: _sharedTypes,
-                c => c.IsUnloadable = false
-            );
+                var assembly = loader.LoadDefaultAssembly();
 
-            var assembly = loader.LoadDefaultAssembly();
+                var pluginTypes = assembly.GetTypes()
+                    .Where(t =>
+                        typeof(IPlugin).IsAssignableFrom(t) &&
+                        !t.IsAbstract &&
+                        !t.IsInterface)
+                    .ToList();
 
-            var pluginTypes = assembly.GetTypes()
-                .Where(t =>
-                    typeof(IPlugin).IsAssignableFrom(t) &&
-                    !t.IsAbstract &&
-                    !t.IsInterface)
-                .ToList();
+                if (pluginTypes.Count == 0)
+                    continue;
 
-            if (pluginTypes.Count == 0)
-                continue;
+                if (pluginTypes.Count != 1)
+                    throw new InvalidOperationException(
+                        $"Assembly {dll} must define exactly one IPlugin");
 
-            if (pluginTypes.Count != 1)
-                throw new InvalidOperationException(
-                    $"Assembly {dll} must define exactly one IPlugin");
+                var pluginType = pluginTypes[0];
+                var name = pluginType.Assembly.GetName();
 
-            var pluginType = pluginTypes[0];
-            var name = pluginType.Assembly.GetName();
+                results.Add(new PluginScanResult(
+                    PluginId: name.Name!,
+                    Version: name.Version ?? new Version(1, 0, 0, 0),
+                    Loader: loader,
+                    PluginType: pluginType
+                ));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
-            results.Add(new PluginScanResult(
-                PluginId: name.Name!,
-                Version: name.Version ?? new Version(1, 0, 0, 0),
-                Loader: loader,
-                PluginType: pluginType
-            ));
         }
 
         return results;

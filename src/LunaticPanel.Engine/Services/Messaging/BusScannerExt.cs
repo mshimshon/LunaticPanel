@@ -16,7 +16,7 @@ namespace LunaticPanel.Engine.Services.Messaging;
 
 public static class BusScannerExt
 {
-    private static Queue<BusHandlerDescriptorEntity> ToRuntimeRegister { get; set; } = new();
+    public static Queue<BusHandlerDescriptorEntity> ToRuntimeRegister { get; set; } = new();
     public static void ScanBusHandlers(this IServiceCollection services, IPlugin? plugin = default)
     {
         var engineBusType = typeof(IEngineBusHandler);
@@ -45,6 +45,7 @@ public static class BusScannerExt
             services.AddTransient(item.HandlerType);
             ToRuntimeRegister.Enqueue(item);
         }
+
     }
 
 

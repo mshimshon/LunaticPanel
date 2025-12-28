@@ -5,10 +5,10 @@ public enum PluginStartupState
     /// <summary>
     /// Plugin will be loaded at boot up
     /// </summary>
-    Enabled,
+    Enabled = 1,
 
     /// <summary>
     /// Plugin will not be loaded at boot up
     /// </summary>
-    Disabled
+    Disabled = 0
 }
