@@ -4,7 +4,6 @@ using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 using LunaticPanel.Engine.Services.Plugin;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace LunaticPanel.Engine.Boostrap;
 
 internal static class BootstrapPlugins
@@ -25,7 +24,7 @@ internal static class BootstrapPlugins
                 IPlugin plugin = (IPlugin)Activator.CreateInstance(item.PluginType)!;
                 var lifecycle = new PluginLifecycle(PluginState.Loaded, PluginStartupState.Disabled, default, DateTimeOffset.UtcNow);
                 var entity = new PluginEntity(identity, lifecycle);
-                DiscoveredPlugins.Add(new BootstrapPluginDescriptor() { Entity = entity, EntryPoint = plugin, Loader = item.Loader });
+                DiscoveredPlugins.Add(new BootstrapPluginDescriptor() { Entity = entity, EntryPoint = plugin, Loader = item.Loader, EntryPointType = item.PluginType });
 
             }
             catch (Exception ex)
@@ -34,7 +33,7 @@ internal static class BootstrapPlugins
                 var failure = new PluginFailure(ex.Message, DateTimeOffset.UtcNow);
                 var lifecycle = new PluginLifecycle(PluginState.Failed, PluginStartupState.Disabled, failure, DateTimeOffset.UtcNow);
                 var entity = new PluginEntity(identity, lifecycle);
-                DiscoveredPlugins.Add(new BootstrapPluginDescriptor() { Entity = entity, Loader = item.Loader });
+                DiscoveredPlugins.Add(new BootstrapPluginDescriptor() { Entity = entity, Loader = item.Loader, EntryPointType = item.PluginType });
             }
 
         }
@@ -102,6 +101,7 @@ internal static class BootstrapPlugins
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             AddFailedPlugin(plugin, new(ex.Message, DateTimeOffset.UtcNow));
         }
     }
@@ -116,65 +116,4 @@ internal static class BootstrapPlugins
         }
     }
 
-    private static BootstrapPluginDescriptor FailedToLoadMapping(this BootstrapPluginDescriptor info, string message, DateTimeOffset? occuredAt = default)
-    => info with
-    {
-        Entity = info.Entity with
-        {
-            Lifecycle = info.Entity.Lifecycle with
-            {
-                State = PluginState.Failed,
-                Failure = new PluginFailure(message, occuredAt ?? DateTimeOffset.UtcNow)
-            }
-        }
-    };
-
-
-    private static BootstrapPluginDescriptor MissingPluginMapping(this BootstrapPluginDescriptor info)
-        => info with
-        {
-            Entity = info.Entity with
-            {
-                Lifecycle = info.Entity.Lifecycle with
-                {
-                    State = PluginState.Missing
-                }
-            }
-        };
-
-    private static BootstrapPluginDescriptor DisablePluginMapping(this BootstrapPluginDescriptor info)
-        => info with
-        {
-            Entity = info.Entity with
-            {
-                Lifecycle = info.Entity.Lifecycle with
-                {
-                    State = PluginState.Unloaded
-                }
-            }
-        };
-
-    private static BootstrapPluginDescriptor ActivatedPluginMapping(this BootstrapPluginDescriptor info)
-    => info with
-    {
-        Entity = info.Entity with
-        {
-            Lifecycle = info.Entity.Lifecycle with
-            {
-                State = PluginState.Active
-            }
-        }
-    };
-
-    private static BootstrapPluginDescriptor EnablePluginMapping(this BootstrapPluginDescriptor info)
-=> info with
-{
-    Entity = info.Entity with
-    {
-        Lifecycle = info.Entity.Lifecycle with
-        {
-            StartupState = PluginStartupState.Enabled
-        }
-    }
-};
 }

@@ -1,6 +1,5 @@
-﻿@rendermode RenderMode.InteractiveServer
-
-<Router AppAssembly="typeof(Routes).Assembly" NotFoundPage="typeof(Pages.NotFound)" AdditionalAssemblies=@AdditionalAssemblies>
+﻿
+<Router AppAssembly="typeof(Routes).Assembly" NotFoundPage="typeof(Pages.NotFound)" @rendermode="RenderMode.InteractiveServer">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)"  />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />

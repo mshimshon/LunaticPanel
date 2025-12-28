@@ -1,5 +1,4 @@
-﻿using LunaticPanel.Core;
-using LunaticPanel.Core.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Plugin;
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Infrastructure.Circuit;
@@ -16,6 +15,7 @@ using SwizzleV;
 using System.Reflection;
 using System.Text.Json;
 using static LunaticPanel.Engine.Boostrap.BootstrapPlugins;
+using static LunaticPanel.Engine.Boostrap.BootstrapPluginsBlazorValidator;
 namespace LunaticPanel.Engine.Boostrap;
 
 public static class Bootstrap
@@ -23,6 +23,8 @@ public static class Bootstrap
     public static string PluginDirectory { get; private set; } = default!;
     public static string ConfigDirectory { get; private set; } = default!;
     internal static BootstrapConfiguration Configuration { get; private set; } = new();
+
+    public static List<Assembly> AdditionalAssemblies => [.. Configuration.ActivePlugins.Select(p => p.EntryPointType.Assembly!)];
     public static UnixFileMode DefaultDirectoryPermissions { get; } =
         UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
         UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
@@ -30,6 +32,8 @@ public static class Bootstrap
 
     public static WebApplication Load(Func<WebApplicationBuilder> webApplicationBuilder)
     {
+
+        // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath();
         DetectPlugins();
         LoadConfiguration();
@@ -38,9 +42,12 @@ public static class Bootstrap
         services.AddServices().SealServiceCollection();
         services.ScanBusHandlers();
         services.ProcessPlugins();
-        var activePluginsEntryPoint = Configuration.ActivePlugins.Select(p => p.EntryPoint!).ToArray();
+        EnsurePluginValidatedBlazor();
+        BootstrapPluginDescriptor[] activePluginsEntryPoint = Configuration.ActivePlugins.ToArray();
         services.ScanAndAddBusHandlersFor(activePluginsEntryPoint);
         services.AddPluginServiceResolverFor(activePluginsEntryPoint);
+
+        Routes.AdditionalAssemblies = activePluginsEntryPoint.Select(p => p.EntryPointType.Assembly).ToList();
         SaveConfiguration();
         return webApp.Build();
     }
@@ -132,26 +139,23 @@ public static class Bootstrap
     }
 
 
-    private static void ScanAndAddBusHandlersFor(this IServiceCollection services, params IPlugin[] plugins)
+    private static void ScanAndAddBusHandlersFor(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
     {
         foreach (var item in plugins)
-            services.ScanBusHandlers(item);
+            services.ScanBusHandlers(item.EntryPoint);
     }
-    private static void AddPluginServiceResolverFor(this IServiceCollection services, params IPlugin[] plugins)
+    private static void AddPluginServiceResolverFor(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
     {
         foreach (var item in plugins)
         {
-            var pluginType = item.GetType();
+            var pluginType = item.EntryPointType;
             var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
             var resolverType = typeof(PluginServiceResolver<>).MakeGenericType(pluginType);
             services.AddScoped(serviceType, resolverType);
         }
     }
 
-    private static IApplicationBuilder AddAdditionalAssemblies(this IApplicationBuilder builder, params Assembly[] assemblies)
-    {
-        Routes.AdditionalAssemblies.AddRange(assemblies);
-        return builder;
-    }
+
+
 
 }

@@ -9,6 +9,25 @@ public partial class MainMenu : ComponentBase
 {
     [Inject] IEngineBus EngineBus { get; set; } = default!;
     ICollection<MenuElementModel> MenuItems { get; set; } = new List<MenuElementModel>();
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("");
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            Console.WriteLine("");
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetPluginMenuItems();
+        }
+    }
     public async Task GetPluginMenuItems()
     {
         var message = new EngineBusMessage("Engine.Layout.Menu", "Fetch");

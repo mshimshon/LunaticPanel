@@ -9,4 +9,6 @@ internal record BootstrapConfiguration
     [JsonIgnore]
     public List<BootstrapPluginDescriptor> ActivePlugins { get; set; } = new List<BootstrapPluginDescriptor>();
 
+
+
 }

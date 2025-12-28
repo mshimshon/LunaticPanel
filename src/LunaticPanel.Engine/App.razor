@@ -9,12 +9,12 @@
     <script src="@Assets["_content/MudBlazor/MudBlazor.min.js?v=1"]"></script>
 
     <ImportMap />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="RenderMode.InteractiveServer" />
 </head>
 
 <body>
-    <Routes />
-    <ReconnectModal />
+    <Routes @rendermode="RenderMode.InteractiveServer" />
+    <ReconnectModal  />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <link rel="stylesheet" href="@Assets["_content/MudBlazor/MudBlazor.min.css?v=1"]" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />

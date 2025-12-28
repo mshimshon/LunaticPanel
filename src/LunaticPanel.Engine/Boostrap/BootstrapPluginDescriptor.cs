@@ -13,5 +13,8 @@ internal record BootstrapPluginDescriptor
     public IPlugin? EntryPoint { get; set; }
 
     [JsonIgnore]
+    public Type EntryPointType { get; set; } = default!;
+
+    [JsonIgnore]
     public PluginLoader? Loader { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -16,8 +16,11 @@
 	  <Version>0.1.0</Version>
 	  <Description>LunaticPanel is a modular Blazor dashboard framework for building unified, server-oriented control applications with centralized orchestration and predictable composition.</Description>
 	  <PackageTags>blazor, dashboard, orchestration, server-management, modular, mudblazor, dotnet, control-plane, ui-framework</PackageTags>
-  </PropertyGroup>
 
+  </PropertyGroup>
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
 <ItemGroup>
 	<PackageReference Include="DotNetCore.CAP" />
 	<PackageReference Include="DotNetCore.CAP.Dashboard" />
