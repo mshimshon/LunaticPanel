@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Messaging.EventBus;
+using LunaticPanel.Core.Plugin;
 using LunaticPanel.Engine.Application.Messaging.Event;
 using LunaticPanel.Engine.Infrastructure.Circuit;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,12 +34,30 @@ internal class EventBus : IEventBus
         List<Task> handlerTasks = new();
         bool hasCrossCircuitEvents = handlers.Any(p => p.IsCrossCircuitType);
         foreach (var item in handlers.Where(p => !p.IsCrossCircuitType))
-            handlerTasks.Add(ExecuteHandler(evt, _serviceProvider, item.HandlerType));
+            if (item.Plugin != default)
+            {
+                var pluginType = item.Plugin.GetType();
+                var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
+                var pluginService = _serviceProvider.GetRequiredService(serviceType) as IPluginService;
+                var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
+                handlerTasks.Add(ExecuteHandler(evt, pluginSp, item.HandlerType));
+            }
+            else
+                handlerTasks.Add(ExecuteHandler(evt, _serviceProvider, item.HandlerType));
 
         if (hasCrossCircuitEvents)
             foreach (var circuit in _circuitControl.GetActiveCircuits())
                 foreach (var handlerType in handlers.Where(p => p.IsCrossCircuitType))
-                    handlerTasks.Add(ExecuteHandler(evt, circuit.ServiceProvider(), handlerType.HandlerType));
+                    if (handlerType.Plugin != default)
+                    {
+                        var pluginType = handlerType.Plugin.GetType();
+                        var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
+                        var pluginService = circuit.ServiceProvider().GetRequiredService(serviceType) as IPluginService;
+                        var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
+                        handlerTasks.Add(ExecuteHandler(evt, pluginSp, handlerType.HandlerType));
+                    }
+                    else
+                        handlerTasks.Add(ExecuteHandler(evt, circuit.ServiceProvider(), handlerType.HandlerType));
 
         return Task.WhenAll(handlerTasks);
     }

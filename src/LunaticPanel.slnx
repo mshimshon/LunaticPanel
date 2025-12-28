@@ -9,4 +9,5 @@
   <Project Path="LunaticPanel.Engine.Infrastructure/LunaticPanel.Engine.Infrastructure.csproj" />
   <Project Path="LunaticPanel.Engine/LunaticPanel.Engine.csproj" />
   <Project Path="LunaticPanel.Host/LunaticPanel.Host.csproj" />
+  <Project Path="LunaticPanel.Plugin.Test/LunaticPanel.Plugin.Test.csproj" Id="a427bd3f-1ce3-45f3-b7ad-3071354631f4" />
 </Solution>

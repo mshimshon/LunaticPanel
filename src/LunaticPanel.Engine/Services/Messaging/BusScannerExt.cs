@@ -21,7 +21,7 @@ public static class BusScannerExt
     {
         var engineBusType = typeof(IEngineBusHandler);
         var eventBusType = typeof(IEventBusHandler);
-        var queryBusType = typeof(IQueryBus);
+        var queryBusType = typeof(IQueryBusHandler);
         var assembly = plugin?.GetType()?.Assembly ?? typeof(BusScannerExt).Assembly;
         var toRegister = assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericTypeDefinition)

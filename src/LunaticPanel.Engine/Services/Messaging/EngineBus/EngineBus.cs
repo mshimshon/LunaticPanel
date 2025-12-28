@@ -4,12 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Engine.Services.Messaging.EngineBus;
 
-internal class EngineBusService : IEngineBus
+internal class EngineBus : IEngineBus
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly EngineBusRegistry _engineBusRegistry;
 
-    public EngineBusService(IServiceProvider serviceProvider, EngineBusRegistry engineBusRegistry)
+    public EngineBus(IServiceProvider serviceProvider, EngineBusRegistry engineBusRegistry)
     {
         _serviceProvider = serviceProvider;
         _engineBusRegistry = engineBusRegistry;
@@ -29,7 +29,6 @@ internal class EngineBusService : IEngineBus
                 var pluginService = _serviceProvider.GetRequiredService(serviceType) as IPluginService;
                 var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
                 handlerTasks.Add(ExecuteHandler(engineBusRender, pluginSp, item.HandlerType));
-
             }
             else
                 handlerTasks.Add(ExecuteHandler(engineBusRender, _serviceProvider, item.HandlerType));

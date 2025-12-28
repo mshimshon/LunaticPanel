@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Messaging.QuerySystem.Exceptions;
+using LunaticPanel.Core.Plugin;
 using LunaticPanel.Engine.Application.Messaging.Query;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,7 @@ internal class QueryBus : IQueryBus
     }
 
     public IReadOnlyCollection<string> GetAllQueryIds() => _queryBusRegistry.GetAllAvailableIds();
+
     public async Task<QueryBusMessageResponse> QueryAsync(IQueryBusMessage qry)
     {
         string id = qry.GetId();
@@ -33,17 +35,27 @@ internal class QueryBus : IQueryBus
             var handler = registry.GetRegistryFor(id);
             try
             {
-                var result = await ExecuteHandler(qry, _serviceProvider, handler);
-                return result with { Origin = handler.FullName! };
+                QueryBusMessageResponse result;
+                if (handler.Plugin != default)
+                {
+                    var pluginType = handler.Plugin.GetType();
+                    var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
+                    var pluginService = _serviceProvider.GetRequiredService(serviceType) as IPluginService;
+                    var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
+                    result = await ExecuteHandler(qry, pluginSp, handler.HandlerType);
+                }
+                else
+                    result = await ExecuteHandler(qry, _serviceProvider, handler.HandlerType);
+                return result with { Origin = handler.HandlerType.FullName! };
             }
             catch (QueryBusMessageException ex)
             {
                 // TODO: OPEN TELEMETRY? OR CAP EVENT
-                return new() { Error = ex, Origin = handler.FullName! };
+                return new() { Error = ex, Origin = handler.HandlerType.FullName! };
             }
             catch (Exception ex)
             {
-                return new() { Error = new("INTERNAL", ex.Message), Origin = handler.FullName! };
+                return new() { Error = new("INTERNAL", ex.Message), Origin = handler.HandlerType.FullName! };
             }
 
 

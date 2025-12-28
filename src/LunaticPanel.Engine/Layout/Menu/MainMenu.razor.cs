@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Engine.Layout.Menu.Models;
+using LunaticPanel.Engine.Layout.Menu.QueryDto.Responses;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Engine.Layout.Menu;
@@ -13,12 +14,10 @@ public partial class MainMenu : ComponentBase
         var message = new EngineBusMessage("Engine.Layout.Menu", "Fetch");
         var response = await EngineBus.ExecAsync(message);
         MenuItems = response
-            .Select(p => (p.RenderFragment, p.Data!.GetDataAs<MenuItemMetadataDto>()!))
+            .Select(p => (p.RenderFragment, p.Data!.GetDataAs<MenuElementResponse>()!))
             .Select(p => new MenuElementModel() { Position = p.Item2.Position, Render = p.RenderFragment })
             .OrderBy(p => p.Position)
             .ToList();
         await InvokeAsync(StateHasChanged);
     }
-
-
 }
