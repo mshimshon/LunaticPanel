@@ -8,8 +8,7 @@ using LunaticPanel.Engine.Application.Messaging.Query;
 using LunaticPanel.Engine.Domain.Messaging.Entities;
 using LunaticPanel.Engine.Domain.Messaging.Enums;
 using LunaticPanel.Engine.Services.Messaging.EngineBus;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+using LunaticPanel.Engine.Services.Plugin;
 using System.Reflection;
 
 namespace LunaticPanel.Engine.Services.Messaging;
@@ -42,7 +41,8 @@ public static class BusScannerExt
             }).ToList();
         foreach (var item in toRegister)
         {
-            services.AddTransient(item.HandlerType);
+            if (plugin == default)
+                services.AddTransient(item.HandlerType);
             ToRuntimeRegister.Enqueue(item);
         }
 
@@ -54,6 +54,7 @@ public static class BusScannerExt
         if (ToRuntimeRegister.Count <= 0) return;
         var eventBusregistry = app.Services.GetRequiredService<IEventBusRegistry>();
         var queryBusregistry = app.Services.GetRequiredService<IQueryBusRegistry>();
+        var pluginRegistry = app.Services.GetRequiredService<PluginRegistry>();
         var engineBusregistry = app.Services.GetRequiredService<EngineBusRegistry>();
         do
         {
@@ -63,6 +64,8 @@ public static class BusScannerExt
             else if (item.BusType == EBusType.QueryBus)
                 queryBusregistry.Register(item.Id, item);
             else engineBusregistry.Register(item.Id, item);
+            if (item.Plugin != default)
+                pluginRegistry.GetByEntryType(item.Plugin.GetType()).Services.AddTransient(item.HandlerType);
         } while (ToRuntimeRegister.Count > 0);
     }
 }

@@ -6,8 +6,6 @@ using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Services.Messaging;
 using LunaticPanel.Engine.Services.Messaging.EngineBus;
 using LunaticPanel.Engine.Services.Plugin;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
@@ -55,7 +53,16 @@ public static class Bootstrap
     public static Task RunAsync(Func<WebApplication> webApplication)
     {
         var webApp = webApplication();
+        var pluginRegistry = webApp.Services.GetRequiredService<PluginRegistry>();
+        foreach (var item in Configuration.ActivePlugins)
+        {
+            var collection = new ServiceCollection();
+            item.EntryPoint!.RegisterServices(collection);
+
+            pluginRegistry.Register(new(item.EntryPointType, item.EntryPoint, item.Entity, collection));
+        }
         webApp.RegisterScannedBusHandlers();
+
         return webApp.RunAsync();
     }
 

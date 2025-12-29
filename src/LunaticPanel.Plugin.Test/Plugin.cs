@@ -13,6 +13,6 @@ public class Plugin : IPlugin
     }
     public void RegisterServices(IServiceCollection services)
     {
-
+        services.AddSingleton<MyService>();
     }
 }

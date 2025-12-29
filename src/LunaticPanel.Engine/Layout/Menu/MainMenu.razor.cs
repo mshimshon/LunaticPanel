@@ -30,13 +30,23 @@ public partial class MainMenu : ComponentBase
     }
     public async Task GetPluginMenuItems()
     {
-        var message = new EngineBusMessage("Engine.Layout.Menu", "Fetch");
-        var response = await EngineBus.ExecAsync(message);
-        MenuItems = response
-            .Select(p => (p.RenderFragment, p.Data!.GetDataAs<MenuElementResponse>()!))
-            .Select(p => new MenuElementModel() { Position = p.Item2.Position, Render = p.RenderFragment })
-            .OrderBy(p => p.Position)
-            .ToList();
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            var message = new EngineBusMessage("Engine.Layout.Menu", "Fetch");
+            var response = await EngineBus.ExecAsync(message);
+            MenuItems = response
+                .Select(p => (p.RenderFragment, p.Data!.GetDataAs<MenuElementResponse>()!))
+                .Select(p => new MenuElementModel() { Position = p.Item2.Position, Render = p.RenderFragment })
+                .OrderBy(p => p.Position)
+                .ToList();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+
+
     }
 }

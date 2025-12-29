@@ -1,12 +1,31 @@
-﻿namespace LunaticPanel.Engine.Services.Plugin;
+﻿using LunaticPanel.Core;
+
+namespace LunaticPanel.Engine.Services.Plugin;
 
 internal class PluginRegistry
 {
-    private static readonly ICollection<PluginItem> _plugins = new List<PluginItem>();
+    private static readonly ICollection<PluginRegistryDescriptor> _plugins = new List<PluginRegistryDescriptor>();
+    private static readonly IDictionary<IPlugin, IServiceProvider> _rootProviders = new Dictionary<IPlugin, IServiceProvider>();
 
     private static readonly Object _lock = new();
+    public void AddRootProvider(IPlugin plugin, IServiceProvider serviceProvider)
+    {
+        lock (_lock)
+        {
+            if (!_rootProviders.ContainsKey(plugin))
+                _rootProviders.Add(plugin, serviceProvider);
+        }
+    }
 
-    public void Register(PluginItem item)
+    public IServiceProvider? GetRootProvider(IPlugin plugin)
+    {
+        lock (_lock)
+        {
+            if (!_rootProviders.ContainsKey(plugin)) return default;
+            return _rootProviders[plugin];
+        }
+    }
+    public void Register(PluginRegistryDescriptor item)
     {
         lock (_lock)
         {
@@ -16,7 +35,7 @@ internal class PluginRegistry
     }
 
 
-    public PluginItem GetByEntryType(Type plugin)
+    public PluginRegistryDescriptor GetByEntryType(Type plugin)
     {
         lock (_lock)
         {
