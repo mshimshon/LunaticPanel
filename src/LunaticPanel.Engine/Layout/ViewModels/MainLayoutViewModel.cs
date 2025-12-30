@@ -1,7 +1,7 @@
 ﻿using StatePulse.Net;
 using SwizzleV;
 
-namespace LunaticPanel.Engine.Layout.ViewModels;
+namespace LunaticPanel.Engine.Presentation.Layout.ViewModels;
 
 public class MainLayoutViewModel
 {

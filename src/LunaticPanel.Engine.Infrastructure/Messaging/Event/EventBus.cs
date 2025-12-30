@@ -1,9 +1,10 @@
 ﻿using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Plugin;
 using LunaticPanel.Engine.Application.Circuit;
+using LunaticPanel.Engine.Application.Messaging.Event;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LunaticPanel.Engine.Application.Messaging.Event;
+namespace LunaticPanel.Engine.Infrastructure.Messaging.Event;
 
 internal class EventBus : IEventBus
 {

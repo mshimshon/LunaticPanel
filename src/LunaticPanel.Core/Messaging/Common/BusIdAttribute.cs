@@ -2,9 +2,11 @@
 
 public abstract class BusIdAttribute : Attribute
 {
-    public string Id { get; }
-    protected BusIdAttribute(string id)
+    public MessageKey Key { get; }
+    protected BusIdAttribute(string plugin, string action) : this($"{plugin}.{action}") { }
+    protected BusIdAttribute(string key) : this(new MessageKey(key)) { }
+    protected BusIdAttribute(MessageKey key)
     {
-        Id = id;
+        Key = key;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Engine.Layout.Pulses.Actions;
+﻿namespace LunaticPanel.Engine.Presentation.Layout.Pulses.Actions;
 
 public record MainMenuItemLoadedAction
 {

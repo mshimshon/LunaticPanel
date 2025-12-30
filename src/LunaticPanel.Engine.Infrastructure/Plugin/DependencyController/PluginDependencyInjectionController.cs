@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
-namespace LunaticPanel.Engine.Application.Plugin.Services.DependencyController;
+namespace LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
 
 public class PluginDependencyInjectionController
 {

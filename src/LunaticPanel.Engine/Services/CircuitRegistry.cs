@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Application.Circuit.Contracts;
 using LunaticPanel.Engine.Layout;
 
-namespace LunaticPanel.Engine.Services;
+namespace LunaticPanel.Engine.Presentation.Services;
 
 public sealed class CircuitRegistry : ICircuitControl
 {

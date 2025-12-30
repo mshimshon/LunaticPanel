@@ -1,8 +1,8 @@
 ﻿using LunaticPanel.Core;
 using LunaticPanel.Core.Plugin;
-using LunaticPanel.Engine.Application.Plugin.Services.DependencyController;
+using LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
 
-namespace LunaticPanel.Engine.Application.Plugin.Services;
+namespace LunaticPanel.Engine.Presentation.Services.Plugin;
 
 public class PluginServiceResolver<TPlugin> : IPluginService<TPlugin>
     where TPlugin : IPlugin

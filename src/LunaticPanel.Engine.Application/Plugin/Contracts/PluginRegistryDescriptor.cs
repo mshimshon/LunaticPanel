@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Domain.Plugin.Entites;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LunaticPanel.Engine.Application.Plugin;
+namespace LunaticPanel.Engine.Application.Plugin.Contracts;
 
 public sealed record PluginRegistryDescriptor(
         Type EntryType,

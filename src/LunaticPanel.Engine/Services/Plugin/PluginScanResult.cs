@@ -1,6 +1,6 @@
 ﻿using McMaster.NETCore.Plugins;
 
-namespace LunaticPanel.Engine.Services.Plugin;
+namespace LunaticPanel.Engine.Presentation.Services.Plugin;
 
 public record PluginScanResult(string PluginId,
     Version Version,

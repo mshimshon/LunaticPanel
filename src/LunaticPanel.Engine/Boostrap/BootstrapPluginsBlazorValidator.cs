@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System.Reflection;
 
-namespace LunaticPanel.Engine.Boostrap;
+namespace LunaticPanel.Engine.Presentation.Boostrap;
 
 internal static class BootstrapPluginsBlazorValidator
 {

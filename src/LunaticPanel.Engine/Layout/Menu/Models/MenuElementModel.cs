@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Layout.Menu.Models;
+namespace LunaticPanel.Engine.Presentation.Layout.Menu.Models;
 
 public record MenuElementModel
 {

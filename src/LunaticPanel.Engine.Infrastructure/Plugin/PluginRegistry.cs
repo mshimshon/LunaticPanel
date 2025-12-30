@@ -1,4 +1,7 @@
-﻿namespace LunaticPanel.Engine.Application.Plugin;
+﻿using LunaticPanel.Engine.Application.Plugin;
+using LunaticPanel.Engine.Application.Plugin.Contracts;
+
+namespace LunaticPanel.Engine.Infrastructure.Plugin;
 
 public class PluginRegistry : IPluginRegistry
 {
@@ -24,5 +27,11 @@ public class PluginRegistry : IPluginRegistry
         }
     }
 
-
+    public IReadOnlyCollection<PluginRegistryDescriptor> GetAll()
+    {
+        lock (_lock)
+        {
+            return _plugins.ToList().AsReadOnly();
+        }
+    }
 }

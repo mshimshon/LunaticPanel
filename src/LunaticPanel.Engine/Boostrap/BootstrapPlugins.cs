@@ -2,9 +2,9 @@
 using LunaticPanel.Engine.Domain.Plugin.Entites;
 using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
-using LunaticPanel.Engine.Services.Plugin;
+using LunaticPanel.Engine.Presentation.Services.Plugin;
 using Microsoft.Extensions.DependencyInjection;
-namespace LunaticPanel.Engine.Boostrap;
+namespace LunaticPanel.Engine.Presentation.Boostrap;
 
 internal static class BootstrapPlugins
 {

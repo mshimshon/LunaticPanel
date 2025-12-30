@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Engine.Boostrap;
+﻿namespace LunaticPanel.Engine.Presentation.Boostrap;
 
 public static class BootstrapPluginsServices
 {

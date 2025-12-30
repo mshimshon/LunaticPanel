@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Messaging.EngineBus;
-using LunaticPanel.Engine.Layout.Menu.Models;
-using LunaticPanel.Engine.Layout.Menu.QueryDto.Responses;
+using LunaticPanel.Engine.Presentation.Layout.Menu.Models;
+using LunaticPanel.Engine.Presentation.Layout.Menu.QueryDto.Responses;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Engine.Layout.Menu;

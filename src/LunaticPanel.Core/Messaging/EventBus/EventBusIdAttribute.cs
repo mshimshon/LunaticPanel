@@ -8,8 +8,9 @@ public sealed class EventBusIdAttribute : BusIdAttribute
 {
 
     public bool IsCrossCircuitReceiver { get; set; } = false;
-
-    public EventBusIdAttribute(string id) : base(id)
+    public EventBusIdAttribute(string plugin, string action) : base(plugin, action) { }
+    public EventBusIdAttribute(string key) : base(key) { }
+    public EventBusIdAttribute(MessageKey key) : base(key)
     {
 
     }

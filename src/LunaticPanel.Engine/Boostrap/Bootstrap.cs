@@ -1,19 +1,20 @@
 ﻿using LunaticPanel.Core.Plugin;
 using LunaticPanel.Engine.Application.Circuit;
-using LunaticPanel.Engine.Application.Plugin.Services;
-using LunaticPanel.Engine.Application.Plugin.Services.DependencyController;
+using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Services.Messaging;
+using LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
+using LunaticPanel.Engine.Presentation.Services;
+using LunaticPanel.Engine.Presentation.Services.Messaging;
+using LunaticPanel.Engine.Presentation.Services.Plugin;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
 using SwizzleV;
 using System.Reflection;
 using System.Text.Json;
-using static LunaticPanel.Engine.Boostrap.BootstrapPlugins;
-using static LunaticPanel.Engine.Boostrap.BootstrapPluginsBlazorValidator;
-namespace LunaticPanel.Engine.Boostrap;
+using static LunaticPanel.Engine.Presentation.Boostrap.BootstrapPlugins;
+using static LunaticPanel.Engine.Presentation.Boostrap.BootstrapPluginsBlazorValidator;
+namespace LunaticPanel.Engine.Presentation.Boostrap;
 
 public static class Bootstrap
 {
@@ -36,7 +37,7 @@ public static class Bootstrap
         LoadConfiguration();
         var webApp = webApplicationBuilder();
         var services = webApp.Services;
-        services.AddServices().SealServiceCollection();
+        services.AddServices();
         services.ProcessPlugins();
         EnsurePluginValidatedBlazor();
         BootstrapPluginDescriptor[] activePluginsEntryPoint = Configuration.ActivePlugins.ToArray();
@@ -50,7 +51,7 @@ public static class Bootstrap
     public static Task RunAsync(Func<WebApplication> webApplication)
     {
         var webApp = webApplication();
-        var pluginRegistry = webApp.Services.GetRequiredService<PluginRegistry>();
+        var pluginRegistry = webApp.Services.GetRequiredService<IPluginRegistry>();
         foreach (var item in Configuration.ActivePlugins)
         {
             var collection = new ServiceCollection();
@@ -102,11 +103,6 @@ public static class Bootstrap
 #pragma warning restore CA1416 // Validate platform compatibility
     }
 
-    public static void SealServiceCollection(this IServiceCollection services)
-    {
-        HostServiceStorage.HostServices = services.ToList().AsReadOnly();
-
-    }
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddEngineInfrastructure();
@@ -133,11 +129,8 @@ public static class Bootstrap
                 ];
         });
 
-        services.AddSingleton<PluginRegistry>();
         services.AddSwizzleV();
         services.ScanBusHandlers();
-        services.AddScoped<PluginDependencyInjectionController>();
-
         foreach (var item in services.ScanBusHandlers())
             services.AddTransient(item.HandlerType);
 

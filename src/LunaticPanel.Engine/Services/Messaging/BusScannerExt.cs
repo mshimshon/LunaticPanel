@@ -6,12 +6,12 @@ using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Engine.Application.Messaging.EngineBus;
 using LunaticPanel.Engine.Application.Messaging.Event;
 using LunaticPanel.Engine.Application.Messaging.Query;
+using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Domain.Messaging.Entities;
 using LunaticPanel.Engine.Domain.Messaging.Enums;
-using LunaticPanel.Engine.Services.Plugin;
 using System.Reflection;
 
-namespace LunaticPanel.Engine.Services.Messaging;
+namespace LunaticPanel.Engine.Presentation.Services.Messaging;
 
 public static class BusScannerExt
 {
@@ -37,7 +37,7 @@ public static class BusScannerExt
                 else if (queryBusType.IsAssignableFrom(t))
                     eventType = EBusType.QueryBus;
 
-                return new BusHandlerDescriptorEntity(attr.Id, t, eventType, plugin);
+                return new BusHandlerDescriptorEntity(attr.Key.ToString(), t, eventType, plugin);
             }).ToList();
 
         foreach (var item in toRegister)
@@ -51,7 +51,7 @@ public static class BusScannerExt
         if (ToRuntimeRegister.Count <= 0) return;
         var eventBusregistry = app.Services.GetRequiredService<IEventBusRegistry>();
         var queryBusregistry = app.Services.GetRequiredService<IQueryBusRegistry>();
-        var pluginRegistry = app.Services.GetRequiredService<PluginRegistry>();
+        var pluginRegistry = app.Services.GetRequiredService<IPluginRegistry>();
         var engineBusregistry = app.Services.GetRequiredService<IEngineBusRegistry>();
         do
         {
