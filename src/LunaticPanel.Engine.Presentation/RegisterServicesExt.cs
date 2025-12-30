@@ -6,7 +6,6 @@ using LunaticPanel.Engine.Presentation.Services.Messaging;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
-using SwizzleV;
 
 namespace LunaticPanel.Engine.Presentation;
 
@@ -43,7 +42,6 @@ public static class RegisterServicesExt
                 ];
         });
 
-        services.AddSwizzleV();
         services.ScanBusHandlers();
         foreach (var item in services.ScanBusHandlers())
             services.AddTransient(item.HandlerType);

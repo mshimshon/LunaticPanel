@@ -1,12 +1,11 @@
-﻿
-@if (!_viewModel.Loading)
+﻿@if (!ViewModel.Loading)
 {
     <MudGrid>
-    @if (_viewModel.MenuItems.Count > 0)
+        @if (ViewModel.MenuItems.Count > 0)
     {
              <MudItem xs="12">
 
-                @foreach (var item in _viewModel.MenuItems)
+                @foreach (var item in ViewModel.MenuItems)
                 {
                     @item.Render
                 }
