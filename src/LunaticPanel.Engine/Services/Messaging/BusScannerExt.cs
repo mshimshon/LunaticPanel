@@ -16,13 +16,13 @@ namespace LunaticPanel.Engine.Services.Messaging;
 public static class BusScannerExt
 {
     public static Queue<BusHandlerDescriptorEntity> ToRuntimeRegister { get; set; } = new();
-    public static void ScanBusHandlers(this IServiceCollection services, IPlugin? plugin = default)
+    public static List<BusHandlerDescriptorEntity> ScanBusHandlers(this IServiceCollection hostServices, IPlugin? plugin = default)
     {
         var engineBusType = typeof(IEngineBusHandler);
         var eventBusType = typeof(IEventBusHandler);
         var queryBusType = typeof(IQueryBusHandler);
         var assembly = plugin?.GetType()?.Assembly ?? typeof(BusScannerExt).Assembly;
-        var toRegister = assembly.GetTypes()
+        List<BusHandlerDescriptorEntity> toRegister = assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericTypeDefinition)
             .Where(t => engineBusType.IsAssignableFrom(t) || eventBusType.IsAssignableFrom(t) || queryBusType.IsAssignableFrom(t))
             .Select(t =>
@@ -39,13 +39,10 @@ public static class BusScannerExt
 
                 return new BusHandlerDescriptorEntity(attr.Id, t, eventType, plugin);
             }).ToList();
-        foreach (var item in toRegister)
-        {
-            if (plugin == default)
-                services.AddTransient(item.HandlerType);
-            ToRuntimeRegister.Enqueue(item);
-        }
 
+        foreach (var item in toRegister)
+            ToRuntimeRegister.Enqueue(item);
+        return toRegister;
     }
 
 

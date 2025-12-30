@@ -1,6 +1,5 @@
 ﻿using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Plugin;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Engine.Services.Messaging.EngineBus;
 
@@ -27,8 +26,7 @@ internal class EngineBus : IEngineBus
                 var pluginType = item.Plugin.GetType();
                 var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
                 var pluginService = _serviceProvider.GetRequiredService(serviceType) as IPluginService;
-                var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
-                handlerTasks.Add(ExecuteHandler(engineBusRender, pluginSp, item.HandlerType));
+                handlerTasks.Add(ExecuteHandler(engineBusRender, pluginService!, item.HandlerType));
             }
             else
                 handlerTasks.Add(ExecuteHandler(engineBusRender, _serviceProvider, item.HandlerType));

@@ -39,8 +39,7 @@ internal class EventBus : IEventBus
                 var pluginType = item.Plugin.GetType();
                 var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
                 var pluginService = _serviceProvider.GetRequiredService(serviceType) as IPluginService;
-                var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
-                handlerTasks.Add(ExecuteHandler(evt, pluginSp, item.HandlerType));
+                handlerTasks.Add(ExecuteHandler(evt, pluginService!, item.HandlerType));
             }
             else
                 handlerTasks.Add(ExecuteHandler(evt, _serviceProvider, item.HandlerType));

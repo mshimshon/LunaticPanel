@@ -41,8 +41,7 @@ internal class QueryBus : IQueryBus
                     var pluginType = handler.Plugin.GetType();
                     var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
                     var pluginService = _serviceProvider.GetRequiredService(serviceType) as IPluginService;
-                    var pluginSp = pluginService!.GetRequired<IServiceProvider>()!;
-                    result = await ExecuteHandler(qry, pluginSp, handler.HandlerType);
+                    result = await ExecuteHandler(qry, pluginService!, handler.HandlerType);
                 }
                 else
                     result = await ExecuteHandler(qry, _serviceProvider, handler.HandlerType);

@@ -6,6 +6,7 @@ using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Services.Messaging;
 using LunaticPanel.Engine.Services.Messaging.EngineBus;
 using LunaticPanel.Engine.Services.Plugin;
+using LunaticPanel.Engine.Services.Plugin.DependencyController;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
@@ -38,13 +39,11 @@ public static class Bootstrap
         var webApp = webApplicationBuilder();
         var services = webApp.Services;
         services.AddServices().SealServiceCollection();
-        services.ScanBusHandlers();
         services.ProcessPlugins();
         EnsurePluginValidatedBlazor();
         BootstrapPluginDescriptor[] activePluginsEntryPoint = Configuration.ActivePlugins.ToArray();
         services.ScanAndAddBusHandlersFor(activePluginsEntryPoint);
-        services.AddPluginServiceResolverFor(activePluginsEntryPoint);
-
+        services.AddPluginServices(activePluginsEntryPoint);
         Routes.AdditionalAssemblies = activePluginsEntryPoint.Select(p => p.EntryPointType.Assembly).ToList();
         SaveConfiguration();
         return webApp.Build();
@@ -78,7 +77,6 @@ public static class Bootstrap
         }
 
     }
-
     private static void SaveConfiguration()
     {
         var configJson = JsonSerializer.Serialize(Configuration);
@@ -142,27 +140,35 @@ public static class Bootstrap
         services.AddSingleton<PluginRegistry>();
         services.AddSwizzleV();
         services.ScanBusHandlers();
+        services.AddScoped<PluginDependencyInjectionController>();
+
+        foreach (var item in services.ScanBusHandlers())
+            services.AddTransient(item.HandlerType);
+
         return services;
     }
-
-
     private static void ScanAndAddBusHandlersFor(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
     {
-        foreach (var item in plugins)
-            services.ScanBusHandlers(item.EntryPoint);
+        foreach (var plugin in plugins)
+        {
+            ServiceCollection localBusHandlerCollection = new();
+            foreach (var srv in services.ScanBusHandlers(plugin.EntryPoint))
+                localBusHandlerCollection.AddTransient(srv.HandlerType);
+            PluginDependencyInjectionController.AddPluginServices(plugin.EntryPointType, localBusHandlerCollection.ToList());
+        }
+
+
     }
-    private static void AddPluginServiceResolverFor(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
+    private static void AddPluginServices(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
     {
         foreach (var item in plugins)
         {
-            var pluginType = item.EntryPointType;
-            var serviceType = typeof(IPluginService<>).MakeGenericType(pluginType);
-            var resolverType = typeof(PluginServiceResolver<>).MakeGenericType(pluginType);
+            var serviceType = typeof(IPluginService<>).MakeGenericType(item.EntryPointType);
+            var resolverType = typeof(PluginServiceResolver<>).MakeGenericType(item.EntryPointType);
             services.AddScoped(serviceType, resolverType);
+            var srv = new ServiceCollection();
+            item.EntryPoint!.RegisterServices(srv);
+            PluginDependencyInjectionController.AddPluginServices(item.EntryPointType, srv.ToList());
         }
     }
-
-
-
-
 }

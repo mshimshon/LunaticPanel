@@ -7,7 +7,6 @@ public sealed record PluginRegistryDescriptor(
         Type EntryType,
         IPlugin Entry,
         PluginEntity Plugin,
-        IServiceProvider BootupProvider,
         ServiceCollection Services
     )
 {
