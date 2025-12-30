@@ -1,10 +1,4 @@
 ﻿using LunaticPanel.Core;
-using LunaticPanel.Core.Messaging.Common;
-using LunaticPanel.Core.Messaging.EngineBus;
-using LunaticPanel.Core.Messaging.EventBus;
-using LunaticPanel.Core.Messaging.EventBus.Exceptions;
-using LunaticPanel.Core.Messaging.QuerySystem;
-using LunaticPanel.Core.Messaging.QuerySystem.Exceptions;
 using McMaster.NETCore.Plugins;
 
 namespace LunaticPanel.Engine.Services.Plugin;
@@ -16,36 +10,7 @@ public sealed class PluginScanner
 
     private static readonly Type[] _sharedTypes =
     {
-        typeof(IPlugin),
 
-        typeof(BusMessageData),
-        typeof(BusMessageDataType),
-        typeof(IBusMessage),
-
-        typeof(IEventBus),
-        typeof(EventBusIdAttribute),
-        typeof(EventBusMessage),
-        typeof(IEventBusHandler),
-        typeof(IEventBusMessage),
-        typeof(EventBusMessageException),
-        typeof(EventBusNotFoundException),
-
-        typeof(IEngineBus),
-        typeof(BusIdAttribute),
-        typeof(EngineBusMessage),
-        typeof(EngineBusResponse),
-        typeof(IEngineBusHandler),
-        typeof(IEngineBusMessage),
-
-        typeof(IQueryBus),
-        typeof(IQueryBusHandler),
-        typeof(IQueryBusMessage),
-        typeof(QueryBusIdAttribute),
-        typeof(QueryBusMessage),
-        typeof(QueryBusMessageResponse),
-        typeof(QueryBusMessageException),
-        typeof(QueryBusMultipleHandlerException),
-        typeof(QueryBusNotFoundException),
     };
 
     public PluginScanner(string installedRoot, params string[] specificFiles)

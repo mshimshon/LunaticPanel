@@ -1,14 +1,15 @@
 ﻿using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Plugin;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace LunaticPanel.Engine.Services.Messaging.EngineBus;
+namespace LunaticPanel.Engine.Application.Messaging.EngineBus;
 
 internal class EngineBus : IEngineBus
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly EngineBusRegistry _engineBusRegistry;
+    private readonly IEngineBusRegistry _engineBusRegistry;
 
-    public EngineBus(IServiceProvider serviceProvider, EngineBusRegistry engineBusRegistry)
+    public EngineBus(IServiceProvider serviceProvider, IEngineBusRegistry engineBusRegistry)
     {
         _serviceProvider = serviceProvider;
         _engineBusRegistry = engineBusRegistry;

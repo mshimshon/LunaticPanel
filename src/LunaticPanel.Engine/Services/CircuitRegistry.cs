@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Engine.Infrastructure.Circuit;
+﻿using LunaticPanel.Engine.Application.Circuit;
+using LunaticPanel.Engine.Application.Circuit.Contracts;
 using LunaticPanel.Engine.Layout;
 
 namespace LunaticPanel.Engine.Services;

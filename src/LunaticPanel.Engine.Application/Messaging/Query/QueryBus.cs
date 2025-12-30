@@ -1,10 +1,9 @@
 ﻿using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Messaging.QuerySystem.Exceptions;
 using LunaticPanel.Core.Plugin;
-using LunaticPanel.Engine.Application.Messaging.Query;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LunaticPanel.Engine.Infrastructure.Messaging.Query;
+namespace LunaticPanel.Engine.Application.Messaging.Query;
 
 internal class QueryBus : IQueryBus
 {

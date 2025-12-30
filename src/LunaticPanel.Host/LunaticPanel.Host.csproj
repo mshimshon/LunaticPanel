@@ -8,13 +8,10 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LunaticPanel.Engine\LunaticPanel.Engine.csproj" />
+		<ProjectReference Include="..\LunaticPanel.Engine\LunaticPanel.Engine.Presentation.csproj" />
 		<ProjectReference Include="..\LunaticPanel.Plugin.Test\LunaticPanel.Plugin.Test.csproj" ReferenceOutputAssembly="false" />
 	</ItemGroup>
-	<Target Name="CopyPluginOutput"
-			AfterTargets="Build"
-			DependsOnTargets="Build"
-			Condition="'$(Configuration)' == 'Debug'">
+	<Target Name="CopyPluginOutput" AfterTargets="Build" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Debug'">
 
 		<PropertyGroup>
 			<PluginProjectDir>..\LunaticPanel.Plugin.Test</PluginProjectDir>
@@ -25,9 +22,6 @@
 			<PluginDll Include="$(PluginOutputDir)\LunaticPanel.Plugin.Test.dll" />
 		</ItemGroup>
 
-		<Copy
-		  SourceFiles="@(PluginDll)"
-		  DestinationFolder="$(OutputPath)\Plugins\LunaticPanel.Plugin.Test\1.0.0"
-		  SkipUnchangedFiles="true" />
+		<Copy SourceFiles="@(PluginDll)" DestinationFolder="$(OutputPath)\Plugins\LunaticPanel.Plugin.Test\1.0.0" SkipUnchangedFiles="true" />
 	</Target>
 </Project>

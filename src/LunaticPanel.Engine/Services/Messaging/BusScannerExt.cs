@@ -3,11 +3,11 @@ using LunaticPanel.Core.Messaging.Common;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
+using LunaticPanel.Engine.Application.Messaging.EngineBus;
 using LunaticPanel.Engine.Application.Messaging.Event;
 using LunaticPanel.Engine.Application.Messaging.Query;
 using LunaticPanel.Engine.Domain.Messaging.Entities;
 using LunaticPanel.Engine.Domain.Messaging.Enums;
-using LunaticPanel.Engine.Services.Messaging.EngineBus;
 using LunaticPanel.Engine.Services.Plugin;
 using System.Reflection;
 
@@ -52,7 +52,7 @@ public static class BusScannerExt
         var eventBusregistry = app.Services.GetRequiredService<IEventBusRegistry>();
         var queryBusregistry = app.Services.GetRequiredService<IQueryBusRegistry>();
         var pluginRegistry = app.Services.GetRequiredService<PluginRegistry>();
-        var engineBusregistry = app.Services.GetRequiredService<EngineBusRegistry>();
+        var engineBusregistry = app.Services.GetRequiredService<IEngineBusRegistry>();
         do
         {
             var item = ToRuntimeRegister.Dequeue();

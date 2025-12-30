@@ -1,12 +1,10 @@
-﻿using LunaticPanel.Core.Messaging.EngineBus;
-using LunaticPanel.Core.Plugin;
+﻿using LunaticPanel.Core.Plugin;
+using LunaticPanel.Engine.Application.Circuit;
+using LunaticPanel.Engine.Application.Plugin.Services;
+using LunaticPanel.Engine.Application.Plugin.Services.DependencyController;
 using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Infrastructure.Circuit;
 using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Services.Messaging;
-using LunaticPanel.Engine.Services.Messaging.EngineBus;
-using LunaticPanel.Engine.Services.Plugin;
-using LunaticPanel.Engine.Services.Plugin.DependencyController;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
@@ -114,8 +112,6 @@ public static class Bootstrap
         services.AddEngineInfrastructure();
         services.AddScoped<CircuitRegistry>();
         services.AddScoped<ICircuitControl, CircuitRegistry>();
-        services.AddSingleton<EngineBusRegistry>();
-        services.AddScoped<IEngineBus, EngineBus>();
         services.AddMudServices(config =>
         {
             config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;

@@ -5,13 +5,13 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	  <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-	  <Title>LunaticPanel.Engine</Title>
-	  <AssemblyName>LunaticPanel.Engine</AssemblyName>
-	  <RootNamespace>LunaticPanel.Engine</RootNamespace>
+	  <Title>LunaticPanel.Engine.Presentation</Title>
+	  <AssemblyName>LunaticPanel.Engine.Presentation</AssemblyName>
+	  <RootNamespace>LunaticPanel.Engine.Presentation</RootNamespace>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	  <Copyright>Maksim Shimshon © 2026</Copyright>
-	  <Product>LunaticPanel.Engine</Product>
+	  <Product>LunaticPanel.Engine.Presentation</Product>
 	  <Authors>Maksim Shimshon</Authors>
 	  <Version>0.1.0</Version>
 	  <Description>LunaticPanel is a modular Blazor dashboard framework for building unified, server-oriented control applications with centralized orchestration and predictable composition.</Description>
@@ -34,6 +34,7 @@
 </ItemGroup>
 
 <ItemGroup>
+  <Folder Include="Extensions\" />
   <Folder Include="Layout\Menu\QueryDto\Requests\" />
   <Folder Include="Layout\Pulses\Effects\" />
   <Folder Include="Layout\Pulses\Reducers\" />

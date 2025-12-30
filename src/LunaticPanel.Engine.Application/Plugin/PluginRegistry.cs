@@ -1,6 +1,6 @@
-﻿namespace LunaticPanel.Engine.Services.Plugin;
+﻿namespace LunaticPanel.Engine.Application.Plugin;
 
-internal class PluginRegistry
+public class PluginRegistry : IPluginRegistry
 {
     private static readonly ICollection<PluginRegistryDescriptor> _plugins = new List<PluginRegistryDescriptor>();
 

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace LunaticPanel.Engine.Services.Plugin.DependencyController;
+namespace LunaticPanel.Engine.Application.Plugin.Services.DependencyController;
 
 public class PluginDependencyInjectionController
 {

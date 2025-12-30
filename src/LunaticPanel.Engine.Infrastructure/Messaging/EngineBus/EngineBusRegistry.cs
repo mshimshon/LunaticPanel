@@ -1,9 +1,10 @@
 ﻿using LunaticPanel.Core.Messaging.EventBus.Exceptions;
+using LunaticPanel.Engine.Application.Messaging.EngineBus;
 using LunaticPanel.Engine.Domain.Messaging.Entities;
 
-namespace LunaticPanel.Engine.Services.Messaging.EngineBus;
+namespace LunaticPanel.Engine.Infrastructure.Messaging.EngineBus;
 
-internal class EngineBusRegistry
+internal class EngineBusRegistry : IEngineBusRegistry
 {
     private readonly Dictionary<string, List<EngineBusHandlerDescriptorEntity>> _internalRegistryEventTypes = new();
     private readonly object _lock = new();

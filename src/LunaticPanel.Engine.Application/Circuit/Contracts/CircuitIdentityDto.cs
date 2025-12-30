@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Engine.Infrastructure.Circuit;
+﻿namespace LunaticPanel.Engine.Application.Circuit.Contracts;
 
 public sealed record CircuitIdentityDto
 {
