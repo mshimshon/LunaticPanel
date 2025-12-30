@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Core.Plugin;
+﻿namespace LunaticPanel.Core;
 
 public interface IPluginService : IServiceProvider
 {

@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Core.Messaging.EngineBus;
+﻿using CoreMap;
+using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Engine.Application;
@@ -28,6 +29,7 @@ public static class RegisterServicesExt
         services.AddScoped<IQueryBus, QueryBus>();
         services.AddScoped<IEngineBus, EngineBus>();
         services.AddScoped<PluginDependencyInjectionController>();
+        services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Transient; }, [typeof(RegisterServicesExt)]);
         return services;
     }
 }

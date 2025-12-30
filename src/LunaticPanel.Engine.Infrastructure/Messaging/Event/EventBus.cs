@@ -1,5 +1,5 @@
-﻿using LunaticPanel.Core.Messaging.EventBus;
-using LunaticPanel.Core.Plugin;
+﻿using LunaticPanel.Core;
+using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Engine.Application.Circuit;
 using LunaticPanel.Engine.Application.Messaging.Event;
 using Microsoft.Extensions.DependencyInjection;

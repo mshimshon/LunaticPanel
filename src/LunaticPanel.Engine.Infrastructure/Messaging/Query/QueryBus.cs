@@ -1,6 +1,6 @@
-﻿using LunaticPanel.Core.Messaging.QuerySystem;
+﻿using LunaticPanel.Core;
+using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Messaging.QuerySystem.Exceptions;
-using LunaticPanel.Core.Plugin;
 using LunaticPanel.Engine.Application.Messaging.Query;
 using Microsoft.Extensions.DependencyInjection;
 

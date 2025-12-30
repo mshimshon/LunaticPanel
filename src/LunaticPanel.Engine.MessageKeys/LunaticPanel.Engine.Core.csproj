@@ -10,8 +10,4 @@
     <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UI\" />
-  </ItemGroup>
-
 </Project>

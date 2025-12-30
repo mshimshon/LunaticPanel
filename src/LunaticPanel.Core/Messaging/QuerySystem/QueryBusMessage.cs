@@ -4,21 +4,19 @@ namespace LunaticPanel.Core.Messaging.QuerySystem;
 
 public sealed class QueryBusMessage : IQueryBusMessage
 {
+    private readonly MessageKey _messageKey;
 
     public BusMessageData? Data { get; }
-    public string EventBaseId { get; }
-    public string EventType { get; }
     public Guid Id { get; }
-    public QueryBusMessage(string queryBaseId, string queryType, object? data = default)
+    public QueryBusMessage(MessageKey messageKey, object? data = default)
     {
         Id = Guid.NewGuid();
         if (data != default)
             Data = new BusMessageData(data);
-        EventBaseId = queryBaseId;
-        EventType = queryType;
+        _messageKey = messageKey;
     }
 
-    public string GetId() => $"{EventBaseId}.{EventType}";
+    public string GetId() => $"{_messageKey}";
 
     public BusMessageData? GetData() => Data;
     public Guid GetMessageId() => Id;

@@ -1,4 +1,4 @@
-using LunaticPanel.Engine;
+using LunaticPanel.Engine.Presentation;
 using LunaticPanel.Engine.Presentation.Boostrap;
 
 var app = Bootstrap.Load(() =>

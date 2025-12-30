@@ -8,7 +8,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LunaticPanel.Engine\LunaticPanel.Engine.Presentation.csproj" />
+		<ProjectReference Include="..\LunaticPanel.Engine.Presentation\LunaticPanel.Engine.Presentation.csproj" />
 		<ProjectReference Include="..\LunaticPanel.Plugin.Test\LunaticPanel.Plugin.Test.csproj" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 	<Target Name="CopyPluginOutput" AfterTargets="Build" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Debug'">

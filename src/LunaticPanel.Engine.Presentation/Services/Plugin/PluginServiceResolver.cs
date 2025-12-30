@@ -1,5 +1,4 @@
 ﻿using LunaticPanel.Core;
-using LunaticPanel.Core.Plugin;
 using LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
 
 namespace LunaticPanel.Engine.Presentation.Services.Plugin;

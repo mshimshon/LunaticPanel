@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Engine.Presentation.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Layout;
+namespace LunaticPanel.Engine.Presentation.Layout;
 
 public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
 {

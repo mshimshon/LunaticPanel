@@ -1,15 +1,8 @@
-﻿using LunaticPanel.Core.Plugin;
-using LunaticPanel.Engine.Application.Circuit;
+﻿using LunaticPanel.Core;
 using LunaticPanel.Engine.Application.Plugin;
-using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
-using LunaticPanel.Engine.Presentation.Services;
 using LunaticPanel.Engine.Presentation.Services.Messaging;
 using LunaticPanel.Engine.Presentation.Services.Plugin;
-using MudBlazor;
-using MudBlazor.Services;
-using StatePulse.Net;
-using SwizzleV;
 using System.Reflection;
 using System.Text.Json;
 using static LunaticPanel.Engine.Presentation.Boostrap.BootstrapPlugins;
@@ -37,13 +30,12 @@ public static class Bootstrap
         LoadConfiguration();
         var webApp = webApplicationBuilder();
         var services = webApp.Services;
-        services.AddServices();
+        services.AddLunaticPanelServices();
         services.ProcessPlugins();
         EnsurePluginValidatedBlazor();
         BootstrapPluginDescriptor[] activePluginsEntryPoint = Configuration.ActivePlugins.ToArray();
         services.ScanAndAddBusHandlersFor(activePluginsEntryPoint);
         services.AddPluginServices(activePluginsEntryPoint);
-        Routes.AdditionalAssemblies = activePluginsEntryPoint.Select(p => p.EntryPointType.Assembly).ToList();
         SaveConfiguration();
         return webApp.Build();
     }
@@ -103,39 +95,7 @@ public static class Bootstrap
 #pragma warning restore CA1416 // Validate platform compatibility
     }
 
-    private static IServiceCollection AddServices(this IServiceCollection services)
-    {
-        services.AddEngineInfrastructure();
-        services.AddScoped<CircuitRegistry>();
-        services.AddScoped<ICircuitControl, CircuitRegistry>();
-        services.AddMudServices(config =>
-        {
-            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
-            config.SnackbarConfiguration.PreventDuplicates = false;
-            config.SnackbarConfiguration.NewestOnTop = false;
-            config.SnackbarConfiguration.ShowCloseIcon = true;
-            config.SnackbarConfiguration.VisibleStateDuration = 10000;
-            config.SnackbarConfiguration.HideTransitionDuration = 500;
-            config.SnackbarConfiguration.ShowTransitionDuration = 500;
-            config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
-        });
 
-        services.AddStatePulseServices(o =>
-        {
-            o.ScanAssemblies = [
-                typeof(RegisterServicesExt),
-                typeof(Application.RegisterServicesExt),
-                typeof(Infrastructure.RegisterServicesExt)
-                ];
-        });
-
-        services.AddSwizzleV();
-        services.ScanBusHandlers();
-        foreach (var item in services.ScanBusHandlers())
-            services.AddTransient(item.HandlerType);
-
-        return services;
-    }
     private static void ScanAndAddBusHandlersFor(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
     {
         foreach (var plugin in plugins)

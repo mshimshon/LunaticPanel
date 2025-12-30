@@ -6,23 +6,22 @@ public sealed class EngineBusMessage : IEngineBusMessage
 {
     private readonly BusMessageData? _data;
     private readonly Guid _messageId;
-    private readonly string _baseId;
-    private readonly string _type;
+    private readonly MessageKey _messageKey;
+
     //private readonly RenderFragment _renderFragment;
 
-    public EngineBusMessage(string baseId, string type)
+    public EngineBusMessage(MessageKey messageKey)
     {
         _messageId = Guid.NewGuid();
-        _baseId = baseId;
-        _type = type;
+        _messageKey = messageKey;
     }
 
-    public EngineBusMessage(string baseId, string type, object data) : this(baseId, type)
+    public EngineBusMessage(MessageKey messageKey, object data) : this(messageKey)
     {
         _data = new(data);
     }
 
-    public string GetId() => $"{_baseId}.{_type}";
+    public string GetId() => _messageKey.ToString();
 
     public BusMessageData? GetData() => _data;
     public Guid GetMessageId() => _messageId;
