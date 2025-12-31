@@ -29,7 +29,10 @@ public static class RegisterServicesExt
         services.AddScoped<IQueryBus, QueryBus>();
         services.AddScoped<IEngineBus, EngineBus>();
         services.AddScoped<PluginDependencyInjectionController>();
-        services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Transient; }, [typeof(RegisterServicesExt)]);
+        services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Transient; }, [
+            typeof(RegisterServicesExt),
+            typeof(Application.RegisterServicesExt)
+            ]);
         return services;
     }
 }

@@ -17,7 +17,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj">
+		  <Private>false</Private>
+	  </ProjectReference>
+
+	  <ProjectReference Include="..\LunaticPanel.Engine.MessageKeys\LunaticPanel.Engine.Core.csproj" >
+		  <Private>false</Private>
+	  </ProjectReference>
+
   </ItemGroup>
 
 </Project>

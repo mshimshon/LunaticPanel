@@ -3,6 +3,7 @@
     <File Path="Directory.Packages.props" />
     <File Path="README.md" />
   </Folder>
+  <Project Path="LunaticPanel.Core.Extenstions/LunaticPanel.Core.Extenstions.csproj" Id="3dafa52a-39c3-47d1-9514-884bda122db7" />
   <Project Path="LunaticPanel.Core/LunaticPanel.Core.csproj" />
   <Project Path="LunaticPanel.Engine.Application/LunaticPanel.Engine.Application.csproj" />
   <Project Path="LunaticPanel.Engine.Domain/LunaticPanel.Engine.Domain.csproj" />

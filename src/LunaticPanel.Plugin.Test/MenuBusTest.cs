@@ -1,9 +1,10 @@
 ﻿using LunaticPanel.Core.Messaging.EngineBus;
+using LunaticPanel.Engine.Core.UI;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Plugin.Test;
 
-[EngineBusId("Engine.Layout.Menu.Fetch")]
+[EngineBusId(MainMenuQueries.GetElements)]
 public class MenuBusTest : IEngineBusHandler
 {
     private readonly MyService _myService;
