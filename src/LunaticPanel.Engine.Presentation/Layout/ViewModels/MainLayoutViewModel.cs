@@ -1,5 +1,4 @@
 ﻿using StatePulse.Net;
-using SwizzleV;
 
 namespace LunaticPanel.Engine.Presentation.Layout.ViewModels;
 
@@ -11,18 +10,15 @@ public class MainLayoutViewModel
         get => _loading;
         private set
         {
-            if (value != _loading)
-                _ = OnUpdate();
+            //if (value != _loading)
+            //    _ = OnUpdate();
             _loading = value;
         }
     }
-    private readonly ISwizzleViewModel _swizzleViewModel;
     private readonly IStatePulse _statePulse;
 
-    private async Task OnUpdate() => await _swizzleViewModel.SpreadChanges(() => this);
-    public MainLayoutViewModel(ISwizzleViewModel swizzleViewModel, IStatePulse statePulse)
+    public MainLayoutViewModel(IStatePulse statePulse)
     {
-        _swizzleViewModel = swizzleViewModel;
         _statePulse = statePulse;
     }
 

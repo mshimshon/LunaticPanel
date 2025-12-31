@@ -29,12 +29,11 @@
 	<PackageReference Include="McMaster.NETCore.Plugins" />
 	<PackageReference Include="MudBlazor" />
 	<PackageReference Include="StatePulse.Net" />
-	<PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+	<PackageReference Include="MediHater" />
 </ItemGroup>
 
 <ItemGroup>
   <Folder Include="Extensions\" />
-  <Folder Include="Layout\Menu\QueryDto\Requests\" />
   <Folder Include="Layout\Pulses\Effects\" />
   <Folder Include="Layout\Pulses\Reducers\" />
   <Folder Include="Layout\Pulses\States\" />

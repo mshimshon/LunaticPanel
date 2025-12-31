@@ -1,19 +1,19 @@
-﻿using LunaticPanel.Core.Messaging.EngineBus;
-using LunaticPanel.Engine.Core.UI;
-using LunaticPanel.Engine.Presentation.Layout.Menu.Models;
-using LunaticPanel.Engine.Presentation.Layout.Menu.QueryDto.Responses;
+﻿using LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.Actions;
+using LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.States;
+using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Presentation.Layout.Menu.ViewModels;
 
 public class MainMenuViewModel
 {
-    private readonly IEngineBus _engineBus;
-    public IReadOnlyCollection<MenuElementModel> MenuItems { get; set; } = new List<MenuElementModel>();
-    public Func<Task> SpreadChanges { get; set; }
+    private readonly IStatePulse _statePulse;
+    private readonly IDispatcher _dispatcher;
+
+    public Func<Task>? SpreadChanges { get; set; }
     private bool _loading = true;
     public bool Loading
     {
-        get => _loading;
+        get => _loading || State.IsLoading;
         set
         {
             bool refresh = value != _loading;
@@ -22,11 +22,12 @@ public class MainMenuViewModel
                 _ = SpreadChanges?.Invoke();
         }
     }
-
-    public MainMenuViewModel(IEngineBus engineBus)
+    public MainMenuState State => _statePulse.StateOf<MainMenuState>(() => this, OnUpdate);
+    public async Task OnUpdate() => SpreadChanges?.Invoke();
+    public MainMenuViewModel(IStatePulse statePulse, IDispatcher dispatcher)
     {
-        _engineBus = engineBus;
-
+        _statePulse = statePulse;
+        _dispatcher = dispatcher;
     }
 
     public async Task LoadAsync()
@@ -37,22 +38,14 @@ public class MainMenuViewModel
 
     public async Task GetPluginMenuItems()
     {
-        await Task.Delay(1000);
         try
         {
-            var message = new EngineBusMessage(new(MainMenuQueries.GetElements));
-            var response = await _engineBus.ExecAsync(message);
-            MenuItems = response
-                .Select(p => (p.RenderFragment, p.Data!.GetDataAs<MenuElementResponse>()!))
-                .Select(p => new MenuElementModel() { Position = p.Item2.Position, Render = p.RenderFragment })
-                .OrderBy(p => p.Position)
-                .ToList();
+            await _dispatcher.Prepare<FetchMenuElementsAction>().DispatchAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+
+            throw;
         }
-
-
     }
 }

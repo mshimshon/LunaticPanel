@@ -1,21 +1,19 @@
 ﻿@if (!ViewModel.Loading)
 {
     <MudGrid>
-        @if (ViewModel.MenuItems.Count > 0)
-    {
+        @if (ViewModel.State.MenuElements.Count > 0)
+        {
              <MudItem xs="12">
-
-                @foreach (var item in ViewModel.MenuItems)
+                @foreach (var item in ViewModel.State.MenuElements)
                 {
                     @item.Render
                 }
-
-        </MudItem>
+            </MudItem>
         }
         else
         {
 
-            <MudItem xs="12" Class="pa-3">
+            <MudItem xs="12" Class="ma-3">
                 <MudAlert Severity="Severity.Warning">
                     No Menu Available
                 </MudAlert>

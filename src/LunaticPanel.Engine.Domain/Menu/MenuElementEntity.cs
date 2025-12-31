@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Presentation.Layout.Menu.Models;
+namespace LunaticPanel.Engine.Domain.Menu;
 
-public record MenuElementModel
+public record MenuElementEntity
 {
     public int Position { get; set; }
     public RenderFragment Render { get; init; } = default!;

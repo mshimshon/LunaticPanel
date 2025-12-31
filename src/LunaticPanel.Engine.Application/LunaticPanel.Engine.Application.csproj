@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
 		<PackageReference Include="CoreMap" />
+		<PackageReference Include="Medihater.Abstractions" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />

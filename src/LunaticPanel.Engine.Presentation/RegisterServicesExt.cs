@@ -3,6 +3,7 @@ using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Presentation.Layout.Menu.ViewModels;
 using LunaticPanel.Engine.Presentation.Services;
 using LunaticPanel.Engine.Presentation.Services.Messaging;
+using MedihatR;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
@@ -39,9 +40,18 @@ public static class RegisterServicesExt
             o.DispatchOrderBehavior = StatePulse.Net.Configuration.DispatchOrdering.ReducersFirst;
             o.ScanAssemblies = [
                 typeof(RegisterServicesExt),
+                                typeof(LunaticPanel.Engine.Application.RegisterServicesExt),
+                typeof(LunaticPanel.Engine.Infrastructure.RegisterServicesExt),
                 ];
         });
-
+        services.AddMedihaterServices(o =>
+        {
+            o.AssembliesScan = [
+                typeof(RegisterServicesExt),
+                typeof(LunaticPanel.Engine.Application.RegisterServicesExt),
+                typeof(LunaticPanel.Engine.Infrastructure.RegisterServicesExt),
+             ];
+        });
         services.ScanBusHandlers();
         foreach (var item in services.ScanBusHandlers())
             services.AddTransient(item.HandlerType);

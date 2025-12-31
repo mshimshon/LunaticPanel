@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Engine.Presentation.Layout.Menu.QueryDto.Responses;
+﻿namespace LunaticPanel.Engine.Application.UI.MainMenu.Queries.Dto.Responses;
 
 internal record MenuElementResponse
 {
