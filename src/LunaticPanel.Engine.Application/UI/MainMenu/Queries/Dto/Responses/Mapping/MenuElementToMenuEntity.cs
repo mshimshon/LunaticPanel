@@ -1,6 +1,5 @@
 ﻿using CoreMap;
-using LunaticPanel.Engine.Application.UI.MainMenu.Queries.Dto.Responses;
-using LunaticPanel.Engine.Domain.Menu;
+using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 
 namespace LunaticPanel.Engine.Application.UI.MainMenu.Queries.Dto.Responses.Mapping;
 

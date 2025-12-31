@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Domain.Menu;
+﻿using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.States;

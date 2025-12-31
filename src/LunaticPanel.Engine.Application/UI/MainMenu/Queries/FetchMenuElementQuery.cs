@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Domain.Menu;
+﻿using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using MedihatR;
 
 namespace LunaticPanel.Engine.Application.UI.MainMenu.Queries;

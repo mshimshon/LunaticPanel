@@ -3,7 +3,7 @@ using LunaticPanel.Core.Extenstions;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Engine.Application.UI.MainMenu.Queries.Dto.Responses;
 using LunaticPanel.Engine.Core.UI;
-using LunaticPanel.Engine.Domain.Menu;
+using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using MedihatR;
 namespace LunaticPanel.Engine.Application.UI.MainMenu.Queries.Handlers;
 
@@ -23,7 +23,7 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         try
         {
             var responses = await _engineBus
-                .Execute(MainMenuQueries.GetElements)
+                .Execute(MainMenuKeys.Queries.GetElements)
                 .ReadWithData(msg => _coreMap.Map(msg.GetDataAs<MenuElementResponse>()!).To<MenuElementEntity>());
             foreach (var item in responses)
                 try
