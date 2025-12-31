@@ -1,5 +1,7 @@
-﻿
-<Router AppAssembly="typeof(Routes).Assembly" NotFoundPage="typeof(Pages.NotFound)" @rendermode="RenderMode.InteractiveServer">
+﻿@using LunaticPanel.Engine.Presentation.Boostrap
+
+<Router AppAssembly="typeof(Routes).Assembly" NotFoundPage="typeof(Pages.NotFound)" @rendermode="RenderMode.InteractiveServer" 
+AdditionalAssemblies=@Bootstrap.AdditionalAssemblies>
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)"  />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />

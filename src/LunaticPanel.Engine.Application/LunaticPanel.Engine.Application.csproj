@@ -12,6 +12,7 @@
 		<PackageReference Include="Medihater.Abstractions" />
 	</ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LunaticPanel.Core.Extenstions\LunaticPanel.Core.Extenstions.csproj" />
     <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
     <ProjectReference Include="..\LunaticPanel.Engine.Domain\LunaticPanel.Engine.Domain.csproj" />
     <ProjectReference Include="..\LunaticPanel.Engine.MessageKeys\LunaticPanel.Engine.Core.csproj" />

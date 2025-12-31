@@ -17,9 +17,8 @@ public class MenuBusTest : IEngineBusHandler
     {
         RenderFragment fragment = builder =>
         {
-            builder.OpenElement(0, "div");
-            builder.AddContent(1, _myService.ID.ToString());
-            builder.CloseElement();
+            builder.OpenComponent<Menu>(0);
+            builder.CloseComponent();
         };
 
         return Task.FromResult(new EngineBusResponse(fragment, new MenuElementResponse() { Position = 10 }));

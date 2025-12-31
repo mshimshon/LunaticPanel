@@ -28,5 +28,7 @@ await Bootstrap.RunAsync(() =>
     app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
+
+
     return app;
 });

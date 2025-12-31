@@ -2,15 +2,11 @@
 
 namespace LunaticPanel.Core.Extenstions;
 
-public sealed record EngineBusMsgResponseWithData<TData>
+public record EngineBusMsgResponseWithData<TData> : EngineBusMsgResponseNoData
 {
-    public string Origin { get; init; } = default!;
-    public RenderFragment Render { get; init; } = default!;
-    public TData Data { get; init; } = default!;
-    public EngineBusMsgResponseWithData(TData data, RenderFragment render, string origin)
+    public TData Data { get; init; }
+    public EngineBusMsgResponseWithData(TData data, RenderFragment render, string origin) : base(render, origin)
     {
         Data = data;
-        Render = render;
-        Origin = origin;
     }
 }
