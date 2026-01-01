@@ -2,19 +2,19 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup>
-	  <PackageVersion Include="DotNetCore.CAP" Version="10.0.0" />
-	  <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.0" />
-	  <PackageVersion Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.0" />
-	  <PackageVersion Include="DotNetCore.CAP.OpenTelemetry" Version="10.0.0" />
-	  <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
-	  <PackageVersion Include="MudBlazor" Version="8.15.0" />
-	  <PackageVersion Include="StatePulse.Net" Version="2.0.1" />
-	  <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
-	  <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
-	  <PackageVersion Include="MediHater" Version="1.0.0" />
-	  <PackageVersion Include="Medihater.Abstractions" Version="1.0.0" />
-	  <PackageVersion Include="CoreMap" Version="1.1.0" />
+    <PackageVersion Include="CommandLineParser" Version="2.9.1" />
+    <PackageVersion Include="DotNetCore.CAP" Version="10.0.0" />
+    <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.0" />
+    <PackageVersion Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.0" />
+    <PackageVersion Include="DotNetCore.CAP.OpenTelemetry" Version="10.0.0" />
+    <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
+    <PackageVersion Include="MudBlazor" Version="8.15.0" />
+    <PackageVersion Include="StatePulse.Net" Version="2.0.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
+    <PackageVersion Include="MediHater" Version="1.0.0" />
+    <PackageVersion Include="Medihater.Abstractions" Version="1.0.0" />
+    <PackageVersion Include="CoreMap" Version="1.1.0" />
   </ItemGroup>
 </Project>

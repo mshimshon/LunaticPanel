@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.States;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Presentation.Layout.Menu.ViewModels;
+namespace LunaticPanel.Engine.Presentation.Layout.Menu;
 
 public class MainMenuViewModel
 {

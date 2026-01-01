@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Core;
 
@@ -6,6 +7,7 @@ namespace LunaticPanel.Core;
 public interface IPlugin
 {
     void Initialize();
+    void Configure(IConfiguration configuration);
     void RegisterServices(IServiceCollection services);
     void Disable();
     void Enable();

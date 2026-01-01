@@ -11,6 +11,8 @@ namespace LunaticPanel.Engine.Presentation.Boostrap;
 
 public static class Bootstrap
 {
+    private const string ConfigNameKey = "LunaticPanel";
+
     public static string PluginDirectory { get; private set; } = default!;
     public static string ConfigDirectory { get; private set; } = default!;
     internal static BootstrapConfiguration Configuration { get; private set; } = new();
@@ -24,11 +26,13 @@ public static class Bootstrap
     public static WebApplication Load(Func<WebApplicationBuilder> webApplicationBuilder)
     {
 
+
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
-        DefinePath();
+        var webApp = webApplicationBuilder();
+        DefinePath(webApp.Configuration);
         DetectPlugins();
         LoadConfiguration();
-        var webApp = webApplicationBuilder();
+
         var services = webApp.Services;
         services.AddLunaticPanelServices();
         services.ProcessPlugins();
@@ -50,6 +54,8 @@ public static class Bootstrap
             item.EntryPoint!.RegisterServices(collection);
 
             pluginRegistry.Register(new(item.EntryPointType, item.EntryPoint, item.Entity, collection));
+            item.EntryPoint!.Configure(webApp.Configuration);
+
         }
         webApp.RegisterScannedBusHandlers();
 
@@ -74,12 +80,21 @@ public static class Bootstrap
         var configFile = Path.Combine(ConfigDirectory, "bootstrap.json");
         File.WriteAllText(configFile, configJson);
     }
-    private static void DefinePath()
+    private static void DefinePath(IConfiguration configuration)
     {
+        string? configuredPluginPath = configuration.GetSection(ConfigNameKey).GetValue<string>("PluginDirectory");
         var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        PluginDirectory = Path.Combine(appDataDir, "LunaticPanel", "Plugins");
-        ConfigDirectory = Path.Combine(appDataDir, "LunaticPanel");
+        if (configuredPluginPath == default)
+            PluginDirectory = Path.Combine(appDataDir, ConfigNameKey, "Plugins");
+        else
+            PluginDirectory = configuredPluginPath;
 
+        string? configuredConfigPath = configuration.GetSection(ConfigNameKey).GetValue<string>("ConfigDirectory");
+
+        if (configuredConfigPath == default)
+            ConfigDirectory = Path.Combine(appDataDir, ConfigNameKey);
+        else
+            ConfigDirectory = configuredConfigPath;
         EnsurePathCreated(PluginDirectory, ConfigDirectory);
 
     }

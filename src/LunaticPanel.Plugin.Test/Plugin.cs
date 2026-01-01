@@ -1,10 +1,16 @@
 ﻿using LunaticPanel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Plugin.Test;
 
 public class Plugin : IPlugin
 {
+    public void Configure(IConfiguration configuration)
+    {
+
+    }
+
     public void Disable() { }
     public void Enable() { }
     public void Initialize()

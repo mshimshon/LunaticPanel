@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Engine.Application.Circuit;
 using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Presentation.Layout.Menu.ViewModels;
+using LunaticPanel.Engine.Presentation.Layout.Menu;
+using LunaticPanel.Engine.Presentation.Pages.Dashboard;
 using LunaticPanel.Engine.Presentation.Services;
 using LunaticPanel.Engine.Presentation.Services.Messaging;
 using MedihatR;
@@ -17,6 +18,7 @@ public static class RegisterServicesExt
         services.AddEngineInfrastructure();
 
         services.AddScoped<MainMenuViewModel>();
+        services.AddScoped<DashboardViewModel>();
 
         services.AddScoped<CircuitRegistry>();
         services.AddScoped<ICircuitControl, CircuitRegistry>();

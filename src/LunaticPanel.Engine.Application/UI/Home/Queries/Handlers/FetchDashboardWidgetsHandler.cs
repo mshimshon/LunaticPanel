@@ -8,7 +8,7 @@ using MedihatR;
 
 namespace LunaticPanel.Engine.Application.UI.Home.Queries.Handlers;
 
-internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidgetsQuery, List<WidgetElementEntity>>
+internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidgetsQuery, List<WidgetElementEntity>?>
 {
     private readonly IEngineBus _engineBus;
     private readonly ICoreMap _coreMap;
@@ -18,7 +18,7 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
         _engineBus = engineBus;
         _coreMap = coreMap;
     }
-    public async Task<List<WidgetElementEntity>> Handle(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
+    public async Task<List<WidgetElementEntity>?> Handle(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
     {
         List<WidgetElementEntity> result = new();
         try

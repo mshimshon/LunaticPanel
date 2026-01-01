@@ -1,0 +1,32 @@
+﻿@page "/"
+
+<MudGrid>
+    @if (ViewModel.Loading)
+    {
+        <MudItem xs="12">
+            <MudItem xs="12" Class="ma-3">
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+            </MudItem>
+        </MudItem>
+    }
+    else
+    {
+        @if (ViewModel.State.Widgets == default || ViewModel.State.Widgets.Count <= 0)
+        {
+            <MudItem xs="12" Class="ma-3">
+                <MudAlert Severity="Severity.Warning">
+                    No Dashboard Element Available
+                </MudAlert>
+            </MudItem>
+        }
+        else
+        {
+            @foreach (var widget in ViewModel.State.Widgets)
+            {
+                <MudItem xs=@((int)widget.Size) Class="ma-3">
+                    @widget.Render
+                </MudItem>
+            }
+        }
+    }
+    </MudGrid>
