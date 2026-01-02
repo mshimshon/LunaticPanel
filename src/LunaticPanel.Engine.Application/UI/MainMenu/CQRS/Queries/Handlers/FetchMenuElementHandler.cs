@@ -1,11 +1,12 @@
 ﻿using CoreMap;
 using LunaticPanel.Core.Extenstions;
 using LunaticPanel.Core.Messaging.EngineBus;
-using LunaticPanel.Engine.Application.UI.MainMenu.Queries.Dto.Responses;
+using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries;
+using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
 using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using MedihatR;
-namespace LunaticPanel.Engine.Application.UI.MainMenu.Queries.Handlers;
+namespace LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Handlers;
 
 internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, List<MenuElementEntity>>
 {

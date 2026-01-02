@@ -1,6 +1,6 @@
 ﻿namespace LunaticPanel.Engine.Core;
 
-internal class BaseInfo
+internal static class BaseInfo
 {
     public const string AssemblyName = "LunaticPanel.Engine";
 }

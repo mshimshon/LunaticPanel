@@ -7,12 +7,12 @@ using LunaticPanel.Engine.Keys.System;
 namespace LunaticPanel.Engine.Application.Plugin.API.Queries.Handlers;
 
 [QueryBusId(PluginKeys.Queries.FetchAll)]
-internal class FetchPluginsHandle : IQueryBusHandler
+internal class FetchPluginsHandler : IQueryBusHandler
 {
     private readonly IPluginRegistry _pluginRegistry;
     private readonly ICoreMap _coreMap;
 
-    public FetchPluginsHandle(IPluginRegistry pluginRegistry, ICoreMap coreMap)
+    public FetchPluginsHandler(IPluginRegistry pluginRegistry, ICoreMap coreMap)
     {
         _pluginRegistry = pluginRegistry;
         _coreMap = coreMap;
@@ -21,7 +21,7 @@ internal class FetchPluginsHandle : IQueryBusHandler
     public Task<QueryBusMessageResponse> HandleAsync(IQueryBusMessage qry)
     {
         var resultDataUncleaned = _pluginRegistry.GetAll();
-        var resultDataCleaned = resultDataUncleaned.Select(p => _coreMap.Map(p).To<PluginInfoDto>()).ToArray();
+        var resultDataCleaned = resultDataUncleaned.Select(p => _coreMap.Map(p).To<PluginInfoResponse>()).ToArray();
         var busData = new BusMessageData(resultDataCleaned);
         var result = new QueryBusMessageResponse(busData);
         return Task.FromResult(result);

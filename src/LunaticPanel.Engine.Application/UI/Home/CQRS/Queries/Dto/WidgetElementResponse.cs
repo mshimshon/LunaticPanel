@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Engine.Application.UI.Home.Queries.Dto;
+﻿namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto;
 
 internal record WidgetElementResponse
 {

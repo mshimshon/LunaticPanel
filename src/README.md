@@ -2,6 +2,12 @@
 [![Build](https://github.com/mshimshon/MaksimShimshon.Webmin.Module.GameServerManager/actions/workflows/ci.yml/badge.svg)](https://github.com/mshimshon/MaksimShimshon.Webmin.Module.GameServerManager/actions/workflows/ci.yml)
 [![Deploy](https://github.com/mshimshon/MaksimShimshon.Webmin.Module.GameServerManager/actions/workflows/deploy.yml/badge.svg)](https://github.com/mshimshon/MaksimShimshon.Webmin.Module.GameServerManager/actions/workflows/deploy.yml)
 
+
+Information:
+Project Application Layer /API/ = Bus Handlers/Request for Query/Events External Access
+Project Application Layer /CQRS/ = Internal Medihater CQRS pattern.
+
+
 # Plugin Compatibility and Core Versioning Policy
 
 ## 2. Core Principles

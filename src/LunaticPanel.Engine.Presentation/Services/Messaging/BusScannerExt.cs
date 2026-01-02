@@ -6,7 +6,6 @@ using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Engine.Application.Messaging.EngineBus;
 using LunaticPanel.Engine.Application.Messaging.Event;
 using LunaticPanel.Engine.Application.Messaging.Query;
-using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Domain.Messaging.Entities;
 using LunaticPanel.Engine.Domain.Messaging.Enums;
 using System.Reflection;
@@ -51,7 +50,6 @@ public static class BusScannerExt
         if (ToRuntimeRegister.Count <= 0) return;
         var eventBusregistry = app.Services.GetRequiredService<IEventBusRegistry>();
         var queryBusregistry = app.Services.GetRequiredService<IQueryBusRegistry>();
-        var pluginRegistry = app.Services.GetRequiredService<IPluginRegistry>();
         var engineBusregistry = app.Services.GetRequiredService<IEngineBusRegistry>();
         do
         {
@@ -61,8 +59,6 @@ public static class BusScannerExt
             else if (item.BusType == EBusType.QueryBus)
                 queryBusregistry.Register(item.Id, item);
             else engineBusregistry.Register(item.Id, item);
-            if (item.Plugin != default)
-                pluginRegistry.GetByEntryType(item.Plugin.GetType()).Services.AddTransient(item.HandlerType);
         } while (ToRuntimeRegister.Count > 0);
     }
 }

@@ -1,7 +1,8 @@
 ﻿using CoreMap;
+using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 
-namespace LunaticPanel.Engine.Application.UI.MainMenu.Queries.Dto.Responses.Mapping;
+namespace LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses.Mapping;
 
 public class MenuElementToMenuEntity : ICoreMapHandler<MenuElementResponse, MenuElementEntity>
 {

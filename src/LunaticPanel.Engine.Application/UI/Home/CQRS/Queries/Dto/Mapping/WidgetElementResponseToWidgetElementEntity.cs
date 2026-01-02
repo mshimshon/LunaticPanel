@@ -1,8 +1,9 @@
 ﻿using CoreMap;
+using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Enums;
 
-namespace LunaticPanel.Engine.Application.UI.Home.Queries.Dto.Mapping;
+namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto.Mapping;
 
 internal class WidgetElementResponseToWidgetElementEntity : ICoreMapHandler<WidgetElementResponse, WidgetElementEntity>
 {

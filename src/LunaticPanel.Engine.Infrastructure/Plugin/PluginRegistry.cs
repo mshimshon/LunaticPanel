@@ -1,15 +1,15 @@
 ﻿using LunaticPanel.Engine.Application.Plugin;
-using LunaticPanel.Engine.Application.Plugin.Contracts;
+using LunaticPanel.Engine.Application.Plugin.Models;
 
 namespace LunaticPanel.Engine.Infrastructure.Plugin;
 
 public class PluginRegistry : IPluginRegistry
 {
-    private static readonly ICollection<PluginRegistryDescriptor> _plugins = new List<PluginRegistryDescriptor>();
+    private static readonly ICollection<PluginRegistryDescriptorModel> _plugins = new List<PluginRegistryDescriptorModel>();
 
     private static readonly Object _lock = new();
 
-    public void Register(PluginRegistryDescriptor item)
+    public void Register(PluginRegistryDescriptorModel item)
     {
         lock (_lock)
         {
@@ -19,7 +19,7 @@ public class PluginRegistry : IPluginRegistry
     }
 
 
-    public PluginRegistryDescriptor GetByEntryType(Type plugin)
+    public PluginRegistryDescriptorModel GetByEntryType(Type plugin)
     {
         lock (_lock)
         {
@@ -27,7 +27,7 @@ public class PluginRegistry : IPluginRegistry
         }
     }
 
-    public IReadOnlyCollection<PluginRegistryDescriptor> GetAll()
+    public IReadOnlyCollection<PluginRegistryDescriptorModel> GetAll()
     {
         lock (_lock)
         {

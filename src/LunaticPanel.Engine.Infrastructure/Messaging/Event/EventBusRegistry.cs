@@ -11,6 +11,15 @@ internal class EventBusRegistry : IEventBusRegistry
     private readonly Dictionary<string, List<EventBusHandlerDescriptorEntity>> _internalRegistryEventTypes = new();
     private readonly object _lock = new();
 
+    public IReadOnlyList<EventBusHandlerDescriptorEntity> GetAllAvailable()
+    {
+        lock (_lock)
+        {
+            return _internalRegistryEventTypes.SelectMany(p => p.Value).ToList().AsReadOnly();
+        }
+
+    }
+
     public IReadOnlyList<string> GetAllAvailableIds()
     {
         lock (_lock)

@@ -17,8 +17,5 @@
     <ProjectReference Include="..\LunaticPanel.Engine.Domain\LunaticPanel.Engine.Domain.csproj" />
     <ProjectReference Include="..\LunaticPanel.Engine.MessageKeys\LunaticPanel.Engine.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Plugin\Services\" />
-  </ItemGroup>
 
 </Project>
