@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Application.UI.MainMenu.Queries;
+﻿using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries;
 using LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.Actions;
 using MedihatR;
 using StatePulse.Net;

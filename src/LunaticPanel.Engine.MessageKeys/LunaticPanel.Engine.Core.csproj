@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	  <Title>$(AssemblyName)</Title>
-	  <Version>0.1.0</Version>
+	  <Version>0.1.1</Version>
 	  <Company>Maksim Shimshon</Company>
 	  <Description>Core Package for Lunatic Panel's PLugin</Description>
 	  <Copyright>Maksim Shimshon (c) 2026</Copyright>
