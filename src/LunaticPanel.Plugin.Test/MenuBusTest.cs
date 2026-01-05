@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Plugin.Test;
 
-[EngineBusId(MainMenuKeys.Queries.GetElements)]
+[EngineBusId(MainMenuKeys.UI.GetElements)]
 public class MenuBusTest : IEngineBusHandler
 {
     private readonly MyService _myService;

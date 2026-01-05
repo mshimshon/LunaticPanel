@@ -1,6 +1,10 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <GlobalVersion>0.1.700</GlobalVersion>
+    <GlobalCompany>Maksim Shimshon</GlobalCompany>
+    <GlobalAuthors>Maksim Shimshon</GlobalAuthors>
+    <GlobalCopyright>Maksim Shimshon © 2026</GlobalCopyright>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
@@ -10,11 +14,16 @@
     <PackageVersion Include="DotNetCore.CAP.OpenTelemetry" Version="10.0.0" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageVersion Include="MudBlazor" Version="8.15.0" />
-    <PackageVersion Include="StatePulse.Net" Version="2.0.1" />
+    <PackageVersion Include="StatePulse.Net" Version="2.0.52" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.0.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
     <PackageVersion Include="MediHater" Version="1.0.0" />
     <PackageVersion Include="Medihater.Abstractions" Version="1.0.0" />
     <PackageVersion Include="CoreMap" Version="1.1.0" />
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.20" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="10.0.20" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
   </ItemGroup>
 </Project>

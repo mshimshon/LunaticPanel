@@ -1,4 +1,6 @@
-﻿namespace LunaticPanel.Engine.Presentation.Boostrap;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace LunaticPanel.Engine.Presentation.Boostrap;
 
 public static class BootstrapPluginsServices
 {

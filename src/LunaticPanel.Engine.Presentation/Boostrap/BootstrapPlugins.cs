@@ -3,7 +3,7 @@ using LunaticPanel.Engine.Domain.Plugin.Entites;
 using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 using LunaticPanel.Engine.Presentation.Services.Plugin;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 namespace LunaticPanel.Engine.Presentation.Boostrap;
 
 internal static class BootstrapPlugins
@@ -39,7 +39,7 @@ internal static class BootstrapPlugins
         }
     }
 
-    public static void ProcessPlugins(this IServiceCollection services)
+    public static void ProcessPlugins(this IServiceCollection services, IConfiguration configuration)
     {
         var knownCopy = Configuration.KnownPlugins.Select(p => p with { }).ToList();
         Configuration.KnownPlugins.Clear();
@@ -60,7 +60,7 @@ internal static class BootstrapPlugins
                 continue;
             }
 
-            TryActivatePlugin(plugin);
+            TryActivatePlugin(plugin, configuration.GetSection(plugin.Entity.Identity.PackageId));
         }
         AddMisingPlugins(knownCopy);
         Configuration.ActivePlugins = Configuration.KnownPlugins.Where(p => p.Entity.Lifecycle.State == PluginState.Active && p.EntryPoint != default).ToList();
@@ -92,11 +92,12 @@ internal static class BootstrapPlugins
 
     }
 
-    private static void TryActivatePlugin(BootstrapPluginDescriptor plugin)
+    private static void TryActivatePlugin(BootstrapPluginDescriptor plugin, IConfiguration configuration)
     {
         try
         {
-            plugin.EntryPoint?.Initialize();
+            plugin.EntryPoint!.Configure(configuration);
+            plugin.EntryPoint!.Initialize();
             AddActivatedPlugin(plugin);
         }
         catch (Exception ex)

@@ -1,7 +1,6 @@
 ﻿using CoreMap;
-using LunaticPanel.Core.Extenstions;
+using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Messaging.EngineBus;
-using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries;
 using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
 using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
@@ -24,7 +23,7 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         try
         {
             var responses = await _engineBus
-                .Execute(MainMenuKeys.Queries.GetElements)
+                .Execute(MainMenuKeys.UI.GetElements)
                 .ReadWithData(msg => _coreMap.Map(msg.GetDataAs<MenuElementResponse>()!).To<MenuElementEntity>());
             foreach (var item in responses)
                 try

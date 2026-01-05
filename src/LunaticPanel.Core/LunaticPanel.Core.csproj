@@ -5,20 +5,28 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Title>$(AssemblyName)</Title>
-    <Version>0.1.1</Version>
-    <Company>Maksim Shimshon</Company>
-    <Description>Core Package for Lunatic Panel's PLugin</Description>
-    <Copyright>Maksim Shimshon (c) 2026</Copyright>
+	  <Version>$(GlobalVersion)</Version>
+	  <Company>$(GlobalCompany)</Company>
+	  <Copyright>$(GlobalCopyright)</Copyright>
+	  <Authors>$(GlobalAuthors)</Authors>
+	<Description>Core Package for Lunatic Panel's PLugin</Description>
     <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <SupportedPlatform Include="browser" />
-  </ItemGroup>
-
-  <ItemGroup>
+	<!--  <ItemGroup>
+	<Analyzer Include="..\LunaticPanel.Core.Analyzer\bin\$(Configuration)\netstandard2.0\LunaticPanel.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	<None Include="..\LunaticPanel.Core.Analyzer\bin\$(Configuration)\netstandard2.0\LunaticPanel.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+-->
+	<ItemGroup>
+		<ProjectReference Include="..\LunaticPanel.Core.Analyzer\LunaticPanel.Core.Analyzer.csproj"
+						  ReferenceOutputAssembly="false"
+						  OutputItemType="Analyzer"
+						  PrivateAssets="all" />
+	</ItemGroup>
+	
+	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
   </ItemGroup>
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Core.Extenstions;
+namespace LunaticPanel.Core.Extensions;
 
 public record EngineBusMsgResponseWithData<TData> : EngineBusMsgResponseNoData
 {

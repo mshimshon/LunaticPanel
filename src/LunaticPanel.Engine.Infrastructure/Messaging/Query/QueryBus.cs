@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core;
+using LunaticPanel.Core.Messaging.Common;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Messaging.QuerySystem.Exceptions;
 using LunaticPanel.Engine.Application.Messaging.Query;
@@ -24,7 +25,9 @@ internal class QueryBus : IQueryBus
         return handler!.HandleAsync(qry);
     }
 
-    public IReadOnlyCollection<string> GetAllQueryIds() => _queryBusRegistry.GetAllAvailableIds();
+    public IReadOnlyCollection<string> GetAvailableKeys() => _queryBusRegistry.GetAllAvailableIds();
+    public bool HasKeyFor(MessageKey messageKey) => HasKeyFor(messageKey.ToString());
+    public bool HasKeyFor(string key) => _queryBusRegistry.HasKey(key);
 
     public async Task<QueryBusMessageResponse> QueryAsync(IQueryBusMessage qry)
     {

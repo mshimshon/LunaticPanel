@@ -8,4 +8,5 @@ public interface IQueryBusRegistry
     IReadOnlyList<string> GetAllAvailableIds();
     IReadOnlyList<QueryBusHandlerDescriptorEntity> GetAllAvailable();
     void Register(string id, BusHandlerDescriptorEntity handlerEntity);
+    bool HasKey(string id);
 }

@@ -1,7 +1,6 @@
 ﻿using CoreMap;
-using LunaticPanel.Core.Extenstions;
+using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Messaging.EngineBus;
-using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries;
 using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto;
 using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
@@ -25,8 +24,8 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
         try
         {
             var responses = await _engineBus
-                .Execute(DashboardKeys.Queries.GetWidgets)
-                .ReadWithData(msg => _coreMap.Map(msg.GetDataAs<WidgetElementResponse>()!).To<WidgetElementEntity>());
+                .Execute(DashboardKeys.UI.GetWidgets)
+                .ReadWithData(msg => _coreMap.Map(msg?.GetDataAs<WidgetElementResponse>() ?? new()).To<WidgetElementEntity>());
             foreach (var item in responses)
                 try
                 {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using LunaticPanel.Core;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
@@ -16,7 +17,15 @@ public class PluginDependencyInjectionController
     private static readonly Object _lockPlugin = new();
     private readonly IServiceProvider _hostCircuitProvider;
     private readonly Dictionary<Type, List<PluginScopedInstance>> _pluginScopedInstances = new();
-
+    private static readonly Dictionary<Type, Func<Type, Type>> _specialPluginMapping = new()
+    {
+        {
+            typeof(IServiceProvider),
+            (pluginType)=> {
+                return typeof(IPluginService<>).MakeGenericType(pluginType);
+            }
+        }
+    };
     public PluginDependencyInjectionController(IServiceProvider hostCircuitProvider)
     {
         _hostCircuitProvider = hostCircuitProvider;
@@ -97,6 +106,8 @@ public class PluginDependencyInjectionController
     }
     public object GetRequiredService(Type pluginType, Type serviceType, int layerUp)
     {
+        if (_specialPluginMapping.ContainsKey(serviceType))
+            return GetRequiredService(pluginType, _specialPluginMapping[serviceType](pluginType), layerUp);
 
         if (layerUp == 0)
         {
@@ -115,7 +126,8 @@ public class PluginDependencyInjectionController
 
         return GetHostService(serviceType);
     }
-    public object GetHostService(Type serviceType) => _hostCircuitProvider.GetRequiredService(serviceType);
+    public object GetHostService(Type serviceType)
+        => _hostCircuitProvider.GetRequiredService(serviceType);
     public object GetRootPluginSingleton(Type pluginType, Type serviceType)
     {
         lock (_lockRoot)
@@ -124,11 +136,11 @@ public class PluginDependencyInjectionController
             if (!_rootPluginSingletons.ContainsKey(pluginType))
                 throw new ArgumentNullException($"{pluginType.FullName} does not own a list of singleton services... this is fatal and most likely internal error.");
             var pluginRootList = _rootPluginSingletons[pluginType];
-            var instance = pluginRootList.SingleOrDefault(p => p.ServiceType == serviceType);
+            var instance = pluginRootList.LastOrDefault(p => p.ServiceType == serviceType);
             if (instance != default)
                 return instance.Instance;
             var _rootPluginDescriptors = _rootPluginDescriptor[pluginType];
-            var d = _rootPluginDescriptors.SingleOrDefault(p => p.ServiceType == serviceType);
+            var d = _rootPluginDescriptors.LastOrDefault(p => p.ServiceType == serviceType);
             if (_rootPluginDescriptors == default)
                 return GetHostService(serviceType);
             return CreateInstanceOfService(pluginType, serviceType, 1); // Layer : Host = 2, Root = 1, Plugin = 0
@@ -144,14 +156,14 @@ public class PluginDependencyInjectionController
             if (!_pluginScopedInstances.ContainsKey(pluginType))
                 throw new ArgumentNullException($"{pluginType.FullName} does not own a list of instance services... this is fatal and most likely internal error.");
             var pluginDescriptors = _pluginDescriptor[pluginType];
-            var d = pluginDescriptors.SingleOrDefault(p => p.ServiceType == serviceType);
+            var d = pluginDescriptors.LastOrDefault(p => p.ServiceType == serviceType);
             if (d == default)
                 throw new ArgumentNullException($"{pluginType.FullName} does not own a list of services... this is fatal and most likely internal error.");
 
             if (d.Lifetime == ServiceLifetime.Scoped)
             {
                 var pluginInstances = _pluginScopedInstances[pluginType];
-                var instanceScoped = pluginInstances.SingleOrDefault(p => p.ServiceType == serviceType);
+                var instanceScoped = pluginInstances.LastOrDefault(p => p.ServiceType == serviceType);
                 if (instanceScoped == default)
                     return CreateInstanceOfServiceForPlugin(pluginType, serviceType);
                 return instanceScoped.Instance;
@@ -164,7 +176,7 @@ public class PluginDependencyInjectionController
     {
         lock (_lockRoot)
         {
-            var d = _rootPluginDescriptor[pluginType].Single(p => p.ServiceType == serviceType);
+            var d = _rootPluginDescriptor[pluginType].Last(p => p.ServiceType == serviceType);
             Type implementationType =
                 d.ImplementationType ??
                 throw new InvalidOperationException($"Service {serviceType} has no implementation type.");
@@ -182,16 +194,27 @@ public class PluginDependencyInjectionController
         lock (_lockPlugin)
         {
             var pluginDescriptors = _pluginDescriptor[pluginType];
-            var d = pluginDescriptors.Single(p => p.ServiceType == serviceType);
+            var d = pluginDescriptors.Last(p => p.ServiceType == serviceType);
+
             if (d.Lifetime == ServiceLifetime.Scoped)
             {
-                Type implementationType =
-                    d.ImplementationType ??
-                    throw new InvalidOperationException($"Service {serviceType} has no implementation type.");
+                object result;
+                if (d.ImplementationFactory != null)
+                {
+                    IServiceProvider _pluginSP = (IServiceProvider)GetRequiredService(pluginType, typeof(IServiceProvider), 0);
+                    result = d.ImplementationFactory(_pluginSP);
 
-                var ctor = GetConstructorParameterTypesForMissingService(d);
-                var args = ctor.Select(p => GetRequiredService(pluginType, p, 0)).ToArray();
-                var result = Activator.CreateInstance(implementationType, args)!;
+                }
+                else if (d.ImplementationType != null)
+                {
+                    var ctor = GetConstructorParameterTypesForMissingService(d);
+                    var args = ctor.Select(p => GetRequiredService(pluginType, p, 0)).ToArray();
+                    result = Activator.CreateInstance(d.ImplementationType, args)!;
+                }
+                else
+                {
+                    result = d.ImplementationInstance!;
+                }
                 var instancePool = _pluginScopedInstances[pluginType];
                 instancePool.Add(new(serviceType, result));
                 // Create instance
@@ -199,13 +222,24 @@ public class PluginDependencyInjectionController
             }
             else
             {
-                Type implementationType =
-                    d.ImplementationType ??
-                    throw new InvalidOperationException($"Service {serviceType} has no implementation type.");
+                object result;
+                if (d.ImplementationFactory != null)
+                {
+                    IServiceProvider _pluginSP = (IServiceProvider)GetRequiredService(pluginType, typeof(IServiceProvider), 0);
+                    result = d.ImplementationFactory(_pluginSP);
 
-                var ctor = GetConstructorParameterTypesForMissingService(d);
-                var args = ctor.Select(p => GetRequiredService(pluginType, p, 0)).ToArray();
-                var result = Activator.CreateInstance(implementationType, args)!;
+                }
+                else if (d.ImplementationType != null)
+                {
+                    var ctor = GetConstructorParameterTypesForMissingService(d);
+                    var args = ctor.Select(p => GetRequiredService(pluginType, p, 0)).ToArray();
+                    result = Activator.CreateInstance(d.ImplementationType, args)!;
+                }
+                else
+                {
+                    result = d.ImplementationInstance!;
+                }
+
                 return result;
             }
         }

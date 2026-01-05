@@ -8,4 +8,5 @@ public interface IEventBusRegistry
     IReadOnlyList<string> GetAllAvailableIds();
     IReadOnlyList<EventBusHandlerDescriptorEntity> GetAllAvailable();
     void Register(string id, BusHandlerDescriptorEntity handlerEntity);
+    bool HasKey(string id);
 }

@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Engine.Application.Circuit;
+﻿global using Microsoft.Extensions.DependencyInjection;
+using LunaticPanel.Engine.Application.Circuit;
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Presentation.Layout.Menu;
 using LunaticPanel.Engine.Presentation.Pages.Dashboard;
@@ -8,7 +9,6 @@ using MedihatR;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
-
 namespace LunaticPanel.Engine.Presentation;
 
 public static class RegisterServicesExt
@@ -40,10 +40,12 @@ public static class RegisterServicesExt
             o.DispatchEffectBehavior = StatePulse.Net.Configuration.DispatchEffectBehavior.Parallel;
             o.DispatchEffectExecutionBehavior = StatePulse.Net.Configuration.DispatchEffectExecutionBehavior.YieldAndFire;
             o.DispatchOrderBehavior = StatePulse.Net.Configuration.DispatchOrdering.ReducersFirst;
+            o.PulseTrackingPerformance = StatePulse.Net.Configuration.PulseTrackingModel.BlazorServerSafe;
+
             o.ScanAssemblies = [
-                typeof(RegisterServicesExt),
-                                typeof(LunaticPanel.Engine.Application.RegisterServicesExt),
-                typeof(LunaticPanel.Engine.Infrastructure.RegisterServicesExt),
+                    typeof(RegisterServicesExt).Assembly,
+                    typeof(LunaticPanel.Engine.Application.RegisterServicesExt).Assembly,
+                    typeof(LunaticPanel.Engine.Infrastructure.RegisterServicesExt).Assembly,
                 ];
         });
         services.AddMedihaterServices(o =>

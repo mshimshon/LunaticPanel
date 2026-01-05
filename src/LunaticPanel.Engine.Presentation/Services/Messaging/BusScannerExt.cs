@@ -45,12 +45,12 @@ public static class BusScannerExt
     }
 
 
-    public static void RegisterScannedBusHandlers(this WebApplication app)
+    public static void RegisterScannedBusHandlers(this IServiceProvider sp)
     {
         if (ToRuntimeRegister.Count <= 0) return;
-        var eventBusregistry = app.Services.GetRequiredService<IEventBusRegistry>();
-        var queryBusregistry = app.Services.GetRequiredService<IQueryBusRegistry>();
-        var engineBusregistry = app.Services.GetRequiredService<IEngineBusRegistry>();
+        var eventBusregistry = sp.GetRequiredService<IEventBusRegistry>();
+        var queryBusregistry = sp.GetRequiredService<IQueryBusRegistry>();
+        var engineBusregistry = sp.GetRequiredService<IEngineBusRegistry>();
         do
         {
             var item = ToRuntimeRegister.Dequeue();

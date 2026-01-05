@@ -3,6 +3,7 @@ using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
 using LunaticPanel.Engine.Presentation.Services.Messaging;
 using LunaticPanel.Engine.Presentation.Services.Plugin;
+using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using System.Text.Json;
 using static LunaticPanel.Engine.Presentation.Boostrap.BootstrapPlugins;
@@ -23,43 +24,34 @@ public static class Bootstrap
         UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
         UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
 
-    public static WebApplication Load(Func<WebApplicationBuilder> webApplicationBuilder)
+    public static void BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
     {
 
 
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
-        var webApp = webApplicationBuilder();
-        DefinePath(webApp.Configuration);
+        DefinePath(configuration);
         DetectPlugins();
         LoadConfiguration();
 
-        var services = webApp.Services;
+
         services.AddLunaticPanelServices();
-        services.ProcessPlugins();
+        services.ProcessPlugins(configuration);
         EnsurePluginValidatedBlazor();
         BootstrapPluginDescriptor[] activePluginsEntryPoint = Configuration.ActivePlugins.ToArray();
         services.ScanAndAddBusHandlersFor(activePluginsEntryPoint);
         services.AddPluginServices(activePluginsEntryPoint);
         SaveConfiguration();
-        return webApp.Build();
     }
 
-    public static Task RunAsync(Func<WebApplication> webApplication)
+    public static void BootstrapRun(IServiceProvider serviceProvider, IConfiguration configuration)
     {
-        var webApp = webApplication();
-        var pluginRegistry = webApp.Services.GetRequiredService<IPluginRegistry>();
+        var pluginRegistry = serviceProvider.GetRequiredService<IPluginRegistry>();
         foreach (var item in Configuration.ActivePlugins)
         {
-            var collection = new ServiceCollection();
-            item.EntryPoint!.RegisterServices(collection);
-
-            pluginRegistry.Register(new(item.EntryPointType, item.EntryPoint, item.Entity, collection));
-            item.EntryPoint!.Configure(webApp.Configuration);
-
+            pluginRegistry.Register(new(item.EntryPointType, item.EntryPoint!, item.Entity));
         }
-        webApp.RegisterScannedBusHandlers();
+        serviceProvider.RegisterScannedBusHandlers();
 
-        return webApp.RunAsync();
     }
 
     private static void LoadConfiguration()
@@ -133,6 +125,8 @@ public static class Bootstrap
             var srv = new ServiceCollection();
             item.EntryPoint!.RegisterServices(srv);
             PluginDependencyInjectionController.AddPluginServices(item.EntryPointType, srv.ToList());
+            Console.WriteLine("{0} is loaded with {1} services.", item.Entity.Identity.PackageId, srv.Count);
+
         }
     }
 }

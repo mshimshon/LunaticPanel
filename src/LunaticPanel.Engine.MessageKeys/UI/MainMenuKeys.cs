@@ -2,8 +2,8 @@
 
 public static class MainMenuKeys
 {
-    public static class Queries
+    public static class UI
     {
-        public const string GetElements = $"{BaseInfo.AssemblyName}.{nameof(MainMenuKeys)}.{nameof(Queries)}.{nameof(GetElements)}";
+        public const string GetElements = $"{BaseInfo.AssemblyName}.{nameof(MainMenuKeys)}.{nameof(UI)}.{nameof(GetElements)}";
     }
 }

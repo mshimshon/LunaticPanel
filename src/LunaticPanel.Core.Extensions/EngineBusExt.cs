@@ -1,7 +1,8 @@
 ﻿using LunaticPanel.Core.Messaging.Common;
 using LunaticPanel.Core.Messaging.EngineBus;
+using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Core.Extenstions;
+namespace LunaticPanel.Core.Extensions;
 
 public static class EngineBusExt
 {
@@ -43,12 +44,15 @@ public static class EngineBusExt
     public static async Task<EngineBusMsgResponseNoData[]> ReadDiscardData(this EngineBusResponse[] engineBusResponses)
     => engineBusResponses.Select(p => new EngineBusMsgResponseNoData(p.RenderFragment, p.Origin)).ToArray();
 
-    public static void EachResponseAs(this EngineBusResponse[] engineBusResponses)
+    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object? data = default) where TComponent : IComponent
     {
-        foreach (var item in engineBusResponses)
+        RenderFragment fragment = builder =>
         {
-
-        }
-
+            builder.OpenComponent<TComponent>(0);
+            builder.CloseComponent();
+        };
+        var result = data == default ? new EngineBusResponse(fragment) : new EngineBusResponse(fragment, data);
+        return Task.FromResult(result);
     }
+
 }

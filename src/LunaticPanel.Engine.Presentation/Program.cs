@@ -1,34 +1,34 @@
-using LunaticPanel.Engine.Presentation;
-using LunaticPanel.Engine.Presentation.Boostrap;
+//using LunaticPanel.Engine.Presentation.Boostrap;
 
-var app = Bootstrap.Load(() =>
-{
-    var builder = WebApplication.CreateBuilder(args);
-    builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-    return builder;
-});
+//var app = Bootstrap.Load(() =>
+//{
+//    var builder = WebApplication.CreateBuilder(args);
+//    builder.Services.AddRazorComponents()
+//    .AddInteractiveServerComponents();
+//    builder.WebHost.UseKestrel();
+//    return builder;
+//});
 
-await Bootstrap.RunAsync(() =>
-{
-    if (!app.Environment.IsDevelopment())
-    {
-        app.UseExceptionHandler("/Error", createScopeForErrors: true);
-        app.UseHsts();
-    }
+//await Bootstrap.RunAsync(() =>
+//{
+//    if (!app.Environment.IsDevelopment())
+//    {
+//        app.UseExceptionHandler("/Error", createScopeForErrors: true);
+//        app.UseHsts();
+//    }
 
-    app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-    app.UseHttpsRedirection();
+//    app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+//    app.UseHttpsRedirection();
 
-    app.UseAntiforgery();
+//    app.UseAntiforgery();
 
-    app.UseStaticFiles();
-    app.MapStaticAssets();
+//    app.UseStaticFiles();
+//    app.MapStaticAssets();
 
-    app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-    .AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
+//    app.MapRazorComponents<App>()
+//    .AddInteractiveServerRenderMode()
+//    .AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
 
 
-    return app;
-});
+//    return app;
+//});

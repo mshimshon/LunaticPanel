@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core;
+using LunaticPanel.Core.Messaging.Common;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Engine.Application.Messaging.EngineBus;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,10 +43,9 @@ internal class EngineBus : IEngineBus
         return handler!.HandleAsync(engineBusRenderMessage);
     }
 
-
-    public IReadOnlyCollection<string> GetAllEventIds()
-        => _engineBusRegistry.GetAllAvailableIds();
-
     public IReadOnlyCollection<Type> GetAllHandlersByEventId(string eventId)
         => _engineBusRegistry.GetRegistryFor(eventId).Select(p => p.HandlerType).ToList().AsReadOnly();
+    public IReadOnlyCollection<string> GetAvailableKeys() => _engineBusRegistry.GetAllAvailableIds();
+    public bool HasKeyFor(MessageKey messageKey) => HasKeyFor(messageKey.ToString());
+    public bool HasKeyFor(string key) => _engineBusRegistry.HasKey(key);
 }

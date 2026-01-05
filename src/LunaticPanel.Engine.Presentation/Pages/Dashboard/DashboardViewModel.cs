@@ -33,6 +33,6 @@ public class DashboardViewModel
 
     public async Task LoadAsync()
     {
-        await _dispatcher.Prepare<FetchDashboardWidgetAction>().DispatchAsync();
+        await _dispatcher.Prepare<FetchDashboardWidgetAction>().EffectsFirst().DispatchAsync();
     }
 }

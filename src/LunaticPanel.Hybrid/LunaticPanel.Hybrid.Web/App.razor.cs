@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Presentation;
+namespace LunaticPanel.Hybrid.Web;
 
 public partial class App : ComponentBase
 {

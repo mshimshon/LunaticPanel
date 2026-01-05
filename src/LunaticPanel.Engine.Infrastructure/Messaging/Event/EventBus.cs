@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core;
+using LunaticPanel.Core.Messaging.Common;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Engine.Application.Circuit;
 using LunaticPanel.Engine.Application.Messaging.Event;
@@ -62,7 +63,9 @@ internal class EventBus : IEventBus
     }
 
 
-    public IReadOnlyCollection<string> GetAllEventIds() => _eventBusRegistry.GetAllAvailableIds();
-
-    public IReadOnlyCollection<Type> GetAllHandlersByEventId(string eventId) => _eventBusRegistry.GetRegistryFor(eventId).Select(p => p.HandlerType).ToList().AsReadOnly();
+    public IReadOnlyCollection<string> GetAvailableKeys() => _eventBusRegistry.GetAllAvailableIds();
+    public IReadOnlyCollection<Type> GetAllHandlersByEventId(MessageKey messageKey) =>
+        _eventBusRegistry.GetRegistryFor(messageKey.ToString()).Select(p => p.HandlerType).ToList();
+    public bool HasKeyFor(MessageKey messageKey) => HasKeyFor(messageKey.ToString());
+    public bool HasKeyFor(string key) => _eventBusRegistry.HasKey(key);
 }

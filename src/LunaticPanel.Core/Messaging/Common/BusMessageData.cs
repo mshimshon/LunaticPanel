@@ -92,4 +92,5 @@ public class BusMessageData
 
         return false;
     }
+    public static BusMessageData Create(object data) => new(data);
 }

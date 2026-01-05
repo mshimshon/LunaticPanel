@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -10,17 +10,17 @@
 	<RootNamespace>LunaticPanel.Engine.Presentation</RootNamespace>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
-	<Copyright>Maksim Shimshon © 2026</Copyright>
 	<Product>LunaticPanel.Engine.Presentation</Product>
-	<Authors>Maksim Shimshon</Authors>
-	<Version>0.1.0</Version>
-	<Description>LunaticPanel is a modular Blazor dashboard framework for building unified, server-oriented control applications with centralized orchestration and predictable composition.</Description>
+	<Version>$(GlobalVersion)</Version>
+	<Company>$(GlobalCompany)</Company>
+	<Copyright>$(GlobalCopyright)</Copyright>
+	<Authors>$(GlobalAuthors)</Authors>
+
+	  <Description>LunaticPanel is a modular Blazor dashboard framework for building unified, server-oriented control applications with centralized orchestration and predictable composition.</Description>
 	<PackageTags>blazor, dashboard, orchestration, server-management, modular, mudblazor, dotnet, control-plane, ui-framework</PackageTags>
 
   </PropertyGroup>
-	<ItemGroup>
-		<SupportedPlatform Include="browser" />
-	</ItemGroup>
+
 <ItemGroup>
 	<PackageReference Include="CommandLineParser" />
 	<PackageReference Include="DotNetCore.CAP" />
@@ -31,6 +31,7 @@
 	<PackageReference Include="MudBlazor" />
 	<PackageReference Include="StatePulse.Net" />
 	<PackageReference Include="MediHater" />
+	<PackageReference Include="Microsoft.AspNetCore.Components.Web" PrivateAssets="false" />
 </ItemGroup>
 
 <ItemGroup>

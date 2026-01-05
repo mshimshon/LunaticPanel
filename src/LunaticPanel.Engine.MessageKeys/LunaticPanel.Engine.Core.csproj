@@ -4,11 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	  <Title>$(AssemblyName)</Title>
-	  <Version>0.1.1</Version>
-	  <Company>Maksim Shimshon</Company>
+	  <Version>$(GlobalVersion)</Version>
+	  <Company>$(GlobalCompany)</Company>
+	  <Copyright>$(GlobalCopyright)</Copyright>
+	  <Authors>$(GlobalAuthors)</Authors>
 	  <Description>Core Package for Lunatic Panel's PLugin</Description>
-	  <Copyright>Maksim Shimshon (c) 2026</Copyright>
 	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
   </PropertyGroup>

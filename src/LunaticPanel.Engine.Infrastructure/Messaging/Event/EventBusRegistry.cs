@@ -37,6 +37,14 @@ internal class EventBusRegistry : IEventBusRegistry
         }
     }
 
+    public bool HasKey(string id)
+    {
+        lock (_lock)
+        {
+            return _internalRegistryEventTypes.ContainsKey(id);
+        }
+    }
+
     public void Register(string id, BusHandlerDescriptorEntity handlerEntity)
     {
         id = id.ToLower();
