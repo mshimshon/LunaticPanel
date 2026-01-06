@@ -5,4 +5,4 @@ namespace LunaticPanel.Engine.Presentation.Services.Plugin;
 public record PluginScanResult(string PluginId,
     Version Version,
     PluginLoader Loader,
-    Type PluginType);
+    Type PluginType, string Location);

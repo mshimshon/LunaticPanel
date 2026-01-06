@@ -6,6 +6,11 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.WebHost.UseKestrel();
 Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
 WebApplication app = builder.Build();
+
+app.UseStaticFiles();
+app.MapStaticAssets();
+Bootstrap.BootstrapRun(app, app.Services, app.Configuration);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -17,12 +22,10 @@ app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
-app.UseStaticFiles();
-app.MapStaticAssets();
+
 
 app.MapRazorComponents<App>()
 .AddInteractiveServerRenderMode()
 .AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies, typeof(RegisterServicesExt).Assembly]);
 
-Bootstrap.BootstrapRun(app.Services, app.Configuration);
 await app.RunAsync();

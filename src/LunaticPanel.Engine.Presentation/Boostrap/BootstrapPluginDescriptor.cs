@@ -17,4 +17,6 @@ internal record BootstrapPluginDescriptor
 
     [JsonIgnore]
     public PluginLoader? Loader { get; set; }
+
+    public string PluginDir { get; set; } = default!;
 }

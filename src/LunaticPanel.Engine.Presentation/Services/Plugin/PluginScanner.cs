@@ -12,7 +12,6 @@ public sealed class PluginScanner
     {
 
     };
-
     public PluginScanner(string installedRoot, params string[] specificFiles)
     {
         _installedRoot = installedRoot;
@@ -59,7 +58,7 @@ public sealed class PluginScanner
                     PluginId: name.Name!,
                     Version: name.Version ?? new Version(1, 0, 0, 0),
                     Loader: loader,
-                    PluginType: pluginType
+                    PluginType: pluginType, Location: dll
                 ));
             }
             catch (Exception ex)

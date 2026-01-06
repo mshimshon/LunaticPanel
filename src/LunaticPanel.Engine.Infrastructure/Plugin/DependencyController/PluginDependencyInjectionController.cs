@@ -3,7 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
-
+// TODO: HANDLE EXCEPTION BETTER
+// WE NEED A BETTER DEBUGGING EXP FOR PLUGINS
 public class PluginDependencyInjectionController
 {
     private static Dictionary<Type, List<PluginRootInstance>> _rootPluginSingletons = new();

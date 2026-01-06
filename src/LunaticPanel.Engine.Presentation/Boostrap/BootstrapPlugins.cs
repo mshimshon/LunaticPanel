@@ -24,7 +24,14 @@ internal static class BootstrapPlugins
                 IPlugin plugin = (IPlugin)Activator.CreateInstance(item.PluginType)!;
                 var lifecycle = new PluginLifecycle(PluginState.Loaded, PluginStartupState.Disabled, default, DateTimeOffset.UtcNow);
                 var entity = new PluginEntity(identity, lifecycle);
-                DiscoveredPlugins.Add(new BootstrapPluginDescriptor() { Entity = entity, EntryPoint = plugin, Loader = item.Loader, EntryPointType = item.PluginType });
+                DiscoveredPlugins.Add(new BootstrapPluginDescriptor()
+                {
+                    Entity = entity,
+                    EntryPoint = plugin,
+                    Loader = item.Loader,
+                    EntryPointType = item.PluginType,
+                    PluginDir = Path.GetDirectoryName(item.Location)!
+                });
 
             }
             catch (Exception ex)
@@ -33,7 +40,14 @@ internal static class BootstrapPlugins
                 var failure = new PluginFailure(ex.Message, DateTimeOffset.UtcNow);
                 var lifecycle = new PluginLifecycle(PluginState.Failed, PluginStartupState.Disabled, failure, DateTimeOffset.UtcNow);
                 var entity = new PluginEntity(identity, lifecycle);
-                DiscoveredPlugins.Add(new BootstrapPluginDescriptor() { Entity = entity, Loader = item.Loader, EntryPointType = item.PluginType });
+                DiscoveredPlugins.Add(new BootstrapPluginDescriptor()
+                {
+                    Entity = entity,
+                    Loader = item.Loader,
+                    EntryPointType = item.PluginType,
+                    PluginDir = Path.GetDirectoryName(item.Location)!
+
+                });
             }
 
         }

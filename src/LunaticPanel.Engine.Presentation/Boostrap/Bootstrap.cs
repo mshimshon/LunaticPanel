@@ -3,7 +3,9 @@ using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
 using LunaticPanel.Engine.Presentation.Services.Messaging;
 using LunaticPanel.Engine.Presentation.Services.Plugin;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using System.Text.Json;
 using static LunaticPanel.Engine.Presentation.Boostrap.BootstrapPlugins;
@@ -43,12 +45,30 @@ public static class Bootstrap
         SaveConfiguration();
     }
 
-    public static void BootstrapRun(IServiceProvider serviceProvider, IConfiguration configuration)
+    public static void BootstrapRun(WebApplication webApp, IServiceProvider serviceProvider, IConfiguration configuration)
     {
         var pluginRegistry = serviceProvider.GetRequiredService<IPluginRegistry>();
-        foreach (var item in Configuration.ActivePlugins)
+        foreach (BootstrapPluginDescriptor item in Configuration.ActivePlugins)
         {
             pluginRegistry.Register(new(item.EntryPointType, item.EntryPoint!, item.Entity));
+
+            var wwwroot = Path.Combine(item.PluginDir, "wwwroot");
+            if (Directory.Exists(wwwroot))
+            {
+                Console.WriteLine("PLUGIN STATIC FILE REGISTRATION");
+                Console.WriteLine($"PackageId: {item.Entity.Identity.PackageId}");
+                Console.WriteLine($"PluginDir: {item.PluginDir}");
+                Console.WriteLine($"wwwroot: {wwwroot}");
+                Console.WriteLine($"wwwroot exists: {Directory.Exists(wwwroot)}");
+                Console.WriteLine($"banner exists: {File.Exists(Path.Combine(wwwroot, "game_banner.jpg"))}");
+                var options = new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(wwwroot),
+                    RequestPath = $"/_plugins/{item.Entity.Identity.PackageId}"
+                };
+                webApp.UseStaticFiles(options);
+            }
+
         }
         serviceProvider.RegisterScannedBusHandlers();
 
