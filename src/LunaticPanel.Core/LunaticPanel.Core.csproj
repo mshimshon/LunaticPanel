@@ -20,10 +20,7 @@
 	</ItemGroup>
 -->
 	<ItemGroup>
-		<ProjectReference Include="..\LunaticPanel.Core.Analyzer\LunaticPanel.Core.Analyzer.csproj"
-						  ReferenceOutputAssembly="false"
-						  OutputItemType="Analyzer"
-						  PrivateAssets="all" />
+		<ProjectReference Include="..\LunaticPanel.Core.Analyzer\LunaticPanel.Core.Analyzer.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" />
 	</ItemGroup>
 	
 	<ItemGroup>

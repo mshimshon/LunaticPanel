@@ -16,7 +16,10 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
 	</ItemGroup>
-
+	<ItemGroup>
+		<AdditionalFiles Include="@(RazorComponent)" />
+		<AdditionalFiles Include="**\*.razor" />
+	</ItemGroup>
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
 		<MakeDir Directories="..\..\..\..\nupkgs" />
 		<ItemGroup>
