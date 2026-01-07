@@ -1,18 +1,25 @@
 ﻿global using Microsoft.Extensions.DependencyInjection;
-using LunaticPanel.Engine.Application.Circuit;
+using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.Core.Messaging;
+using LunaticPanel.Core.Messaging.EngineBus;
+using LunaticPanel.Core.Messaging.EventBus;
+using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Presentation.Layout.Menu;
-using LunaticPanel.Engine.Presentation.Pages.Dashboard;
-using LunaticPanel.Engine.Presentation.Services;
-using LunaticPanel.Engine.Presentation.Services.Messaging;
+using LunaticPanel.Engine.Web.Layout.Menu;
+using LunaticPanel.Engine.Web.Pages.Dashboard;
+using LunaticPanel.Engine.Web.Services.Circuit;
 using MedihatR;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
-namespace LunaticPanel.Engine.Presentation;
+namespace LunaticPanel.Engine.Web;
 
 public static class RegisterServicesExt
 {
+    private readonly static EngineBusRegistry _engineBusRegistry = new();
+    private readonly static EventBusRegistry _eventBusRegistry = new();
+    private readonly static QueryBusRegistry _queryBusRegistry = new();
     public static IServiceCollection AddLunaticPanelServices(this IServiceCollection services)
     {
         services.AddEngineInfrastructure();
@@ -21,7 +28,7 @@ public static class RegisterServicesExt
         services.AddScoped<DashboardViewModel>();
 
         services.AddScoped<CircuitRegistry>();
-        services.AddScoped<ICircuitControl, CircuitRegistry>();
+        services.AddScoped<ICircuitRegistry, CircuitRegistry>();
         services.AddMudServices(config =>
         {
             config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
@@ -44,22 +51,30 @@ public static class RegisterServicesExt
 
             o.ScanAssemblies = [
                     typeof(RegisterServicesExt).Assembly,
-                    typeof(LunaticPanel.Engine.Application.RegisterServicesExt).Assembly,
-                    typeof(LunaticPanel.Engine.Infrastructure.RegisterServicesExt).Assembly,
+                    typeof(Application.RegisterServicesExt).Assembly,
+                    typeof(Infrastructure.RegisterServicesExt).Assembly,
                 ];
         });
         services.AddMedihaterServices(o =>
         {
             o.AssembliesScan = [
                 typeof(RegisterServicesExt),
-                typeof(LunaticPanel.Engine.Application.RegisterServicesExt),
-                typeof(LunaticPanel.Engine.Infrastructure.RegisterServicesExt),
+                typeof(Application.RegisterServicesExt),
+                typeof(Infrastructure.RegisterServicesExt),
              ];
         });
-        services.ScanBusHandlers();
-        foreach (var item in services.ScanBusHandlers())
-            services.AddTransient(item.HandlerType);
 
+        var toRegisterBusHandlers = BusScannerExt.ScanBusHandlers(typeof(RegisterServicesExt).Assembly);
+        foreach (var item in toRegisterBusHandlers)
+        {
+            services.AddTransient(item.HandlerType);
+            if (item.BusType == EBusType.EventBus)
+                _eventBusRegistry.Register(item.Id, item);
+            else if (item.BusType == EBusType.QueryBus)
+                _queryBusRegistry.Register(item.Id, item);
+            else
+                _engineBusRegistry.Register(item.Id, item);
+        }
         return services;
     }
 }

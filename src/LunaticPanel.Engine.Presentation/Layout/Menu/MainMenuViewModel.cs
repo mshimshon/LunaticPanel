@@ -1,8 +1,8 @@
-﻿using LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.Actions;
-using LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.States;
+﻿using LunaticPanel.Engine.Web.Layout.Menu.Pulses.Actions;
+using LunaticPanel.Engine.Web.Layout.Menu.Pulses.States;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Presentation.Layout.Menu;
+namespace LunaticPanel.Engine.Web.Layout.Menu;
 
 public class MainMenuViewModel
 {

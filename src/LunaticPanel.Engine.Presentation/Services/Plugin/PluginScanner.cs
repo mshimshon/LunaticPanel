@@ -1,7 +1,7 @@
-﻿using LunaticPanel.Core;
+﻿using LunaticPanel.Core.Abstraction;
 using McMaster.NETCore.Plugins;
 
-namespace LunaticPanel.Engine.Presentation.Services.Plugin;
+namespace LunaticPanel.Engine.Web.Services.Plugin;
 
 public sealed class PluginScanner
 {

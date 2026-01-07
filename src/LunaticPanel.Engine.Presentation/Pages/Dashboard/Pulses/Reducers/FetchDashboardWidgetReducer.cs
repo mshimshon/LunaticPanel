@@ -1,8 +1,8 @@
-﻿using LunaticPanel.Engine.Presentation.Pages.Dashboard.Pulses.Actions;
-using LunaticPanel.Engine.Presentation.Pages.Dashboard.Pulses.States;
+﻿using LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Actions;
+using LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.States;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Presentation.Pages.Dashboard.Pulses.Reducers;
+namespace LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Reducers;
 
 public class FetchDashboardWidgetReducer : IReducer<DashboardState, FetchDashboardWidgetAction>
 {

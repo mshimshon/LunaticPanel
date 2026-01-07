@@ -1,9 +1,9 @@
-﻿using LunaticPanel.Core;
+﻿using LunaticPanel.Core.Abstraction;
 using LunaticPanel.Engine.Domain.Plugin.Entites;
 using McMaster.NETCore.Plugins;
 using System.Text.Json.Serialization;
 
-namespace LunaticPanel.Engine.Presentation.Boostrap;
+namespace LunaticPanel.Engine.Web.Boostrap;
 
 internal record BootstrapPluginDescriptor
 {
@@ -11,9 +11,6 @@ internal record BootstrapPluginDescriptor
 
     [JsonIgnore]
     public IPlugin? EntryPoint { get; set; }
-
-    [JsonIgnore]
-    public Type EntryPointType { get; set; } = default!;
 
     [JsonIgnore]
     public PluginLoader? Loader { get; set; }

@@ -1,0 +1,58 @@
+﻿using LunaticPanel.Core.Abstraction;
+using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.Core.PluginValidator.Diagnostic.Messages;
+using Microsoft.AspNetCore.Components;
+
+namespace LunaticPanel.Core.PluginValidator;
+
+public static class ComponentValidatorExt
+{
+    private static bool InheritsOpenGeneric(Type type, Type openGeneric)
+    {
+        while (type != null && type != typeof(object))
+        {
+            var current = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+            if (current == openGeneric)
+                return true;
+
+            type = type.BaseType!;
+        }
+
+        return false;
+    }
+
+    public static ValidationResult FindAnyWidgetNotUsingProperComponentBase(this IPlugin plugin)
+    {
+        List<ValidationError> validationErrors = new();
+        foreach (var type in plugin.GetType().Assembly.GetTypes())
+        {
+            if (type == null)
+                continue;
+
+            if (!typeof(ComponentBase).IsAssignableFrom(type))
+                continue;
+
+            if (!type.IsClass || type.IsAbstract)
+                continue;
+
+            // Check inheritance chain for WidgetComponentBase<,>
+            var current = type;
+            var openGeneric = typeof(WidgetComponentBase<,>);
+            var inherits = InheritsOpenGeneric(current, openGeneric);
+            if (!inherits)
+            {
+                validationErrors.Add(new()
+                {
+                    Message = $"{type.FullName} does not inherit {nameof(WidgetComponentBase<,>)}... all plugin components must inherit it and use the view model pattern.",
+                    Origin = type.FullName!
+                });
+            }
+        }
+        ValidationResult result = new()
+        {
+            Errors = validationErrors.AsReadOnly(),
+            PluginId = plugin.PluginId
+        };
+        return result;
+    }
+}

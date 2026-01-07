@@ -1,5 +1,5 @@
-using LunaticPanel.Engine.Presentation;
-using LunaticPanel.Engine.Presentation.Boostrap;
+using LunaticPanel.Engine.Web;
+using LunaticPanel.Engine.Web.Boostrap;
 using App = LunaticPanel.Hybrid.Web.App;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();

@@ -19,11 +19,11 @@ public class PluginRegistry : IPluginRegistry
     }
 
 
-    public PluginRegistryDescriptorModel GetByEntryType(Type plugin)
+    public PluginRegistryDescriptorModel GetById(string Id)
     {
         lock (_lock)
         {
-            return _plugins.Single(p => p.EntryType == plugin);
+            return _plugins.Single(p => p.Plugin.Identity.PackageId == Id);
         }
     }
 

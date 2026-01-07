@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries;
-using LunaticPanel.Engine.Presentation.Pages.Dashboard.Pulses.Actions;
+using LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Actions;
 using MedihatR;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Presentation.Pages.Dashboard.Pulses.Effects;
+namespace LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Effects;
 
 public class FetchDashboardWidgetEffect : IEffect<FetchDashboardWidgetAction>
 {

@@ -1,6 +1,6 @@
 ﻿using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.Actions;
+namespace LunaticPanel.Engine.Web.Layout.Menu.Pulses.Actions;
 
 public class FetchMenuElementsAction : ISafeAction
 {

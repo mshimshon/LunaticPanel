@@ -1,5 +1,5 @@
-﻿using LunaticPanel.Core.Messaging.Common;
-using LunaticPanel.Core.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Core.Extensions;

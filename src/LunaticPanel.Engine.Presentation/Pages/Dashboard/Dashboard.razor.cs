@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Presentation.Pages.Dashboard;
+namespace LunaticPanel.Engine.Web.Pages.Dashboard;
 
 public partial class Dashboard : ComponentBase, IDisposable
 {
@@ -13,17 +13,9 @@ public partial class Dashboard : ComponentBase, IDisposable
     private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposing)
-            return;
-
         ViewModel.SpreadChanges -= ShouldUpdate;
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

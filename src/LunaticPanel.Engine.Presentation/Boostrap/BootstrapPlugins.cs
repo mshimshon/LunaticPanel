@@ -1,10 +1,12 @@
-﻿using LunaticPanel.Core;
+﻿using LunaticPanel.Core.Abstraction;
+using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Domain.Plugin.Entites;
 using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
-using LunaticPanel.Engine.Presentation.Services.Plugin;
+using LunaticPanel.Engine.Infrastructure.Plugin;
+using LunaticPanel.Engine.Web.Services.Plugin;
 using Microsoft.Extensions.Configuration;
-namespace LunaticPanel.Engine.Presentation.Boostrap;
+namespace LunaticPanel.Engine.Web.Boostrap;
 
 internal static class BootstrapPlugins
 {
@@ -12,6 +14,7 @@ internal static class BootstrapPlugins
     public static BootstrapConfiguration Configuration => Bootstrap.Configuration;
     public static string PluginDirectory => Bootstrap.PluginDirectory;
     public static string ConfigDirectory => Bootstrap.ConfigDirectory;
+    public static IPluginRegistry Registry { get; set; } = new PluginRegistry();
     public static void DetectPlugins()
     {
         var scanner = new PluginScanner(PluginDirectory);
@@ -29,7 +32,6 @@ internal static class BootstrapPlugins
                     Entity = entity,
                     EntryPoint = plugin,
                     Loader = item.Loader,
-                    EntryPointType = item.PluginType,
                     PluginDir = Path.GetDirectoryName(item.Location)!
                 });
 
@@ -44,7 +46,6 @@ internal static class BootstrapPlugins
                 {
                     Entity = entity,
                     Loader = item.Loader,
-                    EntryPointType = item.PluginType,
                     PluginDir = Path.GetDirectoryName(item.Location)!
 
                 });
@@ -111,7 +112,6 @@ internal static class BootstrapPlugins
         try
         {
             plugin.EntryPoint!.Configure(configuration);
-            plugin.EntryPoint!.Initialize();
             AddActivatedPlugin(plugin);
         }
         catch (Exception ex)

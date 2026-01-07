@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 
-namespace LunaticPanel.Engine.Presentation.Boostrap;
+namespace LunaticPanel.Engine.Web.Boostrap;
 
 internal static class BootstrapPluginsMapping
 {

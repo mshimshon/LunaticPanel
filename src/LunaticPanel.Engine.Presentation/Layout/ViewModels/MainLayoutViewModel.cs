@@ -1,6 +1,6 @@
 ﻿using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Presentation.Layout.ViewModels;
+namespace LunaticPanel.Engine.Web.Layout.ViewModels;
 
 public class MainLayoutViewModel
 {

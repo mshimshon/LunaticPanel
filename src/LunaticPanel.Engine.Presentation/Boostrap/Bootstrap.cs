@@ -1,16 +1,12 @@
-﻿using LunaticPanel.Core;
-using LunaticPanel.Engine.Application.Plugin;
-using LunaticPanel.Engine.Infrastructure.Plugin.DependencyController;
-using LunaticPanel.Engine.Presentation.Services.Messaging;
-using LunaticPanel.Engine.Presentation.Services.Plugin;
+﻿using LunaticPanel.Engine.Application.Plugin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using System.Text.Json;
-using static LunaticPanel.Engine.Presentation.Boostrap.BootstrapPlugins;
-using static LunaticPanel.Engine.Presentation.Boostrap.BootstrapPluginsBlazorValidator;
-namespace LunaticPanel.Engine.Presentation.Boostrap;
+using static LunaticPanel.Engine.Web.Boostrap.BootstrapPlugins;
+using static LunaticPanel.Engine.Web.Boostrap.BootstrapPluginsValidator;
+namespace LunaticPanel.Engine.Web.Boostrap;
 
 public static class Bootstrap
 {
@@ -20,7 +16,7 @@ public static class Bootstrap
     public static string ConfigDirectory { get; private set; } = default!;
     internal static BootstrapConfiguration Configuration { get; private set; } = new();
 
-    public static List<Assembly> AdditionalAssemblies => [.. Configuration.ActivePlugins.Select(p => p.EntryPointType.Assembly!)];
+    public static List<Assembly> AdditionalAssemblies => [.. Configuration.ActivePlugins.Select(p => p.EntryPoint!.GetType().Assembly!)];
     public static UnixFileMode DefaultDirectoryPermissions { get; } =
         UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
         UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
@@ -39,9 +35,6 @@ public static class Bootstrap
         services.AddLunaticPanelServices();
         services.ProcessPlugins(configuration);
         EnsurePluginValidatedBlazor();
-        BootstrapPluginDescriptor[] activePluginsEntryPoint = Configuration.ActivePlugins.ToArray();
-        services.ScanAndAddBusHandlersFor(activePluginsEntryPoint);
-        services.AddPluginServices(activePluginsEntryPoint);
         SaveConfiguration();
     }
 
@@ -50,7 +43,7 @@ public static class Bootstrap
         var pluginRegistry = serviceProvider.GetRequiredService<IPluginRegistry>();
         foreach (BootstrapPluginDescriptor item in Configuration.ActivePlugins)
         {
-            pluginRegistry.Register(new(item.EntryPointType, item.EntryPoint!, item.Entity));
+            pluginRegistry.Register(new(item.EntryPoint!, item.Entity));
 
             var wwwroot = Path.Combine(item.PluginDir, "wwwroot");
             if (Directory.Exists(wwwroot))
@@ -70,8 +63,6 @@ public static class Bootstrap
             }
 
         }
-        serviceProvider.RegisterScannedBusHandlers();
-
     }
 
     private static void LoadConfiguration()
@@ -86,20 +77,20 @@ public static class Bootstrap
         }
 
     }
+
     private static void SaveConfiguration()
     {
         var configJson = JsonSerializer.Serialize(Configuration);
         var configFile = Path.Combine(ConfigDirectory, "bootstrap.json");
         File.WriteAllText(configFile, configJson);
     }
+
     private static void DefinePath(IConfiguration configuration)
     {
-        string? configuredPluginPath = configuration.GetSection(ConfigNameKey).GetValue<string>("PluginDirectory");
+
+
         var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        if (configuredPluginPath == default)
-            PluginDirectory = Path.Combine(appDataDir, ConfigNameKey, "Plugins");
-        else
-            PluginDirectory = configuredPluginPath;
+        PluginDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
         string? configuredConfigPath = configuration.GetSection(ConfigNameKey).GetValue<string>("ConfigDirectory");
 
@@ -110,6 +101,7 @@ public static class Bootstrap
         EnsurePathCreated(PluginDirectory, ConfigDirectory);
 
     }
+
     private static void EnsurePathCreated(params string[] pathList)
     {
 #pragma warning disable CA1416 // Validate platform compatibility
@@ -123,30 +115,4 @@ public static class Bootstrap
     }
 
 
-    private static void ScanAndAddBusHandlersFor(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
-    {
-        foreach (var plugin in plugins)
-        {
-            ServiceCollection localBusHandlerCollection = new();
-            foreach (var srv in services.ScanBusHandlers(plugin.EntryPoint))
-                localBusHandlerCollection.AddTransient(srv.HandlerType);
-            PluginDependencyInjectionController.AddPluginServices(plugin.EntryPointType, localBusHandlerCollection.ToList());
-        }
-
-
-    }
-    private static void AddPluginServices(this IServiceCollection services, params BootstrapPluginDescriptor[] plugins)
-    {
-        foreach (var item in plugins)
-        {
-            var serviceType = typeof(IPluginService<>).MakeGenericType(item.EntryPointType);
-            var resolverType = typeof(PluginServiceResolver<>).MakeGenericType(item.EntryPointType);
-            services.AddScoped(serviceType, resolverType);
-            var srv = new ServiceCollection();
-            item.EntryPoint!.RegisterServices(srv);
-            PluginDependencyInjectionController.AddPluginServices(item.EntryPointType, srv.ToList());
-            Console.WriteLine("{0} is loaded with {1} services.", item.Entity.Identity.PackageId, srv.Count);
-
-        }
-    }
 }

@@ -1,25 +1,13 @@
 ﻿using LunaticPanel.Core;
-using Microsoft.Extensions.Configuration;
+using LunaticPanel.Core.Abstraction.Circuit;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Plugin.Test;
 
-public class Plugin : IPlugin
+public class Plugin : PluginBase
 {
-    public void Configure(IConfiguration configuration)
+    protected override void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
     {
-
-    }
-
-    public void Disable() { }
-    public void Enable() { }
-    public void Initialize()
-    {
-        Console.WriteLine("PLugin Initializes");
-    }
-    public void RegisterServices(IServiceCollection services)
-    {
-        services.AddSingleton<MyService>();
-
+        services.AddScoped<MyService>();
     }
 }

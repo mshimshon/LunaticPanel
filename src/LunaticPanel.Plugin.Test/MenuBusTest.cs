@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Core.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Engine.Core.UI;
 using Microsoft.AspNetCore.Components;
 

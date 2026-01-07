@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Presentation.Layout.Menu;
+namespace LunaticPanel.Engine.Web.Layout.Menu;
 
 public partial class MainMenu : ComponentBase, IDisposable
 {
@@ -13,19 +13,12 @@ public partial class MainMenu : ComponentBase, IDisposable
 
     }
     private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
+
     public void Dispose()
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposing)
-            return;
-
         ViewModel.SpreadChanges -= ShouldUpdate;
     }
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

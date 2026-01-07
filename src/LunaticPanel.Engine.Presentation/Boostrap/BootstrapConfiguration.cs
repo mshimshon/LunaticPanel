@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace LunaticPanel.Engine.Presentation.Boostrap;
+namespace LunaticPanel.Engine.Web.Boostrap;
 
 internal record BootstrapConfiguration
 {

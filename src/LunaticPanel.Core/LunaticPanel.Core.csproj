@@ -20,12 +20,18 @@
 	</ItemGroup>
 -->
 	<ItemGroup>
+		<ProjectReference Include="..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
 		<ProjectReference Include="..\LunaticPanel.Core.Analyzer\LunaticPanel.Core.Analyzer.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" />
+		<ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
   </ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Messaging\Common\" />
+	</ItemGroup>
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
 		<MakeDir Directories="..\..\..\..\nupkgs" />
 		<ItemGroup>

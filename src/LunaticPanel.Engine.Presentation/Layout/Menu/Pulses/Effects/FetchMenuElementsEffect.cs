@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries;
-using LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.Actions;
+using LunaticPanel.Engine.Web.Layout.Menu.Pulses.Actions;
 using MedihatR;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Presentation.Layout.Menu.Pulses.Effects;
+namespace LunaticPanel.Engine.Web.Layout.Menu.Pulses.Effects;
 
 public class FetchMenuElementsEffect : IEffect<FetchMenuElementsAction>
 {

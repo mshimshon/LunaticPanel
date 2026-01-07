@@ -1,6 +1,6 @@
 ﻿using CoreMap;
-using LunaticPanel.Core.Messaging.Common;
-using LunaticPanel.Core.Messaging.QuerySystem;
+using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Engine.Application.Plugin.API.Dto;
 using LunaticPanel.Engine.Keys.System;
 

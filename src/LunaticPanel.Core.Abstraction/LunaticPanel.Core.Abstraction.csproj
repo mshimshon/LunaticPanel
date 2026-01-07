@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Title>$(AssemblyName)</Title>
+		<Version>$(GlobalVersion)</Version>
+		<Company>$(GlobalCompany)</Company>
+		<Copyright>$(GlobalCopyright)</Copyright>
+		<Authors>$(GlobalAuthors)</Authors>
+		<Description>Core Package for Lunatic Panel's PLugin</Description>
+		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+	</ItemGroup>
+
+	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
+		<MakeDir Directories="..\..\..\..\nupkgs" />
+		<ItemGroup>
+			<PackageFiles Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PackageFiles)" DestinationFolder="..\..\..\..\nupkgs" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" Condition="'$(BuildingInsideVisualStudio)' == 'true'" />
+	</Target>
+</Project>
