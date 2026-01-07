@@ -17,24 +17,30 @@ namespace LunaticPanel.Engine.Infrastructure;
 
 public static class RegisterServicesExt
 {
+
     public static IServiceCollection AddEngineInfrastructure(this IServiceCollection services)
     {
         services.AddEngineApplication();
-        services.AddSingleton<IEngineBusRegistry, EngineBusRegistry>();
+
         services.AddScoped<IEngineBusExchange, EngineBusExchange>();
+        services.AddScoped<IEventBusExchange, EventBusExchange>();
+        services.AddScoped<IQueryBusExchange, QueryBusExchange>();
 
-        services.AddSingleton<IEventBusRegistry, EventBusRegistry>();
-        services.AddSingleton<IEventBusExchange, EventBusExchange>();
+        services.AddScoped<IEngineBus, EngineBus>();
+        services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
 
-        services.AddSingleton<IQueryBusRegistry, QueryBusRegistry>();
-        services.AddSingleton<IQueryBusExchange, QueryBusExchange>();
 
+        services.AddScoped<IEventBus, EventBus>();
+        services.AddScoped<IEventBusReceiver, EventBusReceiver>();
+
+        services.AddScoped<IQueryBus, QueryBus>();
+        services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
         services.AddSingleton<IPluginRegistry, PluginRegistry>();
 
-        services.AddScoped<IEventBus, EventBus>();
-        services.AddScoped<IQueryBus, QueryBus>();
-        services.AddScoped<IEngineBus, EngineBus>();
+
+
+
 
         services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Transient; }, [
             typeof(RegisterServicesExt),

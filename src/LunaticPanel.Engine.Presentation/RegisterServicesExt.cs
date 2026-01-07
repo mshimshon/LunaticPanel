@@ -1,6 +1,9 @@
 ﻿global using Microsoft.Extensions.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+using LunaticPanel.Core.Abstraction.Messaging.EventBus;
+using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
@@ -28,7 +31,7 @@ public static class RegisterServicesExt
         services.AddScoped<DashboardViewModel>();
 
         services.AddScoped<CircuitRegistry>();
-        services.AddScoped<ICircuitRegistry, CircuitRegistry>();
+        services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
         services.AddMudServices(config =>
         {
             config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
@@ -64,6 +67,9 @@ public static class RegisterServicesExt
              ];
         });
 
+        services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
+        services.AddSingleton<IEventBusRegistry>((sp) => _eventBusRegistry);
+        services.AddSingleton<IQueryBusRegistry>((sp) => _queryBusRegistry);
         var toRegisterBusHandlers = BusScannerExt.ScanBusHandlers(typeof(RegisterServicesExt).Assembly);
         foreach (var item in toRegisterBusHandlers)
         {
@@ -75,6 +81,7 @@ public static class RegisterServicesExt
             else
                 _engineBusRegistry.Register(item.Id, item);
         }
+
         return services;
     }
 }

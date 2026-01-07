@@ -32,9 +32,9 @@ internal class EngineBusExchange : IEngineBusExchange
     {
         engineBusRender.SetOriginCircuitId(CircuitId);
         var hostHandlers = await _engineBusReceiver.IncomingMessageAsync(engineBusRender, cancellationToken);
-        List<EngineBusResponse> result = new();
-        result.AddRange(hostHandlers);
-        foreach (var item in _circuitRegistry.GetPluginContexts())
+        List<EngineBusResponse> result = [.. hostHandlers];
+        var contexts = _circuitRegistry.GetPluginContexts();
+        foreach (var item in contexts)
         {
             if (item.Key.CircuitId != CircuitId) continue;
             var pluginBusReceiver = item.Value.GetRequired<IEngineBusReceiver>();

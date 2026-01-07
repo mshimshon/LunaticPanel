@@ -9,9 +9,7 @@ public static class DashboardKeys
     }
     public static class Events
     {
-        public const string OnInitialized = $"{BaseInfo.AssemblyName}.{nameof(DashboardKeys)}.{nameof(Events)}.{nameof(OnInitialized)}";
         public const string OnFirstRender = $"{BaseInfo.AssemblyName}.{nameof(DashboardKeys)}.{nameof(Events)}.{nameof(OnFirstRender)}";
-        public const string OnParameterSet = $"{BaseInfo.AssemblyName}.{nameof(DashboardKeys)}.{nameof(Events)}.{nameof(OnParameterSet)}";
 
     }
 }

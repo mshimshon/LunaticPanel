@@ -16,7 +16,7 @@ public static class Bootstrap
     public static string ConfigDirectory { get; private set; } = default!;
     internal static BootstrapConfiguration Configuration { get; private set; } = new();
 
-    public static List<Assembly> AdditionalAssemblies => [.. Configuration.ActivePlugins.Select(p => p.EntryPoint!.GetType().Assembly!)];
+    public static List<Assembly> AdditionalAssemblies => [.. Configuration.ActivePlugins.Select(p => p.EntryPoint!.GetType().Assembly!), typeof(RegisterServicesExt).Assembly];
     public static UnixFileMode DefaultDirectoryPermissions { get; } =
         UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
         UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |

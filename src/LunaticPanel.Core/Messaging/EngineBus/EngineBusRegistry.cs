@@ -30,7 +30,9 @@ public sealed class EngineBusRegistry : IEngineBusRegistry
         id = id.ToLower();
         lock (_lock)
         {
-            return _internalRegistryEventTypes[id]?.ToList()?.AsReadOnly() ?? new List<EngineBusHandlerDescriptor>().AsReadOnly();
+            if (_internalRegistryEventTypes.ContainsKey(id))
+                return _internalRegistryEventTypes[id].ToList().AsReadOnly();
+            return new List<EngineBusHandlerDescriptor>().AsReadOnly();
         }
     }
 

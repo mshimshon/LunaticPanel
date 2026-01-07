@@ -30,7 +30,9 @@ public sealed class QueryBusRegistry : IQueryBusRegistry
         id = id.ToLower();
         lock (_lock)
         {
-            return _internalRegistryEventTypes[id] ?? default;
+            if (_internalRegistryEventTypes.ContainsKey(id))
+                return _internalRegistryEventTypes[id];
+            return default;
         }
     }
 

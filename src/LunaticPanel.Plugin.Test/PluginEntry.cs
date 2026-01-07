@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Plugin.Test;
 
-public class Plugin : PluginBase
+public class PluginEntry : PluginBase
 {
     protected override void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
     {

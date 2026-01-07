@@ -141,17 +141,17 @@ public abstract class PluginBase : IPlugin
         services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
         services.AddScoped<EngineBus>();
         services.AddScoped<IEngineBus>((sp) => sp.GetRequiredService<EngineBus>());
-        services.AddScoped<IEngineBusReceiver>((sp) => sp.GetRequiredService<EngineBus>());
+        services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
 
         services.AddSingleton<IEventBusRegistry>((sp) => _eventBusRegistry);
         services.AddScoped<EventBus>();
-        services.AddScoped<IEventBus>((sp) => sp.GetRequiredService<EventBus>());
-        services.AddScoped<IEventBusReceiver>((sp) => sp.GetRequiredService<EventBus>());
+        services.AddScoped<IEventBus, EventBus>();
+        services.AddScoped<IEventBusReceiver, EventBusReceiver>();
 
         services.AddSingleton<IQueryBusRegistry>((sp) => _queryBusRegistry);
         services.AddScoped<QueryBus>();
         services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
-        services.AddScoped<IQueryBusReceiver>((sp) => sp.GetRequiredService<QueryBus>());
+        services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
         services.AddScoped(sp => new PluginContext(sp, circuit));
         services.AddScoped<IPluginContext>(sp => sp.GetRequiredService<PluginContext>());
