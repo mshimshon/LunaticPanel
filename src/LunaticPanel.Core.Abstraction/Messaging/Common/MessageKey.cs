@@ -6,7 +6,7 @@ public sealed record MessageKey
 
     public MessageKey(string fullname)
     {
-        _fullname = fullname;
+        _fullname = fullname.ToLower();
     }
 
     public MessageKey(string plugin, string action) : this($"{plugin}.{action}") { }

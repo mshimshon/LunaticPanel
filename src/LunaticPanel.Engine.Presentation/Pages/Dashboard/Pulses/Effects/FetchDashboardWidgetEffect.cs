@@ -15,6 +15,7 @@ public class FetchDashboardWidgetEffect : IEffect<FetchDashboardWidgetAction>
     }
     public async Task EffectAsync(FetchDashboardWidgetAction action, IDispatcher dispatcher)
     {
+        await Task.Delay(1000);
         var result = await _medihater.Send(new FetchDashboardWidgetsQuery());
         await dispatcher.Prepare<FetchedDashboardWidgetAction>()
             .With(p => p.Widgets, result)

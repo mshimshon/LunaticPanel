@@ -21,32 +21,58 @@ namespace LunaticPanel.Core;
 
 public abstract class PluginBase : IPlugin
 {
-    private readonly static Dictionary<Guid, IServiceScope> _circuitServiceProviders = new();
-    private static IReadOnlyCollection<BusHandlerDescriptor>? _scannedCachedBusHandlers;
+    private readonly static Dictionary<PluginContextIdentifier, IServiceScope> _circuitServiceProviders = new();
     private readonly static object _lockCircuitRegistry = new object();
+
+    private readonly static Dictionary<string, IReadOnlyCollection<BusHandlerDescriptor>> _scannedCachedBusHandlers = new();
+    private readonly static object _lockScannedCachedBusHandlers = new object();
+
     private List<HostRedirectionService> _hostRedirectedServices = new();
-    private readonly static EventBusRegistry _eventBusRegistry = new();
-    private readonly static QueryBusRegistry _queryBusRegistry = new();
-    private readonly static EngineBusRegistry _engineBusRegistry = new();
+    private readonly static Dictionary<PluginContextIdentifier, EventBusRegistry> _eventBusRegistry = new();
+    private readonly static object _lockEventBusRegistry = new object();
+
+    private readonly static Dictionary<PluginContextIdentifier, QueryBusRegistry> _queryBusRegistry = new();
+    private readonly static object _lockQueryBusRegistry = new object();
+
+    private readonly static Dictionary<PluginContextIdentifier, EngineBusRegistry> _engineBusRegistry = new();
+    private readonly static object _lockEngineBusRegistry = new object();
+
     private IServiceProvider? _singletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
 
     protected PluginBase() { _pluginId = GetType().Namespace!; }
 
-    private static void SetScannedHandlersCache(Assembly[] toScan)
+    private void SetScannedHandlersCache(CircuitIdentity circuit, Assembly[] toScan)
     {
-        lock (_lockCircuitRegistry)
+        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
+        lock (_lockScannedCachedBusHandlers)
         {
-            _scannedCachedBusHandlers = BusScannerExt.ScanBusHandlers(toScan).AsReadOnly();
+            if (_scannedCachedBusHandlers.ContainsKey(identity.PluginId))
+                return;
+            _scannedCachedBusHandlers[identity.PluginId] = BusScannerExt.ScanBusHandlers(toScan).AsReadOnly();
         }
     }
     public void OnCircuitStart(CircuitIdentity circuit)
     {
+        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (HasActiveCircuitFor(circuit.CircuitId)) return;
 
-        if (_scannedCachedBusHandlers == default)
-            SetScannedHandlersCache(GetPluginInternalAssemblies());
+        SetScannedHandlersCache(circuit, GetPluginInternalAssemblies());
+
+
+
+        lock (_lockEventBusRegistry)
+            if (!_eventBusRegistry.ContainsKey(identity))
+                _eventBusRegistry[identity] = new();
+
+        lock (_lockQueryBusRegistry)
+            if (!_queryBusRegistry.ContainsKey(identity))
+                _queryBusRegistry[identity] = new();
+
+        lock (_lockEngineBusRegistry)
+            if (!_engineBusRegistry.ContainsKey(identity))
+                _engineBusRegistry[identity] = new();
 
         var allServices = new ServiceCollection();
         RegisterCommonServices(allServices, circuit);
@@ -75,7 +101,7 @@ public abstract class PluginBase : IPlugin
         var scope = serviceProvider.CreateScope();
         lock (_circuitServiceProviders)
         {
-            _circuitServiceProviders[circuit.CircuitId] = scope;
+            _circuitServiceProviders[identity] = scope;
         }
 
     }
@@ -109,51 +135,73 @@ public abstract class PluginBase : IPlugin
     }
     public void OnCircuitEnd(CircuitIdentity circuit)
     {
+        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (!HasActiveCircuitFor(circuit.CircuitId)) return;
         IServiceScope serviceScope;
         lock (_circuitServiceProviders)
         {
-            serviceScope = _circuitServiceProviders[circuit.CircuitId];
-            _circuitServiceProviders.Remove(circuit.CircuitId);
+            serviceScope = _circuitServiceProviders[identity];
+            _circuitServiceProviders.Remove(identity);
         }
         serviceScope.Dispose();
         OnAfterCircuitEnd(circuit);
     }
     public IPluginContextService GetContext(Guid circuitId)
     {
+        PluginContextIdentifier identity = new(circuitId, PluginId);
         if (!HasActiveCircuitFor(circuitId))
             throw new CircuitClosedException(circuitId);
         IServiceScope serviceScope;
         lock (_lockCircuitRegistry)
         {
-            var result = _circuitServiceProviders.Single(p => p.Key == circuitId);
-            serviceScope = result.Value;
+            var result = _circuitServiceProviders[identity];
+            serviceScope = result;
         }
         return serviceScope.ServiceProvider.GetRequiredService<IPluginContextService>();
     }
     public void Configure(IConfiguration configuration) => LoadConfiguration(configuration);
-    protected static bool HasActiveCircuitFor(Guid id)
+    protected bool HasActiveCircuitFor(Guid circuitId)
     {
+        PluginContextIdentifier identity = new(circuitId, PluginId);
         lock (_lockCircuitRegistry)
         {
-            return _circuitServiceProviders.Any(p => p.Key == id);
+            return _circuitServiceProviders.ContainsKey(identity);
         }
     }
 
     private void RegisterCommonServices(IServiceCollection services, CircuitIdentity circuit)
     {
 
-        services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
+        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
+        services.AddSingleton<IEngineBusRegistry>((sp) =>
+        {
+            lock (_lockEngineBusRegistry)
+            {
+                return _engineBusRegistry[identity];
+            }
+        });
         services.AddScoped<EngineBus>();
         services.AddScoped<IEngineBus>((sp) => sp.GetRequiredService<EngineBus>());
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
 
-        services.AddSingleton<IEventBusRegistry>((sp) => _eventBusRegistry);
+        services.AddSingleton<IEventBusRegistry>((sp) =>
+        {
+            lock (_lockEventBusRegistry)
+            {
+                return _eventBusRegistry[identity];
+            }
+        });
         services.AddScoped<EventBus>();
         services.AddScoped<IEventBus, EventBus>();
         services.AddScoped<IEventBusReceiver, EventBusReceiver>();
 
-        services.AddSingleton<IQueryBusRegistry>((sp) => _queryBusRegistry);
+        services.AddSingleton<IQueryBusRegistry>((sp) =>
+        {
+            lock (_lockQueryBusRegistry)
+            {
+                return _queryBusRegistry[identity];
+            }
+        });
         services.AddScoped<QueryBus>();
         services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
@@ -162,18 +210,42 @@ public abstract class PluginBase : IPlugin
         services.AddScoped<IPluginContext>(sp => sp.GetRequiredService<PluginContext>());
         services.AddScoped<IPluginContextService>(sp => sp.GetRequiredService<PluginContext>());
         services.AddScoped<IWidgetContext>(sp => sp.GetRequiredService<PluginContext>());
+        bool hasAlreadyScannedForBus;
+        lock (_lockScannedCachedBusHandlers)
+        {
+            hasAlreadyScannedForBus = _scannedCachedBusHandlers.ContainsKey(identity.PluginId);
+        }
+        if (hasAlreadyScannedForBus)
+        {
+            IReadOnlyCollection<BusHandlerDescriptor> cache;
+            lock (_lockScannedCachedBusHandlers)
+                cache = _scannedCachedBusHandlers[identity.PluginId];
 
-        if (_scannedCachedBusHandlers != default)
-            foreach (var item in _scannedCachedBusHandlers)
+
+            foreach (var item in cache)
             {
                 services.AddTransient(item.HandlerType);
                 if (item.BusType == EBusType.EventBus)
-                    _eventBusRegistry.Register(item.Id, item);
+                    lock (_lockEventBusRegistry)
+                    {
+                        _eventBusRegistry[identity].Register(item.Id, item);
+                    }
                 else if (item.BusType == EBusType.QueryBus)
-                    _queryBusRegistry.Register(item.Id, item);
+                    lock (_lockQueryBusRegistry)
+                    {
+
+                        _queryBusRegistry[identity].Register(item.Id, item);
+                    }
+
                 else
-                    _engineBusRegistry.Register(item.Id, item);
+                    lock (_lockEngineBusRegistry)
+                    {
+
+                        _engineBusRegistry[identity].Register(item.Id, item);
+                    }
             }
+        }
+
     }
 
     /// <summary>

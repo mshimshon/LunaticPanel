@@ -78,6 +78,8 @@ internal static class BootstrapPlugins
         }
         AddMisingPlugins(knownCopy);
         Configuration.ActivePlugins = Configuration.KnownPlugins.Where(p => p.Entity.Lifecycle.State == PluginState.Active && p.EntryPoint != default).ToList();
+
+
     }
 
     private static bool ShouldDisable(BootstrapPluginDescriptor? discovered) =>

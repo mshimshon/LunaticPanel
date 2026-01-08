@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <GlobalVersion>0.1.709</GlobalVersion>
+    <GlobalVersion>0.1.712</GlobalVersion>
     <GlobalCompany>Maksim Shimshon</GlobalCompany>
     <GlobalAuthors>Maksim Shimshon</GlobalAuthors>
     <GlobalCopyright>Maksim Shimshon © 2026</GlobalCopyright>
