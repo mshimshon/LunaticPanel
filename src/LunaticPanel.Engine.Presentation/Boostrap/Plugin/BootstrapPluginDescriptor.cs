@@ -3,7 +3,7 @@ using LunaticPanel.Engine.Domain.Plugin.Entites;
 using McMaster.NETCore.Plugins;
 using System.Text.Json.Serialization;
 
-namespace LunaticPanel.Engine.Web.Boostrap;
+namespace LunaticPanel.Engine.Web.Boostrap.Plugin;
 
 internal record BootstrapPluginDescriptor
 {

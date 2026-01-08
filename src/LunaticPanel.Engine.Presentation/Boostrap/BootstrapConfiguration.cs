@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using LunaticPanel.Engine.Web.Boostrap.Plugin;
+using System.Text.Json.Serialization;
 
 namespace LunaticPanel.Engine.Web.Boostrap;
 

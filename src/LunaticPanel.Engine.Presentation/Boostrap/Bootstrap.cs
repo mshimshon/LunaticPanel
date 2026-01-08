@@ -1,12 +1,13 @@
 ﻿using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Engine.Application.Plugin;
+using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using System.Text.Json;
-using static LunaticPanel.Engine.Web.Boostrap.BootstrapPlugins;
-using static LunaticPanel.Engine.Web.Boostrap.BootstrapPluginsValidator;
+using static LunaticPanel.Engine.Web.Boostrap.Plugin.BootstrapPlugins;
+using static LunaticPanel.Engine.Web.Boostrap.Plugin.BootstrapPluginsValidator;
 namespace LunaticPanel.Engine.Web.Boostrap;
 
 public static class Bootstrap
@@ -101,7 +102,8 @@ public static class Bootstrap
 
 
         var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        PluginDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+        //PluginDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+        PluginDirectory = Path.Combine(appDataDir, ConfigNameKey, "Plugins");
 
         string? configuredConfigPath = configuration.GetSection(ConfigNameKey).GetValue<string>("ConfigDirectory");
 

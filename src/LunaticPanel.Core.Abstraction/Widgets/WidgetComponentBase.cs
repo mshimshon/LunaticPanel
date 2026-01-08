@@ -13,7 +13,7 @@ public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : ComponentB
     where TPluginEntry : IPlugin
 {
     protected IPluginContextService PluginContextService { get; private set; } = default!;
-    protected IWidgetViewModel ViewModel { get; private set; } = default!;
+    protected TViewModel ViewModel { get; private set; } = default!;
     [Inject] private IServiceProvider HostProvider { get; set; } = default!;
 
     public Task OnViewModelChanged() => InvokeAsync(StateHasChanged);

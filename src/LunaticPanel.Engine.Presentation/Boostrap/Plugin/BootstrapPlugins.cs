@@ -4,9 +4,8 @@ using LunaticPanel.Engine.Domain.Plugin.Entites;
 using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 using LunaticPanel.Engine.Infrastructure.Plugin;
-using LunaticPanel.Engine.Web.Services.Plugin;
 using Microsoft.Extensions.Configuration;
-namespace LunaticPanel.Engine.Web.Boostrap;
+namespace LunaticPanel.Engine.Web.Boostrap.Plugin;
 
 internal static class BootstrapPlugins
 {
@@ -17,9 +16,9 @@ internal static class BootstrapPlugins
     public static IPluginRegistry Registry { get; set; } = new PluginRegistry();
     public static void DetectPlugins()
     {
-        var scanner = new PluginScanner(PluginDirectory);
+        var scanner = new BootstrapPluginScanner(PluginDirectory);
         var result = scanner.Scan();
-        foreach (PluginScanResult item in result)
+        foreach (BootstrapPluginScanResult item in result)
         {
             var identity = new PluginIdentity(item.PluginId, item.Version, item.PluginId);
             try

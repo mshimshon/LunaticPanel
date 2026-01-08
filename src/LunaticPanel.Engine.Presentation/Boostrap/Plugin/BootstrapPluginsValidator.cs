@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Engine.Web.Boostrap;
+﻿namespace LunaticPanel.Engine.Web.Boostrap.Plugin;
 
 internal static class BootstrapPluginsValidator
 {
