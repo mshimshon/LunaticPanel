@@ -1,8 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets;
-using LunaticPanel.Core.PluginValidator;
-using LunaticPanel.Core.PluginValidator.Diagnostic.Messages;
-
-namespace LunaticPanel.Engine.Web.Boostrap;
+﻿namespace LunaticPanel.Engine.Web.Boostrap;
 
 internal static class BootstrapPluginsValidator
 {
@@ -17,15 +13,15 @@ internal static class BootstrapPluginsValidator
     {
         var cachePLugin = Configuration.ActivePlugins.Select(p => p with { }).ToList();
         foreach (var plugin in cachePLugin)
-        {
-            ValidationResult result = plugin.EntryPoint!.FindAnyInvalidRoutesNames();
-            if (!result.Passed)
-                UnloadFailedPlugin(plugin, $"One or more Routes inside {plugin.Entity.Identity.PackageId} doesn't respect naming conventions.");
+            foreach (var result in plugin.EntryPoint!.PerformValidation())
+            {
+                if (!result.Passed)
+                {
+                    UnloadFailedPlugin(plugin, result.Errors!.First().Message);
+                    break;
+                }
 
-            result = plugin.EntryPoint!.FindAnyWidgetNotUsingProperComponentBase();
-            if (!result.Passed)
-                UnloadFailedPlugin(plugin, $"One or more Components inside {plugin.Entity.Identity.PackageId} doesn't respect {nameof(WidgetComponentBase<,>)} inheritance requirement.");
-        }
+            }
     }
     private static void UnloadFailedPlugin(BootstrapPluginDescriptor plugin, string message)
     {

@@ -1,6 +1,8 @@
 ﻿using LunaticPanel.Core.Abstraction;
 using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Circuit.Exceptions;
+using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
 using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
@@ -9,6 +11,7 @@ using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
+using LunaticPanel.Core.PluginValidator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -21,7 +24,7 @@ public abstract class PluginBase : IPlugin
     private readonly static Dictionary<Guid, IServiceScope> _circuitServiceProviders = new();
     private static IReadOnlyCollection<BusHandlerDescriptor>? _scannedCachedBusHandlers;
     private readonly static object _lockCircuitRegistry = new object();
-    private IServiceCollection? _hostRedirectedServices;
+    private List<HostRedirectionService> _hostRedirectedServices = new();
     private readonly static EventBusRegistry _eventBusRegistry = new();
     private readonly static QueryBusRegistry _queryBusRegistry = new();
     private readonly static EngineBusRegistry _engineBusRegistry = new();
@@ -42,11 +45,13 @@ public abstract class PluginBase : IPlugin
     {
         if (HasActiveCircuitFor(circuit.CircuitId)) return;
 
+        if (_scannedCachedBusHandlers == default)
+            SetScannedHandlersCache(GetPluginInternalAssemblies());
+
         var allServices = new ServiceCollection();
         RegisterCommonServices(allServices, circuit);
         RegisterPluginServices(allServices, circuit);
-        if (_scannedCachedBusHandlers == default)
-            SetScannedHandlersCache(GetPluginInternalAssemblies());
+
         bool isSingletonCollectionInitialized = _singletonProvider != default;
         ServiceCollection? singletonServices = isSingletonCollectionInitialized ? default : new();
         var finalServices = new ServiceCollection();
@@ -61,12 +66,12 @@ public abstract class PluginBase : IPlugin
                 finalServices.Add(item);
         }
 
-        CompileHostRedirectedServices(circuit, ref allServices);
+        CompileHostRedirectedServices(circuit, ref finalServices);
 
         if (singletonServices != default)
             _singletonProvider = singletonServices.BuildServiceProvider().CreateScope().ServiceProvider;
 
-        var serviceProvider = allServices.BuildServiceProvider();
+        var serviceProvider = finalServices.BuildServiceProvider();
         var scope = serviceProvider.CreateScope();
         lock (_circuitServiceProviders)
         {
@@ -75,11 +80,13 @@ public abstract class PluginBase : IPlugin
 
     }
 
-    public void AddHostRedirectedServices(IServiceCollection serviceDescriptors)
+    public void AddHostRedirectedServices(params HostRedirectionService[] serviceTypes)
     {
         lock (_lockCircuitRegistry)
         {
-            _hostRedirectedServices = serviceDescriptors;
+            if (_hostRedirectedServices == default)
+                _hostRedirectedServices = new List<HostRedirectionService>();
+            _hostRedirectedServices.AddRange(serviceTypes);
         }
     }
 
@@ -88,8 +95,12 @@ public abstract class PluginBase : IPlugin
         if (_hostRedirectedServices == default) return;
         foreach (var item in _hostRedirectedServices)
         {
+            if (item.ServiceType.IsGenericTypeDefinition) continue;
             if (item.Lifetime == ServiceLifetime.Singleton)
-                result.AddSingleton(item.ServiceType, () => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
+                result.AddSingleton(item.ServiceType, (sp) =>
+                {
+                    return circuit.HostServiceProvider.GetRequiredService(item.ServiceType);
+                });
             else if (item.Lifetime == ServiceLifetime.Scoped)
                 result.AddScoped(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
             else if (item.Lifetime == ServiceLifetime.Transient)
@@ -129,13 +140,7 @@ public abstract class PluginBase : IPlugin
         }
     }
 
-    /// <summary>
-    /// WARNING: this auto load all the boilerplate services to make plugin work if you override make sure to call the base class <br/>
-    /// or reimplement the logic... it's essentially loading all of the necessary requirement for the panel to load up.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="circuit"></param>
-    protected virtual void RegisterCommonServices(IServiceCollection services, CircuitIdentity circuit)
+    private void RegisterCommonServices(IServiceCollection services, CircuitIdentity circuit)
     {
 
         services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
@@ -209,4 +214,16 @@ public abstract class PluginBase : IPlugin
 
     }
 
+    private IReadOnlyCollection<PluginValidationResult>? _passValidation;
+    public IReadOnlyCollection<PluginValidationResult> PerformValidation()
+    {
+        if (_passValidation != default)
+            return _passValidation;
+        List<PluginValidationResult> resultToReturn = [
+                this.FindAnyInvalidRoutesNames(),
+                this.FindAnyWidgetNotUsingProperComponentBase()
+            ];
+        _passValidation = resultToReturn.AsReadOnly();
+        return PerformValidation();
+    }
 }

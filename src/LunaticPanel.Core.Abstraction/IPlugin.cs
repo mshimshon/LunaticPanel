@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Core.Abstraction;
 
@@ -10,7 +11,9 @@ public interface IPlugin
     void OnCircuitStart(CircuitIdentity circuit);
     void OnCircuitEnd(CircuitIdentity circuit);
     IPluginContextService GetContext(Guid circuitId);
-    void AddHostRedirectedServices(IServiceCollection serviceDescriptors);
+    void AddHostRedirectedServices(params HostRedirectionService[] serviceTypes);
     string PluginId { get; }
+
+    IReadOnlyCollection<PluginValidationResult> PerformValidation();
 
 }

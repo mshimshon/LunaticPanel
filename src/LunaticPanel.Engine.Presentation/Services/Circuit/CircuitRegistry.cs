@@ -38,7 +38,8 @@ public sealed class CircuitRegistry : ICircuitRegistry
             _currentCircuit = new() { CircuitId = id, LayoutComponent = app, HostServiceProvider = app.ServiceProvider };
             _circuits.Add(_currentCircuit);
         }
-        foreach (var item in _pluginRegistry.GetAll())
+        var plugins = _pluginRegistry.GetAll();
+        foreach (var item in plugins)
         {
             lock (_lockPluginContexts)
             {

@@ -38,10 +38,6 @@ public static class RegisterServicesExt
 
         services.AddSingleton<IPluginRegistry, PluginRegistry>();
 
-
-
-
-
         services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Transient; }, [
             typeof(RegisterServicesExt),
             typeof(Application.RegisterServicesExt)

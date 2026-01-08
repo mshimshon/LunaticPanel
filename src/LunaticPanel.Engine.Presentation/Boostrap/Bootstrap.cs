@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Engine.Application.Plugin;
+﻿using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Engine.Application.Plugin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
@@ -44,13 +45,14 @@ public static class Bootstrap
         foreach (BootstrapPluginDescriptor item in Configuration.ActivePlugins)
         {
             pluginRegistry.Register(new(item.EntryPoint!, item.Entity));
+            Console.WriteLine("PLUGIN STATIC FILE REGISTRATION");
+            Console.WriteLine($"PackageId: {item.Entity.Identity.PackageId}");
+            Console.WriteLine($"PluginDir: {item.PluginDir}");
 
             var wwwroot = Path.Combine(item.PluginDir, "wwwroot");
             if (Directory.Exists(wwwroot))
             {
-                Console.WriteLine("PLUGIN STATIC FILE REGISTRATION");
-                Console.WriteLine($"PackageId: {item.Entity.Identity.PackageId}");
-                Console.WriteLine($"PluginDir: {item.PluginDir}");
+
                 Console.WriteLine($"wwwroot: {wwwroot}");
                 Console.WriteLine($"wwwroot exists: {Directory.Exists(wwwroot)}");
                 Console.WriteLine($"banner exists: {File.Exists(Path.Combine(wwwroot, "game_banner.jpg"))}");
@@ -61,7 +63,11 @@ public static class Bootstrap
                 };
                 webApp.UseStaticFiles(options);
             }
-
+            var redirectServiceToHost = RegisterServicesExt
+                .AddHostRedirectedServices(new ServiceCollection())
+                .Select(p => new HostRedirectionService(p.ServiceType, p.Lifetime))
+                .ToArray();
+            item.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
         }
     }
 
@@ -80,7 +86,12 @@ public static class Bootstrap
 
     private static void SaveConfiguration()
     {
-        var configJson = JsonSerializer.Serialize(Configuration);
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+
+        var configJson = JsonSerializer.Serialize(Configuration, options);
         var configFile = Path.Combine(ConfigDirectory, "bootstrap.json");
         File.WriteAllText(configFile, configJson);
     }

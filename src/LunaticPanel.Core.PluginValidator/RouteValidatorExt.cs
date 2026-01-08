@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction;
-using LunaticPanel.Core.PluginValidator.Diagnostic.Messages;
+using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
 using Microsoft.AspNetCore.Components;
 using System.Reflection;
 
@@ -7,10 +7,10 @@ namespace LunaticPanel.Core.PluginValidator;
 
 public static class RouteValidatorExt
 {
-    public static ValidationResult FindAnyInvalidRoutesNames(this IPlugin plugin)
+    public static PluginValidationResult FindAnyInvalidRoutesNames(this IPlugin plugin)
     {
         var invalidRoutes = new List<string>();
-        List<ValidationError> validationErrors = new();
+        List<PluginValidationError> validationErrors = new();
         foreach (var type in plugin.GetType().Assembly.GetTypes())
         {
             if (!typeof(ComponentBase).IsAssignableFrom(type))
@@ -34,7 +34,7 @@ public static class RouteValidatorExt
                 }
             }
         }
-        ValidationResult result = new()
+        PluginValidationResult result = new()
         {
             Errors = validationErrors.AsReadOnly(),
             PluginId = plugin.PluginId

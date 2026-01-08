@@ -31,19 +31,6 @@ public static class RegisterServicesExt
         services.AddScoped<DashboardViewModel>();
 
         services.AddScoped<CircuitRegistry>();
-        services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
-        services.AddMudServices(config =>
-        {
-            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
-            config.SnackbarConfiguration.PreventDuplicates = false;
-            config.SnackbarConfiguration.NewestOnTop = false;
-            config.SnackbarConfiguration.ShowCloseIcon = true;
-            config.SnackbarConfiguration.VisibleStateDuration = 10000;
-            config.SnackbarConfiguration.HideTransitionDuration = 500;
-            config.SnackbarConfiguration.ShowTransitionDuration = 500;
-            config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
-        });
-
 
         services.AddStatePulseServices(o =>
         {
@@ -70,6 +57,7 @@ public static class RegisterServicesExt
         services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
         services.AddSingleton<IEventBusRegistry>((sp) => _eventBusRegistry);
         services.AddSingleton<IQueryBusRegistry>((sp) => _queryBusRegistry);
+
         var toRegisterBusHandlers = BusScannerExt.ScanBusHandlers(typeof(RegisterServicesExt).Assembly);
         foreach (var item in toRegisterBusHandlers)
         {
@@ -81,6 +69,25 @@ public static class RegisterServicesExt
             else
                 _engineBusRegistry.Register(item.Id, item);
         }
+        services.AddHostRedirectedServices();
+        return services;
+    }
+
+    public static IServiceCollection AddHostRedirectedServices(this IServiceCollection services)
+    {
+        services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
+
+        services.AddMudServices(config =>
+        {
+            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+            config.SnackbarConfiguration.PreventDuplicates = false;
+            config.SnackbarConfiguration.NewestOnTop = false;
+            config.SnackbarConfiguration.ShowCloseIcon = true;
+            config.SnackbarConfiguration.VisibleStateDuration = 10000;
+            config.SnackbarConfiguration.HideTransitionDuration = 500;
+            config.SnackbarConfiguration.ShowTransitionDuration = 500;
+            config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+        });
 
         return services;
     }

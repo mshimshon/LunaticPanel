@@ -9,5 +9,6 @@ public class PluginEntry : PluginBase
     protected override void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
     {
         services.AddScoped<MyService>();
+        services.AddScoped<MenuViewModel>();
     }
 }

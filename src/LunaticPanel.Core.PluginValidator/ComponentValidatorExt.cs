@@ -1,12 +1,15 @@
 ﻿using LunaticPanel.Core.Abstraction;
+using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
 using LunaticPanel.Core.Abstraction.Widgets;
-using LunaticPanel.Core.PluginValidator.Diagnostic.Messages;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Core.PluginValidator;
 
 public static class ComponentValidatorExt
 {
+    private static List<string> _exempted = [
+        "_Imports"
+        ];
     private static bool InheritsOpenGeneric(Type type, Type openGeneric)
     {
         while (type != null && type != typeof(object))
@@ -21,9 +24,9 @@ public static class ComponentValidatorExt
         return false;
     }
 
-    public static ValidationResult FindAnyWidgetNotUsingProperComponentBase(this IPlugin plugin)
+    public static PluginValidationResult FindAnyWidgetNotUsingProperComponentBase(this IPlugin plugin)
     {
-        List<ValidationError> validationErrors = new();
+        List<PluginValidationError> validationErrors = new();
         foreach (var type in plugin.GetType().Assembly.GetTypes())
         {
             if (type == null)
@@ -34,7 +37,8 @@ public static class ComponentValidatorExt
 
             if (!type.IsClass || type.IsAbstract)
                 continue;
-
+            if (_exempted.Contains(type.Name))
+                continue;
             // Check inheritance chain for WidgetComponentBase<,>
             var current = type;
             var openGeneric = typeof(WidgetComponentBase<,>);
@@ -48,7 +52,7 @@ public static class ComponentValidatorExt
                 });
             }
         }
-        ValidationResult result = new()
+        PluginValidationResult result = new()
         {
             Errors = validationErrors.AsReadOnly(),
             PluginId = plugin.PluginId

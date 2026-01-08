@@ -1,6 +1,6 @@
-﻿namespace LunaticPanel.Core.PluginValidator.Diagnostic.Messages;
+﻿namespace LunaticPanel.Core.Abstraction.Diagnostic.Messages;
 
-public record ValidationError
+public record PluginValidationError
 {
     public string Message { get; init; } = default!;
     public string Origin { get; init; } = default!;

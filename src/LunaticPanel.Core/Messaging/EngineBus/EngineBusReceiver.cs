@@ -1,5 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Circuit;
-using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Core.Messaging.EngineBus;
@@ -8,13 +7,11 @@ public class EngineBusReceiver : IEngineBusReceiver
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IEngineBusRegistry _engineBusRegistry;
-    private readonly ICircuitRegistry _circuitRegistry;
 
-    public EngineBusReceiver(IServiceProvider serviceProvider, IEngineBusRegistry engineBusRegistry, ICircuitRegistry circuitRegistry)
+    public EngineBusReceiver(IServiceProvider serviceProvider, IEngineBusRegistry engineBusRegistry)
     {
         _serviceProvider = serviceProvider;
         _engineBusRegistry = engineBusRegistry;
-        _circuitRegistry = circuitRegistry;
     }
 
     public Task<EngineBusResponse[]> IncomingMessageAsync(IEngineBusMessage engineBusRender, CancellationToken cancellationToken = default)
