@@ -42,7 +42,8 @@ public static class ComponentValidatorExt
             // Check inheritance chain for WidgetComponentBase<,>
             var current = type;
             var openGeneric = typeof(WidgetComponentBase<,>);
-            var inherits = InheritsOpenGeneric(current, openGeneric);
+            var openGeneric2 = typeof(WidgetComponentBase<>);
+            var inherits = InheritsOpenGeneric(current, openGeneric) || InheritsOpenGeneric(current, openGeneric2);
             if (!inherits)
             {
                 validationErrors.Add(new()
