@@ -3,6 +3,7 @@ using App = LunaticPanel.Hybrid.Web.App;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddCircuitOptions(o => o.DetailedErrors = true);
 builder.WebHost.UseKestrel();
+
 Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
 WebApplication app = builder.Build();
 

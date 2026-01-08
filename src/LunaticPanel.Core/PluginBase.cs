@@ -40,7 +40,6 @@ public abstract class PluginBase : IPlugin
     private IServiceProvider? _singletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
-
     protected PluginBase() { _pluginId = GetType().Namespace!; }
 
     private void SetScannedHandlersCache(CircuitIdentity circuit, Assembly[] toScan)
@@ -59,20 +58,7 @@ public abstract class PluginBase : IPlugin
         if (HasActiveCircuitFor(circuit.CircuitId)) return;
 
         SetScannedHandlersCache(circuit, GetPluginInternalAssemblies());
-
-
-
-        lock (_lockEventBusRegistry)
-            if (!_eventBusRegistry.ContainsKey(identity))
-                _eventBusRegistry[identity] = new();
-
-        lock (_lockQueryBusRegistry)
-            if (!_queryBusRegistry.ContainsKey(identity))
-                _queryBusRegistry[identity] = new();
-
-        lock (_lockEngineBusRegistry)
-            if (!_engineBusRegistry.ContainsKey(identity))
-                _engineBusRegistry[identity] = new();
+        CreateBusRegistry(circuit);
 
         var allServices = new ServiceCollection();
         RegisterCommonServices(allServices, circuit);
@@ -80,13 +66,22 @@ public abstract class PluginBase : IPlugin
 
         bool isSingletonCollectionInitialized = _singletonProvider != default;
         ServiceCollection? singletonServices = isSingletonCollectionInitialized ? default : new();
+
+        if (!isSingletonCollectionInitialized)
+            RegisterSingletonServices(singletonServices!, circuit);
+
         var finalServices = new ServiceCollection();
         foreach (var item in allServices)
         {
+            bool isGlobalState = false;
             if (!isSingletonCollectionInitialized && item.Lifetime == ServiceLifetime.Singleton)
-                singletonServices!.Add(item);
+            {
+                isGlobalState = item.ServiceType.GetInterfaces().Any(i => i.FullName == "StatePulse.Net.IStateFeatureSingleton");
+                if (isGlobalState)
+                    singletonServices!.Add(item);
+            }
 
-            if (item.Lifetime == ServiceLifetime.Singleton)
+            if (isGlobalState && item.Lifetime == ServiceLifetime.Singleton)
                 finalServices.AddSingleton(item.ServiceType, (sp) => _singletonProvider!.GetRequiredService(item.ServiceType));
             else
                 finalServices.Add(item);
@@ -100,12 +95,24 @@ public abstract class PluginBase : IPlugin
         var serviceProvider = finalServices.BuildServiceProvider();
         var scope = serviceProvider.CreateScope();
         lock (_circuitServiceProviders)
-        {
             _circuitServiceProviders[identity] = scope;
-        }
-
     }
 
+    private void CreateBusRegistry(CircuitIdentity circuit)
+    {
+        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
+        lock (_lockEventBusRegistry)
+            if (!_eventBusRegistry.ContainsKey(identity))
+                _eventBusRegistry[identity] = new();
+
+        lock (_lockQueryBusRegistry)
+            if (!_queryBusRegistry.ContainsKey(identity))
+                _queryBusRegistry[identity] = new();
+
+        lock (_lockEngineBusRegistry)
+            if (!_engineBusRegistry.ContainsKey(identity))
+                _engineBusRegistry[identity] = new();
+    }
     public void AddHostRedirectedServices(params HostRedirectionService[] serviceTypes)
     {
         lock (_lockCircuitRegistry)
@@ -115,7 +122,6 @@ public abstract class PluginBase : IPlugin
             _hostRedirectedServices.AddRange(serviceTypes);
         }
     }
-
     public void CompileHostRedirectedServices(CircuitIdentity circuit, ref ServiceCollection result)
     {
         if (_hostRedirectedServices == default) return;
@@ -133,10 +139,30 @@ public abstract class PluginBase : IPlugin
                 result.AddTransient(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
         }
     }
+
+    private void DeleteBusRegistry(CircuitIdentity circuit)
+    {
+        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
+        lock (_lockEventBusRegistry)
+            if (_eventBusRegistry.ContainsKey(identity))
+                _eventBusRegistry.Remove(identity);
+
+        lock (_lockQueryBusRegistry)
+            if (_queryBusRegistry.ContainsKey(identity))
+                _queryBusRegistry.Remove(identity);
+
+        lock (_lockEngineBusRegistry)
+            if (_engineBusRegistry.ContainsKey(identity))
+                _engineBusRegistry.Remove(identity);
+    }
+
     public void OnCircuitEnd(CircuitIdentity circuit)
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (!HasActiveCircuitFor(circuit.CircuitId)) return;
+
+        DeleteBusRegistry(circuit);
+
         IServiceScope serviceScope;
         lock (_circuitServiceProviders)
         {
@@ -146,6 +172,7 @@ public abstract class PluginBase : IPlugin
         serviceScope.Dispose();
         OnAfterCircuitEnd(circuit);
     }
+
     public IPluginContextService GetContext(Guid circuitId)
     {
         PluginContextIdentifier identity = new(circuitId, PluginId);
@@ -168,10 +195,8 @@ public abstract class PluginBase : IPlugin
             return _circuitServiceProviders.ContainsKey(identity);
         }
     }
-
-    private void RegisterCommonServices(IServiceCollection services, CircuitIdentity circuit)
+    private void RegisterSingletonServices(IServiceCollection services, CircuitIdentity circuit)
     {
-
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         services.AddSingleton<IEngineBusRegistry>((sp) =>
         {
@@ -180,10 +205,6 @@ public abstract class PluginBase : IPlugin
                 return _engineBusRegistry[identity];
             }
         });
-        services.AddScoped<EngineBus>();
-        services.AddScoped<IEngineBus>((sp) => sp.GetRequiredService<EngineBus>());
-        services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
-
         services.AddSingleton<IEventBusRegistry>((sp) =>
         {
             lock (_lockEventBusRegistry)
@@ -191,10 +212,6 @@ public abstract class PluginBase : IPlugin
                 return _eventBusRegistry[identity];
             }
         });
-        services.AddScoped<EventBus>();
-        services.AddScoped<IEventBus, EventBus>();
-        services.AddScoped<IEventBusReceiver, EventBusReceiver>();
-
         services.AddSingleton<IQueryBusRegistry>((sp) =>
         {
             lock (_lockQueryBusRegistry)
@@ -202,6 +219,25 @@ public abstract class PluginBase : IPlugin
                 return _queryBusRegistry[identity];
             }
         });
+    }
+
+    private void RegisterCommonServices(IServiceCollection services, CircuitIdentity circuit)
+    {
+
+        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
+        services.AddSingleton((sp) => _singletonProvider!.GetRequiredService<IEngineBusRegistry>());
+        services.AddSingleton((sp) => _singletonProvider!.GetRequiredService<IEventBusRegistry>());
+        services.AddSingleton((sp) => _singletonProvider!.GetRequiredService<IQueryBusRegistry>());
+        services.AddScoped<EngineBus>();
+        services.AddScoped<IEngineBus>((sp) => sp.GetRequiredService<EngineBus>());
+        services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
+
+
+        services.AddScoped<EventBus>();
+        services.AddScoped<IEventBus, EventBus>();
+        services.AddScoped<IEventBusReceiver, EventBusReceiver>();
+
+
         services.AddScoped<QueryBus>();
         services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
