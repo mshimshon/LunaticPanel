@@ -4,11 +4,13 @@ using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Engine.Infrastructure;
+using LunaticPanel.Engine.Infrastructure.Services;
 using LunaticPanel.Engine.Web.Layout.Menu;
 using LunaticPanel.Engine.Web.Pages.Dashboard;
 using LunaticPanel.Engine.Web.Services.Circuit;
@@ -31,7 +33,7 @@ public static class RegisterServicesExt
         services.AddScoped<DashboardViewModel>();
 
         services.AddScoped<CircuitRegistry>();
-
+        services.AddScoped<CommandRunner>();
         services.AddStatePulseServices(o =>
         {
             o.DispatchEffectBehavior = StatePulse.Net.Configuration.DispatchEffectBehavior.Parallel;
@@ -73,9 +75,17 @@ public static class RegisterServicesExt
         return services;
     }
 
+    /// <summary>
+    /// This is also called by Bootstraper so ensure it follows a factory pattern or ensure full dependencies are included.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
     public static IServiceCollection AddHostRedirectedServices(this IServiceCollection services)
     {
+        services.AddEngineInfrastructureRedirected();
         services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
+        services.AddScoped<ILinuxCommand>(sp => sp.GetRequiredService<CommandRunner>());
+
 
         services.AddMudServices(config =>
         {

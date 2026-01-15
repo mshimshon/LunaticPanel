@@ -19,6 +19,7 @@ using System.Reflection;
 
 namespace LunaticPanel.Core;
 
+
 public abstract class PluginBase : IPlugin
 {
     private readonly static Dictionary<PluginContextIdentifier, IServiceScope> _circuitServiceProviders = new();
@@ -40,7 +41,12 @@ public abstract class PluginBase : IPlugin
     private IServiceProvider? _singletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
-    protected PluginBase() { _pluginId = GetType().Namespace!; }
+
+    private bool _hasStarted;
+    protected PluginBase()
+    {
+        _pluginId = GetType().Namespace!;
+    }
 
     private void SetScannedHandlersCache(CircuitIdentity circuit, Assembly[] toScan)
     {
@@ -236,7 +242,7 @@ public abstract class PluginBase : IPlugin
         services.AddScoped<EventBus>();
         services.AddScoped<IEventBus, EventBus>();
         services.AddScoped<IEventBusReceiver, EventBusReceiver>();
-
+        services.AddScoped<IPluginConfiguration>((sp) => new PluginConfiguration(PluginId));
 
         services.AddScoped<QueryBus>();
         services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
@@ -269,14 +275,12 @@ public abstract class PluginBase : IPlugin
                 else if (item.BusType == EBusType.QueryBus)
                     lock (_lockQueryBusRegistry)
                     {
-
                         _queryBusRegistry[identity].Register(item.Id, item);
                     }
 
                 else
                     lock (_lockEngineBusRegistry)
                     {
-
                         _engineBusRegistry[identity].Register(item.Id, item);
                     }
             }
@@ -285,29 +289,47 @@ public abstract class PluginBase : IPlugin
     }
 
     /// <summary>
-    /// Register any extra services maybe from other package you may be using.
+    /// Registers any additional services required by the plugin, including services
+    /// provided by external packages or libraries. This method is invoked each time
+    /// a new circuit (client connection) is created. Plugins must avoid performing
+    /// assembly scanning or other expensive operations here, as this would introduce
+    /// significant runtime overhead.
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="circuit"></param>
     protected virtual void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
     {
 
     }
 
     /// <summary>
-    /// By default this will only tag your own plugin assembly to be scanned if you have additional razor class library add them along side your plugin assembly.
+    /// Returns the set of assemblies that should be scanned for this plugin.
+    /// By default, only the plugin's own assembly is included. If the plugin
+    /// relies on additional Razor Class Libraries or other internal assemblies,
+    /// they should be added to the returned array alongside the primary assembly.
     /// </summary>
-    /// <returns></returns>
     protected virtual Assembly[] GetPluginInternalAssemblies() { return [GetType().Assembly]; }
 
     /// <summary>
-    /// This is called a boot time... this is the first thing plugin get hit by.
-    /// All plugin will get it own section plugin id from the appSetting.Json if present.
+    /// Loads the plugin's boot‑time configuration from the application's appsettings.json.
+    /// Administrators may provide a configuration section for this plugin, identified by its
+    /// plugin ID. Plugins must treat all values as optional and fall back to their own
+    /// internal defaults when entries are missing or empty.
     /// </summary>
     protected virtual void LoadConfiguration(IConfiguration configuration) { }
 
     /// <summary>
-    /// This is called after initial boilerplate are done when client connects
+    /// Executes after all services have been registered and the application has been built,
+    /// but before the runtime (e.g., Blazor) becomes active. A scoped service provider is
+    /// created and passed to the plugin so it can perform initialization, load resources,
+    /// and apply configuration within a scoped context for example singletons or other persistent settings.
+    /// </summary>
+    protected virtual Task BeforeRuntimeStart(IPluginContextService pluginContext)
+    => Task.CompletedTask;
+
+    /// <summary>
+    /// Invoked after the initial circuit setup and framework boilerplate have completed
+    /// when a client connects. Plugins may use this hook to perform per‑circuit
+    /// initialization, resolve scoped services, or prepare any state needed for the
+    /// newly established client session.
     /// </summary>
     protected virtual void OnAfterCircuitStart(IServiceProvider serviceProvider)
     {
@@ -315,7 +337,9 @@ public abstract class PluginBase : IPlugin
     }
 
     /// <summary>
-    /// This is called after a circuit is closed (client disconnected)
+    /// Invoked after a circuit has ended, indicating that the client has disconnected.
+    /// Plugins may use this hook to perform cleanup, release resources, or update
+    /// circuit‑specific state associated with the disconnected client.
     /// </summary>
     protected virtual void OnAfterCircuitEnd(CircuitIdentity circuit)
     {
@@ -333,5 +357,20 @@ public abstract class PluginBase : IPlugin
             ];
         _passValidation = resultToReturn.AsReadOnly();
         return PerformValidation();
+    }
+
+    public Task BeforeRuntimeStartAsync(IServiceProvider serviceProvider)
+    {
+        if (_hasStarted)
+        {
+            Console.WriteLine($"BeforeRuntimeStart for {PluginId} already executed.");
+            return Task.CompletedTask;
+        }
+        _hasStarted = true;
+
+        var circuitRegistry = serviceProvider.GetRequiredService<ICircuitRegistry>();
+        var pContext = circuitRegistry.GetPluginContext(PluginId, circuitRegistry.CurrentCircuit.CircuitId);
+        var t = BeforeRuntimeStart(pContext);
+        return t;
     }
 }

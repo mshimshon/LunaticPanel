@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:LunaticPanel.Hybrid"
-             xmlns:shared="clr-namespace:LunaticPanel.Engine.Presentation;assembly=LunaticPanel.Engine.Presentation"
+             xmlns:shared="clr-namespace:LunaticPanel.Engine.Web;assembly=LunaticPanel.Engine.Web"
              x:Class="LunaticPanel.Hybrid.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
 

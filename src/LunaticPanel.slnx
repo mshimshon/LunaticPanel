@@ -13,7 +13,7 @@
   <Project Path="LunaticPanel.Engine.Domain/LunaticPanel.Engine.Domain.csproj" />
   <Project Path="LunaticPanel.Engine.Infrastructure/LunaticPanel.Engine.Infrastructure.csproj" />
   <Project Path="LunaticPanel.Engine.MessageKeys/LunaticPanel.Engine.Core.csproj" Id="901e0357-0208-4071-873c-9985621f4aa3" />
-  <Project Path="LunaticPanel.Engine.Presentation/LunaticPanel.Engine.Web.csproj" />
+  <Project Path="LunaticPanel.Engine.Web/LunaticPanel.Engine.Web.csproj" />
   <Project Path="LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj" Id="77efe45b-bcc3-470e-8120-d2edd02f93cb" />
   <Project Path="LunaticPanel.Hybrid/LunaticPanel.Hybrid/LunaticPanel.Hybrid.csproj" Id="0c98abbf-3b32-4c73-b690-df6d4c5f229c">
     <Deploy Solution="Debug|*" />

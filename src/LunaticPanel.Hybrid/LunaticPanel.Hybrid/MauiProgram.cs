@@ -1,6 +1,5 @@
-﻿using LunaticPanel.Engine.Presentation.Boostrap;
+﻿using LunaticPanel.Engine.Web.Boostrap;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace LunaticPanel.Hybrid;
 
@@ -39,7 +38,7 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
         MauiApp app = builder.Build();
-        Bootstrap.BootstrapRun(app.Services, app.Configuration);
+        Bootstrap.BootstrapRunAsync(default, app.Services, app.Configuration);
         return app;
     }
 }

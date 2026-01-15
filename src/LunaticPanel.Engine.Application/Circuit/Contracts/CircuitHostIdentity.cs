@@ -4,6 +4,6 @@ namespace LunaticPanel.Engine.Application.Circuit.Contracts;
 
 public sealed record CircuitHostIdentity : CircuitIdentity
 {
-    public object LayoutComponent { get; set; } = default!;
-
+    public object? LayoutComponent { get; set; }
+    public bool Master { get; set; }
 }

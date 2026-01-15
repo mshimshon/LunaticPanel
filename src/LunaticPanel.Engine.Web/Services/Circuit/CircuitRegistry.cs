@@ -28,14 +28,14 @@ public sealed class CircuitRegistry : ICircuitRegistry
     {
         lock (_lock)
         {
-            return _circuits.Where(p => !ReferenceEquals(p.LayoutComponent, null)).ToList().AsReadOnly();
+            return _circuits.Where(p => !ReferenceEquals(p.LayoutComponent, null) || p.Master).ToList().AsReadOnly();
         }
     }
-    internal void SelfCircuitRegistration(Guid id, MainLayout app)
+    internal void SelfCircuitRegistration(Guid id, IServiceProvider sp, MainLayout? app)
     {
         lock (_lock)
         {
-            _currentCircuit = new() { CircuitId = id, LayoutComponent = app, HostServiceProvider = app.ServiceProvider };
+            _currentCircuit = new() { CircuitId = id, LayoutComponent = app, HostServiceProvider = sp, Master = app == default };
             _circuits.Add(_currentCircuit);
         }
         var plugins = _pluginRegistry.GetAll();

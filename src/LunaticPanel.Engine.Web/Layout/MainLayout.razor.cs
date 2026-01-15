@@ -20,7 +20,7 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
     {
         if (firstRender)
         {
-            CircuitRegistry.SelfCircuitRegistration(_id, this);
+            CircuitRegistry.SelfCircuitRegistration(_id, ServiceProvider, this);
             EventBus = ServiceProvider.GetRequiredService<IEventBus>();
             try
             {

@@ -9,7 +9,7 @@ WebApplication app = builder.Build();
 
 app.UseStaticFiles();
 app.MapStaticAssets();
-Bootstrap.BootstrapRun(app, app.Services, app.Configuration);
+await Bootstrap.BootstrapRunAsync(app, app.Services, app.Configuration);
 
 if (!app.Environment.IsDevelopment())
 {

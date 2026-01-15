@@ -7,4 +7,5 @@ public interface IBusMessage
     Guid GetMessageId();
     Guid? GetOriginCircuitId();
     void SetOriginCircuitId(Guid id);
+
 }

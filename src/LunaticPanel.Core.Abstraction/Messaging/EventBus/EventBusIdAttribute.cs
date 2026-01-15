@@ -7,7 +7,7 @@ namespace LunaticPanel.Core.Abstraction.Messaging.EventBus;
 public sealed class EventBusIdAttribute : BusIdAttribute
 {
 
-    public bool IsCrossCircuitReceiver { get; set; } = false;
+    public EventBusSpreadType CrossCircuitReceiver { get; set; } = EventBusSpreadType.SelfContained;
     public EventBusIdAttribute(string plugin, string action) : base(plugin, action) { }
     public EventBusIdAttribute(string key) : base(key) { }
     public EventBusIdAttribute(MessageKey key) : base(key)

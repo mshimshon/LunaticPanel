@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
+using LunaticPanel.Core.Abstraction.Tools;
 
 namespace LunaticPanel.Engine.Infrastructure.Messaging.Event;
 
@@ -7,12 +8,14 @@ internal class EventBusExchange : IEventBusExchange
 {
     private readonly ICircuitRegistry _circuitRegistry;
     private readonly IEventBusReceiver _eventBusReceiver;
+    private readonly IGlobalTicker _globalTicker;
 
     private Guid CircuitId => _circuitRegistry.CurrentCircuit.CircuitId;
-    public EventBusExchange(ICircuitRegistry circuitRegistry, IEventBusReceiver eventBusReceiver)
+    public EventBusExchange(ICircuitRegistry circuitRegistry, IEventBusReceiver eventBusReceiver, IGlobalTicker globalTicker)
     {
         _circuitRegistry = circuitRegistry;
         _eventBusReceiver = eventBusReceiver;
+        _globalTicker = globalTicker;
     }
     public bool AnyListenerFor(string key)
     {
@@ -31,8 +34,10 @@ internal class EventBusExchange : IEventBusExchange
     }
     public Task ExchangeAsync(IEventBusMessage evt, CancellationToken cancellationToken = default)
     {
-        evt.SetOriginCircuitId(CircuitId);
         var message = evt;
+        message.SetOriginCircuitId(CircuitId);
+        if (message.HasTickerEnabled())
+            message.SetTick(_globalTicker.GetNext());
         _ = _eventBusReceiver.IncomingMessageAsync(message, cancellationToken);
 
         foreach (var item in _circuitRegistry.GetPluginContexts())

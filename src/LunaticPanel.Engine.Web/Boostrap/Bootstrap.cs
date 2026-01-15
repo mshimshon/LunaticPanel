@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
+using LunaticPanel.Engine.Web.Services.Circuit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
@@ -12,12 +13,13 @@ namespace LunaticPanel.Engine.Web.Boostrap;
 
 public static class Bootstrap
 {
-    private const string ConfigNameKey = "LunaticPanel";
+    private const string ConfigNameKey = "lunaticpanel";
 
     public static string PluginDirectory { get; private set; } = default!;
     public static string ConfigDirectory { get; private set; } = default!;
     internal static BootstrapConfiguration Configuration { get; private set; } = new();
-
+    public static string LibraryLocation { get; set; } = default!;
+    public static string ConfigLocation { get; set; } = default!;
     public static List<Assembly> AdditionalAssemblies => [.. Configuration.ActivePlugins.Select(p => p.EntryPoint!.GetType().Assembly!), typeof(RegisterServicesExt).Assembly];
     public static UnixFileMode DefaultDirectoryPermissions { get; } =
         UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
@@ -26,7 +28,8 @@ public static class Bootstrap
 
     public static void BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
     {
-
+        LibraryLocation = "/usr/lib";
+        ConfigLocation = "/etc";
 
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
@@ -38,37 +41,57 @@ public static class Bootstrap
         services.ProcessPlugins(configuration);
         EnsurePluginValidatedBlazor();
         SaveConfiguration();
+
+
     }
 
-    public static void BootstrapRun(WebApplication webApp, IServiceProvider serviceProvider, IConfiguration configuration)
+    public static async Task BootstrapRunAsync(WebApplication? webApp, IServiceProvider serviceProvider, IConfiguration configuration)
     {
-        var pluginRegistry = serviceProvider.GetRequiredService<IPluginRegistry>();
-        foreach (BootstrapPluginDescriptor item in Configuration.ActivePlugins)
+        var masterSp = serviceProvider.CreateScope().ServiceProvider;
+        var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
+        var circuitRegistry = masterSp.GetRequiredService<CircuitRegistry>();
+        foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
         {
-            pluginRegistry.Register(new(item.EntryPoint!, item.Entity));
-            Console.WriteLine("PLUGIN STATIC FILE REGISTRATION");
-            Console.WriteLine($"PackageId: {item.Entity.Identity.PackageId}");
-            Console.WriteLine($"PluginDir: {item.PluginDir}");
+            pluginRegistry.Register(new(plugin.EntryPoint!, plugin.Entity));
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("===== LOADED PLUGIN =====");
+            Console.WriteLine($"PackageId: {plugin.Entity.Identity.PackageId}");
+            Console.WriteLine($"PluginDir: {plugin.PluginDir}");
+            Console.WriteLine("===== END PLUGIN =====");
+            Console.ForegroundColor = ConsoleColor.Gray;
 
-            var wwwroot = Path.Combine(item.PluginDir, "wwwroot");
+            var wwwroot = Path.Combine(plugin.PluginDir, "wwwroot");
             if (Directory.Exists(wwwroot))
             {
-
-                Console.WriteLine($"wwwroot: {wwwroot}");
-                Console.WriteLine($"wwwroot exists: {Directory.Exists(wwwroot)}");
-                Console.WriteLine($"banner exists: {File.Exists(Path.Combine(wwwroot, "game_banner.jpg"))}");
+                Console.WriteLine($"wwwroot ({Directory.Exists(wwwroot)}): {wwwroot}");
                 var options = new StaticFileOptions
                 {
                     FileProvider = new PhysicalFileProvider(wwwroot),
-                    RequestPath = $"/_plugins/{item.Entity.Identity.PackageId}"
+                    RequestPath = $"/_plugins/{plugin.Entity.Identity.PackageId}"
                 };
-                webApp.UseStaticFiles(options);
+                if (webApp != default)
+                    webApp.UseStaticFiles(options);
             }
             var redirectServiceToHost = RegisterServicesExt
                 .AddHostRedirectedServices(new ServiceCollection())
                 .Select(p => new HostRedirectionService(p.ServiceType, p.Lifetime))
                 .ToArray();
-            item.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
+            plugin.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
+        }
+
+        circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), masterSp, default);
+        foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("===== INITIALIZING PLUGIN =====");
+            Console.WriteLine($"PackageId: {plugin.Entity.Identity.PackageId}");
+            Console.WriteLine($"PluginDir: {plugin.PluginDir}");
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+
+            await plugin.EntryPoint!.BeforeRuntimeStartAsync(masterSp);
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("===== PLUGIN INITIALIZED =====");
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
     }
 
@@ -101,16 +124,8 @@ public static class Bootstrap
     {
 
 
-        var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        //PluginDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-        PluginDirectory = Path.Combine(appDataDir, ConfigNameKey, "Plugins");
-
-        string? configuredConfigPath = configuration.GetSection(ConfigNameKey).GetValue<string>("ConfigDirectory");
-
-        if (configuredConfigPath == default)
-            ConfigDirectory = Path.Combine(appDataDir, ConfigNameKey);
-        else
-            ConfigDirectory = configuredConfigPath;
+        PluginDirectory = Path.Combine(LibraryLocation, ConfigNameKey, "plugins");
+        ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey);
         EnsurePathCreated(PluginDirectory, ConfigDirectory);
 
     }

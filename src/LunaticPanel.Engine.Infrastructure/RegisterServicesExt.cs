@@ -2,6 +2,7 @@
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
@@ -11,6 +12,7 @@ using LunaticPanel.Engine.Infrastructure.Messaging.EngineBus;
 using LunaticPanel.Engine.Infrastructure.Messaging.Event;
 using LunaticPanel.Engine.Infrastructure.Messaging.Query;
 using LunaticPanel.Engine.Infrastructure.Plugin;
+using LunaticPanel.Engine.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Engine.Infrastructure;
@@ -22,10 +24,10 @@ public static class RegisterServicesExt
     {
         services.AddEngineApplication();
 
-        services.AddScoped<IEngineBusExchange, EngineBusExchange>();
-        services.AddScoped<IEventBusExchange, EventBusExchange>();
-        services.AddScoped<IQueryBusExchange, QueryBusExchange>();
-
+        services.AddScoped<EngineBusExchange>();
+        services.AddScoped<EventBusExchange>();
+        services.AddScoped<QueryBusExchange>();
+        services.AddSingleton<GlobalTickerService>();
         services.AddScoped<IEngineBus, EngineBus>();
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
 
@@ -42,6 +44,16 @@ public static class RegisterServicesExt
             typeof(RegisterServicesExt),
             typeof(Application.RegisterServicesExt)
             ]);
+
+        return services;
+    }
+
+    public static IServiceCollection AddEngineInfrastructureRedirected(this IServiceCollection services)
+    {
+        services.AddScoped<IEngineBusExchange>(sp => sp.GetRequiredService<EngineBusExchange>());
+        services.AddScoped<IEventBusExchange>(sp => sp.GetRequiredService<EventBusExchange>());
+        services.AddScoped<IQueryBusExchange>(sp => sp.GetRequiredService<QueryBusExchange>());
+        services.AddSingleton<IGlobalTicker>(sp => sp.GetRequiredService<GlobalTickerService>());
         return services;
     }
 }

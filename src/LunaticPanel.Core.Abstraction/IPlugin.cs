@@ -16,4 +16,6 @@ public interface IPlugin
 
     IReadOnlyCollection<PluginValidationResult> PerformValidation();
 
+    Task BeforeRuntimeStartAsync(IServiceProvider serviceProvider);
+
 }

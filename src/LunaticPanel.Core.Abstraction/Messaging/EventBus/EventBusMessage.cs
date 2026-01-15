@@ -7,6 +7,8 @@ public sealed class EventBusMessage : IEventBusMessage
     private readonly MessageKey _messageKey;
 
     public BusMessageData? Data { get; }
+    public bool EnableTicker { get; init; }
+    private long _currentTick = long.MinValue;
     public Guid Id { get; }
     private Guid? _circuitId;
     public EventBusMessage(MessageKey messageKey, object? data = default)
@@ -27,4 +29,8 @@ public sealed class EventBusMessage : IEventBusMessage
     {
         if (_circuitId == default) _circuitId = id;
     }
+
+    public long GetTick() => _currentTick;
+    public bool HasTickerEnabled() => EnableTicker;
+    public long SetTick(long current) => _currentTick = current;
 }
