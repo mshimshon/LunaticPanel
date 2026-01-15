@@ -11,6 +11,7 @@ public sealed class EventBusMessage : IEventBusMessage
     private long _currentTick = long.MinValue;
     public Guid Id { get; }
     private Guid? _circuitId;
+    public List<Guid>? TargetCircuits { get; init; }
     public EventBusMessage(MessageKey messageKey, object? data = default)
     {
         Id = Guid.NewGuid();
@@ -33,4 +34,5 @@ public sealed class EventBusMessage : IEventBusMessage
     public long GetTick() => _currentTick;
     public bool HasTickerEnabled() => EnableTicker;
     public long SetTick(long current) => _currentTick = current;
+    public IReadOnlyList<Guid>? GetTargets() => TargetCircuits?.AsReadOnly() ?? default;
 }

@@ -14,4 +14,6 @@ public interface IEventBusMessage : IBusMessage
     /// Determines whether the ticker feature is enabled. (Default = False)
     /// </summary>
     bool HasTickerEnabled();
+
+    IReadOnlyList<Guid>? GetTargets();
 }

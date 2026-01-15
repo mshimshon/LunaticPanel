@@ -34,12 +34,16 @@ internal class QueryBusExchange : IQueryBusExchange
     {
         qry.SetOriginCircuitId(CircuitId);
         var message = qry;
+
         var resultFromHost = await _queryBusReceiver.IncomingMessageAsync(message, cancellationToken);
         if (resultFromHost != default) return resultFromHost;
 
         foreach (var item in _circuitRegistry.GetPluginContexts())
         {
-            if (item.Key.CircuitId != CircuitId) continue;
+            if (qry.TargetCircuit != Guid.Empty && item.Key.CircuitId != qry.TargetCircuit)
+                continue;
+            if (qry.TargetCircuit == Guid.Empty && item.Key.CircuitId != CircuitId)
+                continue;
             var pluginBusReceiver = item.Value.GetRequired<IQueryBusReceiver>();
             var resultFromHandler = await pluginBusReceiver.IncomingMessageAsync(message, cancellationToken);
             if (resultFromHandler != default) return resultFromHandler;

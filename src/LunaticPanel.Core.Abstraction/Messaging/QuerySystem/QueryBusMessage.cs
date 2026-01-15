@@ -6,6 +6,7 @@ public sealed class QueryBusMessage : IQueryBusMessage
 {
     private readonly MessageKey _messageKey;
 
+    public Guid TargetCircuit { get; init; }
     public BusMessageData? Data { get; }
     public Guid Id { get; }
     private Guid? _circuitId;
