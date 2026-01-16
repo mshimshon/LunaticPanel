@@ -4,7 +4,7 @@ using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
-using LunaticPanel.Core.Abstraction.Tools;
+using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;

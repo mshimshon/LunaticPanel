@@ -38,7 +38,7 @@ public abstract class PluginBase : IPlugin
     private readonly static Dictionary<PluginContextIdentifier, EngineBusRegistry> _engineBusRegistry = new();
     private readonly static object _lockEngineBusRegistry = new object();
 
-    private IServiceProvider? _singletonProvider;
+    protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
 
@@ -70,11 +70,14 @@ public abstract class PluginBase : IPlugin
         RegisterCommonServices(allServices, circuit);
         RegisterPluginServices(allServices, circuit);
 
-        bool isSingletonCollectionInitialized = _singletonProvider != default;
+        bool isSingletonCollectionInitialized = _crossCircuitSingletonProvider != default;
         ServiceCollection? singletonServices = isSingletonCollectionInitialized ? default : new();
 
         if (!isSingletonCollectionInitialized)
-            RegisterSingletonServices(singletonServices!, circuit);
+        {
+            RegisterCommonSingletonServices(singletonServices!, circuit);
+            RegisterPluginSingletonServices(singletonServices!, circuit);
+        }
 
         var finalServices = new ServiceCollection();
         foreach (var item in allServices)
@@ -88,7 +91,7 @@ public abstract class PluginBase : IPlugin
             }
 
             if (isGlobalState && item.Lifetime == ServiceLifetime.Singleton)
-                finalServices.AddSingleton(item.ServiceType, (sp) => _singletonProvider!.GetRequiredService(item.ServiceType));
+                finalServices.AddSingleton(item.ServiceType, (sp) => _crossCircuitSingletonProvider!.GetRequiredService(item.ServiceType));
             else
                 finalServices.Add(item);
         }
@@ -96,7 +99,7 @@ public abstract class PluginBase : IPlugin
         CompileHostRedirectedServices(circuit, ref finalServices);
 
         if (singletonServices != default)
-            _singletonProvider = singletonServices.BuildServiceProvider().CreateScope().ServiceProvider;
+            _crossCircuitSingletonProvider = singletonServices.BuildServiceProvider().CreateScope().ServiceProvider;
 
         var serviceProvider = finalServices.BuildServiceProvider();
         var scope = serviceProvider.CreateScope();
@@ -201,7 +204,7 @@ public abstract class PluginBase : IPlugin
             return _circuitServiceProviders.ContainsKey(identity);
         }
     }
-    private void RegisterSingletonServices(IServiceCollection services, CircuitIdentity circuit)
+    private void RegisterCommonSingletonServices(IServiceCollection services, CircuitIdentity circuit)
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         services.AddSingleton<IEngineBusRegistry>((sp) =>
@@ -231,9 +234,9 @@ public abstract class PluginBase : IPlugin
     {
 
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
-        services.AddSingleton((sp) => _singletonProvider!.GetRequiredService<IEngineBusRegistry>());
-        services.AddSingleton((sp) => _singletonProvider!.GetRequiredService<IEventBusRegistry>());
-        services.AddSingleton((sp) => _singletonProvider!.GetRequiredService<IQueryBusRegistry>());
+        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEngineBusRegistry>());
+        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEventBusRegistry>());
+        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IQueryBusRegistry>());
         services.AddScoped<EngineBus>();
         services.AddScoped<IEngineBus>((sp) => sp.GetRequiredService<EngineBus>());
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
@@ -298,6 +301,35 @@ public abstract class PluginBase : IPlugin
     protected virtual void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
     {
 
+    }
+
+
+    /// <summary>
+    /// <para>
+    /// Singleton services intended to be shared across all circuits must be registered twice.
+    /// </para>
+    /// <para>
+    /// First, in the global singleton pool, where the actual instance is created.
+    /// </para>
+    /// <para>
+    /// Second, in each circuit service collection, as a forwarding registration that resolves
+    /// the instance from the global singleton pool.
+    /// </para>
+    /// <para>
+    /// This allows the service to be injected normally through the circuit IServiceProvider
+    /// while still guaranteeing a single shared instance across all circuits.
+    /// </para>
+    /// <para>Usage:</para>
+    /// <code>
+    /// // Global singleton pool (inside your RegisterPluginSingletonServices)
+    /// services.AddSingleton&lt;IEngineBusRegistry, EngineBusRegistry&gt;();
+    ///
+    /// // Circuit pool forwarding (inside your RegisterPluginServices)
+    /// services.AddSingleton(sp => _singletonProvider!.GetRequiredService&lt;IEngineBusRegistry&gt;());
+    /// </code>
+    /// </summary>
+    protected virtual void RegisterPluginSingletonServices(IServiceCollection services, CircuitIdentity circuit)
+    {
     }
 
     /// <summary>

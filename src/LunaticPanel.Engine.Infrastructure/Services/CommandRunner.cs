@@ -1,7 +1,6 @@
-﻿using LunaticPanel.Core.Abstraction.Tools;
+﻿using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
 using System.Diagnostics;
 using System.Text;
-using System.Text.Json;
 
 namespace LunaticPanel.Engine.Infrastructure.Services;
 
@@ -22,27 +21,39 @@ public class CommandRunner : ILinuxCommand
         _bash = Path.Combine("/", "bin", "bash");
 
     }
-    public async Task<TResponse> RunLinuxScriptWithReplyAs<TResponse>(string file, bool sudo = true)
-    {
-        string response = await RunLinuxScript(file, sudo);
-        return JsonSerializer.Deserialize<TResponse>(response)!;
-    }
 
-    public async Task<string> RunLinuxScript(string file, bool sudo = true)
+    public async Task<LinuxCommandResult> RunLinuxScript(string file, bool sudo = true)
     {
         var psi = new ProcessStartInfo
         {
 
             FileName = sudo ? "sudo" : _bash,
 
-            Arguments = $"{(sudo ? _bash : "")} -c \"{file}\"",
+            Arguments = $"{(sudo ? _bash : "-E -S")} -c \"{file}\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
-            CreateNoWindow = true
+            CreateNoWindow = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8,
         };
-        using var process = new Process { StartInfo = psi };
+        Console.WriteLine($"{nameof(RunLinuxCommand)} Running: {psi.FileName} {psi.Arguments}");
 
+        using var process = new Process
+        {
+            StartInfo = psi
+        };
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (e.Data != null)
+                Console.WriteLine(e.Data);
+        };
+
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (e.Data != null)
+                Console.Error.WriteLine(e.Data);
+        };
         var stdout = new StringBuilder();
         var stderr = new StringBuilder();
 
@@ -57,13 +68,17 @@ public class CommandRunner : ILinuxCommand
         string output = stdout.ToString();
         string error = stderr.ToString();
 
-        return output + error;
+        return new()
+        {
+            StandardError = error,
+            StandardOutput = output
+        };
     }
 
-    public async Task<string> RunLinuxCommand(string command, bool sudo = true)
+    public async Task<LinuxCommandResult> RunLinuxCommand(string command, bool sudo = true)
     {
         var commandTorite = command;
-        if (sudo) commandTorite = "sudo " + command;
+        if (sudo) commandTorite = "sudo -E -S " + command;
         var script = Path.Combine(_tmpPath, Path.GetRandomFileName()) + ".sh";
         await File.WriteAllTextAsync(script, commandTorite);
 
@@ -76,6 +91,8 @@ public class CommandRunner : ILinuxCommand
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        Console.WriteLine($"{nameof(RunLinuxCommand)} Running: {psi.FileName} {psi.Arguments}");
+        Console.WriteLine($"Content: {commandTorite}");
         using var process = new Process { StartInfo = psi };
 
         var stdout = new StringBuilder();
@@ -93,7 +110,11 @@ public class CommandRunner : ILinuxCommand
         string output = stdout.ToString();
         string error = stderr.ToString();
         File.Delete(script);
-        return output + error;
+        return new()
+        {
+            StandardError = error,
+            StandardOutput = output
+        };
     }
 
 }
