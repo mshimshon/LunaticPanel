@@ -15,9 +15,19 @@ public interface IPluginConfiguration
     /// This is the plugin's main folder.
     /// </summary>
     string PluginFolder { get; }
+    /// <summary>
+    /// Plugin Configurations
+    /// </summary>
+    string PluginEtcFolder { get; }
+    /// <summary>
+    /// Plugin Var folder
+    /// </summary>
+    string PluginVarFolder { get; }
 
     public const string LunaticPanelFolderName = "lunaticpanel";
     public const string LunaticPanelPluginsFolderName = "plugins";
     public const string LinuxUsrFolderName = "usr";
     public const string LinuxLibFolderName = "lib";
+    public const string LinuxEtcFolderName = "etc";
+    public const string LinuxVarFolderName = "var";
 }

@@ -28,14 +28,22 @@ public sealed class CircuitRegistry : ICircuitRegistry
     {
         lock (_lock)
         {
-            return _circuits.Where(p => !ReferenceEquals(p.LayoutComponent, null) || p.Master).ToList().AsReadOnly();
+            return _circuits.Where(p => !ReferenceEquals(p.LayoutComponent, null) || p.IsMaster).ToList().AsReadOnly();
         }
     }
     internal void SelfCircuitRegistration(Guid id, IServiceProvider sp, MainLayout? app)
     {
         lock (_lock)
         {
-            _currentCircuit = new() { CircuitId = id, LayoutComponent = app, HostServiceProvider = sp, Master = app == default };
+
+            Console.WriteLine($"Is {id} MAster ? {(app == default)}");
+            _currentCircuit = new()
+            {
+                CircuitId = id,
+                LayoutComponent = app,
+                HostServiceProvider = sp,
+                IsMaster = app == default
+            };
             _circuits.Add(_currentCircuit);
         }
         var plugins = _pluginRegistry.GetAll();
@@ -48,7 +56,9 @@ public sealed class CircuitRegistry : ICircuitRegistry
                     HostServiceProvider = _hostSP,
                     CircuitId = id,
                     PluginId = item.Plugin.Identity.PackageId.ToLower(),
-                    Entry = item.Entry
+                    Entry = item.Entry,
+                    IsMaster =
+                    _currentCircuit.IsMaster
                 };
                 circuit.Entry.OnCircuitStart(circuit);
                 var identifier = new PluginContextIdentifier(circuit.CircuitId, circuit.PluginId);
