@@ -61,4 +61,17 @@ public static class EngineBusExt
         return Task.FromResult(result);
     }
 
+    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object? data = default, Func<EngineBusResponse, EngineBusResponse>? extra = default) where TComponent : IComponent
+    {
+        RenderFragment fragment = builder =>
+        {
+            builder.OpenComponent<TComponent>(0);
+            builder.CloseComponent();
+        };
+        var result = data == default ? new EngineBusResponse(fragment) : new EngineBusResponse(fragment, data);
+        result = extra?.Invoke(result) ?? result;
+        return Task.FromResult(result);
+    }
+
+
 }
