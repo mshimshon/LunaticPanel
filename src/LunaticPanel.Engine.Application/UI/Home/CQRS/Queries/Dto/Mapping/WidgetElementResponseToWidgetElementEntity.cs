@@ -1,5 +1,4 @@
 ﻿using CoreMap;
-using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Enums;
 
@@ -11,6 +10,6 @@ internal class WidgetElementResponseToWidgetElementEntity : ICoreMapHandler<Widg
         => new()
         {
             Position = data.Position,
-            Size = Enum.IsDefined(typeof(WidgetSize), data.Size) ? (WidgetSize)data.Size : WidgetSize.Twelve
+            Size = Enum.IsDefined(typeof(WidgetSize), data.Size) ? (WidgetSize)data.Size : WidgetSize.Twelve,
         };
 }

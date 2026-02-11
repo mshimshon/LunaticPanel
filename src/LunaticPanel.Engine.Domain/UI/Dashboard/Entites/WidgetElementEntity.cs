@@ -8,4 +8,6 @@ public record WidgetElementEntity
     public int Position { get; init; }
     public WidgetSize Size { get; init; }
     public RenderFragment Render { get; init; } = default!;
+    public Func<bool>? VisibilityCondition { get; init; }
+
 }

@@ -5,6 +5,7 @@ namespace LunaticPanel.Core.Extensions;
 public record EngineBusMsgResponseNoData
 {
     public string Origin { get; init; }
+    public Func<bool>? VisibilityCondition { get; init; }
     public RenderFragment Render { get; init; }
     public EngineBusMsgResponseNoData(RenderFragment render, string origin)
     {

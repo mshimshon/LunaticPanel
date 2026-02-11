@@ -1,6 +1,6 @@
 ﻿namespace LunaticPanel.Core.Abstraction.Widgets;
 
-public abstract class WidgetViewModelBase : IWidgetViewModel
+public abstract class WidgetViewModelBase : IWidgetViewModel, IAsyncDisposable
 
 {
     private bool _isLoading = false;
@@ -21,8 +21,10 @@ public abstract class WidgetViewModelBase : IWidgetViewModel
     /// <summary>
     /// Invokes the registered change propagation delegate, if any, to update changes and cause the parent component to rerender.
     /// </summary>
-    protected Task UpdateChanges()
-        => SpreadChanges?.Invoke() ?? Task.CompletedTask;
+    protected async Task UpdateChanges()
+    {
+        SpreadChanges?.Invoke();
+    }
 
     /// <summary>
     /// IsLoading check the state of loading for the view model alone. <br />
@@ -30,4 +32,12 @@ public abstract class WidgetViewModelBase : IWidgetViewModel
     /// </summary>
     /// <returns></returns>
     protected virtual bool GetStateLoadingStatus() => false;
+    public async ValueTask DisposeAsync()
+    {
+        OnViewModelDispose();
+        await OnViewModelDisposeAsync();
+    }
+    protected virtual void OnViewModelDispose() { }
+    protected virtual Task OnViewModelDisposeAsync()
+     => Task.CompletedTask;
 }

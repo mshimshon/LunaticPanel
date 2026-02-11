@@ -11,6 +11,8 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase
     protected IPluginContextService PluginContextService { get; private set; } = default!;
     protected IWidgetContext WidgetContext { get; private set; } = default!;
 
+
+
     protected override void OnInitialized()
     {
         var circuitRegistry = HostProvider.GetRequiredService<ICircuitRegistry>();
@@ -28,22 +30,60 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase
     "SonarLint",
     "S3881:Implement the IDisposable pattern correctly",
     Justification = "Blazor components do not use the full dispose pattern.")]
-public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : WidgetComponentBase<TPluginEntry>, IDisposable
+public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : WidgetComponentBase<TPluginEntry>, IAsyncDisposable
     where TViewModel : IWidgetViewModel
     where TPluginEntry : IPlugin
 {
     protected TViewModel ViewModel { get; private set; } = default!;
-
-    public Task OnViewModelChanged() => InvokeAsync(StateHasChanged);
+    private readonly SemaphoreSlim _renderGate = new(1, 1);
+    public async Task OnViewModelChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await _renderGate.WaitAsync();
+            try
+            {
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+            }
+            finally
+            {
+                _renderGate.Release();
+            }
+        });
+    }
+    private Func<Task>? _onVmChanged;
     protected override void OnBaseInitialized()
     {
+        _onVmChanged = OnViewModelChanged;
         ViewModel = WidgetContext.GetViewModel<TViewModel>();
-        ViewModel.SpreadChanges += OnViewModelChanged;
+        ViewModel.SpreadChanges += _onVmChanged;
     }
 
-    public void Dispose()
+    protected override void OnParametersSet()
+    {
+        OnWidgetParametersSet();
+    }
+    protected virtual void OnWidgetParametersSet() { }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) { }
+        OnWidgetAfterRender(firstRender);
+    }
+    protected virtual void OnWidgetAfterRender(bool firstRender) { }
+
+    public async ValueTask DisposeAsync()
     {
         if (ViewModel is not null)
-            ViewModel.SpreadChanges -= OnViewModelChanged;
+            ViewModel.SpreadChanges -= _onVmChanged;
+        OnWidgetDispose();
+        await OnWidgetDisposeAsync();
     }
+    protected virtual void OnWidgetDispose() { }
+    protected virtual Task OnWidgetDisposeAsync()
+     => Task.CompletedTask;
 }

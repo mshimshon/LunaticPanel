@@ -34,7 +34,10 @@ public static class EngineBusExt
     }
 
     public static async Task<EngineBusMsgResponseWithData<TData>[]> ReadWithData<TData>(this EngineBusResponse[] engineBusResponses, Func<BusMessageData, TData> map)
-        => engineBusResponses.Select(p => new EngineBusMsgResponseWithData<TData>(map(p.Data!), p.RenderFragment, p.Origin)).ToArray();
+        => engineBusResponses.Select(p => new EngineBusMsgResponseWithData<TData>(map(p.Data!), p.RenderFragment, p.Origin)
+        {
+            VisibilityCondition = p.VisibilityCondition
+        }).ToArray();
 
     public static async Task<EngineBusMsgResponseNoData[]> ReadDiscardData(this Task<EngineBusResponse[]> executionTask)
     {
@@ -42,7 +45,10 @@ public static class EngineBusExt
         return await result.ReadDiscardData();
     }
     public static async Task<EngineBusMsgResponseNoData[]> ReadDiscardData(this EngineBusResponse[] engineBusResponses)
-    => engineBusResponses.Select(p => new EngineBusMsgResponseNoData(p.RenderFragment, p.Origin)).ToArray();
+    => engineBusResponses.Select(p => new EngineBusMsgResponseNoData(p.RenderFragment, p.Origin)
+    {
+        VisibilityCondition = p.VisibilityCondition
+    }).ToArray();
 
     public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object? data = default) where TComponent : IComponent
     {

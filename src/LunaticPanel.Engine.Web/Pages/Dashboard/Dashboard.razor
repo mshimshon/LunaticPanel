@@ -23,9 +23,13 @@
         {
             @foreach (var widget in ViewModel.State.Widgets)
             {
-                <MudItem xs=@((int)widget.Size) Class="ma-3">
-                    @widget.Render
-                </MudItem>
+                if (widget.VisibilityCondition?.Invoke() ?? true)
+                {
+                    <MudItem xs=@((int)widget.Size) Class="ma-3">
+                        @widget.Render
+                    </MudItem>
+                }
+
             }
         }
     }

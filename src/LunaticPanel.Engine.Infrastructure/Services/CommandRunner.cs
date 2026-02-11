@@ -12,6 +12,7 @@ public class CommandRunner : ILinuxCommand
     private readonly string _bash;
     public CommandRunner()
     {
+
         var perm755 = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
     UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
     UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
@@ -22,99 +23,75 @@ public class CommandRunner : ILinuxCommand
 
     }
 
-    public async Task<LinuxCommandResult> RunLinuxScript(string file, bool sudo = true)
+    public async Task<LinuxCommandResult> RunLinuxScript(string file, bool sudo = true, CancellationToken ct = default)
     {
         var psi = new ProcessStartInfo
         {
-
-            FileName = sudo ? "sudo" : _bash,
-
-            Arguments = $"{(sudo ? _bash : "-E -S")} -c \"{file}\"",
+            FileName = _bash,
+            UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false,
             CreateNoWindow = true,
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8,
+            Arguments = sudo ? $"-c \"sudo -E -- {_bash} {file}\"" : $"-c \"{_bash} {file}\""
         };
         Console.WriteLine($"{nameof(RunLinuxCommand)} Running: {psi.FileName} {psi.Arguments}");
 
         using var process = new Process
         {
-            StartInfo = psi
+            StartInfo = psi,
+            EnableRaisingEvents = true
         };
-        process.OutputDataReceived += (_, e) =>
-        {
-            if (e.Data != null)
-                Console.WriteLine(e.Data);
-        };
-
-        process.ErrorDataReceived += (_, e) =>
-        {
-            if (e.Data != null)
-                Console.Error.WriteLine(e.Data);
-        };
-        var stdout = new StringBuilder();
-        var stderr = new StringBuilder();
-
-        process.OutputDataReceived += (_, e) => { if (e.Data != null) stdout.AppendLine(e.Data); };
-        process.ErrorDataReceived += (_, e) => { if (e.Data != null) stderr.AppendLine(e.Data); };
-
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        process.WaitForExit();
+        var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
+        var stderrTask = process.StandardError.ReadToEndAsync(ct);
+        await process.WaitForExitAsync(ct).ConfigureAwait(false);
 
-        string output = stdout.ToString();
-        string error = stderr.ToString();
 
-        return new()
+        string output = await stdoutTask;
+        string error = await stderrTask;
+        //Console.WriteLine($"{nameof(RunLinuxCommand)} | Standard Output : {output}");
+        //Console.WriteLine($"{nameof(RunLinuxCommand)} | Error Output : {error}");
+
+        var result = new LinuxCommandResult()
         {
             StandardError = error,
             StandardOutput = output
         };
+        Console.WriteLine($"{nameof(RunLinuxCommand)} Result: {result.ToString()}");
+        return result;
     }
 
-    public async Task<LinuxCommandResult> RunLinuxCommand(string command, bool sudo = true)
+    public async Task<LinuxCommandResult> RunLinuxCommand(string command, bool sudo = true, CancellationToken ct = default)
     {
-        var commandTorite = command;
-        if (sudo) commandTorite = "sudo -E -S " + command;
-        var script = Path.Combine(_tmpPath, Path.GetRandomFileName()) + ".sh";
-        await File.WriteAllTextAsync(script, commandTorite);
-
         var psi = new ProcessStartInfo
         {
             FileName = _bash,
-            Arguments = script,
+            UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
+            CreateNoWindow = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8,
+            Arguments = sudo ? $"-c \"sudo -E -- {command}\"" : $"-c \"{command}\""
         };
         Console.WriteLine($"{nameof(RunLinuxCommand)} Running: {psi.FileName} {psi.Arguments}");
-        Console.WriteLine($"Content: {commandTorite}");
-        using var process = new Process { StartInfo = psi };
-
-        var stdout = new StringBuilder();
-        var stderr = new StringBuilder();
-
-        process.OutputDataReceived += (_, e) => { if (e.Data != null) stdout.AppendLine(e.Data); };
-        process.ErrorDataReceived += (_, e) => { if (e.Data != null) stderr.AppendLine(e.Data); };
-
+        using var process = new Process { StartInfo = psi, EnableRaisingEvents = true };
         process.Start();
 
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        process.WaitForExit();
-
-        string output = stdout.ToString();
-        string error = stderr.ToString();
-        File.Delete(script);
-        return new()
+        var stdoutTask = process.StandardOutput.ReadToEndAsync(ct);
+        var stderrTask = process.StandardError.ReadToEndAsync(ct);
+        await process.WaitForExitAsync(ct).ConfigureAwait(false);
+        string output = await stdoutTask;
+        string error = await stderrTask;
+        var result = new LinuxCommandResult()
         {
             StandardError = error,
             StandardOutput = output
         };
+        Console.WriteLine($"{nameof(RunLinuxCommand)} Result: {result.ToString()}");
+        return result;
     }
 
 }
