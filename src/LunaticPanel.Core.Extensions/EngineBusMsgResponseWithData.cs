@@ -9,4 +9,10 @@ public record EngineBusMsgResponseWithData<TData> : EngineBusMsgResponseNoData
     {
         Data = data;
     }
+
+    public EngineBusMsgResponseWithData(TData data, Type componentType, string origin) : base(componentType, origin)
+    {
+        Data = data;
+    }
+
 }

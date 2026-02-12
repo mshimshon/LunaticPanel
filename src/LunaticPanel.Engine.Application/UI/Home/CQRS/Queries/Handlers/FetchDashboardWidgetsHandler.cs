@@ -2,8 +2,10 @@
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto;
+using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
 using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
+using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using MedihatR;
 
 namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Handlers;
@@ -26,7 +28,12 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
             var responses =
                 await _engineBus
                 .Execute(DashboardKeys.UI.GetWidgets)
-                .ReadWithData(msg => _coreMap.Map(msg?.GetDataAs<WidgetElementResponse>() ?? new()).To<WidgetElementEntity>());
+                .ReadWithData((response) =>
+                    _coreMap.Map((response.Data!.GetDataAs<WidgetElementResponse>() ?? new())).To<WidgetElementEntity>() with
+                    {
+                        ComponentType = response.ComponentType,
+                        Render = response.RenderFragment
+                    }, );
             foreach (EngineBusMsgResponseWithData<WidgetElementEntity> item in responses)
                 try
                 {

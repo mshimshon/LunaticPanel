@@ -27,6 +27,8 @@
                 {
                     <MudItem xs=@((int)widget.Size) Class="ma-3">
                         @widget.Render
+
+                        <DynamicComponent Type="@t" @ref="_refs[t]" />
                     </MudItem>
                 }
 

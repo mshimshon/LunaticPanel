@@ -1,7 +1,6 @@
 ﻿using CoreMap;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Extensions;
-using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
 using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
@@ -23,23 +22,24 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         List<MenuElementEntity> result = new();
         try
         {
+            // TODO: CHANGE WHEN COREMAP SUPPORT CTOR
             var responses = await _engineBus
                 .Execute(MainMenuKeys.UI.GetElements)
-                .ReadWithData(msg => _coreMap.Map(msg.GetDataAs<MenuElementResponse>()!).To<MenuElementEntity>());
-            foreach (var item in responses)
-                try
-                {
-                    result.Add(item.Data with { Render = item.Render });
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                .ReadWithData((response) =>
+                    _coreMap.Map((response.Data!.GetDataAs<MenuElementResponse>()!)).To<MenuElementEntity>() with
+                    {
+                        ComponentType = response.ComponentType,
+                        Render = response.RenderFragment
+                    }, p => p);
+            result = responses.Select(p => p.Data)
+                .OrderBy(p => p.Position)
+                .ToList();
+
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
-        return result.OrderBy(p => p.Position).ToList();
+        return result;
     }
 }

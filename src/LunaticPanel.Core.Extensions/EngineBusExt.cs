@@ -1,5 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Messaging.Common;
-using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Core.Extensions;
@@ -27,17 +26,36 @@ public static class EngineBusExt
         var message = data != default ? new EngineBusMessage(new(key), data) : new EngineBusMessage(new(key));
         return await engineBus.ExecAsync(message);
     }
-    public static async Task<EngineBusMsgResponseWithData<TData>[]> ReadWithData<TData>(this Task<EngineBusResponse[]> executionTask, Func<BusMessageData, TData> map)
+    public static async Task<EngineBusMsgResponseWithData<TData>[]> ReadWithData<TData>(this Task<EngineBusResponse[]> executionTask, Func<EngineBusResponse, TData> map,
+        Func<EngineBusMsgResponseWithData<TData>, EngineBusMsgResponseWithData<TData>> mapMessage)
     {
         var result = await executionTask;
-        return await result.ReadWithData(map);
+        return await result.ReadWithData(map, mapMessage);
     }
 
-    public static async Task<EngineBusMsgResponseWithData<TData>[]> ReadWithData<TData>(this EngineBusResponse[] engineBusResponses, Func<BusMessageData, TData> map)
-        => engineBusResponses.Select(p => new EngineBusMsgResponseWithData<TData>(map(p.Data!), p.RenderFragment, p.Origin)
+    private static EngineBusMsgResponseWithData<TData> CreateMessageWithData<TData>(EngineBusResponse response, Func<EngineBusResponse, TData> map)
+        => response.ComponentType != default ?
+            new EngineBusMsgResponseWithData<TData>(map(response), response.ComponentType, response.Origin) :
+            new EngineBusMsgResponseWithData<TData>(map(response), response.RenderFragment!, response.Origin);
+
+    public static async Task<EngineBusMsgResponseWithData<TData>[]> ReadWithData<TData>(
+        this EngineBusResponse[] engineBusResponses,
+        Func<EngineBusResponse, TData> mapData,
+        Func<EngineBusMsgResponseWithData<TData>, EngineBusMsgResponseWithData<TData>> mapMessage)
+        =>
+        engineBusResponses.Select(p =>
         {
-            VisibilityCondition = p.VisibilityCondition
+            var r = mapMessage(CreateMessageWithData(p, mapData) with
+            {
+                VisibilityCondition = p.VisibilityCondition
+            });
+            return r;
         }).ToArray();
+
+    private static EngineBusMsgResponseNoData CreateMessageNoData(string origin, RenderFragment? render = default, Type? componentType = default)
+    => componentType != default ?
+        new EngineBusMsgResponseNoData(componentType, origin) :
+        new EngineBusMsgResponseNoData(render!, origin);
 
     public static async Task<EngineBusMsgResponseNoData[]> ReadDiscardData(this Task<EngineBusResponse[]> executionTask)
     {
@@ -45,33 +63,46 @@ public static class EngineBusExt
         return await result.ReadDiscardData();
     }
     public static async Task<EngineBusMsgResponseNoData[]> ReadDiscardData(this EngineBusResponse[] engineBusResponses)
-    => engineBusResponses.Select(p => new EngineBusMsgResponseNoData(p.RenderFragment, p.Origin)
+    => engineBusResponses.Select(p => CreateMessageNoData(p.Origin, p.RenderFragment, p.ComponentType) with
     {
         VisibilityCondition = p.VisibilityCondition
     }).ToArray();
 
-    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object? data = default) where TComponent : IComponent
+
+    private static RenderFragment CreateRenderFragmentComponent<TComponent>() where TComponent : IComponent
+    => builder =>
     {
-        RenderFragment fragment = builder =>
-        {
-            builder.OpenComponent<TComponent>(0);
-            builder.CloseComponent();
-        };
-        var result = data == default ? new EngineBusResponse(fragment) : new EngineBusResponse(fragment, data);
+        builder.OpenComponent<TComponent>(0);
+
+        builder.CloseComponent();
+    };
+
+    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage) where TComponent : IComponent
+    {
+        RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
+        var result = new EngineBusResponse(fragment);
+        return Task.FromResult(result);
+    }
+    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object data) where TComponent : IComponent
+    {
+        RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
+        var result = new EngineBusResponse(fragment, data);
         return Task.FromResult(result);
     }
 
-    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object? data = default, Func<EngineBusResponse, EngineBusResponse>? extra = default) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object data, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
     {
-        RenderFragment fragment = builder =>
-        {
-            builder.OpenComponent<TComponent>(0);
-            builder.CloseComponent();
-        };
-        var result = data == default ? new EngineBusResponse(fragment) : new EngineBusResponse(fragment, data);
+        RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
+        var result = new EngineBusResponse(fragment, data);
         result = extra?.Invoke(result) ?? result;
         return Task.FromResult(result);
     }
-
+    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
+    {
+        RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
+        var result = new EngineBusResponse(fragment);
+        result = extra?.Invoke(result) ?? result;
+        return Task.FromResult(result);
+    }
 
 }

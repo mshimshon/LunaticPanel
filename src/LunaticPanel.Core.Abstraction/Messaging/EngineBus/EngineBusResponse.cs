@@ -6,7 +6,8 @@ namespace LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 public sealed record EngineBusResponse
 {
     public string Origin { get; init; } = default!;
-    public RenderFragment RenderFragment { get; }
+    public RenderFragment? RenderFragment { get; }
+    public Type? ComponentType { get; }
     public BusMessageData? Data { get; }
     public Guid Id { get; }
     public Func<bool>? VisibilityCondition { get; init; }
@@ -16,7 +17,19 @@ public sealed record EngineBusResponse
         Id = Guid.NewGuid();
     }
 
+    public EngineBusResponse(Type componentType)
+    {
+        ComponentType = componentType;
+        Id = Guid.NewGuid();
+
+    }
+
     public EngineBusResponse(RenderFragment renderFragment, object data) : this(renderFragment)
+    {
+        Data = new(data);
+    }
+
+    public EngineBusResponse(Type componentType, object data) : this(componentType)
     {
         Data = new(data);
     }

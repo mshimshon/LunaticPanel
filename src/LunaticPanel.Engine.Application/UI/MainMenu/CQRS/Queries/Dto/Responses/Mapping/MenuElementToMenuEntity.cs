@@ -1,5 +1,4 @@
 ﻿using CoreMap;
-using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 
 namespace LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses.Mapping;
@@ -7,8 +6,8 @@ namespace LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses
 public class MenuElementToMenuEntity : ICoreMapHandler<MenuElementResponse, MenuElementEntity>
 {
     MenuElementEntity ICoreMapHandler<MenuElementResponse, MenuElementEntity>.Handler(MenuElementResponse data, ICoreMap alsoMap)
-        => new()
-        {
-            Position = data.Position,
-        };
+    {
+
+        return new() { Position = data.Position };
+    }
 }

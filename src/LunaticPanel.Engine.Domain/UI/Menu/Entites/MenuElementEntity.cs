@@ -2,8 +2,10 @@
 
 namespace LunaticPanel.Engine.Domain.UI.Menu.Entites;
 
-public record MenuElementEntity
+public sealed record MenuElementEntity
 {
-    public int Position { get; set; }
-    public RenderFragment Render { get; init; } = default!;
+    public int Position { get; init; }
+
+    public RenderFragment? Render { get; init; }
+    public Type? ComponentType { get; init; }
 }

@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 
-public record WidgetElementEntity
+public sealed record WidgetElementEntity
 {
     public int Position { get; init; }
     public WidgetSize Size { get; init; }
-    public RenderFragment Render { get; init; } = default!;
-    public Func<bool>? VisibilityCondition { get; init; }
-
+    public RenderFragment? Render { get; init; }
+    public Type? ComponentType { get; init; }
 }
