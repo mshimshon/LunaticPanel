@@ -77,27 +77,27 @@ public static class EngineBusExt
         builder.CloseComponent();
     };
 
-    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithFragmentOf<TComponent>(this IEngineBusMessage engineBusMessage) where TComponent : IComponent
     {
         RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
         var result = new EngineBusResponse(fragment);
         return Task.FromResult(result);
     }
-    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object data) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithFragmentOf<TComponent>(this IEngineBusMessage engineBusMessage, object data) where TComponent : IComponent
     {
         RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
         var result = new EngineBusResponse(fragment, data);
         return Task.FromResult(result);
     }
 
-    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, object data, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithFragmentOf<TComponent>(this IEngineBusMessage engineBusMessage, object data, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
     {
         RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
         var result = new EngineBusResponse(fragment, data);
         result = extra?.Invoke(result) ?? result;
         return Task.FromResult(result);
     }
-    public static Task<EngineBusResponse> ReplyWith<TComponent>(this IEngineBusMessage engineBusMessage, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithFragmentOf<TComponent>(this IEngineBusMessage engineBusMessage, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
     {
         RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
         var result = new EngineBusResponse(fragment);
@@ -105,4 +105,31 @@ public static class EngineBusExt
         return Task.FromResult(result);
     }
 
+
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage) where TComponent : IComponent
+    {
+        RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
+        var result = new EngineBusResponse(typeof(TComponent));
+        return Task.FromResult(result);
+    }
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, object data) where TComponent : IComponent
+    {
+        RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
+        var result = new EngineBusResponse(typeof(TComponent), data);
+        return Task.FromResult(result);
+    }
+
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, object data, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
+    {
+        RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
+        var result = new EngineBusResponse(typeof(TComponent), data);
+        result = extra?.Invoke(result) ?? result;
+        return Task.FromResult(result);
+    }
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
+    {
+        var result = new EngineBusResponse(typeof(TComponent));
+        result = extra?.Invoke(result) ?? result;
+        return Task.FromResult(result);
+    }
 }

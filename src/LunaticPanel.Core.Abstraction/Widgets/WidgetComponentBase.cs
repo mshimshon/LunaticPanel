@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Widgets.Enum;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +12,9 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase
     protected IPluginContextService PluginContextService { get; private set; } = default!;
     protected IWidgetContext WidgetContext { get; private set; } = default!;
 
-
+    [Parameter] public EventCallback OnParentStateHasChanged { get; set; }
+    private readonly SemaphoreSlim _renderGate = new(1, 1);
+    private readonly SemaphoreSlim _parentRenderGate = new(1, 1);
 
     protected override void OnInitialized()
     {
@@ -21,6 +24,56 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase
         OnBaseInitialized();
         OnWidgetInitialized();
     }
+    protected async Task InvokeParentStateChanged()
+    {
+        if (OnParentStateHasChanged.HasDelegate)
+            await InvokeAsync(async () =>
+            {
+                await _parentRenderGate.WaitAsync();
+                try
+                {
+                    await OnParentStateHasChanged.InvokeAsync();
+                }
+                catch (Exception ex)
+                {
+                    // TODO: LOG ISSUES
+                    Console.WriteLine($"WidgetComponentBase::InvokeParentStateChanged = {ex.Message}");
+                }
+                finally
+                {
+                    _parentRenderGate.Release();
+                }
+            });
+    }
+    protected async Task InvokeMyComponentStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await _renderGate.WaitAsync();
+            try
+            {
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                // TODO: LOG ISSUES
+                Console.WriteLine($"WidgetComponentBase::InvokeMyComponentStateChanged = {ex.Message}");
+            }
+            finally
+            {
+                _renderGate.Release();
+            }
+        });
+    }
+
+    protected virtual Task InvokeStateChanges(SpreadChangeOption spreadChangeOption = SpreadChangeOption.TouchMyComponentOnly)
+    {
+        if (spreadChangeOption == SpreadChangeOption.TouchMyComponentOnly)
+            return InvokeMyComponentStateChanged();
+        else
+            return InvokeParentStateChanged();
+    }
+
     protected virtual void OnBaseInitialized() { }
     protected virtual void OnWidgetInitialized() { }
 
@@ -35,32 +88,13 @@ public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : WidgetComp
     where TPluginEntry : IPlugin
 {
     protected TViewModel ViewModel { get; private set; } = default!;
-    private readonly SemaphoreSlim _renderGate = new(1, 1);
-    public async Task OnViewModelChanged()
-    {
-        await InvokeAsync(async () =>
-        {
-            await _renderGate.WaitAsync();
-            try
-            {
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{ex.Message}");
-            }
-            finally
-            {
-                _renderGate.Release();
-            }
-        });
-    }
-    private Func<Task>? _onVmChanged;
+
+
+
     protected override void OnBaseInitialized()
     {
-        _onVmChanged = OnViewModelChanged;
         ViewModel = WidgetContext.GetViewModel<TViewModel>();
-        ViewModel.SpreadChanges += _onVmChanged;
+        ViewModel.SpreadChanges += InvokeStateChanges;
     }
 
     protected override void OnParametersSet()
@@ -79,7 +113,7 @@ public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : WidgetComp
     public async ValueTask DisposeAsync()
     {
         if (ViewModel is not null)
-            ViewModel.SpreadChanges -= _onVmChanged;
+            ViewModel.SpreadChanges -= InvokeStateChanges;
         OnWidgetDispose();
         await OnWidgetDisposeAsync();
     }

@@ -25,10 +25,15 @@
             {
                 if (widget.VisibilityCondition?.Invoke() ?? true)
                 {
-                    <MudItem xs=@((int)widget.Size) Class="ma-3">
-                        @widget.Render
-
-                        <DynamicComponent Type="@t" @ref="_refs[t]" />
+                    <MudItem xs=@((int)widget.Data.Size) Class="ma-3">
+                        @if (widget.Render != default)
+                        {
+                            @widget.Render
+                        }
+                        else
+                        {
+                            <DynamicComponent Type=@widget.ComponentType Parameters=@TypeComponentParameters />
+                        }
                     </MudItem>
                 }
 

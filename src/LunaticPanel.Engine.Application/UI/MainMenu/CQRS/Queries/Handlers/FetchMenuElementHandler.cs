@@ -7,7 +7,7 @@ using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using MedihatR;
 namespace LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Handlers;
 
-internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, List<MenuElementEntity>>
+internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, List<EngineBusMsgResponseWithData<MenuElementEntity>>>
 {
     private readonly ICoreMap _coreMap;
     private readonly IEngineBus _engineBus;
@@ -17,28 +17,23 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         _coreMap = coreMap;
         _engineBus = engineBus;
     }
-    public async Task<List<MenuElementEntity>> Handle(FetchMenuElementQuery request, CancellationToken cancellationToken)
+    public async Task<List<EngineBusMsgResponseWithData<MenuElementEntity>>> Handle(FetchMenuElementQuery request, CancellationToken cancellationToken)
     {
-        List<MenuElementEntity> result = new();
+        List<EngineBusMsgResponseWithData<MenuElementEntity>> result = new();
         try
         {
-            // TODO: CHANGE WHEN COREMAP SUPPORT CTOR
             var responses = await _engineBus
                 .Execute(MainMenuKeys.UI.GetElements)
-                .ReadWithData((response) =>
-                    _coreMap.Map((response.Data!.GetDataAs<MenuElementResponse>()!)).To<MenuElementEntity>() with
-                    {
-                        ComponentType = response.ComponentType,
-                        Render = response.RenderFragment
-                    }, p => p);
-            result = responses.Select(p => p.Data)
-                .OrderBy(p => p.Position)
+                .ReadWithData((response) => _coreMap.Map((response.Data?.GetDataAs<MenuElementResponse>()!)).To<MenuElementEntity>(), p => p);
+            result = responses.Select(p => p)
+                .OrderBy(p => p.Data.Position)
                 .ToList();
+            Console.WriteLine($"FetchMenuElementHandler::Handle = {result.Count}");
 
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine($"FetchMenuElementHandler::Handle = {ex.Message}");
         }
         return result;
     }

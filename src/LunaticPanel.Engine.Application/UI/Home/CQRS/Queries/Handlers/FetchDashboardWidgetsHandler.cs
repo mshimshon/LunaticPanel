@@ -2,15 +2,13 @@
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto;
-using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
 using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
-using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using MedihatR;
 
 namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Handlers;
 
-internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidgetsQuery, List<WidgetElementEntity>?>
+internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidgetsQuery, List<EngineBusMsgResponseWithData<WidgetElementEntity>>?>
 {
     private readonly IEngineBus _engineBus;
     private readonly ICoreMap _coreMap;
@@ -20,38 +18,23 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
         _engineBus = engineBus;
         _coreMap = coreMap;
     }
-    public async Task<List<WidgetElementEntity>?> Handle(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
+    public async Task<List<EngineBusMsgResponseWithData<WidgetElementEntity>>?> Handle(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
     {
-        List<WidgetElementEntity> result = new();
+        List<EngineBusMsgResponseWithData<WidgetElementEntity>> result = new List<EngineBusMsgResponseWithData<WidgetElementEntity>>();
         try
         {
             var responses =
                 await _engineBus
                 .Execute(DashboardKeys.UI.GetWidgets)
-                .ReadWithData((response) =>
-                    _coreMap.Map((response.Data!.GetDataAs<WidgetElementResponse>() ?? new())).To<WidgetElementEntity>() with
-                    {
-                        ComponentType = response.ComponentType,
-                        Render = response.RenderFragment
-                    }, );
-            foreach (EngineBusMsgResponseWithData<WidgetElementEntity> item in responses)
-                try
-                {
-                    result.Add(item.Data with
-                    {
-                        Render = item.Render,
-                        VisibilityCondition = item.VisibilityCondition
-                    });
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                .ReadWithData((response) => _coreMap.Map((response.Data?.GetDataAs<WidgetElementResponse>() ?? new())).To<WidgetElementEntity>(),
+                p => p);
+            result = responses.OrderBy(p => p.Data.Position).ToList();
+
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine($"FetchDashboardWidgetsHandler::Handle = {ex.Message}");
         }
-        return result.OrderBy(p => p.Position).ToList();
+        return result;
     }
 }

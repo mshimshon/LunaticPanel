@@ -1,4 +1,7 @@
-﻿namespace LunaticPanel.Core.Abstraction.Widgets;
+﻿using LunaticPanel.Core.Abstraction.Widgets.Enum;
+
+namespace LunaticPanel.Core.Abstraction.Widgets;
+
 
 public abstract class WidgetViewModelBase : IWidgetViewModel, IAsyncDisposable
 
@@ -16,14 +19,24 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IAsyncDisposable
         }
     }
 
-    public event Func<Task>? SpreadChanges;
+    public event Func<SpreadChangeOption, Task>? SpreadChanges;
 
     /// <summary>
     /// Invokes the registered change propagation delegate, if any, to update changes and cause the parent component to rerender.
     /// </summary>
-    protected async Task UpdateChanges()
+    protected Task UpdateChanges()
     {
-        SpreadChanges?.Invoke();
+        SpreadChanges?.Invoke(SpreadChangeOption.TouchMyComponentOnly);
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Try to Notify the parent component of changes (if parent is Type Component and supported but the requestor).
+    /// </summary>
+    protected Task UpdateParentChanges()
+    {
+        SpreadChanges?.Invoke(SpreadChangeOption.TouchParentWhenPossible);
+        return Task.CompletedTask;
     }
 
     /// <summary>

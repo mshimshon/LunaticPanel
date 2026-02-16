@@ -3,12 +3,24 @@
     <MudGrid>
         @if (ViewModel.State.MenuElements.Count > 0)
         {
-             <MudItem xs="12">
-                @foreach (var item in ViewModel.State.MenuElements)
+
+
+            @foreach (var menuElement in ViewModel.State.MenuElements)
+            {
+                @if (menuElement.VisibilityCondition?.Invoke() ?? true)
                 {
-                    @item.Render
+                    <MudItem xs="12">
+                        @if(menuElement.Render != default)
+                        {
+                            @menuElement.Render
+                        }
+                        else
+                        {
+                            <DynamicComponent Type=@menuElement.ComponentType Parameters=@TypeComponentParameters />
+                        }
+                    </MudItem>
                 }
-            </MudItem>
+            }
         }
         else
         {
