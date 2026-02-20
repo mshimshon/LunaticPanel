@@ -29,6 +29,7 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
                 .ReadWithData((response) => _coreMap.Map((response.Data?.GetDataAs<WidgetElementResponse>() ?? new())).To<WidgetElementEntity>(),
                 p => p);
             result = responses.OrderBy(p => p.Data.Position).ToList();
+            Console.WriteLine($"FetchDashboardWidgetsHandler::Handle Count={result.Count}");
 
         }
         catch (Exception ex)

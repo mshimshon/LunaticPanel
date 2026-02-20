@@ -30,4 +30,6 @@ public interface IPluginConfiguration
     public const string LinuxLibFolderName = "lib";
     public const string LinuxEtcFolderName = "etc";
     public const string LinuxVarFolderName = "var";
+
+    public string EnsureCreated(string path);
 }
