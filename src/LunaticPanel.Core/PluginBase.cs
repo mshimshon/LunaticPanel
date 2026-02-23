@@ -105,6 +105,8 @@ public abstract class PluginBase : IPlugin
         var scope = serviceProvider.CreateScope();
         lock (_circuitServiceProviders)
             _circuitServiceProviders[identity] = scope;
+
+        OnAfterCircuitStart(scope.ServiceProvider);
     }
 
     private void CreateBusRegistry(CircuitIdentity circuit)
@@ -350,7 +352,7 @@ public abstract class PluginBase : IPlugin
 
     /// <summary>
     /// Executes after all services have been registered and the application has been built,
-    /// but before the runtime (e.g., Blazor) becomes active. A scoped service provider is
+    /// but before the runtime (e.g., Before Blazor) becomes active. A scoped service provider is
     /// created and passed to the plugin so it can perform initialization, load resources,
     /// and apply configuration within a scoped context for example singletons or other persistent settings.
     /// </summary>
