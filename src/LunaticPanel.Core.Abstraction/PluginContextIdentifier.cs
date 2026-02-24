@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Core.Abstraction.Circuit;
+﻿namespace LunaticPanel.Core.Abstraction;
 
 public readonly struct PluginContextIdentifier : IEquatable<PluginContextIdentifier>
 {

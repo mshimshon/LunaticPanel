@@ -80,6 +80,7 @@ public static class Bootstrap
         }
 
         circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), masterSp, default);
+        await masterSp.RuntimeStartupBeforePluginsAsync();
         foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -93,6 +94,7 @@ public static class Bootstrap
             Console.WriteLine("===== PLUGIN INITIALIZED =====");
             Console.ForegroundColor = ConsoleColor.Gray;
         }
+        await masterSp.RuntimeStartupAfterPluginsAsync();
     }
 
     private static void LoadConfiguration()

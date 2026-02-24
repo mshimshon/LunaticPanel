@@ -60,7 +60,7 @@ public sealed class EventBusRegistry : IEventBusRegistry
                 _internalRegistryEventTypes[id] = new List<EventBusHandlerDescriptor>();
             }
             if (!list.Any(p => p.HandlerType.FullName == handlerEntity.HandlerType.FullName))
-                _internalRegistryEventTypes[id].Add(new EventBusHandlerDescriptor(id, handlerEntity.HandlerType)
+                _internalRegistryEventTypes[id].Add(new EventBusHandlerDescriptor(id, handlerEntity.HandlerType, handlerEntity.BusLifetime)
                 {
                     CrossCircuitType = attr.CrossCircuitReceiver
                 });

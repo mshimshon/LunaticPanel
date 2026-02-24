@@ -3,11 +3,13 @@ using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
+using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
+using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Infrastructure.Services;
@@ -24,6 +26,7 @@ public static class RegisterServicesExt
 {
     private readonly static EngineBusRegistry _engineBusRegistry = new();
     private readonly static EventBusRegistry _eventBusRegistry = new();
+    private readonly static EventScheduledBusRegistry _eventScheduledBusRegistry = new();
     private readonly static QueryBusRegistry _queryBusRegistry = new();
     public static IServiceCollection AddLunaticPanelServices(this IServiceCollection services)
     {
@@ -59,18 +62,29 @@ public static class RegisterServicesExt
         services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
         services.AddSingleton<IEventBusRegistry>((sp) => _eventBusRegistry);
         services.AddSingleton<IQueryBusRegistry>((sp) => _queryBusRegistry);
+        services.AddSingleton<IEventScheduledBusRegistry>((sp) => _eventScheduledBusRegistry);
 
-        var toRegisterBusHandlers = BusScannerExt.ScanBusHandlers(typeof(RegisterServicesExt).Assembly);
-        foreach (var item in toRegisterBusHandlers)
+        var toRegisterBusHandlers = BusScannerExt.ScanBusHandlers((busInfo) =>
         {
-            services.AddTransient(item.HandlerType);
-            if (item.BusType == EBusType.EventBus)
-                _eventBusRegistry.Register(item.Id, item);
-            else if (item.BusType == EBusType.QueryBus)
-                _queryBusRegistry.Register(item.Id, item);
+            if (busInfo.BusLifetime == EBusLifetime.Scoped)
+                services.AddScoped(busInfo.HandlerType);
             else
-                _engineBusRegistry.Register(item.Id, item);
-        }
+                services.AddTransient(busInfo.HandlerType);
+
+            services.AddSingleton(busInfo.HandlerType);
+
+            if (busInfo.BusType == EBusType.EventBus)
+                _eventBusRegistry.Register(busInfo.Id, busInfo);
+            else if (busInfo.BusType == EBusType.QueryBus)
+                _queryBusRegistry.Register(busInfo.Id, busInfo);
+            else if (busInfo.BusType == EBusType.EventScheduledBus)
+                _eventScheduledBusRegistry.Register(busInfo.Id, busInfo);
+
+            else
+                _engineBusRegistry.Register(busInfo.Id, busInfo);
+
+        }, typeof(RegisterServicesExt).Assembly);
+
         services.AddHostRedirectedServices();
         return services;
     }
@@ -100,5 +114,16 @@ public static class RegisterServicesExt
         });
 
         return services;
+    }
+
+    public static async Task RuntimeStartupBeforePluginsAsync(this IServiceProvider services)
+    {
+        await services.EngineInfrastructureRuntimeBeforePlugins();
+    }
+
+    public static async Task RuntimeStartupAfterPluginsAsync(this IServiceProvider services)
+    {
+        await services.EngineInfrastructureRuntimeAfterPlugins();
+
     }
 }

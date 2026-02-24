@@ -3,7 +3,7 @@
 public record BusHandlerDescriptor(
         string Id,
         Type HandlerType,
-        EBusType BusType
+        EBusType BusType, EBusLifetime BusLifetime
     )
 {
 }

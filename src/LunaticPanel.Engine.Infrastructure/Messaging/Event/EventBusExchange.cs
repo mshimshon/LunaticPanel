@@ -17,6 +17,7 @@ internal class EventBusExchange : IEventBusExchange
         _eventBusReceiver = eventBusReceiver;
         _globalTicker = globalTicker;
     }
+
     public bool AnyListenerFor(string key)
     {
         key = key.ToLower();
@@ -32,6 +33,7 @@ internal class EventBusExchange : IEventBusExchange
         }
         return false;
     }
+
     public Task ExchangeAsync(IEventBusMessage evt, CancellationToken cancellationToken = default)
     {
         var message = evt;

@@ -4,5 +4,6 @@ public enum EBusType
 {
     EngineBus,
     EventBus,
+    EventScheduledBus,
     QueryBus
 }

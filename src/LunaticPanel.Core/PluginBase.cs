@@ -6,10 +6,12 @@ using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
 using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
+using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
+using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.PluginValidator;
 using Microsoft.Extensions.Configuration;
@@ -38,6 +40,9 @@ public abstract class PluginBase : IPlugin
     private readonly static Dictionary<PluginContextIdentifier, EngineBusRegistry> _engineBusRegistry = new();
     private readonly static object _lockEngineBusRegistry = new object();
 
+    private readonly static Dictionary<PluginContextIdentifier, EventScheduledBusRegistry> _eventScheduledBusRegistry = new();
+    private readonly static object _lockEventScheduledBusRegistry = new object();
+
     protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
@@ -55,7 +60,7 @@ public abstract class PluginBase : IPlugin
         {
             if (_scannedCachedBusHandlers.ContainsKey(identity.PluginId))
                 return;
-            _scannedCachedBusHandlers[identity.PluginId] = BusScannerExt.ScanBusHandlers(toScan).AsReadOnly();
+            _scannedCachedBusHandlers[identity.PluginId] = BusScannerExt.ScanBusHandlers(p => { }, toScan).AsReadOnly();
         }
     }
     public void OnCircuitStart(CircuitIdentity circuit)
@@ -223,6 +228,13 @@ public abstract class PluginBase : IPlugin
                 return _eventBusRegistry[identity];
             }
         });
+        services.AddSingleton<IEventScheduledBusRegistry>((sp) =>
+        {
+            lock (_lockEventScheduledBusRegistry)
+            {
+                return _eventScheduledBusRegistry[identity];
+            }
+        });
         services.AddSingleton<IQueryBusRegistry>((sp) =>
         {
             lock (_lockQueryBusRegistry)
@@ -239,20 +251,26 @@ public abstract class PluginBase : IPlugin
         services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEngineBusRegistry>());
         services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEventBusRegistry>());
         services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IQueryBusRegistry>());
+        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEventScheduledBusRegistry>());
+
         services.AddScoped<EngineBus>();
         services.AddScoped<IEngineBus>((sp) => sp.GetRequiredService<EngineBus>());
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
 
-
         services.AddScoped<EventBus>();
         services.AddScoped<IEventBus, EventBus>();
         services.AddScoped<IEventBusReceiver, EventBusReceiver>();
-        services.AddScoped<IPluginConfiguration>((sp) => new PluginConfiguration(PluginId));
+
+        services.AddScoped<EventScheduledBus>();
+        services.AddScoped<IEventScheduledBus, EventScheduledBus>();
+        services.AddScoped<IEventScheduledBusReceiver, EventScheduledBusReceiver>();
 
         services.AddScoped<QueryBus>();
         services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
+
+        services.AddScoped<IPluginConfiguration>((sp) => new PluginConfiguration(PluginId));
         services.AddScoped(sp => new PluginContext(sp, circuit));
         services.AddScoped<IPluginContext>(sp => sp.GetRequiredService<PluginContext>());
         services.AddScoped<IPluginContextService>(sp => sp.GetRequiredService<PluginContext>());
@@ -269,24 +287,33 @@ public abstract class PluginBase : IPlugin
                 cache = _scannedCachedBusHandlers[identity.PluginId];
 
 
-            foreach (var item in cache)
+            foreach (BusHandlerDescriptor busInfo in cache)
             {
-                services.AddTransient(item.HandlerType);
-                if (item.BusType == EBusType.EventBus)
+                if (busInfo.BusLifetime == EBusLifetime.Scoped)
+                    services.AddScoped(busInfo.HandlerType);
+                else
+                    services.AddTransient(busInfo.HandlerType);
+
+
+                if (busInfo.BusType == EBusType.EventBus)
                     lock (_lockEventBusRegistry)
                     {
-                        _eventBusRegistry[identity].Register(item.Id, item);
+                        _eventBusRegistry[identity].Register(busInfo.Id, busInfo);
                     }
-                else if (item.BusType == EBusType.QueryBus)
+                else if (busInfo.BusType == EBusType.QueryBus)
                     lock (_lockQueryBusRegistry)
                     {
-                        _queryBusRegistry[identity].Register(item.Id, item);
+                        _queryBusRegistry[identity].Register(busInfo.Id, busInfo);
                     }
-
+                else if (busInfo.BusType == EBusType.EventScheduledBus)
+                    lock (_lockEventScheduledBusRegistry)
+                    {
+                        _eventScheduledBusRegistry[identity].Register(busInfo.Id, busInfo);
+                    }
                 else
                     lock (_lockEngineBusRegistry)
                     {
-                        _engineBusRegistry[identity].Register(item.Id, item);
+                        _engineBusRegistry[identity].Register(busInfo.Id, busInfo);
                     }
             }
         }
