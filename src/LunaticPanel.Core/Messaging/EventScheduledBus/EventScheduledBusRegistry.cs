@@ -57,7 +57,13 @@ public sealed class EventScheduledBusRegistry : IEventScheduledBusRegistry
         {
             if (!_internalRegistryEventTypes.TryGetValue(id, out var exst))
             {
-                _internalRegistryEventTypes[id] = new EventScheduledBusHandlerDescriptor(id, handlerEntity.HandlerType, handlerEntity.BusLifetime);
+                _internalRegistryEventTypes[id] = new EventScheduledBusHandlerDescriptor(id, handlerEntity.HandlerType, handlerEntity.BusLifetime)
+                {
+                    Timing = attr.GetTiming(),
+                    RunAtStartup = attr.RunAtStartup,
+                    RunOnlyOnce = attr.RunOnlyOnce,
+                    ScheduleAtStartup = attr.ScheduleAtStartup
+                };
             }
         }
     }

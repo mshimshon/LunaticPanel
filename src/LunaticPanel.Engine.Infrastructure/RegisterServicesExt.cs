@@ -73,6 +73,8 @@ public static class RegisterServicesExt
     {
         var scheduler = services.GetRequiredService<EventScheduler>();
         Task.Run(() => scheduler.Cycle());
+
+
         return Task.CompletedTask;
     }
 }

@@ -2,6 +2,6 @@
 
 public interface IEventScheduler
 {
-    Guid Register(EventScheduleObject task);
+    Guid Register(EventScheduleObject task, bool runNow);
     void UnRegister(Guid id);
 }

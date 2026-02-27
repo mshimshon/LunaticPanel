@@ -27,16 +27,19 @@ public static class BusScannerExt
             .Select(t =>
             {
                 var attr = t.GetCustomAttribute<BusIdAttribute>(inherit: false);
-                if (attr == default)
+                bool isValidEngineBus = attr?.GetType() == typeof(EngineBusIdAttribute) && engineBusType.IsAssignableFrom(t);
+                bool isValidEventBus = attr?.GetType() == typeof(EventBusIdAttribute) && eventBusType.IsAssignableFrom(t);
+                bool isValidQueryBus = attr?.GetType() == typeof(QueryBusIdAttribute) && queryBusType.IsAssignableFrom(t);
+                bool isValidEventScheduleBus = attr?.GetType() == typeof(EventScheduledBusIdAttribute) && eventScheduledBusType.IsAssignableFrom(t);
+
+                if (attr == default || (!isValidEngineBus && !isValidEventBus && !isValidQueryBus && !isValidEventScheduleBus))
                     throw new InvalidOperationException($"Type {t.FullName} MUST implements {nameof(BusIdAttribute)}.");
 
                 var eventType = EBusType.EngineBus;
-                if (eventBusType.IsAssignableFrom(t))
-                    eventType = EBusType.EventBus;
-                else if (queryBusType.IsAssignableFrom(t))
-                    eventType = EBusType.QueryBus;
-                else if (eventScheduledBusType.IsAssignableFrom(t))
-                    eventType = EBusType.EventScheduledBus;
+                if (isValidEventBus) eventType = EBusType.EventBus;
+                else if (isValidQueryBus) eventType = EBusType.QueryBus;
+                else if (isValidEventScheduleBus) eventType = EBusType.EventScheduledBus;
+
                 var result = new BusHandlerDescriptor(attr.Key.ToString(), t, eventType, attr.ServiceLifetime);
                 onDescriptor.Invoke(result);
                 return result;

@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Tools.EventScheduler;
+using LunaticPanel.Core.Extensions;
 
 namespace LunaticPanel.Engine.Infrastructure.Services;
 
@@ -23,7 +24,7 @@ internal class EventScheduler : IEventScheduler
 
     }
 
-    public Guid Register(EventScheduleObject task)
+    public Guid Register(EventScheduleObject task, bool runNow)
     {
 
         if (!_eventScheduledBusExchange.AnyListenerFor(task.Id))
@@ -46,6 +47,8 @@ internal class EventScheduler : IEventScheduler
                     _cancelTokenSourceForAwaitedSchedule.Cancel();
             }
         }
+        if (runNow)
+            _ = schedule.Action();
 
         return schedule.ScheduleId;
     }
@@ -76,11 +79,14 @@ internal class EventScheduler : IEventScheduler
 
             lock (_lock)
             {
+
                 if (_cancelTokenSourceForAwaitedSchedule.Token.IsCancellationRequested) continue;
                 _queue.Dequeue();
+                if (!_activeActions.Contains(element.ScheduleId))
+                    continue;
             }
 
-            var result = await element.Action();
+            EventScheduledBusMessageResponse? result = await element.Action();
             if (result.Error != default || result.Data == default)
             {
                 //TODO: LOG ERROR
@@ -89,10 +95,45 @@ internal class EventScheduler : IEventScheduler
                 continue;
             }
 
-            if (element.RunOnceOnly) continue;
+            var data = result.Data;
+            var elementToEnqueue = element;
+
+            bool runningOnlyOnce = elementToEnqueue.RunOnceOnly;
+
+            if (data.HasDisabledRunOnlyOnceForNext())
+                runningOnlyOnce = false;
+
+            if (runningOnlyOnce)
+                continue;
+
+            if (data.ForceReschedule != default && data.ForceReschedule == false)
+                continue;
+
+            if (data.NextRunOnlyOnce != default)
+                elementToEnqueue = elementToEnqueue with
+                {
+                    RunOnceOnly = (bool)data.NextRunOnlyOnce!
+                };
+
+            if (data.NextTiming != default)
+            {
+                var newTiming = ((TimeSpan)data.NextTiming!).TotalMilliseconds < 50 ? TimeSpan.FromMilliseconds(50) : (TimeSpan)data.NextTiming;
+                elementToEnqueue = new EventScheduleTaskObject(elementToEnqueue.Id, newTiming)
+                {
+                    Action = elementToEnqueue.Action,
+                    RunOnceOnly = elementToEnqueue.RunOnceOnly,
+                    ScheduleId = elementToEnqueue.ScheduleId
+                };
+
+            }
+
+            var nextScheduleTime = DateTime.UtcNow.Add(elementToEnqueue.InitialTime);
+            if (result.Data.NextRun != default)
+                nextScheduleTime = (DateTime)result.Data.NextRun!;
+
 
             lock (_lock)
-                _queue.Enqueue(element, (DateTime)result.Data.NextRun!);
+                _queue.Enqueue(elementToEnqueue, nextScheduleTime);
 
         } while (_cancelTokenSourceForLoop.Token.IsCancellationRequested);
     }

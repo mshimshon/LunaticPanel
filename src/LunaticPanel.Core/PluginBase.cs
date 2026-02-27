@@ -8,6 +8,7 @@ using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+using LunaticPanel.Core.Abstraction.Tools.EventScheduler;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
@@ -320,6 +321,8 @@ public abstract class PluginBase : IPlugin
 
     }
 
+
+
     /// <summary>
     /// Registers any additional services required by the plugin, including services
     /// provided by external packages or libraries. This method is invoked each time
@@ -420,18 +423,37 @@ public abstract class PluginBase : IPlugin
         return PerformValidation();
     }
 
-    public Task BeforeRuntimeStartAsync(IServiceProvider serviceProvider)
+    public async Task BeforeRuntimeStartAsync(IServiceProvider serviceProvider)
     {
         if (_hasStarted)
         {
             Console.WriteLine($"BeforeRuntimeStart for {PluginId} already executed.");
-            return Task.CompletedTask;
+            return;
         }
         _hasStarted = true;
 
         var circuitRegistry = serviceProvider.GetRequiredService<ICircuitRegistry>();
         var pContext = circuitRegistry.GetPluginContext(PluginId, circuitRegistry.CurrentCircuit.CircuitId);
-        var t = BeforeRuntimeStart(pContext);
-        return t;
+        await BeforeRuntimeStart(pContext);
+        await RegisterScheduledEventBus(pContext, circuitRegistry.CurrentCircuit);
+    }
+
+    private Task RegisterScheduledEventBus(IPluginContextService contextServices, CircuitIdentity circuit)
+    {
+        if (!circuit.IsMaster) return Task.CompletedTask;
+        var evtSchService = contextServices.GetRequired<IEventScheduler>();
+        var schEventRegistry = contextServices.GetRequired<IEventScheduledBusRegistry>();
+        foreach (var d in schEventRegistry.GetAllAvailable())
+        {
+            if (!d.RunAtStartup) continue;
+            var t = new EventScheduleObject(d.Id, d.Timing)
+            {
+                RunOnceOnly = d.RunOnlyOnce
+            };
+
+            evtSchService.Register(t, d.RunAtStartup);
+        }
+
+        return Task.CompletedTask;
     }
 }
