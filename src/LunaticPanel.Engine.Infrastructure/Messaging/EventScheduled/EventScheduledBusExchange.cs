@@ -13,6 +13,7 @@ internal class EventScheduledBusExchange : IEventScheduledBusExchange
     public EventScheduledBusExchange(ICircuitRegistry circuitRegistry, IEventScheduledBusReceiver eventScheduledBusReceiver)
     {
         _circuitRegistry = circuitRegistry;
+        Console.WriteLine($"EventScheduledBusExchange::{circuitRegistry.CurrentCircuit}");
         _eventScheduledBusReceiver = eventScheduledBusReceiver;
     }
 

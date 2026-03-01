@@ -9,24 +9,22 @@ internal class EventScheduler : IEventScheduler
 {
 
 
-    private PriorityQueue<EventScheduleTaskObject, DateTime> _queue = new();
-    private List<Guid> _activeActions = new();
-    private readonly CancellationTokenSource _cancelTokenSourceForLoop = new();
+    private static PriorityQueue<EventScheduleTaskObject, DateTime> _queue = new();
+    private static List<Guid> _activeActions = new();
+    private static readonly CancellationTokenSource _cancelTokenSourceForLoop = new();
     private readonly IEventScheduledBus _eventScheduledBus;
     private readonly IEventScheduledBusExchange _eventScheduledBusExchange;
     private CancellationTokenSource _cancelTokenSourceForAwaitedSchedule = new();
-    private readonly object _lock = new();
+    private static readonly object _lock = new();
 
-    public EventScheduler(IEventScheduledBus eventScheduledBus, IEventScheduledBusExchange eventScheduledBusExchange)
+    public EventScheduler(IEventScheduledBus eventScheduledBus, IServiceProvider serviceProvider, IEventScheduledBusExchange eventScheduledBusExchange)
     {
         _eventScheduledBus = eventScheduledBus;
         _eventScheduledBusExchange = eventScheduledBusExchange;
-
     }
 
     public Guid Register(EventScheduleObject task, bool runNow)
     {
-
         if (!_eventScheduledBusExchange.AnyListenerFor(task.Id))
             throw new Exception("blah blah blah"); // TODO: FIX
         var nextId = Guid.NewGuid();

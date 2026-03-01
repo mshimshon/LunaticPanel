@@ -31,7 +31,9 @@ public static class RegisterServicesExt
         services.AddScoped<EngineBusExchange>();
         services.AddScoped<EventBusExchange>();
         services.AddScoped<QueryBusExchange>();
+        services.AddScoped<EventScheduledBusExchange>();
         services.AddScoped<EventScheduler>();
+
         services.AddSingleton<GlobalTickerService>();
         services.AddScoped<IEngineBus, EngineBus>();
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
@@ -64,13 +66,14 @@ public static class RegisterServicesExt
         services.AddScoped<IQueryBusExchange>(sp => sp.GetRequiredService<QueryBusExchange>());
         services.AddSingleton<IGlobalTicker>(sp => sp.GetRequiredService<GlobalTickerService>());
 
-        services.AddSingleton<IEventScheduler>(sp => sp.GetRequiredService<EventScheduler>());
+        services.AddScoped<IEventScheduler>(sp => sp.GetRequiredService<EventScheduler>());
         return services;
     }
     public static Task EngineInfrastructureRuntimeBeforePlugins(this IServiceProvider services)
     => Task.CompletedTask;
     public static Task EngineInfrastructureRuntimeAfterPlugins(this IServiceProvider services)
     {
+
         var scheduler = services.GetRequiredService<EventScheduler>();
         Task.Run(() => scheduler.Cycle());
 

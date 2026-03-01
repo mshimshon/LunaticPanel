@@ -129,6 +129,10 @@ public abstract class PluginBase : IPlugin
         lock (_lockEngineBusRegistry)
             if (!_engineBusRegistry.ContainsKey(identity))
                 _engineBusRegistry[identity] = new();
+
+        lock (_lockEventScheduledBusRegistry)
+            if (!_eventScheduledBusRegistry.ContainsKey(identity))
+                _eventScheduledBusRegistry[identity] = new();
     }
     public void AddHostRedirectedServices(params HostRedirectionService[] serviceTypes)
     {
@@ -171,6 +175,11 @@ public abstract class PluginBase : IPlugin
         lock (_lockEngineBusRegistry)
             if (_engineBusRegistry.ContainsKey(identity))
                 _engineBusRegistry.Remove(identity);
+
+
+        lock (_lockEventScheduledBusRegistry)
+            if (_eventScheduledBusRegistry.ContainsKey(identity))
+                _eventScheduledBusRegistry.Remove(identity);
     }
 
     public void OnCircuitEnd(CircuitIdentity circuit)
@@ -445,7 +454,7 @@ public abstract class PluginBase : IPlugin
         var schEventRegistry = contextServices.GetRequired<IEventScheduledBusRegistry>();
         foreach (var d in schEventRegistry.GetAllAvailable())
         {
-            if (!d.RunAtStartup) continue;
+            if (!d.ScheduleAtStartup) continue;
             var t = new EventScheduleObject(d.Id, d.Timing)
             {
                 RunOnceOnly = d.RunOnlyOnce

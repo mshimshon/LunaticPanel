@@ -48,8 +48,8 @@ public static class Bootstrap
     public static async Task BootstrapRunAsync(WebApplication? webApp, IServiceProvider serviceProvider, IConfiguration configuration)
     {
         var masterSp = serviceProvider.CreateScope().ServiceProvider;
-        var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
         var circuitRegistry = masterSp.GetRequiredService<CircuitRegistry>();
+        var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
         foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
         {
             pluginRegistry.Register(new(plugin.EntryPoint!, plugin.Entity));
@@ -72,6 +72,7 @@ public static class Bootstrap
                 if (webApp != default)
                     webApp.UseStaticFiles(options);
             }
+
             var redirectServiceToHost = RegisterServicesExt
                 .AddHostRedirectedServices(new ServiceCollection())
                 .Select(p => new HostRedirectionService(p.ServiceType, p.Lifetime))
@@ -79,7 +80,8 @@ public static class Bootstrap
             plugin.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
         }
 
-        circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), masterSp, default);
+        circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), default);
+
         await masterSp.RuntimeStartupBeforePluginsAsync();
         foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
         {
@@ -94,6 +96,7 @@ public static class Bootstrap
             Console.WriteLine("===== PLUGIN INITIALIZED =====");
             Console.ForegroundColor = ConsoleColor.Gray;
         }
+
         await masterSp.RuntimeStartupAfterPluginsAsync();
     }
 

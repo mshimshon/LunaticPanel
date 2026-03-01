@@ -12,10 +12,10 @@ public sealed class CircuitRegistry : ICircuitRegistry
     private static readonly object _lock = new();
     private readonly IPluginRegistry _pluginRegistry;
     private readonly IServiceProvider _hostSP;
-    private CircuitHostIdentity _currentCircuit = default!;
     private static Dictionary<PluginContextIdentifier, IPluginContextService> PluginContexts { get; } = new();
     private static Dictionary<PluginContextIdentifier, CircuitPluginIdentity> PluginCircuitIdentity { get; } = new();
 
+    private CircuitHostIdentity _currentCircuit = default!;
     public CircuitIdentity CurrentCircuit => _currentCircuit;
 
     private static readonly object _lockPluginContexts = new();
@@ -31,7 +31,7 @@ public sealed class CircuitRegistry : ICircuitRegistry
             return _circuits.Where(p => !ReferenceEquals(p.LayoutComponent, null) || p.IsMaster).ToList().AsReadOnly();
         }
     }
-    internal void SelfCircuitRegistration(Guid id, IServiceProvider sp, MainLayout? app)
+    internal void SelfCircuitRegistration(Guid id, MainLayout? app)
     {
         lock (_lock)
         {
@@ -41,7 +41,7 @@ public sealed class CircuitRegistry : ICircuitRegistry
             {
                 CircuitId = id,
                 LayoutComponent = app,
-                HostServiceProvider = sp,
+                HostServiceProvider = _hostSP,
                 IsMaster = app == default
             };
             _circuits.Add(_currentCircuit);
