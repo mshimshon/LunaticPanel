@@ -30,13 +30,15 @@ public class EventScheduledBusReceiver : IEventScheduledBusReceiver
             try
             {
                 var handlerService = (_serviceProvider.GetRequiredService(handler.HandlerType) as IEventScheduledBusHandler)!;
-                var data = handlerService.DueToExecute(msg, cancellationToken);
+                EventScheduledBusMessageData? data = handlerService.DueToExecute(msg, cancellationToken);
                 actionTask = data.Action;
-                _ = Task.Run(() => actionTask(cancellationToken));
+                if (!data.SkipExecution)
+                    _ = Task.Run(() => actionTask(cancellationToken));
                 var result = new EventScheduledBusMessageResponse(data)
                 {
                     Origin = msg.GetId()
                 }; // TODO: Find wtf is the Origin
+
                 return Task.FromResult<EventScheduledBusMessageResponse?>(result);
             }
             catch (EventScheduledBusMessageException ex)

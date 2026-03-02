@@ -2,6 +2,5 @@
 
 public interface ILinuxCommand
 {
-    Task<LinuxCommandResult> RunLinuxScript(string file, bool sudo = true, CancellationToken ct = default);
-    Task<LinuxCommandResult> RunLinuxCommand(string command, bool sudo = true, CancellationToken ct = default);
+    Task<LinuxCommandResult> RunCommand(LinuxCommandBuilder builder, CancellationToken ct = default);
 }

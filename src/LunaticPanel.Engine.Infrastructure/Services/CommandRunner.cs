@@ -23,23 +23,36 @@ public class CommandRunner : ILinuxCommand
 
     }
 
-    private async Task PipeDrain(StreamReader stream, Func<string, CancellationToken, Task> onStream, Func<Task> onException, CancellationToken ct = default)
+    private async Task PipeDrain(StreamReader stream, Func<string, CancellationToken, Task> onStream, Action<Exception>? onException = default, CancellationToken ct = default)
     {
         try
         {
-            while (true)
+            while (!ct.IsCancellationRequested)
             {
-                ct.ThrowIfCancellationRequested();
                 var line = await stream.ReadLineAsync().ConfigureAwait(false);
                 if (line is null) break;
                 await onStream(line, ct);
             }
         }
-        finally
+        catch (Exception ex)
         {
-            await onException();
+            onException?.Invoke(ex);
         }
     }
+
+    private Task PipeProcessor(StreamReader stream, Action<StringBuilder> updateString, CancellationToken ct = default)
+    {
+        var localString = new StringBuilder();
+
+        return Task.Run(async () => await PipeDrain(stream, (line, ct) =>
+        {
+            localString.AppendLine(line);
+            updateString.Invoke(localString);
+            Console.WriteLine($"CommandRunner: {line}"); // TODO: LOG
+            return Task.CompletedTask;
+        }, default, ct), ct);
+    }
+
     private async Task<LinuxCommandResult> Exec(ProcessStartInfo psi, CancellationToken ct = default)
     {
         Console.WriteLine($"{nameof(Exec)} Running: {psi.FileName} {psi.Arguments}"); // TODO: LOG
@@ -52,19 +65,8 @@ public class CommandRunner : ILinuxCommand
         process.Start();
         var stdoutSb = new StringBuilder();
         var stderrSb = new StringBuilder();
-        var pumpStdout = Task.Run(async () => await PipeDrain(process.StandardOutput, (line, ct) =>
-        {
-            stdoutSb.AppendLine(line);
-            Console.WriteLine($"CommandRunner: {line}"); // TODO: LOG
-            return Task.CompletedTask;
-        }, () => Task.CompletedTask, ct), CancellationToken.None);
-
-        var pumpStderr = Task.Run(async () => await PipeDrain(process.StandardError, (line, ct) =>
-        {
-            stderrSb.AppendLine(line);
-            Console.WriteLine($"CommandRunner: {line}"); // TODO: LOG
-            return Task.CompletedTask;
-        }, () => Task.CompletedTask, ct), CancellationToken.None);
+        var pumpStdout = PipeProcessor(process.StandardOutput, builder => stdoutSb = builder, ct);
+        var pumpStderr = PipeProcessor(process.StandardError, builder => stderrSb = builder, ct);
 
         try
         {
@@ -95,23 +97,12 @@ public class CommandRunner : ILinuxCommand
             StandardError = error,
             StandardOutput = output
         };
-        Console.WriteLine($"{nameof(RunLinuxCommand)} Result: {result.ToString()}"); // TODO: LOG
+        //Console.WriteLine($"{nameof(RunLinuxCommand)} Result: {result.ToString()}"); // TODO: LOG
         return result;
 
     }
-    public async Task<LinuxCommandResult> RunLinuxScript(string file, bool sudo = true, CancellationToken ct = default)
-        => await Exec(new ProcessStartInfo
-        {
-            FileName = _bash,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true,
-            StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8,
-            Arguments = sudo ? $"-c \"sudo -E -- {_bash} {file}\"" : $"-c \"{_bash} {file}\""
-        });
-    public async Task<LinuxCommandResult> RunLinuxCommand(string command, bool sudo = true, CancellationToken ct = default)
+
+    public async Task<LinuxCommandResult> RunCommand(LinuxCommandBuilder builder, CancellationToken ct = default)
          => await Exec(new ProcessStartInfo
          {
              FileName = _bash,
@@ -121,7 +112,6 @@ public class CommandRunner : ILinuxCommand
              CreateNoWindow = true,
              StandardOutputEncoding = Encoding.UTF8,
              StandardErrorEncoding = Encoding.UTF8,
-             Arguments = sudo ? $"-c \"sudo -E -- {command}\"" : $"-c \"{command}\""
+             Arguments = builder.ToString()
          });
-
 }

@@ -104,4 +104,10 @@ public static class EventScheduleExt
     /// <remarks>
     public static EventScheduledBusMessageData ReplyWithAction(this IEventScheduledBusMessage msg, Func<CancellationToken, Task> action)
     => new EventScheduledBusMessageData(action);
+    public static EventScheduledBusMessageData SkipExecution(this EventScheduledBusMessageData eventScheduledBusMessageData)
+       => eventScheduledBusMessageData with
+       {
+           SkipExecution = true
+       };
+
 }

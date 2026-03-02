@@ -57,11 +57,11 @@ public sealed class EventScheduledBusIdAttribute : BusIdAttribute
     public TimeSpan GetTiming()
     {
         var finalTiming = new TimeSpan((Weeks * 7), 0, 0, 0);
-        finalTiming.Add(_timing);
+        finalTiming = finalTiming.Add(_timing);
         if (finalTiming.TotalMilliseconds <= 0)
             return new TimeSpan(0, 5, 0);
         else if (finalTiming.TotalMilliseconds <= 50)
-            return new TimeSpan(0, 5, 0, 0, 50);
+            return new TimeSpan(0, 0, 0, 0, 50);
         return finalTiming;
     }
 }
