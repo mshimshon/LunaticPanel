@@ -23,12 +23,14 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
 
     protected async Task InvokeParentStateChanged()
     {
+        await InvokeMyComponentStateChanged();
         if (OnParentStateHasChanged.HasDelegate)
             await InvokeAsync(async () =>
             {
                 await _parentRenderGate.WaitAsync();
                 try
                 {
+                    Console.WriteLine($"InvokeParentStateChanged:: Parent Rerender");
                     await OnParentStateHasChanged.InvokeAsync();
                 }
                 catch (Exception ex)
@@ -41,6 +43,7 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
                     _parentRenderGate.Release();
                 }
             });
+
     }
     protected async Task InvokeMyComponentStateChanged()
     {

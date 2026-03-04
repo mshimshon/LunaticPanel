@@ -17,6 +17,15 @@ public static class LinuxCommandExt
     public static LinuxCommandBuilderContext PreserveEnvironmentVariable(this LinuxCommandBuilderContext context)
         => context.UpdateBuilder(p => p with { PerserveEnvironmentVariable = true });
 
+    public static LinuxCommandBuilderContext ReadConsoleStandardOutput(this LinuxCommandBuilderContext context, Func<string, Task> onConsoleLine)
+    => context.UpdateBuilder(p => p with { OnStantardOutput = onConsoleLine });
+
+    public static LinuxCommandBuilderContext ReadConsoleErrorOutput(this LinuxCommandBuilderContext context, Func<string, Task> onConsoleLine)
+    => context.UpdateBuilder(p => p with { OnErrorOutput = onConsoleLine });
+
+    public static LinuxCommandBuilderContext ReadConsoleOutput(this LinuxCommandBuilderContext context, Func<string, Task> onConsoleLine)
+    => context.ReadConsoleErrorOutput(onConsoleLine).ReadConsoleStandardOutput(onConsoleLine);
+
     public static async Task<LinuxCommandResult> ExecAsync(this LinuxCommandBuilderContext context, CancellationToken ct = default)
         => await context.LinuxCommand.RunCommand(context.CommandBuilder, ct);
 

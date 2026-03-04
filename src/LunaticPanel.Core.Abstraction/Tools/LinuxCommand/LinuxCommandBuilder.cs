@@ -5,6 +5,8 @@ public sealed record LinuxCommandBuilder(string Command)
     public bool Sudo { get; init; }
     public bool PerserveEnvironmentVariable { get; init; }
     public string? RunAs { get; init; }
+    public Func<string, Task>? OnStantardOutput { get; init; }
+    public Func<string, Task>? OnErrorOutput { get; init; }
     public override string ToString()
     {
         bool runWithSpecificUser = RunAs != default;

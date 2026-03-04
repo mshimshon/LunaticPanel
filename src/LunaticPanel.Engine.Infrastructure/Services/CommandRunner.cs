@@ -40,20 +40,18 @@ public class CommandRunner : ILinuxCommand
         }
     }
 
-    private Task PipeProcessor(StreamReader stream, Action<StringBuilder> updateString, CancellationToken ct = default)
+    private Task PipeProcessor(StreamReader stream, Action<string> updateString, Func<string, Task>? informOutsider, CancellationToken ct = default)
     {
-        var localString = new StringBuilder();
-
-        return Task.Run(async () => await PipeDrain(stream, (line, ct) =>
+        return Task.Run(async () => await PipeDrain(stream, async (line, ct) =>
         {
-            localString.AppendLine(line);
-            updateString.Invoke(localString);
+            updateString.Invoke(line);
+            if (informOutsider != default)
+                await informOutsider.Invoke(line);
             Console.WriteLine($"CommandRunner: {line}"); // TODO: LOG
-            return Task.CompletedTask;
         }, default, ct), ct);
     }
 
-    private async Task<LinuxCommandResult> Exec(ProcessStartInfo psi, CancellationToken ct = default)
+    private async Task<LinuxCommandResult> Exec(ProcessStartInfo psi, Func<string, Task>? onStdOut, Func<string, Task>? onErrorOut, CancellationToken ct = default)
     {
         Console.WriteLine($"{nameof(Exec)} Running: {psi.FileName} {psi.Arguments}"); // TODO: LOG
 
@@ -65,8 +63,8 @@ public class CommandRunner : ILinuxCommand
         process.Start();
         var stdoutSb = new StringBuilder();
         var stderrSb = new StringBuilder();
-        var pumpStdout = PipeProcessor(process.StandardOutput, builder => stdoutSb = builder, ct);
-        var pumpStderr = PipeProcessor(process.StandardError, builder => stderrSb = builder, ct);
+        var pumpStdout = PipeProcessor(process.StandardOutput, line => stdoutSb.AppendLine(line), onStdOut, ct);
+        var pumpStderr = PipeProcessor(process.StandardError, line => stderrSb.AppendLine(line), onErrorOut, ct);
 
         try
         {
@@ -113,5 +111,5 @@ public class CommandRunner : ILinuxCommand
              StandardOutputEncoding = Encoding.UTF8,
              StandardErrorEncoding = Encoding.UTF8,
              Arguments = builder.ToString()
-         });
+         }, builder.OnStantardOutput, builder.OnErrorOutput);
 }
