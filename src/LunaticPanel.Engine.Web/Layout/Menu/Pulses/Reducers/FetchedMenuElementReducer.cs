@@ -6,6 +6,10 @@ namespace LunaticPanel.Engine.Web.Layout.Menu.Pulses.Reducers;
 
 public class FetchedMenuElementReducer : IReducer<MainMenuState, FetchedMenuElementsAction>
 {
-    public Task<MainMenuState> ReduceAsync(MainMenuState state, FetchedMenuElementsAction action)
-        => Task.FromResult(state with { IsLoading = false, MenuElements = action.MenuElements.AsReadOnly() });
+    public MainMenuState Reduce(MainMenuState state, FetchedMenuElementsAction action)
+        => state with
+        {
+            IsLoading = false,
+            MenuElements = action.MenuElements.AsReadOnly()
+        };
 }

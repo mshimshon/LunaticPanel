@@ -6,10 +6,10 @@ namespace LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Reducers;
 
 public class FetchedDashboardWidgetReducer : IReducer<DashboardState, FetchedDashboardWidgetAction>
 {
-    public Task<DashboardState> ReduceAsync(DashboardState state, FetchedDashboardWidgetAction action)
-        => Task.FromResult(state with
+    public DashboardState Reduce(DashboardState state, FetchedDashboardWidgetAction action)
+        => state with
         {
             IsLoading = false,
             Widgets = action.Widgets?.AsReadOnly() ?? default
-        });
+        };
 }

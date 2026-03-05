@@ -40,8 +40,6 @@ public static class RegisterServicesExt
         services.AddStatePulseServices(o =>
         {
             o.DispatchEffectBehavior = StatePulse.Net.Configuration.DispatchEffectBehavior.Parallel;
-            o.DispatchEffectExecutionBehavior = StatePulse.Net.Configuration.DispatchEffectExecutionBehavior.YieldAndFire;
-            o.DispatchOrderBehavior = StatePulse.Net.Configuration.DispatchOrdering.ReducersFirst;
             o.PulseTrackingPerformance = StatePulse.Net.Configuration.PulseTrackingModel.BlazorServerSafe;
 
             o.ScanAssemblies = [
