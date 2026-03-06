@@ -17,6 +17,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.MapRazorComponents<App>()
+.AddInteractiveServerRenderMode()
+.AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 
@@ -24,8 +27,33 @@ app.UseAntiforgery();
 
 
 
-app.MapRazorComponents<App>()
-.AddInteractiveServerRenderMode()
-.AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
+
+Console.WriteLine($"CHECK ROUTES");
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    var sources = app.Services.GetServices<EndpointDataSource>();
+    Console.WriteLine("CHECK ROUTES");
+
+    foreach (var source in sources)
+    {
+        Console.WriteLine($"SOURCE: {source.GetType().FullName}");
+
+        foreach (var endpoint in source.Endpoints)
+        {
+            //Console.WriteLine($"  ENDPOINT TYPE : {endpoint.GetType().FullName}");
+            //Console.WriteLine($"  DISPLAY NAME  : {endpoint.DisplayName}");
+            bool isComponentRoute = endpoint.Metadata
+            .Any(p => string.Equals(p.GetType().FullName, "Microsoft.AspNetCore.Components.Endpoints.ComponentTypeMetadata", StringComparison.OrdinalIgnoreCase));
+            if (!isComponentRoute) continue;
+            if (endpoint is RouteEndpoint routeEndpoint)
+            {
+                Console.WriteLine($"  ROUTE         : {routeEndpoint.RoutePattern.RawText}");
+            }
+
+            Console.WriteLine();
+        }
+    }
+});
+
 
 await app.RunAsync();

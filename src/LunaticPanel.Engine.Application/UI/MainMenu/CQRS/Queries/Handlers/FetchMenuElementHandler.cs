@@ -24,8 +24,8 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         {
             var responses = await _engineBus
                 .Execute(MainMenuKeys.UI.GetElements)
-                .ReadWithData((response) => _coreMap.Map((response.Data?.GetDataAs<MenuElementResponse>()!)).To<MenuElementEntity>(), p => p);
-            result = responses.Select(p => p)
+                .ReadWithData((response) => _coreMap.Map((response.Data?.GetDataAs<MenuElementResponse>() ?? new())).To<MenuElementEntity>(), p => p);
+            result = responses
                 .OrderBy(p => p.Data.Position)
                 .ToList();
             Console.WriteLine($"FetchMenuElementHandler::Handle = {result.Count}");
@@ -33,7 +33,7 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"FetchMenuElementHandler::Handle = {ex.Message}");
+            Console.WriteLine($"FetchMenuElementHandler::Exception = {ex.Message}");
         }
         return result;
     }

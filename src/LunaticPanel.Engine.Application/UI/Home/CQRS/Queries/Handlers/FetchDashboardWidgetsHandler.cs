@@ -26,9 +26,10 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
             var responses =
                 await _engineBus
                 .Execute(DashboardKeys.UI.GetWidgets)
-                .ReadWithData((response) => _coreMap.Map((response.Data?.GetDataAs<WidgetElementResponse>() ?? new())).To<WidgetElementEntity>(),
+                .ReadWithData((EngineBusResponse response) => _coreMap.Map((response.Data?.GetDataAs<WidgetElementResponse>() ?? new())).To<WidgetElementEntity>(),
                 p => p);
             result = responses.OrderBy(p => p.Data.Position).ToList();
+
             Console.WriteLine($"FetchDashboardWidgetsHandler::Handle Count={result.Count}");
 
         }

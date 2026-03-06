@@ -5,17 +5,22 @@ using LunaticPanel.Engine.Web.Services.Circuit;
 using Microsoft.AspNetCore.Components;
 namespace LunaticPanel.Engine.Web.Layout;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "SonarLint",
-    "S3881:Implement the IDisposable pattern correctly",
-    Justification = "Blazor components do not use the full dispose pattern.")]
-public partial class MainLayout : LayoutComponentBase, IDisposable
+public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
 {
     private readonly Guid _id = Guid.NewGuid();
-    [Inject] public IServiceProvider ServiceProvider { get; set; } = default!;
+    [Inject] private IServiceProvider ServiceProvider { get; set; } = default!;
     [Inject] private CircuitRegistry CircuitRegistry { get; set; } = default!;
     private IEventBus EventBus { get; set; } = default!;
+    [Inject] private MainLayoutViewModel ViewModel { get; set; } = default!;
 
+    private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
+    protected override void OnInitialized()
+    {
+        ViewModel.SpreadChanges += ShouldUpdate;
+    }
+    protected override void OnParametersSet()
+    {
+    }
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
@@ -35,16 +40,13 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
         }
     }
 
-    protected override void OnInitialized()
-    {
-    }
 
-    protected override void OnParametersSet()
-    {
-    }
 
-    public void Dispose()
+
+    public ValueTask DisposeAsync()
     {
+        ViewModel.SpreadChanges -= ShouldUpdate;
         CircuitRegistry.SelfRemoval(_id, this);
+        return ValueTask.CompletedTask;
     }
 }

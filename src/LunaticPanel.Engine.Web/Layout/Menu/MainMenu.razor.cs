@@ -1,13 +1,15 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.Engine.Web.Extensions;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace LunaticPanel.Engine.Web.Layout.Menu;
 
-public partial class MainMenu : ComponentBase, IDisposable
+public partial class MainMenu : ComponentBase, IAsyncDisposable
 {
 
 
-    [Inject] public MainMenuViewModel ViewModel { get; set; } = default!;
+    [Inject] private MainMenuViewModel ViewModel { get; set; } = default!;
     private Dictionary<string, object> TypeComponentParameters { get; set; } = new();
     protected override void OnInitialized()
     {
@@ -19,12 +21,13 @@ public partial class MainMenu : ComponentBase, IDisposable
     }
     private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
 
-    public void Dispose()
+    private RenderFragment CreateRenderFragmentComponent(Type componentType)
+    => componentType.CreateRenderFragmentComponent(RendererSetWidgetParameters);
+    private void RendererSetWidgetParameters(RenderTreeBuilder builder)
     {
-        ViewModel.SpreadChanges -= ShouldUpdate;
+        builder.AddAttribute(1, nameof(WidgetComponentBase<>.OnParentStateHasChanged), EventCallback.Factory.Create(this, ShouldUpdate));
+
     }
-
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -33,4 +36,9 @@ public partial class MainMenu : ComponentBase, IDisposable
         }
     }
 
+    public ValueTask DisposeAsync()
+    {
+        ViewModel.SpreadChanges -= ShouldUpdate;
+        return ValueTask.CompletedTask;
+    }
 }

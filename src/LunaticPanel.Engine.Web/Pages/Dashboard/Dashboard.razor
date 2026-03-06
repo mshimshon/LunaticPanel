@@ -26,14 +26,7 @@
                 if (widget.VisibilityCondition?.Invoke() ?? true)
                 {
                     <MudItem xs=@((int)widget.Data.Size) Class="ma-3">
-                        @if (widget.Render != default)
-                        {
-                            @widget.Render
-                        }
-                        else
-                        {
-                            <DynamicComponent Type=@widget.ComponentType Parameters=@TypeComponentParameters />
-                        }
+                        @CreateRenderFragmentComponent(widget.ComponentType)
                     </MudItem>
                 }
 

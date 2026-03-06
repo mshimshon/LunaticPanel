@@ -1,7 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
-using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Engine.Core.UI;
-using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Plugin.Test;
 
@@ -16,12 +14,6 @@ public class MenuBusTest : IEngineBusHandler
     }
     public Task<EngineBusResponse> HandleAsync(IEngineBusMessage engineBusMessage)
     {
-        RenderFragment fragment = builder =>
-        {
-            builder.OpenComponent<Menu>(0);
-            builder.CloseComponent();
-        };
-
-        return Task.FromResult(new EngineBusResponse(fragment, new MenuElementResponse() { Position = 10 }));
+        return Task.FromResult(new EngineBusResponse(typeof(Menu), new MenuElementResponse() { Position = 10 }));
     }
 }

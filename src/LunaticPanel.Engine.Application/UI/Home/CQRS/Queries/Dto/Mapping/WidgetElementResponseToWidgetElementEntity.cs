@@ -7,7 +7,7 @@ namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto.Mapping;
 internal class WidgetElementResponseToWidgetElementEntity : ICoreMapHandler<WidgetElementResponse, WidgetElementEntity>
 {
     public WidgetElementEntity Handler(WidgetElementResponse data, ICoreMap alsoMap)
-        => new()
+        => new WidgetElementEntity()
         {
             Position = data.Position,
             Size = Enum.IsDefined(typeof(WidgetSize), data.Size) ? (WidgetSize)data.Size : WidgetSize.Twelve,

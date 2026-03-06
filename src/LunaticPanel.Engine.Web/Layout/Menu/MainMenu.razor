@@ -10,14 +10,7 @@
                 @if (menuElement.VisibilityCondition?.Invoke() ?? true)
                 {
                     <MudItem xs="12">
-                        @if(menuElement.Render != default)
-                        {
-                            @menuElement.Render
-                        }
-                        else
-                        {
-                            <DynamicComponent Type=@menuElement.ComponentType Parameters=@TypeComponentParameters />
-                        }
+                        @CreateRenderFragmentComponent(menuElement.ComponentType)
                     </MudItem>
                 }
             }

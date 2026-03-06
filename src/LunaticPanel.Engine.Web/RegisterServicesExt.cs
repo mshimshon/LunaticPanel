@@ -5,6 +5,7 @@ using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
@@ -13,9 +14,11 @@ using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Infrastructure.Services;
+using LunaticPanel.Engine.Web.Layout;
 using LunaticPanel.Engine.Web.Layout.Menu;
 using LunaticPanel.Engine.Web.Pages.Dashboard;
 using LunaticPanel.Engine.Web.Services.Circuit;
+using LunaticPanel.Engine.Web.Services.PanelControl;
 using MedihatR;
 using MudBlazor;
 using MudBlazor.Services;
@@ -33,9 +36,11 @@ public static class RegisterServicesExt
         services.AddEngineInfrastructure();
 
         services.AddScoped<MainMenuViewModel>();
+        services.AddScoped<MainLayoutViewModel>();
         services.AddScoped<DashboardViewModel>();
 
         services.AddScoped<CircuitRegistry>();
+        services.AddScoped<PanelControl>();
         services.AddScoped<CommandRunner>();
         services.AddStatePulseServices(o =>
         {
@@ -96,6 +101,7 @@ public static class RegisterServicesExt
     {
         services.AddEngineInfrastructureRedirected();
         services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
+        services.AddScoped<IPanelControl>((sp) => sp.GetRequiredService<PanelControl>());
         services.AddScoped<ILinuxCommand>(sp => sp.GetRequiredService<CommandRunner>());
 
 

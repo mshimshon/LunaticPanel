@@ -1,11 +1,14 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.Engine.Web.Extensions;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 
 namespace LunaticPanel.Engine.Web.Pages.Dashboard;
 
-public partial class Dashboard : ComponentBase, IDisposable
+public partial class Dashboard : ComponentBase, IAsyncDisposable
 {
     [Inject] private DashboardViewModel ViewModel { get; set; } = default!;
+
     private Dictionary<string, object> TypeComponentParameters { get; set; } = new();
     protected override void OnInitialized()
     {
@@ -15,10 +18,15 @@ public partial class Dashboard : ComponentBase, IDisposable
             { nameof(WidgetComponentBase<>.OnParentStateHasChanged), new EventCallbackFactory().Create(this, ShouldUpdate) },
         };
     }
+
     private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
-    public void Dispose()
+
+    private RenderFragment CreateRenderFragmentComponent(Type componentType)
+        => componentType.CreateRenderFragmentComponent(RendererSetWidgetParameters);
+    private void RendererSetWidgetParameters(RenderTreeBuilder builder)
     {
-        ViewModel.SpreadChanges -= ShouldUpdate;
+        builder.AddAttribute(1, nameof(WidgetComponentBase<>.OnParentStateHasChanged), EventCallback.Factory.Create(this, ShouldUpdate));
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -27,5 +35,11 @@ public partial class Dashboard : ComponentBase, IDisposable
         {
             await ViewModel.LoadAsync();
         }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        ViewModel.SpreadChanges -= ShouldUpdate;
+        return ValueTask.CompletedTask;
     }
 }
