@@ -7,9 +7,15 @@
 
 <MudLayout >
     <MudDrawer Open="true" >
-        <MainMenu />
+        @if (CircuitRegistry.CurrentCircuit != null)
+        {
+            <MainMenu />
+        }
     </MudDrawer>
     <MudMainContent Class="px-12">
-        @Body
+        @if(CircuitRegistry.CurrentCircuit != null)
+        {
+            @Body
+        }
     </MudMainContent>
 </MudLayout>

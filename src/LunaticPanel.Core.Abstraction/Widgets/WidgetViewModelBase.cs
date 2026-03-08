@@ -3,10 +3,12 @@
 namespace LunaticPanel.Core.Abstraction.Widgets;
 
 
-public abstract class WidgetViewModelBase : IWidgetViewModel, IAsyncDisposable
+public abstract class WidgetViewModelBase : IWidgetViewModel, IDisposable
 
 {
     private bool _isLoading = false;
+    private bool _disposedValue;
+
     public bool IsLoading
     {
         get => _isLoading || GetStateLoadingStatus();
@@ -45,12 +47,24 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IAsyncDisposable
     /// </summary>
     /// <returns></returns>
     protected virtual bool GetStateLoadingStatus() => false;
-    public async ValueTask DisposeAsync()
-    {
-        OnViewModelDispose();
-        await OnViewModelDisposeAsync();
-    }
     protected virtual void OnViewModelDispose() { }
-    protected virtual Task OnViewModelDisposeAsync()
-     => Task.CompletedTask;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                OnViewModelDispose();
+            }
+
+            _disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 }

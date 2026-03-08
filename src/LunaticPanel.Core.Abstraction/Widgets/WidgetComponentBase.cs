@@ -159,12 +159,12 @@ public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : WidgetComp
     protected sealed override void BaseOnParametersSet() => base.BaseOnParametersSet();
     protected sealed override Task BaseOnParametersSetAsync() => base.BaseOnParametersSetAsync();
 
-    protected override void BaseOnDispose()
+    protected sealed override void BaseOnDispose()
     {
         if (ViewModel is not null)
             ViewModel.SpreadChanges -= InvokeStateChanges;
     }
-    protected override Task BaseOnDisposeAsync() => base.BaseOnDisposeAsync();
+    protected sealed override Task BaseOnDisposeAsync() => base.BaseOnDisposeAsync();
 
 
 }

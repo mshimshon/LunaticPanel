@@ -37,6 +37,7 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
 
                 throw;
             }
+            InvokeAsync(StateHasChanged);
         }
     }
 
