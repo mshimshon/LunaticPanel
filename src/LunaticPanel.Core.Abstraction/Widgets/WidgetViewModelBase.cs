@@ -3,7 +3,7 @@
 namespace LunaticPanel.Core.Abstraction.Widgets;
 
 
-public abstract class WidgetViewModelBase : IWidgetViewModel, IDisposable
+public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleViewModel, IDisposable
 
 {
     private bool _isLoading = false;
@@ -20,6 +20,8 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IDisposable
                 _ = UpdateChanges();
         }
     }
+
+    public bool FirstRenderCompleted { get; set; }
 
     public event Func<SpreadChangeOption, Task>? SpreadChanges;
 
@@ -67,4 +69,22 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+    public void OnInitialized() => OnViewModelInitialized();
+    public Task OnInitializedAsync() => OnViewModelInitializedAsync();
+    public void OnParametersSet() => OnViewModelParametersSet();
+    public Task OnParametersSetAsync() => OnViewModelParametersSetAsync();
+    public Task OnAfterRenderAsync(bool firstRender) => OnViewModelAfterRenderAsync(firstRender);
+    public void OnAfterRender(bool firstRender)
+    {
+        OnViewModelAfterRender(firstRender);
+        if (firstRender)
+            FirstRenderCompleted = true;
+    }
+
+    protected virtual void OnViewModelInitialized() { }
+    protected virtual Task OnViewModelInitializedAsync() => Task.CompletedTask;
+    protected virtual void OnViewModelParametersSet() { }
+    protected virtual Task OnViewModelParametersSetAsync() => Task.CompletedTask;
+    protected virtual Task OnViewModelAfterRenderAsync(bool firstRender) => Task.CompletedTask;
+    protected virtual void OnViewModelAfterRender(bool firstRender) { }
 }

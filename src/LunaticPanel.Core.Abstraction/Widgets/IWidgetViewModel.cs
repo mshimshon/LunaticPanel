@@ -6,4 +6,5 @@ public interface IWidgetViewModel
 {
     public event Func<SpreadChangeOption, Task>? SpreadChanges;
     public bool IsLoading { get; }
+    public bool FirstRenderCompleted { get; }
 }
