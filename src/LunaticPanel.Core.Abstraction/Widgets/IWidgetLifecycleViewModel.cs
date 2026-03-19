@@ -6,6 +6,8 @@ internal interface IWidgetLifecycleViewModel
     Task OnInitializedAsync();
     void OnParametersSet();
     Task OnParametersSetAsync();
+    void OnBeforeRender();
+    Task OnBeforeRenderAsync();
     Task OnAfterRenderAsync(bool firstRender);
     void OnAfterRender(bool firstRender);
 }

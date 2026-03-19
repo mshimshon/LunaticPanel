@@ -18,18 +18,26 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
     [Parameter] public EventCallback OnParentStateHasChanged { get; set; }
     private readonly SemaphoreSlim _renderGate = new(1, 1);
     private readonly SemaphoreSlim _parentRenderGate = new(1, 1);
-
+    private bool _renderCoalescing;
+    private object _lock = new object();
+    private bool _renderParentCoalescing;
+    private object _lockParentCoalescing = new object();
     protected bool FirstRenderCompleted { get; private set; }
     protected async Task InvokeParentStateChanged()
     {
+
         await InvokeMyComponentStateChanged();
+        lock (_lockParentCoalescing)
+        {
+            if (_renderParentCoalescing) return;
+            _renderParentCoalescing = true;
+        }
         if (OnParentStateHasChanged.HasDelegate)
             await InvokeAsync(async () =>
             {
                 await _parentRenderGate.WaitAsync();
                 try
                 {
-                    Console.WriteLine($"InvokeParentStateChanged:: Parent Rerender");
                     await OnParentStateHasChanged.InvokeAsync();
                 }
                 catch (Exception ex)
@@ -39,6 +47,10 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
                 }
                 finally
                 {
+                    lock (_lock)
+                    {
+                        _renderParentCoalescing = false;
+                    }
                     _parentRenderGate.Release();
                 }
             });
@@ -46,11 +58,22 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
     }
     protected async Task InvokeMyComponentStateChanged()
     {
+        lock (_lock)
+        {
+            if (_renderCoalescing) return;
+            _renderCoalescing = true;
+        }
         await InvokeAsync(async () =>
         {
+            // TODO: Review if ditching render gate.
             await _renderGate.WaitAsync();
             try
             {
+                SafeInvokeAsync(BaseOnBeforeRender);
+                await SafeInvokeAsync(BaseOnBeforeRenderAsync);
+                SafeInvokeAsync(OnWidgetBeforeRender);
+                await SafeInvokeAsync(OnWidgetBeforeRenderAsync);
+
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -60,6 +83,10 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
             }
             finally
             {
+                lock (_lock)
+                {
+                    _renderCoalescing = false;
+                }
                 _renderGate.Release();
             }
         });
@@ -71,6 +98,32 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
             return InvokeMyComponentStateChanged();
         else
             return InvokeParentStateChanged();
+    }
+    private static async Task SafeInvokeAsync(Func<Task> asyncMethod)
+    {
+        try
+        {
+            var task = asyncMethod();
+            if (task != null)
+                await task;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"WidgetComponentBase:: {ex.Message}");
+            // TODO: LOG
+        }
+    }
+    private static void SafeInvokeAsync(Action method)
+    {
+        try
+        {
+            method();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"WidgetComponentBase:: {ex.Message}");
+            // TODO: LOG
+        }
     }
 
 
@@ -96,18 +149,26 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
     {
         BaseOnParametersSet();
         OnWidgetParametersSet();
+        BaseOnBeforeRender();
+        OnWidgetBeforeRender();
     }
+
     protected sealed override async Task OnParametersSetAsync()
     {
         await BaseOnParametersSetAsync();
         await OnWidgetParametersSetAsync();
-
+        await BaseOnBeforeRenderAsync();
+        await OnWidgetBeforeRenderAsync();
     }
     protected virtual void BaseOnParametersSet() { }
     protected virtual Task BaseOnParametersSetAsync() => Task.CompletedTask;
     protected virtual void OnWidgetParametersSet() { }
     protected virtual Task OnWidgetParametersSetAsync() => Task.CompletedTask;
 
+    protected virtual void BaseOnBeforeRender() { }
+    protected virtual Task BaseOnBeforeRenderAsync() => Task.CompletedTask;
+    protected virtual void OnWidgetBeforeRender() { }
+    protected virtual Task OnWidgetBeforeRenderAsync() => Task.CompletedTask;
 
     protected sealed override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -199,7 +260,16 @@ public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : WidgetComp
         if (_widgetLifecycle != default)
             await _widgetLifecycle.OnParametersSetAsync();
     }
-
+    protected sealed override void BaseOnBeforeRender()
+    {
+        if (_widgetLifecycle != default)
+            _widgetLifecycle.OnBeforeRender();
+    }
+    protected sealed override async Task BaseOnBeforeRenderAsync()
+    {
+        if (_widgetLifecycle != default)
+            await _widgetLifecycle.OnBeforeRenderAsync();
+    }
     protected sealed override void BaseOnDispose()
     {
         if (ViewModel is not null)

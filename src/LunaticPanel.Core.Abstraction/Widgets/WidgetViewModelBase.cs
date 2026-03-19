@@ -21,7 +21,8 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleVi
         }
     }
 
-    public bool FirstRenderCompleted { get; set; }
+    public bool FirstRenderCompleted => _syncFirstRenderCompleted && _asyncFirstRenderCompleted;
+    private bool _syncFirstRenderCompleted, _asyncFirstRenderCompleted;
 
     public event Func<SpreadChangeOption, Task>? SpreadChanges;
 
@@ -73,12 +74,26 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleVi
     public Task OnInitializedAsync() => OnViewModelInitializedAsync();
     public void OnParametersSet() => OnViewModelParametersSet();
     public Task OnParametersSetAsync() => OnViewModelParametersSetAsync();
-    public Task OnAfterRenderAsync(bool firstRender) => OnViewModelAfterRenderAsync(firstRender);
+    public void OnBeforeRender() => OnViewModelBeforeRender();
+    public Task OnBeforeRenderAsync() => OnViewModelBeforeRenderAsync();
+    public async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await OnViewModelAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            _asyncFirstRenderCompleted = true;
+            _ = UpdateChanges();
+        }
+    }
+
     public void OnAfterRender(bool firstRender)
     {
         OnViewModelAfterRender(firstRender);
         if (firstRender)
-            FirstRenderCompleted = true;
+        {
+            _syncFirstRenderCompleted = true;
+            UpdateChanges();
+        }
     }
 
     protected virtual void OnViewModelInitialized() { }
@@ -87,4 +102,6 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleVi
     protected virtual Task OnViewModelParametersSetAsync() => Task.CompletedTask;
     protected virtual Task OnViewModelAfterRenderAsync(bool firstRender) => Task.CompletedTask;
     protected virtual void OnViewModelAfterRender(bool firstRender) { }
+    protected virtual void OnViewModelBeforeRender() { }
+    protected virtual Task OnViewModelBeforeRenderAsync() => Task.CompletedTask;
 }
