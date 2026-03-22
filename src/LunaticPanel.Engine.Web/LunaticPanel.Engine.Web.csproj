@@ -35,10 +35,6 @@
 </ItemGroup>
 
 <ItemGroup>
-  <Folder Include="wwwroot\" />
-</ItemGroup>
-
-<ItemGroup>
   <ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
   <ProjectReference Include="..\LunaticPanel.Engine.Domain\LunaticPanel.Engine.Domain.csproj" />
   <ProjectReference Include="..\LunaticPanel.Engine.Infrastructure\LunaticPanel.Engine.Infrastructure.csproj" />
