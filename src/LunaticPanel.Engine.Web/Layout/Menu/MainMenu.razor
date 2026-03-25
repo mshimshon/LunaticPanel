@@ -1,6 +1,9 @@
 ﻿@if (!ViewModel.Loading)
 {
     <MudGrid>
+        <MudItem xs="12">
+            <p>@ViewModel.PanelId</p>
+        </MudItem>
         @if (ViewModel.State.MenuElements.Count > 0)
         {
 

@@ -10,9 +10,10 @@ public class CommandRunner : ILinuxCommand
 {
     private readonly string _tmpPath;
     private readonly string _bash;
+    private Guid Id = Guid.NewGuid();
     public CommandRunner()
     {
-
+        Console.WriteLine($"CommandRunner Id : {Id} ");
         var perm755 = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
     UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
     UnixFileMode.OtherRead | UnixFileMode.OtherExecute;

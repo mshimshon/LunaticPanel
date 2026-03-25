@@ -33,7 +33,7 @@ public class DashboardViewModel : IDisposable
         _statePulse = statePulse;
         _dispatcher = dispatcher;
         _panelControl = panelControl;
-        _panelControl.DashboardStateHasChanged = SpreadChanges;
+        _panelControl.DashboardStateHasChanged += OnUpdate;
     }
 
 
@@ -48,7 +48,7 @@ public class DashboardViewModel : IDisposable
         {
             if (disposing)
             {
-                _panelControl.DashboardStateHasChanged = default;
+                _panelControl.DashboardStateHasChanged -= OnUpdate;
             }
 
             _disposedValue = true;

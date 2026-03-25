@@ -23,11 +23,14 @@ public class MainLayoutViewModel : IDisposable
 
     public Func<Task>? SpreadChanges { get; set; }
 
+    public async Task OnUpdate() => SpreadChanges?.Invoke();
+
     public MainLayoutViewModel(IStatePulse statePulse, PanelControl panelControl)
     {
         _statePulse = statePulse;
         _panelControl = panelControl;
-        _panelControl.LayoutStateHasChanged = SpreadChanges;
+        _panelControl.LayoutStateHasChanged += OnUpdate;
+
     }
 
     protected virtual void Dispose(bool disposing)
@@ -36,7 +39,7 @@ public class MainLayoutViewModel : IDisposable
         {
             if (disposing)
             {
-                _panelControl.LayoutStateHasChanged = default;
+                _panelControl.LayoutStateHasChanged -= OnUpdate;
             }
 
             _disposedValue = true;

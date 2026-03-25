@@ -5,4 +5,5 @@ public interface IPanelControl
     Task DashboardRender();
     Task MenuRender();
     Task LayoutRender();
+    Guid Id { get; }
 }

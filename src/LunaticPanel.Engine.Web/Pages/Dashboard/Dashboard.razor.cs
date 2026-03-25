@@ -9,17 +9,17 @@ public partial class Dashboard : ComponentBase, IAsyncDisposable
 {
     [Inject] private DashboardViewModel ViewModel { get; set; } = default!;
 
-    private Dictionary<string, object> TypeComponentParameters { get; set; } = new();
     protected override void OnInitialized()
     {
         ViewModel.SpreadChanges += ShouldUpdate;
-        TypeComponentParameters = new()
-        {
-            { nameof(WidgetComponentBase<>.OnParentStateHasChanged), new EventCallbackFactory().Create(this, ShouldUpdate) },
-        };
+
     }
 
-    private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
+    private async Task ShouldUpdate()
+    {
+        Console.WriteLine("DASHBOARD: RERENDER REQUESTED");
+        await InvokeAsync(StateHasChanged);
+    }
 
     private RenderFragment CreateRenderFragmentComponent(Type componentType)
         => componentType.CreateRenderFragmentComponent(RendererSetWidgetParameters);
@@ -32,9 +32,7 @@ public partial class Dashboard : ComponentBase, IAsyncDisposable
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
             await ViewModel.LoadAsync();
-        }
     }
 
     public ValueTask DisposeAsync()

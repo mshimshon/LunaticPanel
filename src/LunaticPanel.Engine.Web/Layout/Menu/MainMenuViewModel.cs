@@ -10,9 +10,11 @@ public class MainMenuViewModel
     private readonly IStatePulse _statePulse;
     private readonly IDispatcher _dispatcher;
     private readonly PanelControl _panelControl;
-
+    public Guid PanelId => _panelControl.Id;
     public Func<Task>? SpreadChanges { get; set; }
     private bool _loading = true;
+    private bool _disposedValue;
+
     public bool Loading
     {
         get => _loading || State.IsLoading;
@@ -31,6 +33,7 @@ public class MainMenuViewModel
         _statePulse = statePulse;
         _dispatcher = dispatcher;
         _panelControl = panelControl;
+        panelControl.MenuStateHasChanged += OnUpdate;
     }
 
     public async Task LoadAsync()
@@ -50,5 +53,24 @@ public class MainMenuViewModel
 
             throw;
         }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _panelControl.MenuStateHasChanged -= OnUpdate;
+            }
+
+            _disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
