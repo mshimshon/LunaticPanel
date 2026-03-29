@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.EventBus;
+using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Web.Services.Circuit;
@@ -12,11 +13,13 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
     [Inject] private CircuitRegistry CircuitRegistry { get; set; } = default!;
     private IEventBus EventBus { get; set; } = default!;
     [Inject] private MainLayoutViewModel ViewModel { get; set; } = default!;
+    [Inject] private IWidgetComponentLifecycle WidgetComponentLifecycle { get; set; } = default!;
 
     private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
     protected override void OnInitialized()
     {
         ViewModel.SpreadChanges += ShouldUpdate;
+        WidgetComponentLifecycle.BringComponentAlive();
     }
     protected override void OnParametersSet()
     {
@@ -47,7 +50,8 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
     public ValueTask DisposeAsync()
     {
         ViewModel.SpreadChanges -= ShouldUpdate;
-        CircuitRegistry.SelfRemoval(_id, this);
+        WidgetComponentLifecycle.KillComponent();
+
         return ValueTask.CompletedTask;
     }
 }

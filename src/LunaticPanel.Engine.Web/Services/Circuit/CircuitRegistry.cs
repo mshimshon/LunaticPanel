@@ -17,7 +17,7 @@ public sealed class CircuitRegistry : ICircuitRegistry
 
     private CircuitHostIdentity _currentCircuit = default!;
     public CircuitIdentity CurrentCircuit => _currentCircuit;
-
+    private MainLayout? _app;
     private static readonly object _lockPluginContexts = new();
     public CircuitRegistry(IPluginRegistry pluginRegistry, IServiceProvider hostSP)
     {
@@ -68,19 +68,29 @@ public sealed class CircuitRegistry : ICircuitRegistry
 
         }
     }
-    internal void SelfRemoval(Guid id, MainLayout app)
+
+    /* TODO: FINISH THIS
+     * We need a state scoped to each circuit for all plugins via host DI its statepulse state hidden behind an interface with the property and the interface is available
+     * inside the abstraction packgage.
+     * The interface provider a CountUp method, CountDown mehtod to increase and decrease the components count into the state.
+     * The interface also has a event which we can subscribe to receive update of the state.
+     * once we receive update it passe the count every single time once count is 0 we unsubscribe to the event and trigger SelfRemoval.
+     */
+
+    internal void SelfRemoval()
     {
         lock (_lock)
         {
-            if (_currentCircuit != default && _currentCircuit.LayoutComponent == app)
+            if (_currentCircuit != default && _currentCircuit.LayoutComponent == _app)
                 _circuits.Remove(_currentCircuit);
         }
+        if (_currentCircuit == default) return;
         List<CircuitPluginIdentity> identities;
 
         lock (_lockPluginContexts)
         {
             var keys = PluginContexts.Keys
-                .Where(k => k.CircuitId == id)
+                .Where(k => k.CircuitId == _currentCircuit.CircuitId)
                 .ToList();
 
             identities = new List<CircuitPluginIdentity>(keys.Count);

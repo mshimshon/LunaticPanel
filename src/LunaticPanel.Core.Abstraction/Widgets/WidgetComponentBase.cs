@@ -23,6 +23,12 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
     private bool _renderParentCoalescing;
     private object _lockParentCoalescing = new object();
     protected bool FirstRenderCompleted { get; private set; }
+
+
+    private bool _disposed = false;
+    private readonly SemaphoreSlim _disposeLock = new(1, 1);
+
+
     protected async Task InvokeParentStateChanged()
     {
 
@@ -190,10 +196,26 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
 
     public async ValueTask DisposeAsync()
     {
-        BaseOnDispose();
-        await BaseOnDisposeAsync();
-        OnWidgetDispose();
-        await OnWidgetDisposeAsync();
+        if (!_disposed)
+        {
+            await _disposeLock.WaitAsync(); // Ensure only one disposal operation happens at a time.
+            try
+            {
+                if (!_disposed)
+                {
+                    BaseOnDispose();
+                    await BaseOnDisposeAsync();
+                    OnWidgetDispose();
+                    await OnWidgetDisposeAsync();
+                    // Mark the object as disposed.
+                    _disposed = true;
+                }
+            }
+            finally
+            {
+                _disposeLock.Release();
+            }
+        }
     }
     protected virtual void BaseOnDispose() { }
     protected virtual Task BaseOnDisposeAsync() => Task.CompletedTask;

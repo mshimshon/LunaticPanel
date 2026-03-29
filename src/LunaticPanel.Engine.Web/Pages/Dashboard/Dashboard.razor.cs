@@ -8,11 +8,11 @@ namespace LunaticPanel.Engine.Web.Pages.Dashboard;
 public partial class Dashboard : ComponentBase, IAsyncDisposable
 {
     [Inject] private DashboardViewModel ViewModel { get; set; } = default!;
-
+    [Inject] private IWidgetComponentLifecycle WidgetComponentLifecycle { get; set; } = default!;
     protected override void OnInitialized()
     {
         ViewModel.SpreadChanges += ShouldUpdate;
-
+        WidgetComponentLifecycle.BringComponentAlive();
     }
 
     private async Task ShouldUpdate()
@@ -38,6 +38,7 @@ public partial class Dashboard : ComponentBase, IAsyncDisposable
     public ValueTask DisposeAsync()
     {
         ViewModel.SpreadChanges -= ShouldUpdate;
+        WidgetComponentLifecycle.KillComponent();
         return ValueTask.CompletedTask;
     }
 }

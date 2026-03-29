@@ -27,7 +27,6 @@ public static class RegisterServicesExt
     public static IServiceCollection AddEngineInfrastructure(this IServiceCollection services)
     {
         services.AddEngineApplication();
-
         services.AddScoped<EngineBusExchange>();
         services.AddScoped<EventBusExchange>();
         services.AddScoped<QueryBusExchange>();

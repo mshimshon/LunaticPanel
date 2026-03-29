@@ -14,6 +14,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
 		<PackageReference Include="CoreMap" />
 		<PackageReference Include="Medihater.Abstractions" />
+		<PackageReference Include="StatePulse.Net.Abstractions" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LunaticPanel.Core.Extensions\LunaticPanel.Core.Extensions.csproj" />

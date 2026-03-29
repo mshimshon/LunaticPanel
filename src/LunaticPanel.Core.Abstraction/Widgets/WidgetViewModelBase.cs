@@ -52,7 +52,7 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleVi
     protected virtual bool GetStateLoadingStatus() => false;
     protected virtual void OnViewModelDispose() { }
 
-    protected virtual void Dispose(bool disposing)
+    protected void Dispose(bool disposing)
     {
         if (!_disposedValue)
         {

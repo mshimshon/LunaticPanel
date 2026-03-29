@@ -7,6 +7,7 @@ using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
+using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
@@ -39,6 +40,7 @@ public static class RegisterServicesExt
         services.AddScoped<MainLayoutViewModel>();
         services.AddScoped<DashboardViewModel>();
 
+        services.AddScoped<IWidgetComponentLifecycle, WidgetComponentLifecycle>();
         services.AddScoped<CircuitRegistry>();
         services.AddScoped<PanelControl>();
         services.AddScoped<CommandRunner>();

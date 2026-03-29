@@ -182,20 +182,23 @@ public abstract class PluginBase : IPlugin
                 _eventScheduledBusRegistry.Remove(identity);
     }
 
+
+
     public void OnCircuitEnd(CircuitIdentity circuit)
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (!HasActiveCircuitFor(circuit.CircuitId)) return;
 
+        OnBeforeCircuitEnd(circuit);
+
         DeleteBusRegistry(circuit);
 
-        IServiceScope serviceScope;
         lock (_circuitServiceProviders)
         {
-            serviceScope = _circuitServiceProviders[identity];
+            IServiceScope serviceScope = _circuitServiceProviders[identity];
             _circuitServiceProviders.Remove(identity);
+            serviceScope.Dispose();
         }
-        serviceScope.Dispose();
         OnAfterCircuitEnd(circuit);
     }
 
@@ -398,6 +401,8 @@ public abstract class PluginBase : IPlugin
     protected virtual Task BeforeRuntimeStart(IPluginContextService pluginContext)
     => Task.CompletedTask;
 
+
+
     /// <summary>
     /// Invoked after the initial circuit setup and framework boilerplate have completed
     /// when a client connects. Plugins may use this hook to perform per‑circuit
@@ -408,7 +413,15 @@ public abstract class PluginBase : IPlugin
     {
 
     }
+    /// <summary>
+    /// Invoked before a circuit is ended, indicating that the client has disconnected.
+    /// Plugins may use this hook to perform cleanup, release resources, or update while the Service provider is still alive but not UI attached
+    /// circuit‑specific state associated with the disconnected client.
+    /// </summary>
+    protected virtual void OnBeforeCircuitEnd(CircuitIdentity circuit)
+    {
 
+    }
     /// <summary>
     /// Invoked after a circuit has ended, indicating that the client has disconnected.
     /// Plugins may use this hook to perform cleanup, release resources, or update
