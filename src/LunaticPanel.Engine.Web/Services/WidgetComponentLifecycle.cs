@@ -23,8 +23,13 @@ internal class WidgetComponentLifecycle : IWidgetComponentLifecycle
     public async Task KillComponent()
     {
         await _dispatcher.Prepare<DecreaseComponentCountAction>().Await().DispatchAsync();
+        Console.WriteLine($"WidgetComponentLifecycle::DecreaseComponentCountAction");
         if (_disposalChainStateAccess.State.ComponentCount <= 0)
+        {
+            Console.WriteLine($"WidgetComponentLifecycle::Removal Now");
             _circuitRegistry.SelfRemoval();
+
+        }
     }
 
 }

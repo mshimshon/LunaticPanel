@@ -13,6 +13,7 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
         where TPluginEntry : IPlugin
 {
     [Inject] protected IServiceProvider HostProvider { get; set; } = default!;
+    [Inject] private IWidgetComponentLifecycle WidgetComponentLifecycle { get; set; } = default!;
     protected IPluginContextService PluginContextService { get; private set; } = default!;
 
     [Parameter] public EventCallback OnParentStateHasChanged { get; set; }
@@ -27,7 +28,13 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
 
     private bool _disposed = false;
     private readonly SemaphoreSlim _disposeLock = new(1, 1);
-
+    protected sealed override void OnInitialized()
+    {
+        var circuitRegistry = HostProvider.GetRequiredService<ICircuitRegistry>();
+        PluginContextService = circuitRegistry.GetPluginContext(typeof(TPluginEntry).Namespace!, circuitRegistry.CurrentCircuit.CircuitId);
+        BaseOnInitialized();
+        OnWidgetInitialized();
+    }
 
     protected async Task InvokeParentStateChanged()
     {
@@ -133,16 +140,10 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
     }
 
 
-    protected sealed override void OnInitialized()
-    {
-        var circuitRegistry = HostProvider.GetRequiredService<ICircuitRegistry>();
-        PluginContextService = circuitRegistry.GetPluginContext(typeof(TPluginEntry).Namespace!, circuitRegistry.CurrentCircuit.CircuitId);
 
-        BaseOnInitialized();
-        OnWidgetInitialized();
-    }
     protected sealed override async Task OnInitializedAsync()
     {
+        await WidgetComponentLifecycle.BringComponentAlive();
         await BaseOnInitializedAsync();
         await OnWidgetInitializedAsync();
     }
@@ -178,6 +179,7 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
 
     protected sealed override async Task OnAfterRenderAsync(bool firstRender)
     {
+
         await BaseOnAfterRenderAsync(firstRender);
         await OnWidgetAfterRenderAsync(firstRender);
     }
@@ -203,6 +205,8 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
             {
                 if (!_disposed)
                 {
+
+                    await WidgetComponentLifecycle.KillComponent();
                     BaseOnDispose();
                     await BaseOnDisposeAsync();
                     OnWidgetDispose();
