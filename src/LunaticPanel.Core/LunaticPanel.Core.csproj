@@ -29,6 +29,12 @@
 	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
   </ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>LunaticPanel.Core.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
 	
 	<ItemGroup>
 	  <Folder Include="Messaging\Common\" />
