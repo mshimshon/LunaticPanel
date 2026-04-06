@@ -1,5 +1,5 @@
-﻿using LunaticPanel.Core.Abstraction;
-using LunaticPanel.Core.Abstraction.Circuit;
+﻿using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Abstraction.Widgets;
 using Microsoft.Extensions.DependencyInjection;
 

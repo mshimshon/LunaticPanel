@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction;
+﻿using LunaticPanel.Core.Abstraction.Plugin;
 using McMaster.NETCore.Plugins;
 
 namespace LunaticPanel.Engine.Web.Boostrap.Plugin;

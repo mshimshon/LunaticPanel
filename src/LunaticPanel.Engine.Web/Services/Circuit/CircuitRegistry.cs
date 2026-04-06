@@ -1,5 +1,5 @@
-﻿using LunaticPanel.Core.Abstraction;
-using LunaticPanel.Core.Abstraction.Circuit;
+﻿using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Application.Circuit.Contracts;
 using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Web.Layout;

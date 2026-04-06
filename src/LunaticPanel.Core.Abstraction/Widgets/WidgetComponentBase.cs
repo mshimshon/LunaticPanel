@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Abstraction.Widgets.Enum;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;

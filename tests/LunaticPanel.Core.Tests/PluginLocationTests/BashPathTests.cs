@@ -1,28 +1,19 @@
-﻿using LunaticPanel.Core.Abstraction;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
 
 namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
 
-public class NonUserTests
+public class BashPathTests
 {
-    private IPluginConfiguration _pluginConfiguration = default!;
-    public NonUserTests()
+    private PluginConfiguration _pluginConfiguration = default!;
+    public BashPathTests()
     {
         _pluginConfiguration = new PluginConfiguration("Test.Assembly"); // should become test_assembly for linux folder
     }
-
     [Fact]
     public void MakeSureArgumentsAreWrappedIntoDoubleQuotes()
     {
         var arg = _pluginConfiguration.ArgumentsToString("-o", "name=\"eee\"");
         Assert.True(arg == "\\\"-o\\\" \\\"name=\"eee\"\\\"");
-    }
-
-
-    [Fact]
-    public void UppercaseShouldFailComparison()
-    {
-        var arg = _pluginConfiguration.ArgumentsToString("-o", "name=\"eee\"");
-        Assert.True(arg != "\\\"-o\\\" \\\"Name=\"eee\"\\\"");
     }
 
     [Fact]
@@ -103,46 +94,98 @@ public class NonUserTests
     }
 
 
+
     [Fact]
-    public void ConfigBaseShouldPass()
+    public void UserBashBaseShouldThrow_GlobalUserException()
     {
-        //etc/
-        var path = _pluginConfiguration.GetConfigBase("MyModule");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "etc", "lunaticpanel", "plugins", "test_assembly", "config", "mymodule");
+        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserDownloadBase("MyModule"));
+    }
+
+    [Fact]
+    public void UserBashBaseShouldThrow_GlobalUserException_WithSubFolders()
+    {
+        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserBashBase("MyModule", ["", ""]));
+    }
+
+    [Fact]
+    public void UserBashBaseShouldPass_GlobalUser()
+    {
+        _pluginConfiguration.SetUsername("theglobaluser");
+        var path = _pluginConfiguration.GetUserBashBase("MyModule");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home", "theglobaluser", "lunaticpanel", "plugins", "test_assembly", "bash", "mymodule");
         Assert.Equal(path, correctPath);
     }
 
     [Fact]
-    public void ConfigBaseShouldPass_WithSubFolders()
+    public void UserBashBaseShouldPass_GlobalUser_WithSubFolders()
     {
-        //etc/
-        var path = _pluginConfiguration.GetConfigBase("MyModule", "my", "sub", "folder");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "etc",
+        _pluginConfiguration.SetUsername("theglobaluser");
+        var path = _pluginConfiguration.GetUserBashBase("MyModule", "my", "sub", "folder");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home", "theglobaluser",
             "lunaticpanel", "plugins", "test_assembly",
-            "config", "mymodule", "my", "sub", "folder"
+            "bash", "mymodule", "my", "sub", "folder"
             );
         Assert.Equal(path, correctPath);
     }
 
     [Fact]
-    public void ConfigForShouldPass()
+    public void UserBashBaseShouldPass_ExplicitUser()
     {
-        //etc/
-        var path = _pluginConfiguration.GetConfigFor("MyModule", "myfile.json");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "etc",
-            "lunaticpanel", "plugins", "test_assembly",
-            "config", "mymodule", "myfile.json");
+        var path = _pluginConfiguration.GetUserBashBase("MyModule", "myusername");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home", "myusername", "lunaticpanel", "plugins", "test_assembly", "bash", "mymodule");
         Assert.Equal(path, correctPath);
     }
 
     [Fact]
-    public void ConfigForShouldPass_WithSubFolder()
+    public void UserBashBaseShouldPass_ExplicitUser_WithSubFolders()
+    {
+        var path = _pluginConfiguration.GetUserBashBase("MyModule", ["my", "sub", "folder"], "myusername");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home", "myusername",
+            "lunaticpanel", "plugins", "test_assembly",
+            "bash", "mymodule", "my", "sub", "folder"
+            );
+        Assert.Equal(path, correctPath);
+    }
+
+    [Fact]
+    public void UserBashForShouldPass_ExplicitUser()
+    {
+        var path = _pluginConfiguration.GetUserBashFor("MyModule", "file.sh", "myusername");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home",
+            "myusername", "lunaticpanel", "plugins",
+            "test_assembly", "bash", "mymodule", "file.sh");
+        Assert.Equal(path, correctPath);
+    }
+
+    [Fact]
+    public void UserBashForShouldPass_ExplicitUser_WithSubFolders()
+    {
+        var path = _pluginConfiguration.GetUserBashFor("MyModule", ["my", "sub", "folder"], "file.sh", "myusername");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home", "myusername",
+            "lunaticpanel", "plugins", "test_assembly",
+            "bash", "mymodule", "my", "sub", "folder", "file.sh"
+            );
+        Assert.Equal(path, correctPath);
+    }
+    [Fact]
+    public void UserBashForShouldPass_ExplicitUser_WithSubFolderNArgs()
     {
         //etc/
-        var path = _pluginConfiguration.GetConfigFor("MyModule", ["sub", "Folder"], "myfile.json");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "etc",
+        var path = _pluginConfiguration.GetUserBashFor("MyModule", ["sub", "folder"], "myfile.sh", "myusername", "-o", "-f \"/etc/fdfd/ere.sh\"");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home", "myusername",
             "lunaticpanel", "plugins", "test_assembly",
-            "config", "mymodule", "sub", "Folder", "myfile.json");
+            "bash", "mymodule", "sub", "folder", "myfile.sh") + " \\\"-o\\\" \\\"-f \"/etc/fdfd/ere.sh\"\\\"";
+        Assert.Equal(path, correctPath);
+    }
+
+    [Fact]
+    public void UserBashForShouldPass_ExplicitUser_WithArgs()
+    {
+        //etc/
+        var path = _pluginConfiguration.GetUserBashFor("MyModule", "myfile.sh", "myusername", "-o", "-f \"/etc/fdfd/ere.sh\"");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "home", "myusername",
+            "lunaticpanel", "plugins", "test_assembly",
+            "bash", "mymodule", "myfile.sh") + " \\\"-o\\\" \\\"-f \"/etc/fdfd/ere.sh\"\\\"";
         Assert.Equal(path, correctPath);
     }
 }

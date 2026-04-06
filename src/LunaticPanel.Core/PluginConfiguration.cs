@@ -1,11 +1,11 @@
 ﻿using LunaticPanel.Core.Abstraction;
 using LunaticPanel.Core.Abstraction.Exceptions;
-using static LunaticPanel.Core.Abstraction.IPluginConfiguration;
+using static LunaticPanel.Core.Abstraction.IPluginLocation;
 namespace LunaticPanel.Core;
 
 
 
-internal class PluginConfiguration : IPluginConfiguration
+internal class PluginConfiguration : IPluginLocation
 {
 
     public string PluginFolder { get; }
@@ -51,7 +51,7 @@ internal class PluginConfiguration : IPluginConfiguration
         ConfigFolder = Path.Combine(PluginEtcFolder, CONFIG_FOLDER_NAME);
         ReposFolder = Path.Combine(PluginEtcFolder, REPOS_FOLDER_NAME);
 
-        UserPluginFolderFormat = Path.Combine("{0}", LunaticPanelFolderName, LunaticPanelPluginsFolderName, LinuxAssemblyName);
+        UserPluginFolderFormat = Path.Combine(pathSep, HOME_FOLDER_NAME, "{0}", LunaticPanelFolderName, LunaticPanelPluginsFolderName, LinuxAssemblyName);
         UserDownloadFolderFormat = Path.Combine(UserPluginFolderFormat, DOWNLOAD_FOLDER_NAME);
         UserConfigFolderFormat = Path.Combine(UserPluginFolderFormat, CONFIG_FOLDER_NAME);
         UserBashFolderFormat = Path.Combine(UserPluginFolderFormat, BASH_FOLDER_NAME);
@@ -112,7 +112,7 @@ internal class PluginConfiguration : IPluginConfiguration
         => GetBashFor(moduleName, subFolders, filename) + " " + ArgumentsToString(args);
 
 
-    private string RequiresGlobalUser(string returnPath)
+    public string RequiresGlobalUser(string returnPath)
     {
         if (string.IsNullOrWhiteSpace(GlobalUser))
             throw new GlobalUserRequiredException();

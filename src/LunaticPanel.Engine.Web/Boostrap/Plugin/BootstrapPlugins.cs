@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction;
+﻿using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Domain.Plugin.Entites;
 using LunaticPanel.Engine.Domain.Plugin.Enums;

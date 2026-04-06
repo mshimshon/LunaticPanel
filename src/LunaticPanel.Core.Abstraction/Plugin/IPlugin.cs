@@ -3,7 +3,7 @@ using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
 using Microsoft.Extensions.Configuration;
 
-namespace LunaticPanel.Core.Abstraction;
+namespace LunaticPanel.Core.Abstraction.Plugin;
 
 public interface IPlugin
 {

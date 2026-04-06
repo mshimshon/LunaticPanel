@@ -1,6 +1,6 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets;
+﻿using LunaticPanel.Core.Abstraction.Plugin;
 
-namespace LunaticPanel.Core.Abstraction;
+namespace LunaticPanel.Core.Abstraction.Widgets;
 
 public interface IWidgetContext : IPluginContext
 {

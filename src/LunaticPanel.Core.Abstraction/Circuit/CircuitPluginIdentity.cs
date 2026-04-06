@@ -1,4 +1,6 @@
-﻿namespace LunaticPanel.Core.Abstraction.Circuit;
+﻿using LunaticPanel.Core.Abstraction.Plugin;
+
+namespace LunaticPanel.Core.Abstraction.Circuit;
 
 public sealed record CircuitPluginIdentity : CircuitIdentity
 {

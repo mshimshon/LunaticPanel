@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction;
+﻿using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Domain.Plugin.Entites;
 using McMaster.NETCore.Plugins;
 using System.Text.Json.Serialization;

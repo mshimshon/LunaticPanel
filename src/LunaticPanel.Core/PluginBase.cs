@@ -8,7 +8,9 @@ using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Abstraction.Tools.EventScheduler;
+using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
@@ -283,7 +285,7 @@ public abstract class PluginBase : IPlugin
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
 
-        services.AddScoped<IPluginConfiguration>((sp) => new PluginConfiguration(PluginId));
+        services.AddScoped<IPluginLocation>((sp) => new PluginConfiguration(PluginId));
         services.AddScoped(sp => new PluginContext(sp, circuit));
         services.AddScoped<IPluginContext>(sp => sp.GetRequiredService<PluginContext>());
         services.AddScoped<IPluginContextService>(sp => sp.GetRequiredService<PluginContext>());

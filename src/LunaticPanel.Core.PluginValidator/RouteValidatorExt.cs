@@ -1,5 +1,5 @@
-﻿using LunaticPanel.Core.Abstraction;
-using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
+﻿using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
+using LunaticPanel.Core.Abstraction.Plugin;
 using Microsoft.AspNetCore.Components;
 using System.Reflection;
 
