@@ -2,8 +2,8 @@
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Dto.Responses;
-using LunaticPanel.Engine.Core.UI;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
+using LunaticPanel.Engine.Keys.UI;
 using MedihatR;
 namespace LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries.Handlers;
 

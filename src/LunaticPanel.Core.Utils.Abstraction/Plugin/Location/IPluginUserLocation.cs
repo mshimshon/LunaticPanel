@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Core.Abstraction.Plugin.Configuration;
+﻿namespace LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 
 public interface IPluginUserLocation
 {

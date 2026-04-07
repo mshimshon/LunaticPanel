@@ -1,11 +1,9 @@
-﻿using LunaticPanel.Core.Abstraction;
-using LunaticPanel.Core.Abstraction.Exceptions;
-using static LunaticPanel.Core.Abstraction.IPluginLocation;
-namespace LunaticPanel.Core;
+﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
+using LunaticPanel.Core.Utils.Abstraction.Plugin.Location.Exceptions;
+using static LunaticPanel.Core.Utils.Abstraction.Plugin.Location.IPluginLocation;
+namespace LunaticPanel.Core.Utils.Plugin;
 
-
-
-internal class PluginConfiguration : IPluginLocation
+internal class PluginLocation : IPluginLocation
 {
 
     public string PluginFolder { get; }
@@ -37,7 +35,7 @@ internal class PluginConfiguration : IPluginLocation
     public const string HOME_FOLDER_NAME = "home";
     public const string REPOS_FOLDER_NAME = "repos";
     public const string DOWNLOAD_FOLDER_NAME = "download";
-    public PluginConfiguration(string assemblyName)
+    public PluginLocation(string assemblyName)
     {
 
         DotnetAssemblyName = assemblyName;
@@ -64,13 +62,14 @@ internal class PluginConfiguration : IPluginLocation
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
     public string EnsureCreated(string path)
     {
+        Console.WriteLine($"Should Create (755): {path}");
         var dir = Path.GetDirectoryName(path);
         if (OperatingSystem.IsLinux())
         {
-            if (!Directory.Exists(dir))
+            if (!Directory.Exists(path))
             {
                 Console.WriteLine($"Created (755): {dir}");
-                Directory.CreateDirectory(dir!,
+                Directory.CreateDirectory(path,
                     UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                     UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
                     UnixFileMode.OtherRead | UnixFileMode.OtherExecute);

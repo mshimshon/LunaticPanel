@@ -1,4 +1,6 @@
-﻿namespace LunaticPanel.Engine.Core.System;
+﻿using LunaticPanel.Engine.Keys;
+
+namespace LunaticPanel.Engine.Keys.System;
 
 public static class BusKeys
 {

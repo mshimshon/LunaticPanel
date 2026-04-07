@@ -1,13 +1,14 @@
-﻿using LunaticPanel.Core.Abstraction.Exceptions;
+﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location.Exceptions;
+using LunaticPanel.Core.Utils.Plugin;
 
 namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
 
 public class BashPathTests
 {
-    private PluginConfiguration _pluginConfiguration = default!;
+    private PluginLocation _pluginConfiguration = default!;
     public BashPathTests()
     {
-        _pluginConfiguration = new PluginConfiguration("Test.Assembly"); // should become test_assembly for linux folder
+        _pluginConfiguration = new PluginLocation("Test.Assembly"); // should become test_assembly for linux folder
     }
     [Fact]
     public void MakeSureArgumentsAreWrappedIntoDoubleQuotes()
@@ -96,15 +97,15 @@ public class BashPathTests
 
 
     [Fact]
-    public void UserBashBaseShouldThrow_GlobalUserException()
+    public async Task UserBashBaseShouldThrow_GlobalUserException()
     {
-        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserDownloadBase("MyModule"));
+        await Assert.ThrowsAsync<GlobalUserRequiredException>(async () => _pluginConfiguration.GetUserConfigBase("MyModule"));
     }
 
     [Fact]
-    public void UserBashBaseShouldThrow_GlobalUserException_WithSubFolders()
+    public async Task UserBashBaseShouldThrow_GlobalUserException_WithSubFolders()
     {
-        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserBashBase("MyModule", ["", ""]));
+        await Assert.ThrowsAsync<GlobalUserRequiredException>(async () => _pluginConfiguration.GetUserBashBase("MyModule", ["", ""]));
     }
 
     [Fact]

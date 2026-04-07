@@ -1,11 +1,13 @@
-﻿namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
+﻿using LunaticPanel.Core.Utils.Plugin;
+
+namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
 
 public class ReposPathTests
 {
-    private PluginConfiguration _pluginConfiguration = default!;
+    private PluginLocation _pluginConfiguration = default!;
     public ReposPathTests()
     {
-        _pluginConfiguration = new PluginConfiguration("Test.Assembly"); // should become test_assembly for linux folder
+        _pluginConfiguration = new PluginLocation("Test.Assembly"); // should become test_assembly for linux folder
     }
 
 

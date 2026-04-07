@@ -1,13 +1,14 @@
-﻿using LunaticPanel.Core.Abstraction.Exceptions;
+﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location.Exceptions;
+using LunaticPanel.Core.Utils.Plugin;
 
 namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
 
 public class ConfigPathTests
 {
-    private PluginConfiguration _pluginConfiguration = default!;
+    private PluginLocation _pluginConfiguration = default!;
     public ConfigPathTests()
     {
-        _pluginConfiguration = new PluginConfiguration("Test.Assembly"); // should become test_assembly for linux folder
+        _pluginConfiguration = new PluginLocation("Test.Assembly"); // should become test_assembly for linux folder
     }
 
 
@@ -56,15 +57,15 @@ public class ConfigPathTests
 
 
     [Fact]
-    public void UserConfigBaseShouldThrow_GlobalUserException()
+    public async Task UserConfigBaseShouldThrow_GlobalUserException()
     {
-        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserConfigBase("MyModule"));
+        await Assert.ThrowsAsync<GlobalUserRequiredException>(async () => _pluginConfiguration.GetUserConfigBase("MyModule"));
     }
 
     [Fact]
-    public void UserConfigBaseShouldThrow_GlobalUserException_WithSubFolders()
+    public async Task UserConfigBaseShouldThrow_GlobalUserException_WithSubFolders()
     {
-        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserConfigBase("MyModule", ["", ""]));
+        await Assert.ThrowsAsync<GlobalUserRequiredException>(async () => _pluginConfiguration.GetUserConfigBase("MyModule", ["", ""]));
     }
 
     [Fact]

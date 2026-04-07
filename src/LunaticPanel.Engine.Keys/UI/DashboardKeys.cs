@@ -1,4 +1,6 @@
-﻿namespace LunaticPanel.Engine.Core.UI;
+﻿using LunaticPanel.Engine.Keys;
+
+namespace LunaticPanel.Engine.Keys.UI;
 
 public static class DashboardKeys
 {

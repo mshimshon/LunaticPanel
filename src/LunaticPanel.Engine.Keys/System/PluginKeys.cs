@@ -1,6 +1,4 @@
-﻿using LunaticPanel.Engine.Core;
-
-namespace LunaticPanel.Engine.Keys.System;
+﻿namespace LunaticPanel.Engine.Keys.System;
 
 public static class PluginKeys
 {

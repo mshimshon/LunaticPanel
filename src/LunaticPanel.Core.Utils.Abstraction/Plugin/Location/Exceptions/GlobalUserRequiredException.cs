@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Core.Abstraction.Exceptions;
+﻿namespace LunaticPanel.Core.Utils.Abstraction.Plugin.Location.Exceptions;
 
 public class GlobalUserRequiredException : Exception
 {

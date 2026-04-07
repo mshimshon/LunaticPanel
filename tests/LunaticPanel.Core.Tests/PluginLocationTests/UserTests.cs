@@ -1,20 +1,21 @@
-﻿using LunaticPanel.Core.Abstraction.Exceptions;
+﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location.Exceptions;
+using LunaticPanel.Core.Utils.Plugin;
 
 namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
 
 public class UserTests
 {
-    private PluginConfiguration _pluginConfiguration = default!;
+    private PluginLocation _pluginConfiguration = default!;
     public UserTests()
     {
-        _pluginConfiguration = new PluginConfiguration("Test.Assembly"); // should become test_assembly for linux folder
+        _pluginConfiguration = new PluginLocation("Test.Assembly"); // should become test_assembly for linux folder
     }
 
     [Fact]
-    public void Throw_GlobalUserException()
+    public async Task Throw_GlobalUserException()
     {
         // it just test if its trhow when no user is set as default
-        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.RequiresGlobalUser("MyModule"));
+        await Assert.ThrowsAsync<GlobalUserRequiredException>(async () => _pluginConfiguration.RequiresGlobalUser("MyModule"));
     }
 
 

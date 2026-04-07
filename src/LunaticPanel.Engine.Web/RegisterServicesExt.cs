@@ -6,13 +6,14 @@ using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Abstraction.Tools;
-using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
 using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
+using LunaticPanel.Core.Utils.Abstraction.LinuxCommand;
+using LunaticPanel.Core.Utils.LinuxCommand;
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Infrastructure.Services;
 using LunaticPanel.Engine.Web.Layout;
@@ -104,6 +105,7 @@ public static class RegisterServicesExt
         services.AddEngineInfrastructureRedirected();
         services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
         services.AddScoped<IPanelControl>((sp) => sp.GetRequiredService<PanelControl>());
+        // TODO: CHANGE TO USE EXTENSION FROM UTIL PACKAGE
         services.AddScoped<ILinuxCommand>(sp => sp.GetRequiredService<CommandRunner>());
 
 

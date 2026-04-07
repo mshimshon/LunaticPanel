@@ -8,5 +8,4 @@ public interface IEventBus
     Task PublishAsync(IEventBusMessage evt, CancellationToken cancellationToken = default);
     bool HasKeyFor(MessageKey messageKey);
     bool HasKeyFor(string key);
-
 }

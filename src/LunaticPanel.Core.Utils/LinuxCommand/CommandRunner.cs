@@ -1,26 +1,26 @@
-﻿using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
+﻿using LunaticPanel.Core.Utils.Abstraction.LinuxCommand;
 using System.Diagnostics;
 using System.Text;
 
-namespace LunaticPanel.Engine.Infrastructure.Services;
+namespace LunaticPanel.Core.Utils.LinuxCommand;
 
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
 public class CommandRunner : ILinuxCommand
 {
     private readonly string _tmpPath;
     private readonly string _bash;
-    private Guid Id = Guid.NewGuid();
     public CommandRunner()
     {
-        Console.WriteLine($"CommandRunner Id : {Id} ");
-        var perm755 = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-    UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
-    UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
-        _tmpPath = Path.Combine("/", "tmp", "lunaticpanel");
-        if (!Directory.Exists(_tmpPath))
-            Directory.CreateDirectory(_tmpPath, perm755);
         _bash = Path.Combine("/", "bin", "bash");
+        _tmpPath = Path.Combine("/", "tmp", "lunaticpanel", "linuxcommands");
+        if (!Directory.Exists(_tmpPath))
+            if (OperatingSystem.IsLinux())
+            {
+                var perm755 = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                    UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
+                Directory.CreateDirectory(_tmpPath, perm755);
+            }
 
     }
 
@@ -88,15 +88,11 @@ public class CommandRunner : ILinuxCommand
 
         string output = stdoutSb.ToString();
         string error = stderrSb.ToString();
-        //Console.WriteLine($"{nameof(RunLinuxCommand)} | Standard Output : {output}");
-        //Console.WriteLine($"{nameof(RunLinuxCommand)} | Error Output : {error}");
-
         var result = new LinuxCommandResult()
         {
             StandardError = error,
             StandardOutput = output
         };
-        //Console.WriteLine($"{nameof(RunLinuxCommand)} Result: {result.ToString()}"); // TODO: LOG
         return result;
 
     }

@@ -1,27 +1,29 @@
-﻿using LunaticPanel.Core.Abstraction.Exceptions;
+﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location.Exceptions;
+using LunaticPanel.Core.Utils.Plugin;
 
 namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
 
 public class DownloadPathTests
 {
-    private PluginConfiguration _pluginConfiguration = default!;
+    private PluginLocation _pluginConfiguration = default!;
     public DownloadPathTests()
     {
-        _pluginConfiguration = new PluginConfiguration("Test.Assembly"); // should become test_assembly for linux folder
+        _pluginConfiguration = new PluginLocation("Test.Assembly"); // should become test_assembly for linux folder
     }
 
 
 
     [Fact]
-    public void UserDownloadBaseShouldThrow_GlobalUserException()
+    public async Task UserDownloadBaseShouldThrow_GlobalUserException()
     {
-        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserDownloadBase("MyModule"));
+
+        await Assert.ThrowsAsync<GlobalUserRequiredException>(async () => _pluginConfiguration.GetUserDownloadBase("MyModule"));
     }
 
     [Fact]
-    public void UserDownloadBaseShouldThrow_GlobalUserException_WithSubFolders()
+    public async Task UserDownloadBaseShouldThrow_GlobalUserException_WithSubFolders()
     {
-        Assert.Throws<GlobalUserRequiredException>(() => _pluginConfiguration.GetUserDownloadBase("MyModule", ["", ""]));
+        await Assert.ThrowsAsync<GlobalUserRequiredException>(async () => _pluginConfiguration.GetUserDownloadBase("MyModule", ["", ""]));
     }
 
     [Fact]

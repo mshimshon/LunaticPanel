@@ -1,6 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
-
-namespace LunaticPanel.Core.Extensions;
+﻿namespace LunaticPanel.Core.Utils.Abstraction.LinuxCommand;
 
 public static class LinuxCommandExt
 {

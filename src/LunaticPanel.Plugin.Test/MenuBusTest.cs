@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
-using LunaticPanel.Engine.Core.UI;
+using LunaticPanel.Engine.Keys.UI;
 
 namespace LunaticPanel.Plugin.Test;
 

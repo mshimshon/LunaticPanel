@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Core.Abstraction.Tools.LinuxCommand;
+﻿namespace LunaticPanel.Core.Utils.Abstraction.LinuxCommand;
 
 public interface ILinuxCommand
 {

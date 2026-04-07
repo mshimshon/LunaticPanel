@@ -1,5 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction;
-using LunaticPanel.Core.Abstraction.Circuit;
+﻿using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Circuit.Exceptions;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
@@ -11,12 +10,15 @@ using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Abstraction.Tools.EventScheduler;
 using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.Core.CrazyReport;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.PluginValidator;
+using LunaticPanel.Core.Utils;
+using LunaticPanel.Core.Utils.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -283,9 +285,9 @@ public abstract class PluginBase : IPlugin
         services.AddScoped<QueryBus>();
         services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
-
-
-        services.AddScoped<IPluginLocation>((sp) => new PluginConfiguration(PluginId));
+        services.AddScoped<ICrazyReportCircuit, CrazyReportCircuit>();
+        services.AddPluginLocationUtilityService(PluginId);
+        services.AddCrazyReportUtilityService();
         services.AddScoped(sp => new PluginContext(sp, circuit));
         services.AddScoped<IPluginContext>(sp => sp.GetRequiredService<PluginContext>());
         services.AddScoped<IPluginContextService>(sp => sp.GetRequiredService<PluginContext>());

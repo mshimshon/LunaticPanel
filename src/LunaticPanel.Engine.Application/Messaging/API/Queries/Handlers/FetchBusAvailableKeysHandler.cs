@@ -2,7 +2,7 @@
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Engine.Application.Messaging.API.Dto;
-using LunaticPanel.Engine.Core.System;
+using LunaticPanel.Engine.Keys.System;
 
 namespace LunaticPanel.Engine.Application.Messaging.API.Queries.Handlers;
 

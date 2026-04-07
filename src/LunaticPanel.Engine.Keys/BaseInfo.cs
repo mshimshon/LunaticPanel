@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Engine.Core;
+﻿namespace LunaticPanel.Engine.Keys;
 
 internal static class BaseInfo
 {
