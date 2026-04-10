@@ -107,6 +107,7 @@ public class CommandRunner : ILinuxCommand
              CreateNoWindow = true,
              StandardOutputEncoding = Encoding.UTF8,
              StandardErrorEncoding = Encoding.UTF8,
-             Arguments = builder.ToString()
+             Arguments = builder.ToString(),
+             WorkingDirectory = builder.WorkingDirectory
          }, builder.OnStantardOutput, builder.OnErrorOutput);
 }
