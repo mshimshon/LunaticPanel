@@ -53,21 +53,36 @@ public static class Bootstrap
         foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
         {
             pluginRegistry.Register(new(plugin.EntryPoint!, plugin.Entity));
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            string linuxName = plugin.Entity.Identity.PackageId.Replace('.', '_').ToLower();
+            string dynamicWwwRoot = $"/etc/lunaticpanel/plugins/{linuxName}/wwwroot";
+            if (!Directory.Exists(dynamicWwwRoot) && OperatingSystem.IsLinux())
+                Directory.CreateDirectory(dynamicWwwRoot, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+
             Console.WriteLine("===== LOADED PLUGIN =====");
             Console.WriteLine($"PackageId: {plugin.Entity.Identity.PackageId}");
+
             Console.WriteLine($"PluginDir: {plugin.PluginDir}");
-            Console.WriteLine("===== END PLUGIN =====");
-            Console.ForegroundColor = ConsoleColor.Gray;
+
+            var dynamicContentOption = new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(dynamicWwwRoot),
+                RequestPath = $"/_plugins/dynamic/{plugin.Entity.Identity.PackageId}"
+            };
+            if (webApp != default)
+            {
+                Console.WriteLine($"Dynamic Content: {dynamicWwwRoot}");
+                webApp.UseStaticFiles(dynamicContentOption);
+            }
 
             var wwwroot = Path.Combine(plugin.PluginDir, "wwwroot");
             if (Directory.Exists(wwwroot))
             {
-                Console.WriteLine($"wwwroot ({Directory.Exists(wwwroot)}): {wwwroot}");
+                Console.WriteLine($"Static Content: {wwwroot}");
                 var options = new StaticFileOptions
                 {
                     FileProvider = new PhysicalFileProvider(wwwroot),
-                    RequestPath = $"/_plugins/{plugin.Entity.Identity.PackageId}"
+                    RequestPath = $"/_plugins/static/{plugin.Entity.Identity.PackageId}"
                 };
                 if (webApp != default)
                     webApp.UseStaticFiles(options);
@@ -78,6 +93,7 @@ public static class Bootstrap
                 .Select(p => new HostRedirectionService(p.ServiceType, p.Lifetime))
                 .ToArray();
             plugin.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
+            Console.WriteLine("===== END PLUGIN =====");
         }
 
         circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), default);
