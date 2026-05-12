@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<EnableRazorComponents>true</EnableRazorComponents>
+	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" PrivateAssets="false" />
+    <PackageReference Include="MudBlazor" PrivateAssets="false" />
+    <PackageReference Include="Newtonsoft.Json" PrivateAssets="all" />
+  </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj">
+		  <Private>false</Private>
+	  </ProjectReference>
+	  <ProjectReference Include="..\LunaticPanel.Engine.Keys\LunaticPanel.Engine.Keys.csproj" />
+
+  </ItemGroup>
+
+	<Target Name="RemoveHostOwnedAssembliesAfterBuild" AfterTargets="Build" Condition="'$(IsPublish)' != 'true'">
+
+		<ItemGroup>
+			<_DeleteDlls Include="$(OutputPath)**\Microsoft.*.dll;	$(OutputPath)MudBlazor.dll" />
+		</ItemGroup>
+
+		<Delete Files="@(_DeleteDlls)" />
+	</Target>
+</Project>

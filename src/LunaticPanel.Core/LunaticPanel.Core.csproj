@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Title>$(AssemblyName)</Title>
+	  <Version>$(GlobalVersion)</Version>
+	  <Company>$(GlobalCompany)</Company>
+	  <Copyright>$(GlobalCopyright)</Copyright>
+	  <Authors>$(GlobalAuthors)</Authors>
+	<Description>Core Package for Lunatic Panel's PLugin</Description>
+    <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+	  
+  </PropertyGroup>
+
+	<!--  <ItemGroup>
+	<Analyzer Include="..\LunaticPanel.Core.Analyzer\bin\$(Configuration)\netstandard2.0\LunaticPanel.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	<None Include="..\LunaticPanel.Core.Analyzer\bin\$(Configuration)\netstandard2.0\LunaticPanel.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+-->
+	<ItemGroup>
+		<ProjectReference Include="..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+		<ProjectReference Include="..\LunaticPanel.Core.Analyzer\LunaticPanel.Core.Analyzer.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" />
+		<ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
+		<ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+  </ItemGroup>
+
+
+	
+	<ItemGroup>
+	  <Folder Include="Messaging\Common\" />
+	</ItemGroup>
+	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
+		<MakeDir Directories="..\..\..\..\nupkgs" />
+		<ItemGroup>
+			<PackageFiles Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PackageFiles)" DestinationFolder="..\..\..\..\nupkgs" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" Condition="'$(BuildingInsideVisualStudio)' == 'true'" />
+	</Target>
+</Project>

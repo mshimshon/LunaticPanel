@@ -1,0 +1,21 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider IsDarkMode=true/>
+<MudPopoverProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout >
+    <MudDrawer Open=true >
+        @if (CircuitRegistry.CurrentCircuit != null)
+        {
+            <MainMenu />
+        }
+    </MudDrawer>
+    <MudMainContent Class="px-12">
+        @if(CircuitRegistry.CurrentCircuit != null)
+        {
+            @Body
+        }
+    </MudMainContent>
+</MudLayout>

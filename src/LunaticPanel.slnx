@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".version" />
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="../tests/LunaticPanel.Core.Tests/LunaticPanel.Core.Tests.csproj" Id="5b01a88a-6915-470d-be3d-48e586e4d2a7" />
+  </Folder>
+  <Project Path="LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj" Id="7e195f8a-1e26-4614-9faa-e3227850601a" />
+  <Project Path="LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj" Id="e13603f4-70bc-4ed3-b15e-803aabf0385c" />
+  <Project Path="LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj" />
+  <Project Path="LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj" Id="c601a408-7fe7-4c21-8e08-f3d09fd5e1d6" />
+  <Project Path="LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj" Id="abbd2a68-c5e8-4492-917c-6b361d0a7716" />
+  <Project Path="LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj" Id="315587b7-2696-4daf-b022-6129f6facefa" />
+  <Project Path="LunaticPanel.Core/LunaticPanel.Core.csproj" />
+  <Project Path="LunaticPanel.Engine.Application/LunaticPanel.Engine.Application.csproj" />
+  <Project Path="LunaticPanel.Engine.Domain/LunaticPanel.Engine.Domain.csproj" />
+  <Project Path="LunaticPanel.Engine.Infrastructure/LunaticPanel.Engine.Infrastructure.csproj" />
+  <Project Path="LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj" />
+  <Project Path="LunaticPanel.Engine.Web/LunaticPanel.Engine.Web.csproj" />
+  <Project Path="LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj" Id="77efe45b-bcc3-470e-8120-d2edd02f93cb" />
+  <Project Path="LunaticPanel.Plugin.Test/LunaticPanel.Plugin.Test.csproj" Id="a427bd3f-1ce3-45f3-b7ad-3071354631f4" />
+</Solution>

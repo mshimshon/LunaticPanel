@@ -1,0 +1,39 @@
+﻿@if (!ViewModel.Loading)
+{
+    <MudGrid>
+        <MudItem xs="12">
+            <p>@ViewModel.PanelId</p>
+        </MudItem>
+        @if (ViewModel.State.MenuElements.Count > 0)
+        {
+
+
+            @foreach (var menuElement in ViewModel.State.MenuElements)
+            {
+                @if (menuElement.VisibilityCondition?.Invoke() ?? true)
+                {
+                    <MudItem xs="12">
+                        @CreateRenderFragmentComponent(menuElement.ComponentType)
+                    </MudItem>
+                }
+            }
+        }
+        else
+        {
+
+            <MudItem xs="12" Class="ma-3">
+                <MudAlert Severity="Severity.Warning">
+                    No Menu Available
+                </MudAlert>
+            </MudItem>
+        }
+    </MudGrid>
+
+
+}
+else
+{
+    <MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7" />
+}
+
+

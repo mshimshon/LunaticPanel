@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\LunaticPanel.Engine.Presentation\LunaticPanel.Engine.Presentation.csproj" />
+		<ProjectReference Include="..\LunaticPanel.Plugin.Test\LunaticPanel.Plugin.Test.csproj" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+	<Target Name="CopyPluginOutput" AfterTargets="Build" DependsOnTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+
+		<PropertyGroup>
+			<PluginProjectDir>..\LunaticPanel.Plugin.Test</PluginProjectDir>
+			<PluginOutputDir>$(PluginProjectDir)\bin\$(Configuration)\$(TargetFramework)</PluginOutputDir>
+		</PropertyGroup>
+
+		<ItemGroup>
+			<PluginDll Include="$(PluginOutputDir)\LunaticPanel.Plugin.Test.dll" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(PluginDll)" DestinationFolder="$(OutputPath)\Plugins\LunaticPanel.Plugin.Test\1.0.0" SkipUnchangedFiles="true" />
+	</Target>
+</Project>
