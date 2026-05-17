@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location.Exceptions;
 using LunaticPanel.Core.Utils.Plugin;
 
-namespace LunaticPanel.Core.Tests.PluginConfigurationTests;
+namespace LunaticPanel.Core.Tests.PluginLocationTests;
 
 public class BashPathTests
 {

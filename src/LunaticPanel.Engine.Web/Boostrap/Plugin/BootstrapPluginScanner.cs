@@ -26,7 +26,6 @@ public sealed class BootstrapPluginScanner
         foreach (var dir in Directory.EnumerateDirectories(_installedRoot))
         {
             Console.WriteLine($"Plugin Folder: {dir}");
-
             foreach (var dll in Directory.GetFiles(dir, "*.dll"))
             {
 

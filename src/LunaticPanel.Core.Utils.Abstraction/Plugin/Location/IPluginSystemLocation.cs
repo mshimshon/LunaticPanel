@@ -10,6 +10,28 @@ public interface IPluginSystemLocation
     string GetConfigBase(string moduleName, params string[] subFolders);
     string GetConfigFor(string moduleName, string filename);
     string GetConfigFor(string moduleName, string[] subFolders, string filename);
+
+
+
+    string GetStaticWebContentBase();
+    string GetStaticWebContentBase(string[] subFolders);
+    string GetStaticWebContentFor(string filename);
+    string GetStaticWebContentFor(string[] subFolders, string filename);
+
+    string GetStaticWebContentBase(string moduleName);
+    string GetStaticWebContentBase(string moduleName, params string[] subFolders);
+    string GetStaticWebContentFor(string moduleName, string filename);
+    string GetStaticWebContentFor(string moduleName, string[] subFolders, string filename);
+    string GetDynamicWebContentBase();
+    string GetDynamicWebContentBase(string[] subFolders);
+    string GetDynamicWebContentFor(string filename);
+    string GetDynamicWebContentFor(string[] subFolders, string filename);
+
+    string GetDynamicWebContentBase(string moduleName);
+    string GetDynamicWebContentBase(string moduleName, params string[] subFolders);
+    string GetDynamicWebContentFor(string moduleName, string filename);
+    string GetDynamicWebContentFor(string moduleName, string[] subFolders, string filename);
+
     string GetBashBase(string moduleName);
     string GetBashBase(string moduleName, params string[] subFolders);
     string GetBashFor(string moduleName, string filename);

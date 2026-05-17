@@ -24,7 +24,11 @@ public static class RegisterServicesExt
     }
     public static void AddPluginLocationUtilityService(this IServiceCollection services, string assemblyName)
     {
+        //TODO: REGISTER ALL INDIVIDUALLY INCLUDE USER
         services.AddTransient<IPluginLocation>((sp) => new PluginLocation(assemblyName));
+        services.AddScoped<IPluginSystemLocation>((sp) => new PluginLocation(assemblyName));
+        services.AddScoped<IPluginWebLocation>((sp) => new PluginLocation(assemblyName));
+        // IPluginSystemLocation
     }
 
     public static void AddCrazyReportUtilityService(this IServiceCollection services)
