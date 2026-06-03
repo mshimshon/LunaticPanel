@@ -26,14 +26,14 @@ public static class BusScannerExt
                 eventScheduledBusType.IsAssignableFrom(t))
             .Select(t =>
             {
-                var attr = t.GetCustomAttribute<BusIdAttribute>(inherit: false);
-                bool isValidEngineBus = attr?.GetType() == typeof(EngineBusIdAttribute) && engineBusType.IsAssignableFrom(t);
-                bool isValidEventBus = attr?.GetType() == typeof(EventBusIdAttribute) && eventBusType.IsAssignableFrom(t);
-                bool isValidQueryBus = attr?.GetType() == typeof(QueryBusIdAttribute) && queryBusType.IsAssignableFrom(t);
-                bool isValidEventScheduleBus = attr?.GetType() == typeof(EventScheduledBusIdAttribute) && eventScheduledBusType.IsAssignableFrom(t);
+                var attr = t.GetCustomAttribute<BusKeyAttribute>(inherit: false);
+                bool isValidEngineBus = attr?.GetType() == typeof(EngineBusKeyAttribute) && engineBusType.IsAssignableFrom(t);
+                bool isValidEventBus = attr?.GetType() == typeof(EventBusKeyAttribute) && eventBusType.IsAssignableFrom(t);
+                bool isValidQueryBus = attr?.GetType() == typeof(QueryBusKeyAttribute) && queryBusType.IsAssignableFrom(t);
+                bool isValidEventScheduleBus = attr?.GetType() == typeof(EventScheduledBusKeyAttribute) && eventScheduledBusType.IsAssignableFrom(t);
 
                 if (attr == default || (!isValidEngineBus && !isValidEventBus && !isValidQueryBus && !isValidEventScheduleBus))
-                    throw new InvalidOperationException($"Type {t.FullName} MUST implements {nameof(BusIdAttribute)}.");
+                    throw new InvalidOperationException($"Type {t.FullName} MUST implements {nameof(BusKeyAttribute)}.");
 
                 var eventType = EBusType.EngineBus;
                 if (isValidEventBus) eventType = EBusType.EventBus;

@@ -6,7 +6,7 @@ using LunaticPanel.Engine.Keys.System;
 
 namespace LunaticPanel.Engine.Application.Plugin.API.Queries.Handlers;
 
-[QueryBusId(PluginKeys.Queries.FetchAll)]
+[QueryBusKey(PluginKeys.Queries.FetchAll)]
 internal class FetchPluginsHandler : IQueryBusHandler
 {
     private readonly IPluginRegistry _pluginRegistry;

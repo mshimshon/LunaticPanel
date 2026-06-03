@@ -18,7 +18,7 @@ public sealed class QueryBusMessage : IQueryBusMessage
         _messageKey = messageKey;
     }
 
-    public string GetId() => $"{_messageKey}";
+    public string GetKey() => $"{_messageKey}";
 
     public BusMessageData? GetData() => Data;
     public Guid GetMessageId() => Id;

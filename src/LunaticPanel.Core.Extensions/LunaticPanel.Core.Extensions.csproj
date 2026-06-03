@@ -15,7 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj"  >
+	  <ProjectReference Include="..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj">
 		  <PrivateAssets>false</PrivateAssets>
 	  </ProjectReference>
   </ItemGroup>

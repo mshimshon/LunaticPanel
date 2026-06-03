@@ -48,9 +48,9 @@ public sealed class EventBusRegistry : IEventBusRegistry
     public void Register(string id, BusHandlerDescriptor handlerEntity)
     {
         id = id.ToLower();
-        var attr = handlerEntity.HandlerType.GetCustomAttribute<EventBusIdAttribute>(inherit: false);
+        var attr = handlerEntity.HandlerType.GetCustomAttribute<EventBusKeyAttribute>(inherit: false);
         if (attr == default)
-            throw new InvalidOperationException($"Type {handlerEntity.HandlerType.FullName} MUST implements {nameof(EventBusIdAttribute)}.");
+            throw new InvalidOperationException($"Type {handlerEntity.HandlerType.FullName} MUST implements {nameof(EventBusKeyAttribute)}.");
 
         lock (_lock)
         {

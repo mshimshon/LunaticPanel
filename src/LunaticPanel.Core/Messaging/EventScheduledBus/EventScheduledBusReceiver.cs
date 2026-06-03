@@ -19,7 +19,7 @@ public class EventScheduledBusReceiver : IEventScheduledBusReceiver
     }
     public Task<EventScheduledBusMessageResponse?> IncomingMessageAsync(IEventScheduledBusMessage msg, CancellationToken cancellationToken = default)
     {
-        string id = msg.GetId();
+        string id = msg.GetKey();
         var registry = _eventScheduledBusRegistry;
         Func<CancellationToken, Task> actionTask = (cancellationToken) => Task.CompletedTask;
         try
@@ -36,7 +36,7 @@ public class EventScheduledBusReceiver : IEventScheduledBusReceiver
                     _ = Task.Run(() => actionTask(cancellationToken));
                 var result = new EventScheduledBusMessageResponse(data)
                 {
-                    Origin = msg.GetId()
+                    Origin = msg.GetKey()
                 }; // TODO: Find wtf is the Origin
 
                 return Task.FromResult<EventScheduledBusMessageResponse?>(result);

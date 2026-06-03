@@ -19,7 +19,7 @@ public class EventBusReceiver : IEventBusReceiver
     public Task IncomingMessageAsync(IEventBusMessage eventBusMessage, CancellationToken cancellationToken = default)
     {
 
-        string id = eventBusMessage.GetId();
+        string id = eventBusMessage.GetKey();
         Guid? circuitIdOrigin = eventBusMessage.GetOriginCircuitId();
         if (circuitIdOrigin == default) return Task.CompletedTask;
         var registry = _eventBusRegistry;

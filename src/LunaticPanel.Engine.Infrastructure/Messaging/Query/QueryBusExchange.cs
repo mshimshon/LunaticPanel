@@ -50,7 +50,7 @@ internal class QueryBusExchange : IQueryBusExchange
         }
         return new()
         {
-            Error = new("INTERNAL", $"No Queries Handler from for {qry.GetId()}"),
+            Error = new("INTERNAL", $"No Queries Handler from for {qry.GetKey()}"),
             Origin = nameof(QueryBusExchange)
         };
     }

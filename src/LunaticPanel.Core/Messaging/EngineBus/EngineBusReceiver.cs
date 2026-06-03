@@ -16,7 +16,7 @@ public class EngineBusReceiver : IEngineBusReceiver
 
     public Task<EngineBusResponse[]> IncomingMessageAsync(IEngineBusMessage engineBusRender, CancellationToken cancellationToken = default)
     {
-        string id = engineBusRender.GetId();
+        string id = engineBusRender.GetKey();
         var registry = _engineBusRegistry;
         var handlers = registry.GetRegistryFor(id);
         List<Task<EngineBusResponse>> handlerTasks = new();

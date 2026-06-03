@@ -129,7 +129,7 @@ public class MessageKeyValidationTests
     public void Constructor_ShouldThrow_BusIdSchemticAllowedCharactersViolationException_WhenCharactersAreInvalid(string invalidKey)
     {
         // Act & Assert
-        Assert.Throws<BusIdSchemticAllowedCharactersViolationException>(() => new MessageKey(invalidKey));
+        Assert.Throws<BusKeySchemticAllowedCharactersViolationException>(() => new MessageKey(invalidKey));
     }
 
     [Theory]
@@ -143,7 +143,7 @@ public class MessageKeyValidationTests
     public void Constructor_ShouldThrow_BusIdSchemticPrefixViolationException_WhenPrefixIsInvalid(string invalidPrefixKey)
     {
         // Act & Assert
-        Assert.Throws<BusIdSchemticPrefixViolationException>(() => new MessageKey(invalidPrefixKey));
+        Assert.Throws<BusKeySchemticPrefixViolationException>(() => new MessageKey(invalidPrefixKey));
     }
 
     [Theory]
@@ -160,17 +160,17 @@ public class MessageKeyValidationTests
     public void Constructor_ShouldThrow_BusIdSchematicPatternViolationException_WhenPatternIsInvalid(string invalidPatternKey)
     {
         // Act & Assert
-        Assert.Throws<BusIdSchematicPatternViolationException>(() => new MessageKey(invalidPatternKey));
+        Assert.Throws<BusKeySchematicPatternViolationException>(() => new MessageKey(invalidPatternKey));
     }
 
     [Fact]
     public void OverloadedConstructor_ShouldThrow_WhenCombinedStringIsInvalid()
     {
         // Act & Assert
-        Assert.Throws<BusIdSchemticAllowedCharactersViolationException>(() =>
+        Assert.Throws<BusKeySchemticAllowedCharactersViolationException>(() =>
             new MessageKey("enginekey", "invalid_plugin", "v12.enabled"));
 
-        Assert.Throws<BusIdSchemticPrefixViolationException>(() =>
+        Assert.Throws<BusKeySchemticPrefixViolationException>(() =>
             new MessageKey("", () => "wrongkey.plugin", "v12.enabled"));
     }
 

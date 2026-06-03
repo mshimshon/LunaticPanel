@@ -30,8 +30,6 @@
 	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
   </ItemGroup>
-
-
 	
 	<ItemGroup>
 	  <Folder Include="Messaging\Common\" />

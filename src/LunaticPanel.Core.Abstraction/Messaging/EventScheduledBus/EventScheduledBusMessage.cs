@@ -21,7 +21,7 @@ public sealed class EventScheduledBusMessage : IEventScheduledBusMessage
         _messageKey = messageKey;
     }
 
-    public string GetId() => $"{_messageKey}";
+    public string GetKey() => $"{_messageKey}";
 
     public BusMessageData? GetData() => Data;
     public Guid GetMessageId() => Id;

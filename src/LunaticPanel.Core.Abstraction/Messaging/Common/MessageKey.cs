@@ -11,11 +11,11 @@ public sealed record MessageKey
     {
         _fullname = fullname.ToLower();
         if (!MessageKeyValidator.ValidateAllowedCharacters(fullname))
-            throw new BusIdSchemticAllowedCharactersViolationException(fullname);
+            throw new BusKeySchemticAllowedCharactersViolationException(fullname);
         if (!MessageKeyValidator.ValidatePrefix(fullname))
-            throw new BusIdSchemticPrefixViolationException(fullname);
+            throw new BusKeySchemticPrefixViolationException(fullname);
         if (!MessageKeyValidator.ValidateKeyPattern(fullname))
-            throw new BusIdSchematicPatternViolationException(fullname);
+            throw new BusKeySchematicPatternViolationException(fullname);
     }
 
     public MessageKey(string prefix, string plugin, string action) : this($"{prefix}.{plugin}.{action}") { }

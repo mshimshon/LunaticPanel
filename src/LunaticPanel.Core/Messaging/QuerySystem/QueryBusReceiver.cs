@@ -23,7 +23,7 @@ public class QueryBusReceiver : IQueryBusReceiver
     public bool DoYouListenTo(string key) => _queryBusRegistry.HasKey(key);
     public async Task<QueryBusMessageResponse?> IncomingMessageAsync(IQueryBusMessage qry, CancellationToken cancellationToken = default)
     {
-        string id = qry.GetId();
+        string id = qry.GetKey();
         var registry = _queryBusRegistry;
         try
         {

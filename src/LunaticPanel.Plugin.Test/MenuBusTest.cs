@@ -4,7 +4,7 @@ using LunaticPanel.Engine.Keys.UI;
 
 namespace LunaticPanel.Plugin.Test;
 
-[EngineBusId(MainMenuKeys.UI.GetElements)]
+[EngineBusKey(MainMenuKeys.UI.GetElements)]
 public class MenuBusTest : IEngineBusHandler
 {
     private readonly MyService _myService;

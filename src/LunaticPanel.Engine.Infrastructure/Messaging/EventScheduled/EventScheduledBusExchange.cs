@@ -49,7 +49,7 @@ internal class EventScheduledBusExchange : IEventScheduledBusExchange
         }
         return new(new((ct) => Task.CompletedTask))
         {
-            Error = new("INTERNAL", $"No Scheduled Handler for {msg.GetId()}"),
+            Error = new("INTERNAL", $"No Scheduled Handler for {msg.GetKey()}"),
             Origin = nameof(QueryBusExchange)
         };
     }

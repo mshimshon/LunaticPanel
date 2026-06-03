@@ -22,7 +22,7 @@ public sealed class EngineBusMessage : IEngineBusMessage
         _data = new(data);
     }
 
-    public string GetId() => _messageKey.ToString();
+    public string GetKey() => _messageKey.ToString();
 
     public BusMessageData? GetData() => _data;
     public Guid GetMessageId() => _messageId;

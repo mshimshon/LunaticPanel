@@ -51,19 +51,25 @@ public abstract class PluginBase : IPlugin
     protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
+    public string[] Keys { get; }
 
     private bool _hasStarted;
+    private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors;
     protected PluginBase()
     {
         _pluginId = GetType().Namespace!;
+        Keys = GetMyPackageKeys();
+        if (_cacheBusHandlersDescriptors == default)
+            _cacheBusHandlersDescriptors = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
     }
 
 
     /* TODO: IMPLEMENT PRETECTIVE SYSTEM
-         [ Step 1: Prelist ] ────► Identify all globally available system IDs.
+     * PluginA.MyQuery; PluginB call PluginA.MyQuery; PluginA implements MyQuery
+         [ Step 1: Prelist ] ────► Call Each Plugin.Keys this should return all the active keys.
                                         │
                                         ▼
-         [ Step 2: Extract ] ────► Gather Used IDs from all plugins.
+         [ Step 2: Extract ] ────► Call string[] Plugin.CheckFeatureDegradation(Func<string,bool> checkForAvailableFeature)
                                         │
                                         ▼
          [ Step 3: Check ]   ────► Are all Used IDs present in the Prelist?
@@ -87,12 +93,26 @@ public abstract class PluginBase : IPlugin
                                                            plugin's active registry, update 
                                                            the Prelist scope, and LOOP TO S
   */
-    public abstract string[] GetUsedBusMessageIds();
-
+    /// <summary>
+    /// This is required if you have a package keys or using any bus event or queries or engine you should have a package anyway<br/>
+    /// you should list all YOUR keys here or else the system will reject unregistered calls you can also use the extension<br/>
+    /// typeof(BaseInfo).Assembly.ScanKeyPackageForKeys();
+    /// </summary>
+    /// <returns></returns>
+    public abstract string[] GetMyPackageKeys();
+    /// <summary>
+    /// Two Parts
+    /// 1. Remove from _cacheBusHandlersDescriptors which removes the Handler itself of the feature we disable.
+    /// 2. Remove if available from Self Available Key List and Return the new list.
+    /// disabling handlers for external events has no ramification for others only for ourselves
+    /// </summary>
+    protected List<string> DisableBusFeature()
+    {
+        return new();
+    }
     public void SelfRegulateDependencyInconsistency(string pluginId)
     {
-        SetScannedHandlersCache(pluginId, GetPluginInternalAssemblies());
-
+        var preBusScan = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
     }
 
     public void SetScannedHandlersCache(string pluginId, Assembly[] toScan)
@@ -302,6 +322,7 @@ public abstract class PluginBase : IPlugin
 
         //services.AddPluginLocationUtilityService(PluginId);
         services.AddLunaticPanelUtilityServices(PluginId);
+
         //services.AddLinuxCommandUtilityService();
         //services.AddSafeFileWriterUtilityService();
 
@@ -311,6 +332,7 @@ public abstract class PluginBase : IPlugin
         services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IQueryBusRegistry>());
         services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEventScheduledBusRegistry>());
 
+        services.AddScoped<IPluginInfo>((sp) => this);
         services.AddScoped<EngineBus>();
         services.AddScoped<IEngineBus>((sp) => sp.GetRequiredService<EngineBus>());
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
