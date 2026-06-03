@@ -14,9 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj"  >
+	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj">
 		  <PrivateAssets>false</PrivateAssets>
 	  </ProjectReference>
+	  <ProjectReference Include="..\LunaticPanel.Keys.Abstraction\LunaticPanel.Keys.Abstraction.csproj" />
   </ItemGroup>
 	
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">

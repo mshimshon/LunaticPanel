@@ -198,4 +198,5 @@ internal class CrazyReport : ICrazyReport
 
     public void ReportInfoException(string format, Exception ex, params object[] arg)
         => HandleException(ex, LogLevel.Information, format, arg, ReportInfo);
+    public void SetClass(string className) => _className = className;
 }

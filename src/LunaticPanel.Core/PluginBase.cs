@@ -58,14 +58,50 @@ public abstract class PluginBase : IPlugin
         _pluginId = GetType().Namespace!;
     }
 
-    private void SetScannedHandlersCache(CircuitIdentity circuit, Assembly[] toScan)
+
+    /* TODO: IMPLEMENT PRETECTIVE SYSTEM
+         [ Step 1: Prelist ] ────► Identify all globally available system IDs.
+                                        │
+                                        ▼
+         [ Step 2: Extract ] ────► Gather Used IDs from all plugins.
+                                        │
+                                        ▼
+         [ Step 3: Check ]   ────► Are all Used IDs present in the Prelist?
+                                        │
+                                        ├─── (Yes) ──► [ System is Stable & Ready ]
+                                        │
+                                 (No: Missing ID found)
+                                        │
+                                        ▼
+         [ Step 4: Callback ] ───► Alert the specific plugin about its missing ID.
+                                        │
+                                        ▼
+         [ Step 5: Disable ]  ───► Plugin returns a list of its OWN dependent IDs to disable.
+                                        │
+                                        ▼
+         [ Step 6: Diff Check ] ─► Did the plugin actually return new IDs to remove?
+                                        │
+                                        ├─── (No/Empty) ─► Break loop (Prevents infinite loops).
+                                        │
+                                        └─── (Yes) ──────► Remove those specific IDs from the 
+                                                           plugin's active registry, update 
+                                                           the Prelist scope, and LOOP TO S
+  */
+    public abstract string[] GetUsedBusMessageIds();
+
+    public void SelfRegulateDependencyInconsistency(string pluginId)
     {
-        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
+        SetScannedHandlersCache(pluginId, GetPluginInternalAssemblies());
+
+    }
+
+    public void SetScannedHandlersCache(string pluginId, Assembly[] toScan)
+    {
         lock (_lockScannedCachedBusHandlers)
         {
-            if (_scannedCachedBusHandlers.ContainsKey(identity.PluginId))
+            if (_scannedCachedBusHandlers.ContainsKey(pluginId))
                 return;
-            _scannedCachedBusHandlers[identity.PluginId] = BusScannerExt.ScanBusHandlers(p => { }, toScan).AsReadOnly();
+            _scannedCachedBusHandlers[pluginId] = BusScannerExt.ScanBusHandlers(p => { }, toScan).AsReadOnly();
         }
     }
     public void OnCircuitStart(CircuitIdentity circuit)
@@ -73,7 +109,7 @@ public abstract class PluginBase : IPlugin
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (HasActiveCircuitFor(circuit.CircuitId)) return;
 
-        SetScannedHandlersCache(circuit, GetPluginInternalAssemblies());
+        SetScannedHandlersCache(PluginId, GetPluginInternalAssemblies());
         CreateBusRegistry(circuit);
 
         var allServices = new ServiceCollection();
@@ -351,6 +387,18 @@ public abstract class PluginBase : IPlugin
     /// significant runtime overhead.
     /// </summary>
     protected virtual void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
+    {
+
+    }
+
+    /// <summary>
+    /// Called when the system begins checking the availability of each bus ID
+    /// used by the plugin. If a required bus cannot be found or is unavailable,
+    /// this method allows the plugin to disable its marker or degrade gracefully,
+    /// preventing dependency‑based crashes caused by missing plugins or major
+    /// changes in other plugins.
+    /// </summary>
+    protected virtual void OnBusIdMissings(IReadOnlyCollection<string> ids, Action<IReadOnlyCollection<string>> disableMineFor, CircuitIdentity circuit)
     {
 
     }

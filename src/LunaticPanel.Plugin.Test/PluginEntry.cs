@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace LunaticPanel.Plugin.Test;
 
-public class PluginEntry : PluginBase
+public partial class PluginEntry : PluginBase
 {
     protected override void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
     {

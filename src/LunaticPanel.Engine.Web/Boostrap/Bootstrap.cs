@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using LunaticPanel.Engine.Web.Services.Circuit;
@@ -45,73 +46,88 @@ public static class Bootstrap
 
     }
 
-    public static async Task BootstrapRunAsync(WebApplication? webApp, IServiceProvider serviceProvider, IConfiguration configuration)
+
+    private static async Task ConfigureActivePlugin(BootstrapPluginDescriptor plugin,
+        WebApplication webApp,
+        IServiceProvider masterSp,
+        IConfiguration configuration,
+        ICrazyReport crazyReport)
     {
-        var masterSp = serviceProvider.CreateScope().ServiceProvider;
-        var circuitRegistry = masterSp.GetRequiredService<CircuitRegistry>();
         var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
-        foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
+
+        pluginRegistry.Register(new(plugin.EntryPoint!, plugin.Entity));
+        string linuxName = plugin.Entity.Identity.PackageId.Replace('.', '_').ToLower();
+        string dynamicWwwRoot = $"/etc/lunaticpanel/plugins/{linuxName}/wwwroot";
+        if (!Directory.Exists(dynamicWwwRoot) && OperatingSystem.IsLinux())
+            Directory.CreateDirectory(dynamicWwwRoot, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+
+        crazyReport.ReportInfo("Loading Plugin: {0}", plugin.Entity.Identity.DisplayName);
+        crazyReport.ReportInfo("Location: {0}", plugin.PluginDir);
+        crazyReport.ReportInfo("PackageId: {0}", plugin.Entity.Identity.PackageId);
+        var dynamicContentOption = new StaticFileOptions
         {
-            pluginRegistry.Register(new(plugin.EntryPoint!, plugin.Entity));
-            string linuxName = plugin.Entity.Identity.PackageId.Replace('.', '_').ToLower();
-            string dynamicWwwRoot = $"/etc/lunaticpanel/plugins/{linuxName}/wwwroot";
-            if (!Directory.Exists(dynamicWwwRoot) && OperatingSystem.IsLinux())
-                Directory.CreateDirectory(dynamicWwwRoot, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+            FileProvider = new PhysicalFileProvider(dynamicWwwRoot),
+            RequestPath = $"/_plugins/dynamic/{plugin.Entity.Identity.PackageId}"
+        };
+        crazyReport.ReportInfo("Location (Dynamic Assets): {0}", dynamicWwwRoot);
+        webApp.UseStaticFiles(dynamicContentOption);
 
-            Console.WriteLine("===== LOADED PLUGIN =====");
-            Console.WriteLine($"PackageId: {plugin.Entity.Identity.PackageId}");
-
-            Console.WriteLine($"PluginDir: {plugin.PluginDir}");
-
-            var dynamicContentOption = new StaticFileOptions
+        var wwwroot = Path.Combine(plugin.PluginDir, "wwwroot");
+        if (Directory.Exists(wwwroot))
+        {
+            crazyReport.ReportInfo("Location (Static Assets): {0}", wwwroot);
+            var options = new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(dynamicWwwRoot),
-                RequestPath = $"/_plugins/dynamic/{plugin.Entity.Identity.PackageId}"
+                FileProvider = new PhysicalFileProvider(wwwroot),
+                RequestPath = $"/_plugins/static/{plugin.Entity.Identity.PackageId}"
             };
             if (webApp != default)
-            {
-                Console.WriteLine($"Dynamic Content: {dynamicWwwRoot}");
-                webApp.UseStaticFiles(dynamicContentOption);
-            }
-
-            var wwwroot = Path.Combine(plugin.PluginDir, "wwwroot");
-            if (Directory.Exists(wwwroot))
-            {
-                Console.WriteLine($"Static Content: {wwwroot}");
-                var options = new StaticFileOptions
-                {
-                    FileProvider = new PhysicalFileProvider(wwwroot),
-                    RequestPath = $"/_plugins/static/{plugin.Entity.Identity.PackageId}"
-                };
-                if (webApp != default)
-                    webApp.UseStaticFiles(options);
-            }
-
-            var redirectServiceToHost = RegisterServicesExt
-                .AddHostRedirectedServices(new ServiceCollection())
-                .Select(p => new HostRedirectionService(p.ServiceType, p.Lifetime))
-                .ToArray();
-            plugin.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
-            Console.WriteLine("===== END PLUGIN =====");
+                webApp.UseStaticFiles(options);
         }
+        else
+            crazyReport.ReportWarning("Location (Static Assets): '{0}' Doesn't Exist", wwwroot);
+
+
+        var redirectServiceToHost = RegisterServicesExt
+            .AddHostRedirectedServices(new ServiceCollection())
+            .Select(p => new HostRedirectionService(p.ServiceType, p.Lifetime))
+            .ToArray();
+        plugin.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
+        crazyReport.ReportSuccess("Plugin {0} has been loaded.", plugin.Entity.Identity.DisplayName);
+    }
+    private static async Task InitializeActivePlugin(BootstrapPluginDescriptor plugin,
+        WebApplication webApp,
+        IServiceProvider masterSp,
+        IConfiguration configuration,
+        ICrazyReport crazyReport)
+    {
+        crazyReport.ReportInfo("Loading Plugin: {0}", plugin.Entity.Identity.DisplayName);
+        crazyReport.ReportInfo("Location: {0}", plugin.PluginDir);
+        crazyReport.ReportInfo("PackageId: {0}", plugin.Entity.Identity.PackageId);
+        await plugin.EntryPoint!.BeforeRuntimeStartAsync(masterSp);
+        crazyReport.ReportSuccess("Plugin {0} has been initialized.", plugin.Entity.Identity.DisplayName);
+    }
+    public static async Task BootstrapRunAsync(WebApplication webApp, IServiceProvider serviceProvider, IConfiguration configuration)
+    {
+
+        var masterSp = serviceProvider.CreateScope().ServiceProvider;
+        var crazyReport = masterSp.GetRequiredService<ICrazyReport>();
+        crazyReport.SetClass(nameof(Bootstrap));
+        crazyReport.SetModule("Plugin");
+
+        var circuitRegistry = masterSp.GetRequiredService<CircuitRegistry>();
+        var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
+
+        foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
+            await ConfigureActivePlugin(plugin, webApp, masterSp, configuration, crazyReport);
 
         circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), default);
-
         await masterSp.RuntimeStartupBeforePluginsAsync();
-        foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("===== INITIALIZING PLUGIN =====");
-            Console.WriteLine($"PackageId: {plugin.Entity.Identity.PackageId}");
-            Console.WriteLine($"PluginDir: {plugin.PluginDir}");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
 
-            await plugin.EntryPoint!.BeforeRuntimeStartAsync(masterSp);
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("===== PLUGIN INITIALIZED =====");
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
+        foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
+            await InitializeActivePlugin(plugin, webApp, masterSp, configuration, crazyReport);
+
 
         await masterSp.RuntimeStartupAfterPluginsAsync();
     }

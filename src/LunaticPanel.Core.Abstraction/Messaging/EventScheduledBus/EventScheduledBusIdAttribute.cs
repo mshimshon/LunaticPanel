@@ -21,7 +21,7 @@ public sealed class EventScheduledBusIdAttribute : BusIdAttribute
 
     private TimeSpan _timing = new TimeSpan();
 
-    public EventScheduledBusIdAttribute(string plugin, string action) : base(plugin, action) { }
+    public EventScheduledBusIdAttribute(string plugin, string action) : base(prefix: "eventkey", plugin, action) { }
     public EventScheduledBusIdAttribute(string plugin, string action, int days, int hours, int minutes, int seconds, int milliseconds) : this(plugin, action)
     {
         _timing = new TimeSpan(days, hours, minutes, seconds, milliseconds);

@@ -161,4 +161,15 @@ Plugins must never:
 Plugins may:
 - Consume host services via dependency injection
 - Return data structures or descriptors
-- Register callbacks throug
+- Register callbacks throught
+
+---
+
+## 9. Validation
+
+Plugins:
+- All Razor Component/Pages must inherit `WidgetComponentBase`.
+- PluginEntry must be locate at root of entry project.
+- Namespace base must be the same as assembly name.
+- Key Pakage of plugin MUST be names Namspace of the plugin .Keys
+

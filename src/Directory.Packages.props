@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <GlobalVersion>0.1.836</GlobalVersion>
+    <GlobalVersion>0.1.837</GlobalVersion>
     <GlobalCompany>Maksim Shimshon</GlobalCompany>
     <GlobalAuthors>Maksim Shimshon</GlobalAuthors>
     <GlobalCopyright>Maksim Shimshon © 2026</GlobalCopyright>
@@ -14,6 +14,8 @@
     <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.1" />
     <PackageVersion Include="DotNetCore.CAP.OpenTelemetry" Version="10.0.1" />
+    <PackageVersion Include="LunaticPanel.Core" Version="0.1.836" />
+    <PackageVersion Include="LunaticPanel.Engine.Keys" Version="0.1.836" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageVersion Include="MudBlazor" Version="9.4.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />

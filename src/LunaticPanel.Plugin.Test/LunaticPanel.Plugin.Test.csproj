@@ -19,12 +19,11 @@
     <PackageReference Include="Newtonsoft.Json" PrivateAssets="all" />
   </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj">
-		  <Private>false</Private>
-	  </ProjectReference>
-	  <ProjectReference Include="..\LunaticPanel.Engine.Keys\LunaticPanel.Engine.Keys.csproj" />
-
+  <ItemGroup>
+	  <ProjectReference Include="..\LunaticPanel.Core.Analyzer\LunaticPanel.Core.Analyzer.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="all" />
+	  <ProjectReference Include="..\LunaticPanel.Core.Extensions\LunaticPanel.Core.Extensions.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Engine.Keys\LunaticPanel.Engine.Keys.csproj" />
   </ItemGroup>
 
 	<Target Name="RemoveHostOwnedAssembliesAfterBuild" AfterTargets="Build" Condition="'$(IsPublish)' != 'true'">

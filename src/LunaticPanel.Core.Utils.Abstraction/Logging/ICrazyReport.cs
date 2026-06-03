@@ -11,6 +11,7 @@ public interface ICrazyReport
     void SetModule(string moduleName);
     void SetModule<TClass>(string moduleName) where TClass : class;
     void SetClass<TClass>() where TClass : class;
+    void SetClass(string className);
 
     void Report(string line);
     void ReportException(string line, Exception ex);
