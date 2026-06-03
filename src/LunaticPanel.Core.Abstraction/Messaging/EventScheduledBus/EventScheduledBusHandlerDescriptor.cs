@@ -12,5 +12,5 @@ public sealed record EventScheduledBusHandlerDescriptor : BusHandlerDescriptor
     {
     }
     public static EventScheduledBusHandlerDescriptor Create(BusHandlerDescriptor parent)
-        => new(parent.Id, parent.HandlerType, parent.BusLifetime);
+        => new(parent.Key, parent.HandlerType, parent.BusLifetime);
 }

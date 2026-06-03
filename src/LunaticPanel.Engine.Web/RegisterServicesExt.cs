@@ -81,14 +81,14 @@ public static class RegisterServicesExt
             services.AddSingleton(busInfo.HandlerType);
 
             if (busInfo.BusType == EBusType.EventBus)
-                _eventBusRegistry.Register(busInfo.Id, busInfo);
+                _eventBusRegistry.Register(busInfo.Key, busInfo);
             else if (busInfo.BusType == EBusType.QueryBus)
-                _queryBusRegistry.Register(busInfo.Id, busInfo);
+                _queryBusRegistry.Register(busInfo.Key, busInfo);
             else if (busInfo.BusType == EBusType.EventScheduledBus)
-                _eventScheduledBusRegistry.Register(busInfo.Id, busInfo);
+                _eventScheduledBusRegistry.Register(busInfo.Key, busInfo);
 
             else
-                _engineBusRegistry.Register(busInfo.Id, busInfo);
+                _engineBusRegistry.Register(busInfo.Key, busInfo);
 
         }, typeof(RegisterServicesExt).Assembly);
 

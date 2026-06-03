@@ -8,5 +8,5 @@ public sealed record QueryBusHandlerDescriptor : BusHandlerDescriptor
     {
     }
     public static QueryBusHandlerDescriptor Create(BusHandlerDescriptor parent)
-        => new(parent.Id, parent.HandlerType, parent.BusLifetime);
+        => new(parent.Key, parent.HandlerType, parent.BusLifetime);
 }

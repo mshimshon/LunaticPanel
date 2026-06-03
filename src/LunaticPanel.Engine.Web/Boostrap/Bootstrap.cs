@@ -96,6 +96,42 @@ public static class Bootstrap
         plugin.EntryPoint!.AddHostRedirectedServices(redirectServiceToHost);
         crazyReport.ReportSuccess("Plugin {0} has been loaded.", plugin.Entity.Identity.DisplayName);
     }
+
+    private static async Task SetupGracefulPluginDependencies(WebApplication webApp,
+        IConfiguration configuration,
+        ICrazyReport crazyReport)
+    {
+        bool restart = false;
+        crazyReport.ReportInfo("Load Graceful Feature Plugin Degradation");
+
+        do
+        {
+            restart = false;
+            var knownKeys = Configuration.ActivePlugins
+                .ToDictionary(p => p, p => p.EntryPoint!.Keys.Select(p => p.ToLower()));
+            var mergedKeys = Configuration.ActivePlugins
+                .SelectMany(p => p.EntryPoint!.Keys)
+                .Select(p => p.ToLower());
+            foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
+            {
+                var newKeys = plugin.EntryPoint!.CheckDependencyGracefully(p => mergedKeys.Contains(p.ToLower()));
+                var cnt = newKeys.Count - knownKeys[plugin].Count();
+                restart = cnt != 0;
+                if (restart)
+                {
+                    crazyReport.ReportWarning("{0} has reported degradation of {1} bus features.", plugin.Entity.Identity.PackageId, Math.Abs(cnt));
+                    break;
+                }
+            }
+            await Task.Delay(10);
+        } while (restart);
+
+        crazyReport.ReportSuccess("Finished Plugin Degradation Process (*he says with crossed fingers all plugin makers are good).");
+        crazyReport.Report("*he says with crossed fingers all plugin makers are good.");
+    }
+
+
+
     private static async Task InitializeActivePlugin(BootstrapPluginDescriptor plugin,
         WebApplication webApp,
         IServiceProvider masterSp,
@@ -121,6 +157,8 @@ public static class Bootstrap
 
         foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
             await ConfigureActivePlugin(plugin, webApp, masterSp, configuration, crazyReport);
+
+        await SetupGracefulPluginDependencies(webApp, configuration, crazyReport);
 
         circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), default);
         await masterSp.RuntimeStartupBeforePluginsAsync();

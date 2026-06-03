@@ -51,14 +51,15 @@ public abstract class PluginBase : IPlugin
     protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
-    public string[] Keys { get; }
+    private List<string> _internalKeys { get; set; }
+    public IReadOnlyList<string> Keys { get; private set; }
 
     private bool _hasStarted;
     private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors;
     protected PluginBase()
     {
         _pluginId = GetType().Namespace!;
-        Keys = GetMyPackageKeys();
+        _internalKeys = GetMyPackageKeys().ToList();
         if (_cacheBusHandlersDescriptors == default)
             _cacheBusHandlersDescriptors = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
     }
@@ -106,14 +107,23 @@ public abstract class PluginBase : IPlugin
     /// 2. Remove if available from Self Available Key List and Return the new list.
     /// disabling handlers for external events has no ramification for others only for ourselves
     /// </summary>
-    protected List<string> DisableBusFeature()
+    protected void DisableBusFeature(string key)
     {
-        return new();
+        key = key.ToLower();
+        _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors
+            .Where(p => !string.Equals(key, p.Key, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        _internalKeys = _internalKeys.Where(p => !string.Equals(key, p, StringComparison.OrdinalIgnoreCase)).ToList();
+        Keys = _internalKeys.AsReadOnly();
     }
-    public void SelfRegulateDependencyInconsistency(string pluginId)
+
+    public IReadOnlyList<string> CheckDependencyGracefully(Func<string, bool> isBusAvailable)
     {
-        var preBusScan = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
+        CheckFeatureDegradation(isBusAvailable);
+        return Keys;
     }
+
+    public abstract void CheckFeatureDegradation(Func<string, bool> isBusAvailable);
 
     public void SetScannedHandlersCache(string pluginId, Assembly[] toScan)
     {
@@ -377,22 +387,22 @@ public abstract class PluginBase : IPlugin
                 if (busInfo.BusType == EBusType.EventBus)
                     lock (_lockEventBusRegistry)
                     {
-                        _eventBusRegistry[identity].Register(busInfo.Id, busInfo);
+                        _eventBusRegistry[identity].Register(busInfo.Key, busInfo);
                     }
                 else if (busInfo.BusType == EBusType.QueryBus)
                     lock (_lockQueryBusRegistry)
                     {
-                        _queryBusRegistry[identity].Register(busInfo.Id, busInfo);
+                        _queryBusRegistry[identity].Register(busInfo.Key, busInfo);
                     }
                 else if (busInfo.BusType == EBusType.EventScheduledBus)
                     lock (_lockEventScheduledBusRegistry)
                     {
-                        _eventScheduledBusRegistry[identity].Register(busInfo.Id, busInfo);
+                        _eventScheduledBusRegistry[identity].Register(busInfo.Key, busInfo);
                     }
                 else
                     lock (_lockEngineBusRegistry)
                     {
-                        _engineBusRegistry[identity].Register(busInfo.Id, busInfo);
+                        _engineBusRegistry[identity].Register(busInfo.Key, busInfo);
                     }
             }
         }
@@ -546,7 +556,7 @@ public abstract class PluginBase : IPlugin
         foreach (var d in schEventRegistry.GetAllAvailable())
         {
             if (!d.ScheduleAtStartup) continue;
-            var t = new EventScheduleObject(d.Id, d.Timing)
+            var t = new EventScheduleObject(d.Key, d.Timing)
             {
                 RunOnceOnly = d.RunOnlyOnce
             };

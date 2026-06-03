@@ -12,7 +12,7 @@ public interface IPlugin : IPluginInfo
     void OnCircuitEnd(CircuitIdentity circuit);
     IPluginContextService GetContext(Guid circuitId);
     void AddHostRedirectedServices(params HostRedirectionService[] serviceTypes);
-
+    IReadOnlyList<string> CheckDependencyGracefully(Func<string, bool> isBusAvailable);
 
     IReadOnlyCollection<PluginValidationResult> PerformValidation();
 
