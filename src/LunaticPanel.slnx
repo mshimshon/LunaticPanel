@@ -1,4 +1,12 @@
 <Solution>
+  <Folder Name="/Plugins/" />
+  <Folder Name="/Plugins/PackageManager/">
+    <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Application/LunaticPanel.PackageManager.Application.csproj" Id="cf5fe086-ce80-4145-a983-98235ebbd5bf" />
+    <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Domain/LunaticPanel.PackageManager.Domain.csproj" Id="98a0a306-4ba4-45f0-9e6d-f2769d90e306" />
+    <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Infrastructure/LunaticPanel.PackageManager.Infrastructure.csproj" Id="c4cc6a32-014d-4a07-b764-06aeebca104d" />
+    <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj" Id="725e9a98-9373-4c75-b9de-97b51d72823d" />
+    <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj" Id="485dc0e2-1e72-40ad-acd2-30cb1440f4b0" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".version" />
     <File Path="Directory.Packages.props" />

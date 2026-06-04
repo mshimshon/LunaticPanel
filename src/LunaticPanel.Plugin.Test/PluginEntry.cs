@@ -9,6 +9,12 @@ namespace LunaticPanel.Plugin.Test;
 
 public partial class PluginEntry : PluginBase
 {
+    public override void CheckFeatureDegradation(Func<string, bool> isBusAvailable)
+    {
+        if (!isBusAvailable(""))
+            DisableBusFeature("");
+    }
+
     public override string[] GetMyPackageKeys()
         => typeof(BaseInfo).Assembly.ScanKeyPackageForKeys();
 
@@ -18,4 +24,5 @@ public partial class PluginEntry : PluginBase
         services.AddScoped<MyService>();
         services.AddScoped<MenuViewModel>();
     }
+
 }
