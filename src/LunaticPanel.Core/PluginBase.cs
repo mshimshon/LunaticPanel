@@ -60,40 +60,12 @@ public abstract class PluginBase : IPlugin
     {
         _pluginId = GetType().Namespace!;
         _internalKeys = GetMyPackageKeys().ToList();
+        Keys = _internalKeys.AsReadOnly();
         if (_cacheBusHandlersDescriptors == default)
             _cacheBusHandlersDescriptors = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
     }
 
 
-    /* TODO: IMPLEMENT PRETECTIVE SYSTEM
-     * PluginA.MyQuery; PluginB call PluginA.MyQuery; PluginA implements MyQuery
-         [ Step 1: Prelist ] ────► Call Each Plugin.Keys this should return all the active keys.
-                                        │
-                                        ▼
-         [ Step 2: Extract ] ────► Call string[] Plugin.CheckFeatureDegradation(Func<string,bool> checkForAvailableFeature)
-                                        │
-                                        ▼
-         [ Step 3: Check ]   ────► Are all Used IDs present in the Prelist?
-                                        │
-                                        ├─── (Yes) ──► [ System is Stable & Ready ]
-                                        │
-                                 (No: Missing ID found)
-                                        │
-                                        ▼
-         [ Step 4: Callback ] ───► Alert the specific plugin about its missing ID.
-                                        │
-                                        ▼
-         [ Step 5: Disable ]  ───► Plugin returns a list of its OWN dependent IDs to disable.
-                                        │
-                                        ▼
-         [ Step 6: Diff Check ] ─► Did the plugin actually return new IDs to remove?
-                                        │
-                                        ├─── (No/Empty) ─► Break loop (Prevents infinite loops).
-                                        │
-                                        └─── (Yes) ──────► Remove those specific IDs from the 
-                                                           plugin's active registry, update 
-                                                           the Prelist scope, and LOOP TO S
-  */
     /// <summary>
     /// This is required if you have a package keys or using any bus event or queries or engine you should have a package anyway<br/>
     /// you should list all YOUR keys here or else the system will reject unregistered calls you can also use the extension<br/>
@@ -101,6 +73,7 @@ public abstract class PluginBase : IPlugin
     /// </summary>
     /// <returns></returns>
     public abstract string[] GetMyPackageKeys();
+
     /// <summary>
     /// Two Parts
     /// 1. Remove from _cacheBusHandlersDescriptors which removes the Handler itself of the feature we disable.
@@ -125,13 +98,13 @@ public abstract class PluginBase : IPlugin
 
     public abstract void CheckFeatureDegradation(Func<string, bool> isBusAvailable);
 
-    public void SetScannedHandlersCache(string pluginId, Assembly[] toScan)
+    private void SetScannedHandlersCache()
     {
         lock (_lockScannedCachedBusHandlers)
         {
-            if (_scannedCachedBusHandlers.ContainsKey(pluginId))
+            if (_scannedCachedBusHandlers.ContainsKey(PluginId))
                 return;
-            _scannedCachedBusHandlers[pluginId] = BusScannerExt.ScanBusHandlers(p => { }, toScan).AsReadOnly();
+            _scannedCachedBusHandlers[PluginId] = _cacheBusHandlersDescriptors;
         }
     }
     public void OnCircuitStart(CircuitIdentity circuit)
@@ -139,7 +112,7 @@ public abstract class PluginBase : IPlugin
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (HasActiveCircuitFor(circuit.CircuitId)) return;
 
-        SetScannedHandlersCache(PluginId, GetPluginInternalAssemblies());
+        SetScannedHandlersCache();
         CreateBusRegistry(circuit);
 
         var allServices = new ServiceCollection();
@@ -230,7 +203,6 @@ public abstract class PluginBase : IPlugin
                 result.AddTransient(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
         }
     }
-
     private void DeleteBusRegistry(CircuitIdentity circuit)
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
@@ -251,9 +223,6 @@ public abstract class PluginBase : IPlugin
             if (_eventScheduledBusRegistry.ContainsKey(identity))
                 _eventScheduledBusRegistry.Remove(identity);
     }
-
-
-
     public void OnCircuitEnd(CircuitIdentity circuit)
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
@@ -422,19 +391,6 @@ public abstract class PluginBase : IPlugin
     {
 
     }
-
-    /// <summary>
-    /// Called when the system begins checking the availability of each bus ID
-    /// used by the plugin. If a required bus cannot be found or is unavailable,
-    /// this method allows the plugin to disable its marker or degrade gracefully,
-    /// preventing dependency‑based crashes caused by missing plugins or major
-    /// changes in other plugins.
-    /// </summary>
-    protected virtual void OnBusIdMissings(IReadOnlyCollection<string> ids, Action<IReadOnlyCollection<string>> disableMineFor, CircuitIdentity circuit)
-    {
-
-    }
-
 
     /// <summary>
     /// <para>
