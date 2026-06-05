@@ -1,20 +1,21 @@
-﻿using LunaticPanel.PackageManager.Domain.Entites.Enums;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+﻿using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
 
 namespace LunaticPanel.PackageManager.Domain.Entites;
 
 public sealed record PackageEntity
 {
 
-    public PackageEntity(PackageInfo info)
+    public PackageEntity(PackageInfo info, RepositorySourceInfo source, PackageVersion version, ICollection<PackageDependency> dependencies)
     {
         Info = info;
+        Source = source;
+        Version = version;
+        Dependencies = dependencies.ToList().AsReadOnly();
+
     }
     public PackageInfo Info { get; }
-
-    public string RespositorySource { get; init; } = default!;
-    // public Version Version {get; init;} = default!;
-    public PackageState State { get; init; } = PackageState.NotInstalled;
-    public IReadOnlyList<PackageDependencyEntity> Dependencies { get; }
+    public RepositorySourceInfo Source { get; init; } = default!;
+    public PackageVersion Version { get; }
+    public IReadOnlyList<PackageDependency> Dependencies { get; }
 
 }
