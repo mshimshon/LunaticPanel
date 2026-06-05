@@ -17,6 +17,7 @@ public sealed record PackageInfo
     public PackageDescription Description { get; }
     public PackageRating? Rating { get; init; }
     public PackageAutoUpdateScore AutoUpdateScore { get; init; } = new(100);
-    public PackageState State { get; init; } = PackageState.NotInstalled;
+
+    public PackageState State { get; init; } = PackageState.Unknown;
 
 }

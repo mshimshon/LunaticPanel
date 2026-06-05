@@ -8,10 +8,17 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="WolverineFx" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LunaticPanel.PackageManager.Domain\LunaticPanel.PackageManager.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mediator\" />
+    <Folder Include="Payloads\Requests\" />
+    <Folder Include="Payloads\Responses\" />
   </ItemGroup>
 
 </Project>
