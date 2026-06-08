@@ -14,6 +14,22 @@ public sealed record PackageVersion : IComparable<PackageVersion>
         Value = _version.ToString();
     }
 
+    public PackageVersion(string version)
+    {
+        var split = version.Split('.');
+        if (split.Length == 1)
+            _version = new Version(int.Parse(split[0]), 0, 0);
+        else if (split.Length == 2)
+            _version = new Version(int.Parse(split[0]), int.Parse(split[1]), 0);
+        else if (split.Length == 3)
+            _version = new Version(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
+        else
+        {
+            // TODO: THROW
+        }
+        Value = _version!.ToString();
+    }
+
     public int CompareTo(PackageVersion? other)
     {
         if (other is null) return 1;

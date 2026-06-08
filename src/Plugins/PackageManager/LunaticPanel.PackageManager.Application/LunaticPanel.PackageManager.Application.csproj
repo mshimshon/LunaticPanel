@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mediator\" />
+    <Folder Include="Mediator\Commands\" />
     <Folder Include="Payloads\Requests\" />
     <Folder Include="Payloads\Responses\" />
   </ItemGroup>
