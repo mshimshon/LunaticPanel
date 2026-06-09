@@ -6,7 +6,7 @@ namespace LunaticPanel.PackageManager.Domain.Respositories;
 
 public interface IPackageRepository
 {
-    Task<IQueryModelResult<PackageInfo>> Query(IPackageQueryModel queryModel, CancellationToken ct = default);
+    Task<IQueryModelResult<PackageInfo>> QueryAsync(IPackageQueryModel queryModel, CancellationToken ct = default);
     PackageEntity GetByIdAsync(PackageId id, CancellationToken ct = default);
     Task<ICollection<PackageInfo>> GetInstalledAsync(CancellationToken ct = default);
     Task InstallAsync(PackageId id, PackageVersion version, RepositorySourceInfo sourceInfo, CancellationToken ct = default);

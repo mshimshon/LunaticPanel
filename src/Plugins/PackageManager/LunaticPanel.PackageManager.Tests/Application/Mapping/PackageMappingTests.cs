@@ -5,7 +5,7 @@ using LunaticPanel.PackageManager.Domain.Entites;
 using LunaticPanel.PackageManager.Domain.Entites.Enums;
 using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
 
-namespace LunaticPanel.PackageManager.Tests.Mapping;
+namespace LunaticPanel.PackageManager.Tests.Application.Mapping;
 
 public class PackageMappingTests
 {
