@@ -1,21 +1,45 @@
-﻿@inherits LayoutComponentBase
+﻿@using LunaticPanel.Engine.Web.ExceptionHandlers
+@inherits LayoutComponentBase
+<MudThemeProvider IsDarkMode=true />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<MudThemeProvider IsDarkMode=true/>
-<MudPopoverProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+@if (_readyToRender)
+{
+    <GlobalErrorCodedBoundary>
+        <MudLayout>
+            <MudDrawer Open=true>
+                @if (CircuitRegistry.CurrentCircuit != null)
+                {
+                    <MainMenu />
+                }
+            </MudDrawer>
+            <MudMainContent Class="px-12">
+                @if (CircuitRegistry.CurrentCircuit != null)
+                {
+                    @Body
+                }
+            </MudMainContent>
+        </MudLayout>
+    </GlobalErrorCodedBoundary>
+}
+else
+{
+    <MudLayout>
+        <MudMainContent Class="px-12">
+            <MudGrid>
+                <MudItem>
+                    <MudStack>
+                        <MudText Align=Align.Center >Booting...</MudText>
+                        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudMainContent>
+    </MudLayout>
 
-<MudLayout >
-    <MudDrawer Open=true >
-        @if (CircuitRegistry.CurrentCircuit != null)
-        {
-            <MainMenu />
-        }
-    </MudDrawer>
-    <MudMainContent Class="px-12">
-        @if(CircuitRegistry.CurrentCircuit != null)
-        {
-            @Body
-        }
-    </MudMainContent>
-</MudLayout>
+}
+
+
+

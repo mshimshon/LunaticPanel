@@ -14,7 +14,7 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
     private IEventBus EventBus { get; set; } = default!;
     [Inject] private MainLayoutViewModel ViewModel { get; set; } = default!;
     [Inject] private IWidgetComponentLifecycle WidgetComponentLifecycle { get; set; } = default!;
-
+    private bool _readyToRender = false;
     private Task ShouldUpdate() => InvokeAsync(StateHasChanged);
     protected override void OnInitialized()
     {
@@ -30,16 +30,8 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
         {
             CircuitRegistry.SelfCircuitRegistration(_id, this);
             EventBus = ServiceProvider.GetRequiredService<IEventBus>();
-            try
-            {
-                _ = EventBus.PublishDatalessAsync(DashboardKeys.Events.OnFirstRender);
-
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
+            _ = EventBus.PublishDatalessAsync(DashboardKeys.Events.OnFirstRender);
+            _readyToRender = true;
             InvokeAsync(StateHasChanged);
         }
     }

@@ -34,6 +34,7 @@
 </ItemGroup>
 
 <ItemGroup>
+  <ProjectReference Include="..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
   <ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
   <ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
   <ProjectReference Include="..\LunaticPanel.Engine.Domain\LunaticPanel.Engine.Domain.csproj" />

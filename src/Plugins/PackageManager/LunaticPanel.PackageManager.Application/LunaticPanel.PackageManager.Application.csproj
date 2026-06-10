@@ -16,8 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mediator\Commands\" />
     <Folder Include="Payloads\Requests\" />
+    <Folder Include="Pulses\Actions\" />
+    <Folder Include="Pulses\Effects\" />
+    <Folder Include="Pulses\Reducers\" />
+    <Folder Include="Pulses\States\" />
   </ItemGroup>
 
 </Project>

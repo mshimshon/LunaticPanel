@@ -1,10 +1,10 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+using LunaticPanel.PackageManager.Application.Payloads.Responses;
 
 namespace LunaticPanel.PackageManager.Application.Services;
 
 public interface IRepositorySourceService
 {
-    ICollection<PackageInfoPayload> SearchAsync(string q, IReadOnlyCollection<RepositorySourceInfo> searchIn, CancellationToken ct = default);
+    Task<SearchResponse<PackageInfoPayload>> SearchAsync(string q, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default);
 
 }
