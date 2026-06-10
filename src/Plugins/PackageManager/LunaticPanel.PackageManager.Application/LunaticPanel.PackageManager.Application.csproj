@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="StatePulse.Net" />
     <PackageReference Include="WolverineFx" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
     <ProjectReference Include="..\LunaticPanel.PackageManager.Domain\LunaticPanel.PackageManager.Domain.csproj" />
   </ItemGroup>
 
@@ -20,7 +22,6 @@
     <Folder Include="Pulses\Actions\" />
     <Folder Include="Pulses\Effects\" />
     <Folder Include="Pulses\Reducers\" />
-    <Folder Include="Pulses\States\" />
   </ItemGroup>
 
 </Project>

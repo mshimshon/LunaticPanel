@@ -2,6 +2,7 @@
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands;
 
-public sealed record PackageInstallCommand(string Id, string Version, RepositorySourcePayload Source)
+public sealed record RepositorySourceAddCommand(RepositorySourcePayload Source)
 {
+
 }

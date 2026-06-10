@@ -7,21 +7,18 @@ using LunaticPanel.PackageManager.Domain.Respositories;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
-internal class PackageInstallHandler
+internal class PackageUpdateHandler
 {
-
-    public async Task Handle(PackageInstallCommand command,
-        IRepositorySourceService repositorySourceService,
-        IPackageRepository packageRepository,
-        CancellationToken ct = default)
+    public async Task Handle(PackageUpdateCommand command, IRepositorySourceService repositorySourceService, IPackageRepository packageRepository, CancellationToken ct = default)
     {
         try
         {
             PackageId id = new(command.Id);
-            PackageVersion version = new(command.Version);
+            PackageVersion fromVersion = new(command.FromVersion);
+            PackageVersion toVersion = new(command.ToVersion);
             RepositorySourceEntity sourceEntity = command.Source.ToDomainEntity();
-            await repositorySourceService.DownloadAsync(command.Id, command.Version, command.Source, ct);
-            await packageRepository.InstallAsync(id, version, sourceEntity.Info, ct);
+            await repositorySourceService.DownloadAsync(id.Value, toVersion.Value, command.Source, ct);
+            await packageRepository.UpdateAsync(id, fromVersion, toVersion, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
         catch (Exception)

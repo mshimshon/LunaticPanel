@@ -1,6 +1,6 @@
 ﻿namespace LunaticPanel.PackageManager.Application.Mediator.Commands;
 
-internal sealed record PackageEnableCommand(string Id)
+public sealed record PackageEnableCommand(string Id)
 {
 
 }

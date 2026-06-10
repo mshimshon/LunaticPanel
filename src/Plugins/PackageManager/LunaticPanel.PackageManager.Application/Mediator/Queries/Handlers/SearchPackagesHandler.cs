@@ -1,4 +1,5 @@
-﻿using LunaticPanel.PackageManager.Application.Payloads;
+﻿using LunaticPanel.Core.Abstraction.Widgets.Exceptions;
+using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Domain.QueryCriterias;
@@ -15,10 +16,20 @@ internal class SearchPackagesHandler
         IPackageRepository packageRepository,
         CancellationToken ct = default)
     {
-        var queryModel = new PackageQueryModel();
-        //TODO: FLUENT VALIDATION FOR QUERY
-        queryModel.SearchByKeywords(query.Keywords);
-        IQueryModelResult<Domain.Entites.ValueObjects.PackageInfo> result = await packageRepository.QueryAsync(queryModel, ct);
-        return result.ToApplicationSearchResponse(p => p.ToApplicationPayload());
+        try
+        {
+            var queryModel = new PackageQueryModel();
+            //TODO: FLUENT VALIDATION FOR QUERY
+            queryModel.SearchByKeywords(query.Keywords);
+            IQueryModelResult<Domain.Entites.ValueObjects.PackageInfo> result = await packageRepository.QueryAsync(queryModel, ct);
+            return result.ToApplicationSearchResponse(p => p.ToApplicationPayload());
+            //TODO: HANDLE DOMAIN EXCEPTIONS
+        }
+        catch (Exception)
+        {
+
+            throw new HostUnkownException();
+        }
+
     }
 }
