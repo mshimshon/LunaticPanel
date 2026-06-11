@@ -1,8 +1,8 @@
 ﻿namespace LunaticPanel.PackageManager.Domain.Entites.Enums;
 
-public enum PackageState
+public enum RepositorySourceState
 {
     Unknown = -1,
-    Enabled = 2,
-    Disabled = 3
+    Enabled = 1,
+    Disabled = 2
 }

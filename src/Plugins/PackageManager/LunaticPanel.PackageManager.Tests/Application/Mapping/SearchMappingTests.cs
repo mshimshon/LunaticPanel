@@ -12,11 +12,12 @@ public class SearchMappingTests
     {
         PackageId = "TEST.ID",
         Name = "TEST PACKAGE",
-        Description = "DESC"
+        Description = "DESC",
+        State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Disabled
     };
 
     public static PackageInfo PackageMock { get; } =
-        new PackageInfo(new("TEST.ID"), new("TEST PACKAGE"), new("DESC"));
+        new PackageInfo(new("TEST.ID"), new("TEST PACKAGE"), new("DESC"), Domain.Entites.Enums.PackageState.Enabled);
 
     // -----------------------------
     // TEST: SearchResponse -> QueryModelResult

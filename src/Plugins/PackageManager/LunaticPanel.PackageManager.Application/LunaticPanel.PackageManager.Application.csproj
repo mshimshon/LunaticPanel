@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediHater" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="StatePulse.Net" />
-    <PackageReference Include="WolverineFx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,9 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Payloads\Requests\" />
-    <Folder Include="Pulses\Actions\" />
-    <Folder Include="Pulses\Effects\" />
-    <Folder Include="Pulses\Reducers\" />
   </ItemGroup>
 
 </Project>

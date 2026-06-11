@@ -7,4 +7,7 @@ public sealed record RepositorySourcePayload
     public string Name { get; set; } = default!;
     public string Source { get; set; } = default!;
     public RepositorySourceTypePayload SourceType { get; set; }
+
+    public RepositorySourceStatePayload State { get; set; }
+    public string? Failure { get; set; }
 }

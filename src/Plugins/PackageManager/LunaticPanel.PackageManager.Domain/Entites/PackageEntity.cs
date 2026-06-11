@@ -4,8 +4,15 @@ namespace LunaticPanel.PackageManager.Domain.Entites;
 
 public sealed record PackageEntity
 {
+    public PackageInfo Info { get; }
+    public RepositorySourceInfo Source { get; init; } = default!;
+    public PackageVersion Version { get; }
+    public PackageFailure? Failure { get; }
+    public IReadOnlyList<PackageDependency> Dependencies { get; }
 
-    public PackageEntity(PackageInfo info, RepositorySourceInfo source, PackageVersion version, ICollection<PackageDependency> dependencies)
+    public PackageEntity(PackageInfo info, RepositorySourceInfo source,
+        PackageVersion version,
+        ICollection<PackageDependency> dependencies)
     {
         Info = info;
         Source = source;
@@ -13,9 +20,15 @@ public sealed record PackageEntity
         Dependencies = dependencies.ToList().AsReadOnly();
 
     }
-    public PackageInfo Info { get; }
-    public RepositorySourceInfo Source { get; init; } = default!;
-    public PackageVersion Version { get; }
-    public IReadOnlyList<PackageDependency> Dependencies { get; }
+
+    public PackageEntity(PackageInfo info, RepositorySourceInfo source,
+        PackageVersion version, ICollection<PackageDependency> dependencies,
+        PackageFailure failure)
+        : this(info, source, version, dependencies)
+    {
+        Failure = failure;
+    }
+
+
 
 }

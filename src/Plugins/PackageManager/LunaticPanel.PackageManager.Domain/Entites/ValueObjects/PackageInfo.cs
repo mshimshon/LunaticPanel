@@ -5,11 +5,12 @@ namespace LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
 public sealed record PackageInfo
 {
 
-    public PackageInfo(PackageId id, PackageName name, PackageDescription description)
+    public PackageInfo(PackageId id, PackageName name, PackageDescription description, PackageState state)
     {
         Id = id;
         Name = name;
         Description = description;
+        State = state;
     }
 
     public PackageId Id { get; }
@@ -18,6 +19,6 @@ public sealed record PackageInfo
     public PackageRating? Rating { get; init; }
     public PackageAutoUpdateScore AutoUpdateScore { get; init; } = new(100);
 
-    public PackageState State { get; init; } = PackageState.Unknown;
+    public PackageState State { get; init; }
 
 }

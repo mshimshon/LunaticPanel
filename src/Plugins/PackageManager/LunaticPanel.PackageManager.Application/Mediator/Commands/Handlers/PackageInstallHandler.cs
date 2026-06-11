@@ -21,7 +21,7 @@ internal class PackageInstallHandler
             PackageVersion version = new(command.Version);
             RepositorySourceEntity sourceEntity = command.Source.ToDomainEntity();
             await repositorySourceService.DownloadAsync(command.Id, command.Version, command.Source, ct);
-            await packageRepository.InstallAsync(id, version, sourceEntity.Info, ct);
+            await packageRepository.InstallAsync(id, version, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
         catch (Exception)

@@ -32,7 +32,11 @@ public static class RepositorySourceMapping
             new RepositorySourceLocal(data.Source) :
             new RepositorySourceRemote(data.Source);
         RepositorySourceName name = new RepositorySourceName(data.Name);
-        return new(name, new(source, data.SourceType.ToDomainEntity()));
+        var sourceType = data.SourceType.ToDomainEntity();
+        var state = data.State.ToDomainEntity();
+        return data.Failure == default ?
+            new RepositorySourceEntity(name, new(source, sourceType), state) :
+            new RepositorySourceEntity(name, new(source, sourceType), new(data.Failure), state);
     }
 
 
@@ -41,6 +45,24 @@ public static class RepositorySourceMapping
         {
             RepositorySourceTypePayload.Local => RepositorySourceType.Local,
             RepositorySourceTypePayload.Remote => RepositorySourceType.Remote,
+            _ => throw new ArgumentOutOfRangeException(nameof(data))
+        };
+
+    public static RepositorySourceState ToDomainEntity(this RepositorySourceStatePayload data)
+        => data switch
+        {
+            RepositorySourceStatePayload.Unknown => RepositorySourceState.Unknown,
+            RepositorySourceStatePayload.Enabled => RepositorySourceState.Enabled,
+            RepositorySourceStatePayload.Disabled => RepositorySourceState.Disabled,
+            _ => throw new ArgumentOutOfRangeException(nameof(data))
+        };
+
+    public static RepositorySourceStatePayload ToApplicationPayload(this RepositorySourceState data)
+        => data switch
+        {
+            RepositorySourceState.Unknown => RepositorySourceStatePayload.Unknown,
+            RepositorySourceState.Enabled => RepositorySourceStatePayload.Enabled,
+            RepositorySourceState.Disabled => RepositorySourceStatePayload.Disabled,
             _ => throw new ArgumentOutOfRangeException(nameof(data))
         };
 }

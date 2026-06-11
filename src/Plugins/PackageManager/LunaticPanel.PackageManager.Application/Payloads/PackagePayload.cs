@@ -9,4 +9,5 @@ public record PackagePayload
     public RepositorySourceTypePayload RepositoryType { get; set; }
     public string Version { get; set; } = default!;
     public List<PackageDependencyPayload> Dependencies { get; set; } = new();
+    public string? Failure { get; set; }
 }

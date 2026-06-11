@@ -2,19 +2,26 @@
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Application.Services;
+using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
-internal class SearchRepositoryHandler
+internal class SearchRepositoryHandler : IRequestHandler<SearchRepositoryQuery, SearchResponse<PackageInfoPayload>>
 {
-    public async Task<SearchResponse<PackageInfoPayload>> Handle(SearchRepositoryQuery data, IRepositorySourceService repositorySourceService, CancellationToken ct = default)
+    private readonly IRepositorySourceService _repositorySource;
+
+    public SearchRepositoryHandler(IRepositorySourceService repositorySource)
+    {
+        _repositorySource = repositorySource;
+    }
+    public async Task<SearchResponse<PackageInfoPayload>> Handle(SearchRepositoryQuery data, CancellationToken ct = default)
     {
         try
         {
             //TODO: ADD FLUENT VALIDATION FOR KEYWORDS
             string keywords = data.Keywords;
             var response =
-                await repositorySourceService.SearchAsync(keywords, data.Sources.AsReadOnly(), ct);
+                await _repositorySource.SearchAsync(keywords, data.Sources.AsReadOnly(), ct);
             return response;
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

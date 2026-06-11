@@ -1,4 +1,6 @@
-﻿namespace LunaticPanel.PackageManager.Application.Payloads;
+﻿using LunaticPanel.PackageManager.Application.Payloads.Enums;
+
+namespace LunaticPanel.PackageManager.Application.Payloads;
 
 public sealed record PackageInfoPayload
 {
@@ -7,4 +9,6 @@ public sealed record PackageInfoPayload
     public string Description { get; set; } = default!;
     public int Rating { get; set; }
     public int AutoUpdateScore { get; set; }
+
+    public PackageStatePayload State { get; set; } = PackageStatePayload.Unknown;
 }

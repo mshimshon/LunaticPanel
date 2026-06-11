@@ -144,6 +144,26 @@ public class PackageMappingTests
     }
 
     [Theory]
+    [InlineData(0, "id-1", "Dependency", "Desc-1", 10)]
+    [InlineData(-5, "id-2", "AnotherDependency", "Desc-2", 20)]
+    public void PackageInfoPayload_ToDomainEntity_ShouldCorrectlyConvertState(int invalidRating, string packageId, string name, string description, int score)
+    {
+        var payload = new PackageInfoPayload
+        {
+            PackageId = packageId,
+            Name = name,
+            Description = description,
+            AutoUpdateScore = score,
+            Rating = invalidRating,
+            State = PackageStatePayload.Disabled
+        };
+
+        var entity = payload.ToDomainEntity();
+
+        Assert.True(entity.State == PackageState.Disabled);
+    }
+
+    [Theory]
     [InlineData("Core.Framework", "Dependency", "4.5.6")]
     [InlineData("Core.AnotherDependency", "Another Dependency", "1.0.1")]
     public void PackageDependencyPayload_ToDomainEntity_ShouldMapCorrectly(string id, string name, string version)
