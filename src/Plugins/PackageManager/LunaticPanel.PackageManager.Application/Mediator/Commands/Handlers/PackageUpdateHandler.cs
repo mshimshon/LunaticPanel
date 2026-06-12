@@ -3,13 +3,19 @@ using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entites;
 using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
-using LunaticPanel.PackageManager.Domain.Respositories;
+using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
-internal class PackageUpdateHandler
+internal class PackageUpdateHandler : IRequestHandler<PackageUpdateCommand>
 {
-    public async Task Handle(PackageUpdateCommand command, IRepositorySourceService repositorySourceService, IPackageRepository packageRepository, CancellationToken ct = default)
+    private readonly IRepositorySourceService _repositorySourceService;
+
+    public PackageUpdateHandler(IRepositorySourceService repositorySourceService)
+    {
+        _repositorySourceService = repositorySourceService;
+    }
+    public async Task Handle(PackageUpdateCommand command, CancellationToken ct = default)
     {
         try
         {
@@ -17,7 +23,7 @@ internal class PackageUpdateHandler
             PackageVersion fromVersion = new(command.FromVersion);
             PackageVersion toVersion = new(command.ToVersion);
             RepositorySourceEntity sourceEntity = command.Source.ToDomainEntity();
-            await repositorySourceService.DownloadAsync(id.Value, toVersion.Value, command.Source, ct);
+            await _repositorySourceService.DownloadAsync(id.Value, toVersion.Value, command.Source, ct);
             await packageRepository.UpdateAsync(id, fromVersion, toVersion, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

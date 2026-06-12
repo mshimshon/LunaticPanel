@@ -4,15 +4,22 @@ using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entites;
 using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
 using LunaticPanel.PackageManager.Domain.Respositories;
+using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
-internal class PackageInstallHandler
+internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
 {
+    private readonly IRepositorySourceService _repositorySourceService;
+    private readonly IPackageRepository _packageRepository;
 
+    public PackageInstallHandler(IRepositorySourceService repositorySourceService,
+        IPackageRepository packageRepository)
+    {
+        _repositorySourceService = repositorySourceService;
+        _packageRepository = packageRepository;
+    }
     public async Task Handle(PackageInstallCommand command,
-        IRepositorySourceService repositorySourceService,
-        IPackageRepository packageRepository,
         CancellationToken ct = default)
     {
         try
@@ -20,8 +27,8 @@ internal class PackageInstallHandler
             PackageId id = new(command.Id);
             PackageVersion version = new(command.Version);
             RepositorySourceEntity sourceEntity = command.Source.ToDomainEntity();
-            await repositorySourceService.DownloadAsync(command.Id, command.Version, command.Source, ct);
-            await packageRepository.InstallAsync(id, version, ct);
+            await _repositorySourceService.DownloadAsync(command.Id, command.Version, command.Source, ct);
+            await _packageRepository.InstallAsync(id, version, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
         catch (Exception)

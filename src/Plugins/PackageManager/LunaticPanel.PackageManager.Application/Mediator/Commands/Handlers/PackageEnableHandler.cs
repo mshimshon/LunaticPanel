@@ -1,15 +1,22 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets.Exceptions;
 using LunaticPanel.PackageManager.Domain.Respositories;
+using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
-internal class PackageEnableHandler
+internal class PackageEnableHandler : IRequestHandler<PackageEnableCommand>
 {
-    public async Task Handle(PackageEnableCommand command, IPackageRepository packageRepository, CancellationToken ct = default)
+    private readonly IPackageRepository _packageRepository;
+
+    public PackageEnableHandler(IPackageRepository packageRepository)
+    {
+        _packageRepository = packageRepository;
+    }
+    public async Task Handle(PackageEnableCommand command, CancellationToken ct = default)
     {
         try
         {
-            await packageRepository.EnableAsync(new(command.Id), ct);
+            await _packageRepository.EnableAsync(new(command.Id), ct);
 
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

@@ -1,5 +1,7 @@
-﻿namespace LunaticPanel.PackageManager.Application.Mediator.Commands;
+﻿using MedihatR;
 
-public sealed record PackageRemoveCommand(string Id)
+namespace LunaticPanel.PackageManager.Application.Mediator.Commands;
+
+public sealed record PackageRemoveCommand(string Id) : IRequest
 {
 }
