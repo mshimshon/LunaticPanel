@@ -16,12 +16,12 @@ public interface IPackageService
         Infrastructure will convert from External DTOs to Entities where required.
      */
 
-    ICollection<PackageInfoPayload> SearchAsync(string q, CancellationToken ct = default);
+    Task<ICollection<PackagePayload>> SearchAsync(string q, CancellationToken ct = default);
 
     /// <summary>
     /// Get all the available rollback on disk.
     /// </summary>
-    ICollection<PackageInfoPayload> GetAvailableRollbackAsync(CancellationToken ct = default);
+    Task<ICollection<PackagePayload>> GetAvailableRollbackAsync(CancellationToken ct = default);
 
     // TODO: THIS GOES INTO REPOSITORY
     //Task InstallAsync(PackageId id, PackageVersion version, RepositorySourceInfo sourceInfo, CancellationToken ct = default);

@@ -23,5 +23,8 @@ public static class RegisterServicesExt
         services.AddMedihaterHandler<PackageDisableHandler>();
         services.AddMedihaterHandler<SearchPackagesHandler>();
         services.AddMedihaterHandler<SearchRepositoryHandler>();
+        services.AddMedihaterHandler<GetAllPackagesHandler>();
+        services.AddMedihaterHandler<GetPackagesLatestVersionHandler>();
+        services.AddMedihaterHandler<GetPackageVersionsHandler>();
     }
 }
