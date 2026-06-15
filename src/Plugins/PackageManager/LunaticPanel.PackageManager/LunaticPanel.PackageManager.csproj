@@ -19,10 +19,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
 	  <ProjectReference Include="..\..\..\LunaticPanel.Core.Extensions\LunaticPanel.Core.Extensions.csproj" />
 	  <ProjectReference Include="..\..\..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+	  <ProjectReference Include="..\..\..\LunaticPanel.Engine.Keys\LunaticPanel.Engine.Keys.csproj" />
 	  <ProjectReference Include="..\LunaticPanel.PackageManager.Infrastructure\LunaticPanel.PackageManager.Infrastructure.csproj" />
 	  <ProjectReference Include="..\LunaticPanel.PackageManager.Keys\LunaticPanel.PackageManager.Keys.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Components\ViewModels\" />
+	  <Folder Include="Hooks\Events\Scheduled\" />
+	  <Folder Include="Hooks\Payloads\" />
+	  <Folder Include="Hooks\Queries\" />
 	</ItemGroup>
 
 	<Target Name="RemoveHostOwnedAssembliesAfterBuild" AfterTargets="Build" Condition="'$(IsPublish)' != 'true'">

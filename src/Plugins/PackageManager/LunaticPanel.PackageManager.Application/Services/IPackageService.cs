@@ -23,6 +23,7 @@ public interface IPackageService
     /// Get all the available rollback on disk.
     /// </summary>
     Task<ICollection<PackagePayload>> GetAvailableRollbackAsync(CancellationToken ct = default);
+    Task CreateRollbackAsync(PackagePayload data, CancellationToken ct = default);
 
     // TODO: THIS GOES INTO REPOSITORY
     //Task InstallAsync(PackageId id, PackageVersion version, RepositorySourceInfo sourceInfo, CancellationToken ct = default);

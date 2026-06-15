@@ -4,10 +4,10 @@ namespace LunaticPanel.PackageManager.Domain.Entites;
 
 public sealed record PackageEntity
 {
-    public PackageInfo Info { get; }
+    public PackageInfo Info { get; init; }
     public RepositorySourceInfo Source { get; init; } = default!;
-    public PackageVersion Version { get; }
-    public PackageFailure? Failure { get; }
+    public PackageVersion Version { get; init; }
+    public PackageFailure? Failure { get; init; }
     public IReadOnlyList<PackageDependency> Dependencies { get; }
 
     public PackageEntity(PackageInfo info, RepositorySourceInfo source,

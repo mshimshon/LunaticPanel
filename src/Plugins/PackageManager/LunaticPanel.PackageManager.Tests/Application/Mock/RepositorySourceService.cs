@@ -8,9 +8,9 @@ namespace LunaticPanel.PackageManager.Tests.Application.Mock;
 internal class RepositorySourceService : IRepositorySourceService
 {
     public static List<string> Downloaded { get; set; } = new();
-    public Task DownloadAsync(string id, string version, RepositorySourcePayload source, CancellationToken ct = default)
+    public Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        string filename = $"{id}.v{version}.nupkg";
+        string filename = $"{data.Info.PackageId}.v{data.Version}.nupkg";
         if (!Downloaded.Contains(filename))
             Downloaded.Add(filename);
         return Task.CompletedTask;

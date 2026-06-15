@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
+using LunaticPanel.PackageManager.Domain.Entites.Enums;
 using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels;
 
@@ -17,7 +18,7 @@ public class SearchMappingTests
     };
 
     public static PackageInfo PackageMock { get; } =
-        new PackageInfo(new("TEST.ID"), new("TEST PACKAGE"), new("DESC"), Domain.Entites.Enums.PackageState.Enabled);
+        new PackageInfo(new("TEST.ID"), new("TEST PACKAGE"), new("DESC"), PackageState.Enabled);
 
     // -----------------------------
     // TEST: SearchResponse -> QueryModelResult

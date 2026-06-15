@@ -2,10 +2,10 @@
 
 public sealed record PackageDependency
 {
-    public PackageName Name { get; }
+    public PackageName Name { get; init; }
 
-    public PackageId Id { get; }
-    public PackageVersion Version { get; }
+    public PackageId Id { get; init; }
+    public PackageVersion Version { get; init; }
     public PackageDependency(PackageName name, PackageId id, PackageVersion version)
     {
         Name = name;

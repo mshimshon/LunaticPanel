@@ -2,7 +2,6 @@
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entites;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using MedihatR;
 
@@ -24,11 +23,10 @@ internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
     {
         try
         {
-            PackageId id = new(command.Id);
-            PackageVersion version = new(command.Version);
+            PackageEntity package = command.Data.ToDomainEntity();
             RepositorySourceEntity sourceEntity = command.Source.ToDomainEntity();
-            await _repositorySourceService.DownloadAsync(command.Id, command.Version, command.Source, ct);
-            await _packageRepository.InstallAsync(id, version, ct);
+            await _repositorySourceService.DownloadAsync(command.Data, command.Source, ct);
+            await _packageRepository.InstallAsync(package, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
         catch (Exception)
