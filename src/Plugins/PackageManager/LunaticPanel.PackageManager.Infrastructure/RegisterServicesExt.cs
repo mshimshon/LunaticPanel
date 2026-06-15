@@ -12,6 +12,7 @@ public static class RegisterServicesExt
         services.AddStatePulseServices(p =>
         {
             p.PulseTrackingPerformance = StatePulse.Net.Configuration.PulseTrackingModel.BlazorServerSafe;
+
         });
         services.AddMedihaterServices();
 

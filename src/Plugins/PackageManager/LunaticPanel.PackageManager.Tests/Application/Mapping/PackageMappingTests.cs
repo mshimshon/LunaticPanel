@@ -17,7 +17,7 @@ public class PackageMappingTests
         string repoSource, RepositorySourceTypePayload payloadType, string version,
         string depId, string depName, string depVersion, RepositorySourceType domainSourceType)
     {
-        var info = new PackageInfo(new(packageId), new(name), new(description))
+        var info = new PackageInfo(new(packageId), new(name), new(description), PackageState.Unknown)
         {
             AutoUpdateScore = new(score),
             Rating = new(rating)
@@ -50,7 +50,7 @@ public class PackageMappingTests
     [InlineData("Core.Framework", "Another Name", "Another Desc", 10)]
     public void PackageInfo_ToApplicationPayload_ShouldHandleNullRating(string id, string name, string description, int score)
     {
-        var info = new PackageInfo(new(id), new(name), new(description))
+        var info = new PackageInfo(new(id), new(name), new(description), PackageState.Unknown)
         {
             AutoUpdateScore = new(score),
             Rating = null

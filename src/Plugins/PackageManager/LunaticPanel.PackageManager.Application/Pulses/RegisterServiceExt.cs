@@ -28,5 +28,6 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<SearchRemotePackageDoneReducer>();
         services.AddStatePulseService<SearchRemotePackageReducer>();
 
+
     }
 }
