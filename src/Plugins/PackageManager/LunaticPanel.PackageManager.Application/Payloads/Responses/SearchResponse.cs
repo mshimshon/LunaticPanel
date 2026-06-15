@@ -2,7 +2,7 @@
 
 public sealed record SearchResponse<T>
 {
-    public List<T> Result { get; set; } = new();
+    public IEnumerable<T> Result { get; set; } = new List<T>();
     public int Total { get; set; }
     public int Position { get; set; }
 }
