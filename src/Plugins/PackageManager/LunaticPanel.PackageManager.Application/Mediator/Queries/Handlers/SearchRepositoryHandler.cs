@@ -19,9 +19,8 @@ internal class SearchRepositoryHandler : IRequestHandler<SearchRepositoryQuery, 
         try
         {
             //TODO: ADD FLUENT VALIDATION FOR KEYWORDS
-            string keywords = data.Keywords;
             var response =
-                await _repositorySource.SearchAsync(keywords, data.Sources.AsReadOnly(), ct);
+                await _repositorySource.SearchAsync(data.Search, data.Sources.AsReadOnly(), ct);
             return response;
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

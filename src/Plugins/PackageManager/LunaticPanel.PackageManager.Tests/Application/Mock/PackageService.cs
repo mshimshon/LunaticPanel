@@ -1,7 +1,8 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Payloads.Requests;
 using LunaticPanel.PackageManager.Application.Services;
 
-namespace LunaticPanel.Core.Tests.ApplicationMock;
+namespace LunaticPanel.PackageManager.Tests.Application.Mock;
 
 internal class PackageService : IPackageService
 {
@@ -34,7 +35,7 @@ internal class PackageService : IPackageService
         return Task.FromResult(result);
     }
 
-    public Task<ICollection<PackagePayload>> SearchAsync(string q, CancellationToken ct = default)
+    public Task<ICollection<PackagePayload>> SearchAsync(SearchRequest data, CancellationToken ct = default)
     {
         ICollection<PackagePayload> result = _cache.ToList();
         return Task.FromResult(result);

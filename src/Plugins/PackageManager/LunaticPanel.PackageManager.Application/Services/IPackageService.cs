@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Payloads.Requests;
 
 namespace LunaticPanel.PackageManager.Application.Services;
 
@@ -16,7 +17,7 @@ public interface IPackageService
         Infrastructure will convert from External DTOs to Entities where required.
      */
 
-    Task<ICollection<PackagePayload>> SearchAsync(string q, CancellationToken ct = default);
+    Task<ICollection<PackagePayload>> SearchAsync(SearchRequest data, CancellationToken ct = default);
 
     /// <summary>
     /// Get all the available rollback on disk.

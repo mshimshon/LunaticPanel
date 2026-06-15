@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
     <ProjectReference Include="..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />
-    <ProjectReference Include="..\..\src\Plugins\PackageManager\LunaticPanel.PackageManager.Application\LunaticPanel.PackageManager.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

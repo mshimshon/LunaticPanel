@@ -18,7 +18,7 @@ internal class SearchRemotePackageEffect : IEffect<SearchRemotePackageAction>
     {
         var data = new SearchRepositoryQuery()
         {
-            Keywords = action.Keywords, // TODO: VALIDATE
+            Search = new() { Keywords = action.Keywords },
             Sources = action.Sources
         };
         var packages = await _medihater.Send(data, dispatcher.CancelToken);

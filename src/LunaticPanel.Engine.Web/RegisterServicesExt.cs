@@ -59,10 +59,10 @@ public static class RegisterServicesExt
         });
         services.AddMedihaterServices(o =>
         {
-            o.AssembliesScan = [
-                typeof(RegisterServicesExt),
-                typeof(Application.RegisterServicesExt),
-                typeof(Infrastructure.RegisterServicesExt),
+            o.ScanAssemblies = [
+                typeof(RegisterServicesExt).Assembly,
+                typeof(Application.RegisterServicesExt).Assembly,
+                typeof(Infrastructure.RegisterServicesExt).Assembly,
              ];
         });
 
