@@ -1,2 +1,30 @@
 @using LunaticPanel.PackageManager.Components.ViewModels
+
 @inherits WidgetComponentBase<PluginEntry, IPackageInstalledViewModel>
+<MudGrid>
+    @if (!ViewModel.PackageManagerState.IsPackageInitialized)
+    {
+        <MudItem xs=12>
+            <MudAlert Severity=Severity.Error>
+                @NOT_INIT_ERROR
+            </MudAlert>
+        </MudItem>
+    }
+    else if (ViewModel.PackageManagerState.IsPackageLoading || ViewModel.InstalledPackageCount <= 0)
+    {
+        <MudItem xs=12>
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        </MudItem>
+    }
+    else
+    {
+        @foreach (var package in ViewModel.PackageManagerState.InstalledPackages)
+        {
+            <MudItem xs=4>
+ 
+            </MudItem>
+        }
+
+    }
+
+</MudGrid>
