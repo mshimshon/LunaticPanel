@@ -9,7 +9,7 @@ internal class LoadLocalPackagesDoneReducer : IReducer<PackageManagerState, Load
     public PackageManagerState Reduce(PackageManagerState state, LoadLocalPackagesDoneAction action)
         => state with
         {
-            IsInstalledPackageLoading = false,
+            IsPackageLoading = false,
             InstalledPackages = action.Packages
         };
 }

@@ -9,7 +9,7 @@ public interface IPackageRepository
     Task<IQueryModelResult<PackageInfo>> QueryAsync(IPackageQueryModel queryModel, CancellationToken ct = default);
     Task<PackageEntity> GetByIdAsync(PackageId id, CancellationToken ct = default);
     Task InstallAsync(PackageEntity package, CancellationToken ct = default);
-    Task UpdateAsync(PackageEntity current, PackageEntity target, CancellationToken ct = default);
+    Task UpdateAsync(PackageEntity target, CancellationToken ct = default);
     Task DeleteAsync(PackageId id, CancellationToken ct = default);
     Task EnableAsync(PackageId id, CancellationToken ct = default);
     Task DisableAsync(PackageId id, CancellationToken ct = default);

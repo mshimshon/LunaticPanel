@@ -3,7 +3,7 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Actions;
 
-public sealed record LoadLocalPackagesDoneAction : IAction
+public sealed record LoadPackageRollbackDoneAction : IAction
 {
-    public IEnumerable<PackagePayload> Packages { get; set; } = default!;
+    public IEnumerable<PackagePayload>? UpdateRollback { get; set; }
 }

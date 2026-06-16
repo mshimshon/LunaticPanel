@@ -3,7 +3,7 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Actions;
 
-public sealed record LoadLocalPackagesDoneAction : IAction
+public sealed record InstallNextUpdateDoneAction : IAction
 {
-    public IEnumerable<PackagePayload> Packages { get; set; } = default!;
+    public PackagePayload? ToRemove { get; set; }
 }

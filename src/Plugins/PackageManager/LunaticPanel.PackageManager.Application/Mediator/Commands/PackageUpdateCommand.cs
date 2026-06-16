@@ -3,7 +3,7 @@ using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands;
 
-public sealed record PackageUpdateCommand(string Id, string FromVersion, string ToVersion, RepositorySourcePayload Source)
+public sealed record PackageUpdateCommand(PackagePayload Package)
     : IRequest
 {
 }

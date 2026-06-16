@@ -46,6 +46,15 @@ public static class EventScheduleExt
         };
     }
 
+    public static EventScheduledBusMessageData NextTiming(this EventScheduledBusMessageData eventScheduledBusMessageData, int hours)
+        => eventScheduledBusMessageData.NextTiming(new TimeSpan(hours, 0, 0));
+
+    public static EventScheduledBusMessageData NextTiming(this EventScheduledBusMessageData eventScheduledBusMessageData, int hours, int minutes)
+        => eventScheduledBusMessageData.NextTiming(new TimeSpan(hours, minutes, 0));
+
+    public static EventScheduledBusMessageData NextTiming(this EventScheduledBusMessageData eventScheduledBusMessageData, int hours, int minutes, int seconds)
+        => eventScheduledBusMessageData.NextTiming(new TimeSpan(hours, minutes, seconds));
+
     /// <summary>
     /// This will reschedule the event for another run regardless if it was run only once or not.
     /// </summary>

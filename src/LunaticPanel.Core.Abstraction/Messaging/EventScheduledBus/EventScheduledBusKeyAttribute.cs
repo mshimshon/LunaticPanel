@@ -14,8 +14,18 @@ namespace LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public sealed class EventScheduledBusKeyAttribute : BusKeyAttribute
 {
+    /// <summary>
+    /// The task will not reschedule after it has ran.
+    /// </summary>
     public bool RunOnlyOnce { get; set; }
+
+    /// <summary>
+    /// if false you will have to manually add the task to the scheduler. (Default: True)
+    /// </summary>
     public bool ScheduleAtStartup { get; set; } = true;
+    /// <summary>
+    /// when true, the task will be executed when registered, it will not execute at startup if ScheduleAtStartup=false (Default: false)
+    /// </summary>
     public bool RunAtStartup { get; set; }
     public int Weeks { get; set; }
 

@@ -28,7 +28,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Hooks\Events\Scheduled\" />
 	  <Folder Include="Hooks\Payloads\" />
 	  <Folder Include="Hooks\Queries\" />
 	</ItemGroup>

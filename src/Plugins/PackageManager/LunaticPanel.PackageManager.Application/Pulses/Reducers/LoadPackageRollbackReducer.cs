@@ -4,11 +4,11 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Reducers;
 
-internal class LoadLocalPackagesReducer : IReducer<PackageManagerState, LoadLocalPackagesAction>
+internal class LoadPackageRollbackReducer : IReducer<PackageManagerState, LoadPackageRollbackAction>
 {
-    public PackageManagerState Reduce(PackageManagerState state, LoadLocalPackagesAction action)
+    public PackageManagerState Reduce(PackageManagerState state, LoadPackageRollbackAction action)
         => state with
         {
-            IsPackageLoading = true
+            IsRollingBackLoading = true
         };
 }

@@ -15,6 +15,18 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<SearchPackageState>();
         services.AddStatePulseService<RepositorySourceState>();
         services.AddStatePulseService<PackageManagerState>();
+        services.AddStatePulseService<PackageUpdateScheduleState>();
+        services.AddStatePulseService<LoadPackageRollbackAction>();
+        services.AddStatePulseService<LoadPackageRollbackDoneAction>();
+        services.AddStatePulseService<LoadPackageRollbackEffect>();
+        services.AddStatePulseService<LoadPackageRollbackReducer>();
+        services.AddStatePulseService<LoadPackageRollbackDoneReducer>();
+
+        services.AddStatePulseService<InstallNextUpdateAction>();
+        services.AddStatePulseService<InstallNextUpdateDoneAction>();
+        services.AddStatePulseService<InstallNextUpdateEffect>();
+        services.AddStatePulseService<InstallNextUpdateReducer>();
+        services.AddStatePulseService<InstallNextUpdateDoneReducer>();
 
         services.AddStatePulseService<LoadLocalPackagesDoneReducer>();
         services.AddStatePulseService<LoadLocalPackagesReducer>();
@@ -27,6 +39,7 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<SearchRemotePackageEffect>();
         services.AddStatePulseService<SearchRemotePackageDoneReducer>();
         services.AddStatePulseService<SearchRemotePackageReducer>();
+
 
 
     }
