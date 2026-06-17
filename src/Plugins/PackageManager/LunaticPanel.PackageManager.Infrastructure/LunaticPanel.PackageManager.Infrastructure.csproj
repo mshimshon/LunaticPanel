@@ -14,4 +14,8 @@
     <ProjectReference Include="..\LunaticPanel.PackageManager.Application\LunaticPanel.PackageManager.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

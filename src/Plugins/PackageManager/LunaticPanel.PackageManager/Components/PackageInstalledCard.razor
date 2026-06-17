@@ -4,58 +4,54 @@
 
 <MudCard>
     <MudCardContent>
-        <MudText>@ViewModel.DataModel.Package.Info.Name</MudText>
-        <MudText Typo="Typo.subtitle1">@ViewModel.DataModel.Package.Info.PackageId</MudText>
-        <MudText Typo="Typo.body2">@ViewModel.DataModel.Package.Info.Description</MudText>
-        <MudChip T="string" Color="Color.Primary">@($"v{ViewModel.DataModel.Package.Version}")</MudChip>
-        @if (ViewModel.DataModel.Package.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
+        <MudText>@ViewModel..Data.Info.Name</MudText>
+        <MudText Typo="Typo.subtitle1">@ViewModel..Data.Info.PackageId</MudText>
+        <MudText Typo="Typo.body2">@ViewModel..Data.Info.Description</MudText>
+        <MudChip T="string" Color="Color.Primary">@($"v{ViewModel.Data.Version}")</MudChip>
+        @if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
         {
             <MudChip T="string" Color="Color.Default">@(PACKAGE_ENABLED)</MudChip>
         }
-        else if (ViewModel.DataModel.Package.Info.State == Application.Payloads.Enums.PackageStatePayload.Disabled)
+        else if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Disabled)
         {
             <MudChip T="string" Color="Color.Primary">@(PACKAGE_DISABLED)</MudChip>
         }
     </MudCardContent>
     <MudCardActions>
-        @if (ViewModel.CanScheduleUpdate && !ViewModel.CanCancelScheduledRollback)
+        @if (ViewModel.HasUpdateScheduled)
         {
+            <MudAlert Severity=Severity.Info>
+                @string.Format(PACKAGE_UPDATE_SCHEDULED, ViewModel.ScheduledUpdate!.Version)
+            </MudAlert>
             <MudButton Variant="Variant.Text" Color="Color.Warning" Disabled>
                 @PACKAGE_UPDATE_ROLLBACK_CONFLICT
             </MudButton>
         }
-        else if (ViewModel.CanScheduleUpdate)
+        
+        @if (!ViewModel.HasUpdateScheduled && ViewModel.CanScheduleUpdate)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
-                @string.Format(PACKAGE_UPDATE, ViewModel.DataModel.Update!.Version)
+                @string.Format(PACKAGE_UPDATE, ViewModel.AvailableUpdate!.Version)
             </MudButton>
         }
-        else if (ViewModel.CanCancelScheduledUpdate)
+        else if (!ViewModel.HasUpdateScheduled && ViewModel.CanCancelScheduledUpdate)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
-                @string.Format(PACKAGE_UPDATE_CANCEL, ViewModel.DataModel.Update!.Version)
+                @string.Format(PACKAGE_UPDATE_CANCEL, ViewModel.AvailableUpdate!.Version)
             </MudButton>
         }
 
-        @if (ViewModel.CanScheduleRollback && ViewModel.CanCancelScheduledUpdate)
-        {
-            <MudButton Variant="Variant.Text" Color="Color.Warning" Disabled>
-                @PACKAGE_ROLLBACK_UPDATE_CONFLICT
-            </MudButton>
-        }
-        else if (ViewModel.CanScheduleRollback)
+        @if (!ViewModel.HasUpdateScheduled && ViewModel.CanScheduleRollback)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
-                @string.Format(PACKAGE_ROLLBACK, ViewModel.DataModel.Rollback!.Version)
+                @string.Format(PACKAGE_ROLLBACK, ViewModel.AvailableRollback!.Version)
             </MudButton>
         }
-        else if (ViewModel.CanCancelScheduledRollback)
+        else if (!ViewModel.HasUpdateScheduled && ViewModel.CanCancelScheduledRollback)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
-                @string.Format(PACKAGE_ROLLBACK_CANCEL, ViewModel.DataModel.Rollback!.Version)
+                @string.Format(PACKAGE_ROLLBACK_CANCEL, ViewModel.AvailableRollback!.Version)
             </MudButton>
         }
-
-        <MudButton Variant="Variant.Text" Color="Color.Primary">Learn more</MudButton>
     </MudCardActions>
 </MudCard>
