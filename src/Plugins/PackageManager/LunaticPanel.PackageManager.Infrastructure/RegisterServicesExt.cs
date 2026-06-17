@@ -1,4 +1,6 @@
-﻿using LunaticPanel.PackageManager.Application;
+﻿using LunaticPanel.Core.Utils;
+using LunaticPanel.PackageManager.Application;
+using LunaticPanel.PackageManager.Keys;
 using MedihatR;
 using Microsoft.Extensions.DependencyInjection;
 using StatePulse.Net;
@@ -15,7 +17,7 @@ public static class RegisterServicesExt
 
         });
         services.AddMedihaterServices();
-
+        services.AddLunaticPanelUtilityServices(PackageManagerKeys.AssemblyName);
         services.AddApplicationServices();
     }
 }
