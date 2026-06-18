@@ -15,7 +15,7 @@ internal class PackageService : IPackageService
             PackageId = "Package.Test",
             State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Disabled,
         },
-            RepositorySource = "local://myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
+            RepositorySource = "/myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
             Version = "0.0.1"
         },
         new PackagePayload(){ Info = new()
@@ -25,7 +25,7 @@ internal class PackageService : IPackageService
             PackageId = "Package.Test.Two",
             State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Disabled,
         },
-            RepositorySource = "local://myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
+            RepositorySource = "/myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
             Version = "0.2.1"
         }
     };

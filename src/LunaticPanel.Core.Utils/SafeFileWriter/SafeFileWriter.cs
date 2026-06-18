@@ -19,12 +19,18 @@ internal sealed class SafeFileWriter : ISafeFileWriter
     public Task WriteThenCopyFileAsync(string file, byte[] content, CancellationToken ct = default, string? chown = default, string? chmod = default)
         => WriteFileAsync(file, (tmpFile) => File.WriteAllBytesAsync(tmpFile, content, ct), ct, chown, chmod);
 
+    public Task WriteThenCopyFileAsync(string file, Func<string, string> updateContent, CancellationToken ct = default, string? chown = default, string? chmod = default)
+    => WriteFileAsync(file, (tmpFile) => File.WriteAllTextAsync(tmpFile, updateContent(File.ReadAllText(file)), ct), ct, chown, chmod);
+    public Task WriteThenCopyFileAsync(string file, Func<string, IEnumerable<string>> updateContent, CancellationToken ct = default, string? chown = default, string? chmod = default)
+        => WriteFileAsync(file, (tmpFile) => File.WriteAllLinesAsync(tmpFile, updateContent(File.ReadAllText(file)), ct), ct, chown, chmod);
+    public Task WriteThenCopyFileAsync(string file, Func<string, byte[]> updateContent, CancellationToken ct = default, string? chown = default, string? chmod = default)
+        => WriteFileAsync(file, (tmpFile) => File.WriteAllBytesAsync(tmpFile, updateContent(File.ReadAllText(file)), ct), ct, chown, chmod);
 
     private async Task<string?> GetPermissionForFileAsync(string file, CancellationToken ct = default)
     {
         var currentPermission = await _linuxCommand.BuildCommand($"stat -c \"%a\" \"{file}\"")
-.PatchInStdOutAsPayload()
-.ExecPayloadOrDefaultAsync<string>(string.Empty, ct);
+            .PatchInStdOutAsPayload()
+            .ExecPayloadOrDefaultAsync<string>(string.Empty, ct);
         return currentPermission;
     }
 
@@ -44,13 +50,38 @@ internal sealed class SafeFileWriter : ISafeFileWriter
         .AndCommand($"chmod {chmod} \"{file}\"")
         .ExecAsync(ct);
     }
+    private async Task<FileStream> WaitForLockAsync(string file, CancellationToken ct = default)
+    {
+        int cycleTimeout = 0;
+        while (true)
+        {
+            if (cycleTimeout >= 200)
+            {
+                // TODO: Throw
+            }
+            cycleTimeout++;
+
+            try
+            {
+                return File.Open($"{file}.lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                // lock is held by someone else
+                await Task.Delay(50, ct);
+            }
+        }
+    }
     private async Task WriteFileAsync(string file, Func<string, Task> onWrite, CancellationToken ct = default, string? chown = default, string? chmod = default)
     {
 
         // Wait for the gate to open
         await _fileLock.WaitAsync(ct);
+        FileStream? fileStream = default;
         try
         {
+            fileStream = await WaitForLockAsync(file, ct);
+
             if (File.Exists(file))
             {
                 if (chmod == default)
@@ -71,6 +102,11 @@ internal sealed class SafeFileWriter : ISafeFileWriter
         {
             // Always release in a finally block so the next person in queue can enter
             _fileLock.Release();
+            bool hadTheLock = fileStream != default;
+            fileStream?.Close();
+            if (hadTheLock && File.Exists($"{file}.lock"))
+                try { File.Delete($"{file}.lock"); } catch { }
+
         }
     }
 

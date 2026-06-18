@@ -8,16 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="NuGet.Packaging" />
+    <PackageReference Include="NuGet.Protocol" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
     <ProjectReference Include="..\LunaticPanel.PackageManager.Application\LunaticPanel.PackageManager.Application.csproj" />
     <ProjectReference Include="..\LunaticPanel.PackageManager.Keys\LunaticPanel.PackageManager.Keys.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

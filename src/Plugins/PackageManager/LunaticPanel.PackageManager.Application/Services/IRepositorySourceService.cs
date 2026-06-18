@@ -10,4 +10,5 @@ public interface IRepositorySourceService
     Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default);
     Task<IEnumerable<string>> GetVersionsAsync(string packageId, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default);
     Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default);
+
 }

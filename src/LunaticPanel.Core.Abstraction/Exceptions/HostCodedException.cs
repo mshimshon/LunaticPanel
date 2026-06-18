@@ -1,4 +1,4 @@
-﻿namespace LunaticPanel.Core.Abstraction.Widgets.Exceptions;
+﻿namespace LunaticPanel.Core.Abstraction.Exceptions;
 
 public class HostCodedException : Exception
 {

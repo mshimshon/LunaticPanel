@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets.Exceptions;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using Microsoft.AspNetCore.Components;

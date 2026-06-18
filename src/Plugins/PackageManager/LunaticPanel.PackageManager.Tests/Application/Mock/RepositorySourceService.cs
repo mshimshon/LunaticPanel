@@ -10,7 +10,7 @@ internal class RepositorySourceService : IRepositorySourceService
     public static List<string> Downloaded { get; set; } = new();
     public Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        string filename = $"{data.Info.PackageId}.v{data.Version}.nupkg";
+        string filename = $"{data.Info.PackageId}.{data.Version}.nupkg";
         if (!Downloaded.Contains(filename))
             Downloaded.Add(filename);
         return Task.CompletedTask;
@@ -26,7 +26,7 @@ internal class RepositorySourceService : IRepositorySourceService
             PackageId = "Package.Test",
             State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Unknown,
         },
-            RepositorySource = "local://myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
+            RepositorySource = "/myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
             Version = "0.1.1"
         },
         new PackagePayload(){ Info = new()
@@ -36,7 +36,7 @@ internal class RepositorySourceService : IRepositorySourceService
             PackageId = "Package.Test.Two",
             State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Unknown,
         },
-            RepositorySource = "local://myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
+            RepositorySource = "/myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
             Version = "0.2.1"
         }
     };
