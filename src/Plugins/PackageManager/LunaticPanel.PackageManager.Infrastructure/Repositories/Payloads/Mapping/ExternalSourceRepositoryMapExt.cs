@@ -28,4 +28,29 @@ internal static class ExternalSourceRepositoryMapExt
         ExternalSourceRepositoryStatePayload.Disabled => RepositorySourceStatePayload.Disabled,
         _ => RepositorySourceStatePayload.Unknown
     };
+
+
+
+    public static ExternalSourceRepositoryPayload ToInfrastructurePayload(this RepositorySourcePayload data)
+    => new()
+    {
+        Name = data.Name,
+        Source = data.Source,
+        SourceType = data.SourceType.ToInfrastructurePayload(),
+        State = data.State.ToInfrastructurePayload()
+    };
+    public static ExternalSourceRepositoryTypePayload ToInfrastructurePayload(this RepositorySourceTypePayload data)
+        => data switch
+        {
+            RepositorySourceTypePayload.Remote => ExternalSourceRepositoryTypePayload.Remote,
+            _ => ExternalSourceRepositoryTypePayload.Local
+        };
+
+    public static ExternalSourceRepositoryStatePayload ToInfrastructurePayload(this RepositorySourceStatePayload data)
+    => data switch
+    {
+        RepositorySourceStatePayload.Enabled => ExternalSourceRepositoryStatePayload.Enabled,
+        RepositorySourceStatePayload.Disabled => ExternalSourceRepositoryStatePayload.Disabled,
+        _ => ExternalSourceRepositoryStatePayload.Unknown
+    };
 }

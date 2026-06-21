@@ -3,6 +3,7 @@ using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads;
+using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging;
@@ -26,12 +27,20 @@ internal class ExternalSourceService : IExternalSourceService
         PropertyNameCaseInsensitive = true,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
+    public ExternalSourceService(ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter)
+    {
+        _crazyReport = crazyReport;
+        _safeFileWriter = safeFileWriter;
+        _crazyReport.SetModule("PackageManager");
+        if (!Directory.Exists(SOURCE_CACHE_FILE_FMT))
+            Directory.CreateDirectory(SOURCE_CACHE_FILE_FMT);
+    }
 
     public async Task FindAndDownloadToCache(string id, string version, CancellationToken ct = default)
     {
         var source = await GetPackageSourceForAsync(id, version, ct);
         if (source == default)
-            Console.WriteLine(); // TODO: THROW
+            throw new PackageNotFoundException(id, version);
         await DownloadToCache(id, version, source, ct);
     }
 
@@ -46,47 +55,46 @@ internal class ExternalSourceService : IExternalSourceService
         await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(source, _jsonSerializer), ct);
 
     }
-    private async Task DownloadFromNugetAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    public async Task<PackagePayload?> GetPackageInfoForAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
-        var providers = Repository.Provider.GetCoreV3();
-        var repo = new SourceRepository(new PackageSource(source.Source), providers);
-
-        // Get the resource that can download packages
-        var findResource = await repo.GetResourceAsync<FindPackageByIdResource>(ct);
-
-        var nugetVersion = NuGetVersion.Parse(version);
-        if (!Directory.Exists(SOURCE_NUGET_CACHE))
-            Directory.CreateDirectory(SOURCE_NUGET_CACHE);
-
-        string outputPath = Path.Combine(SOURCE_NUGET_CACHE, $"{id}.{version}.nupkg");
-
-        using var cache = new SourceCacheContext();
-        using var packageStream = File.Create(outputPath);
-
-        bool success = await findResource.CopyNupkgToStreamAsync(id, nugetVersion, packageStream, cache, NullLogger.Instance, ct);
-
-        if (!success)
-            throw new Exception($"Failed to download {id} {version}");
+        if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
+            return await GetPackageInfoForFromNugetAsync(id, version, source, ct);
+        else
+            return await GetPackageInfoForFromLocalAsync(id, version, source, ct);
     }
-    private async Task CopyFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    public async Task<Version[]> FindAllVersionsForAsync(string id, CancellationToken ct = default)
     {
-        if (!Directory.Exists(SOURCE_NUGET_CACHE))
-            Directory.CreateDirectory(SOURCE_NUGET_CACHE);
+        string sourceJson = File.ReadAllText(SOURCE_FILE);
+        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
+        if (configSources == default)
+            throw new SourceCorruptedException();
+        if (configSources.Count <= 0)
+            throw new SourceEmptyException();
+        List<Version> result = new();
+        foreach (var item in configSources)
+        {
+            if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
+                continue;
 
-        string outputPath = Path.Combine(SOURCE_NUGET_CACHE, $"{id}.{version}.nupkg");
-        if (File.Exists(outputPath)) return;
-        string inputPath = Path.Combine(source.Source, $"{id}.{version}.nupkg");
-        File.Copy(inputPath, outputPath, true);
+            var versions = await GetVersionsForAsync(id, item, ct);
+            foreach (var version in versions)
+            {
+                if (result.Contains(version)) continue;
+                result.Add(version);
+            }
+        }
+        return result.ToArray();
     }
 
-    public ExternalSourceService(ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter)
+
+    public async Task<Version[]> GetVersionsForAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
-        _crazyReport = crazyReport;
-        _safeFileWriter = safeFileWriter;
-        _crazyReport.SetModule("PackageManager");
-        if (!Directory.Exists(SOURCE_CACHE_FILE_FMT))
-            Directory.CreateDirectory(SOURCE_CACHE_FILE_FMT);
+        if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
+            return await GetVersionsForFromNugetAsync(id, source, ct);
+        else
+            return await GetVersionsForFromLocalAsync(id, source, ct);
     }
+
 
     public Task ClearSourceCacheForAsync(string id, string packageVersion, CancellationToken ct = default)
     {
@@ -139,6 +147,104 @@ internal class ExternalSourceService : IExternalSourceService
         return default;
     }
 
+
+    private async Task<PackagePayload?> GetLocalLatestVersionFromAsync(string packageId, ExternalSourceRepositoryPayload source, CancellationToken ct)
+    {
+        var versions = await GetPackageInfoFromLocalAsync(packageId, source);
+        if (versions == null || !versions.Any())
+            return default;
+        var lastVersion = versions.Max(p => new Version(p.Version))!;
+        return versions.FirstOrDefault(p => new Version(p.Version) == lastVersion);
+    }
+
+    public async Task<PackagePayload?> FindMostRecentPackage(string id, CancellationToken ct = default)
+    {
+        string sourceJson = File.ReadAllText(SOURCE_FILE);
+        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
+        if (configSources == default)
+            throw new SourceCorruptedException();
+        if (configSources.Count <= 0)
+            throw new SourceEmptyException();
+        PackagePayload? result = default;
+        foreach (var item in configSources)
+        {
+            if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
+                continue;
+
+            PackagePayload? package = default;
+            if (item.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
+                package = await GetNuGetLatestVersionFromAsync(id, item, ct);
+            else
+                package = await GetLocalLatestVersionFromAsync(id, item, ct);
+
+            if (package == default) continue;
+            if (result != default)
+            {
+                var currentV = new Version(result.Version);
+                var nextV = new Version(package.Version);
+                if (currentV > nextV)
+                    continue;
+            }
+
+            result = package;
+        }
+        return result;
+    }
+
+
+    private async Task<PackagePayload?> GetNuGetLatestVersionFromAsync(string packageId, ExternalSourceRepositoryPayload source, CancellationToken ct)
+    {
+
+        var providers = Repository.Provider.GetCoreV3();
+        var repo = new SourceRepository(new PackageSource(source.Source), providers);
+
+        var resource = await repo.GetResourceAsync<FindPackageByIdResource>(ct);
+
+        using var cache = new SourceCacheContext();
+
+        // Get all versions
+        var versions = await resource.GetAllVersionsAsync(packageId, cache, NullLogger.Instance, ct);
+
+        if (versions == null || !versions.Any())
+            return default;
+        var lastVersion = versions.Max()!;
+        var package = await GetPackageInfoForFromNugetAsync(packageId, $"{lastVersion.Major}.{lastVersion.Minor}.{lastVersion.Patch}", source, ct);
+        // NuGetVersion implements proper SemVer sorting
+        return package;
+    }
+    private async Task DownloadFromNugetAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    {
+        var providers = Repository.Provider.GetCoreV3();
+        var repo = new SourceRepository(new PackageSource(source.Source), providers);
+
+        // Get the resource that can download packages
+        var findResource = await repo.GetResourceAsync<FindPackageByIdResource>(ct);
+
+        var nugetVersion = NuGetVersion.Parse(version);
+        if (!Directory.Exists(SOURCE_NUGET_CACHE))
+            Directory.CreateDirectory(SOURCE_NUGET_CACHE);
+
+        string outputPath = Path.Combine(SOURCE_NUGET_CACHE, $"{id}.{version}.nupkg");
+
+        using var cache = new SourceCacheContext();
+        using var packageStream = File.Create(outputPath);
+
+        bool success = await findResource.CopyNupkgToStreamAsync(id, nugetVersion, packageStream, cache, NullLogger.Instance, ct);
+
+        if (!success)
+            throw new Exception($"Failed to download {id} {version}");
+    }
+    private async Task CopyFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    {
+        if (!Directory.Exists(SOURCE_NUGET_CACHE))
+            Directory.CreateDirectory(SOURCE_NUGET_CACHE);
+
+        string outputPath = Path.Combine(SOURCE_NUGET_CACHE, $"{id}.{version}.nupkg");
+        if (File.Exists(outputPath)) return;
+        string inputPath = Path.Combine(source.Source, $"{id}.{version}.nupkg");
+        File.Copy(inputPath, outputPath, true);
+    }
+
     private PackagePayload GetPackageInformation(string file)
     {
         using var reader = new PackageArchiveReader(file);
@@ -169,22 +275,6 @@ internal class ExternalSourceService : IExternalSourceService
             }
         };
     }
-
-    public async Task<PackagePayload?> GetPackageInfoForAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
-    {
-        if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            return await GetPackageInfoForFromNugetAsync(id, version, source, ct);
-        else
-            return await GetPackageInfoForFromLocalAsync(id, version, source, ct);
-    }
-    public async Task<Version[]> GetVersionsForAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
-    {
-        if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            return await GetVersionsForFromNugetAsync(id, source, ct);
-        else
-            return await GetVersionsForFromLocalAsync(id, source, ct);
-    }
-
     private async Task<Version[]> GetVersionsForFromNugetAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
 
@@ -227,20 +317,20 @@ internal class ExternalSourceService : IExternalSourceService
                 Name = result.Title,
                 PackageId = result.Identity.Id,
                 State = Application.Payloads.Enums.PackageStatePayload.Unknown
-            }
+            },
+            RepositorySource = source.Source,
+            RepositoryType = source.SourceType.ToApplicationPayload()
         };
     }
-
     private string[] GetLocalFileNamesFor(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
-        => Directory.GetFiles(source.Source, "*.nupkg")
-            .Where(f => Path.GetFileName(f).StartsWith(id + ".", StringComparison.OrdinalIgnoreCase))
+        => Directory.GetFiles(source.Source, "*.nupkg").Where(f => Path.GetFileName(f).StartsWith(id + ".", StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
     private async Task<PackagePayload?> GetPackageInfoForFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
         => GetLocalFileNamesFor(id, source).Select(GetPackageInformation).FirstOrDefault(p => p.Version == version);
+    private async Task<IEnumerable<PackagePayload>> GetPackageInfoFromLocalAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    => GetLocalFileNamesFor(id, source).Select(GetPackageInformation);
 
     private async Task<Version[]> GetVersionsForFromLocalAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
         => GetLocalFileNamesFor(id, source).Select(GetPackageInformation).Select(p => new Version(p.Version)).ToArray();
-
-
 }

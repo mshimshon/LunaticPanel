@@ -1,5 +1,9 @@
 ﻿using LunaticPanel.Core.Utils;
 using LunaticPanel.PackageManager.Application;
+using LunaticPanel.PackageManager.Application.Services;
+using LunaticPanel.PackageManager.Domain.Respositories;
+using LunaticPanel.PackageManager.Infrastructure.Repositories;
+using LunaticPanel.PackageManager.Infrastructure.Services;
 using LunaticPanel.PackageManager.Keys;
 using MedihatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,5 +23,9 @@ public static class RegisterServicesExt
         services.AddMedihaterServices();
         services.AddLunaticPanelUtilityServices(PackageManagerKeys.AssemblyName);
         services.AddApplicationServices();
+        services.AddTransient<IRepositorySourceService, RepositorySourceService>();
+        services.AddTransient<IExternalSourceService, ExternalSourceService>();
+        services.AddTransient<IPackageRepository, PackageRepository>();
+        services.AddTransient<ISourceRepository, SourceRepository>();
     }
 }
