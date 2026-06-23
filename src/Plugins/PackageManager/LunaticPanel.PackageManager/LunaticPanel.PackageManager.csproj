@@ -4,11 +4,28 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<EnableRazorComponents>true</EnableRazorComponents>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<Title>$(AssemblyName)</Title>
+		<Version>$(GlobalVersion)</Version>
+		<Company>$(GlobalCompany)</Company>
+		<Copyright>$(GlobalCopyright)</Copyright>
+		<Authors>$(GlobalAuthors)</Authors>
+		<Description>Official Package Manager Plugin for Lunatic Panel</Description>
+		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+
 	</PropertyGroup>
-
-
+	<ItemGroup>
+		<None Include="$(OutputPath)**\*.*"
+			  Pack="true"
+			  PackagePath="plugin" />
+	</ItemGroup>
+	<Target Name="RemoveHostOwnedAssembliesAfterBuild" AfterTargets="Build" Condition="'$(IsPublish)' != 'true'">
+		<ItemGroup>
+			<_DeleteDlls Include="$(OutputPath)**\Microsoft.*.dll;	$(OutputPath)MudBlazor.dll" />
+		</ItemGroup>
+		<Delete Files="@(_DeleteDlls)" />
+	</Target>
+	
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
 	</ItemGroup>

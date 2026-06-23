@@ -166,7 +166,6 @@ public static class Bootstrap
         foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
             await InitializeActivePlugin(plugin, webApp, masterSp, configuration, crazyReport);
 
-
         await masterSp.RuntimeStartupAfterPluginsAsync();
     }
 

@@ -9,8 +9,10 @@ using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
+using LunaticPanel.Core.Utils.Logging;
 using LunaticPanel.Engine.Application;
 using LunaticPanel.Engine.Application.Plugin;
+using LunaticPanel.Engine.Infrastructure.Logging;
 using LunaticPanel.Engine.Infrastructure.Messaging.EngineBus;
 using LunaticPanel.Engine.Infrastructure.Messaging.Event;
 using LunaticPanel.Engine.Infrastructure.Messaging.EventScheduled;
@@ -44,6 +46,7 @@ public static class RegisterServicesExt
         services.AddScoped<IEventScheduledBus, EventScheduledBus>();
         services.AddScoped<IEventScheduledBusReceiver, EventScheduledBusReceiver>();
 
+        services.AddScoped<CrazyReportCircuit>();
         services.AddScoped<IQueryBus, QueryBus>();
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
@@ -59,6 +62,7 @@ public static class RegisterServicesExt
 
     public static IServiceCollection AddEngineInfrastructureRedirected(this IServiceCollection services)
     {
+        services.AddScoped<ICrazyReportCircuit>((sp) => sp.GetRequiredService<CrazyReportCircuit>());
         services.AddScoped<IEngineBusExchange>(sp => sp.GetRequiredService<EngineBusExchange>());
         services.AddScoped<IEventScheduledBusExchange>(sp => sp.GetRequiredService<EventScheduledBusExchange>());
         services.AddScoped<IEventBusExchange>(sp => sp.GetRequiredService<EventBusExchange>());

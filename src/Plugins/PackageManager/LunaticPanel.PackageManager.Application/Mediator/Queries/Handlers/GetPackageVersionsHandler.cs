@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets.Exceptions;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Services;
 using MedihatR;
 
@@ -19,7 +19,7 @@ internal class GetPackageVersionsHandler : IRequestHandler<GetPackageVersionsQue
             var packageId = request.PackageId;
             // TODO: Validate Package Id
             var repo = request.RepositorySources.ToList().AsReadOnly();
-            var result = await _repositorySourceService.GetVersionsAsync(packageId, repo, ct);
+            var result = await _repositorySourceService.GetVersionsAsync(packageId, ct);
 
             return result.ToList();
             //TODO: HANDLE DOMAIN EXCEPTIONS

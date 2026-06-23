@@ -3,6 +3,8 @@ using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.PackageManager.Infrastructure;
 using LunaticPanel.PackageManager.Keys;
+using LunaticPanel.PackageManager.Pages;
+using LunaticPanel.PackageManager.Pages.ViewModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +33,7 @@ public class PluginEntry : PluginBase
 
     protected override void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
     {
-
+        services.AddScoped<IHomeViewModel, HomeViewModel>();
         services.AddInfrasctructureServices();
     }
     protected override void LoadConfiguration(IConfiguration configuration)

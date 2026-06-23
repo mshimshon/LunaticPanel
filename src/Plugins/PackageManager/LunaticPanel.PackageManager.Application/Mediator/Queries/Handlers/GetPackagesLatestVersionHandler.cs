@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets.Exceptions;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Services;
 using MedihatR;
@@ -18,7 +18,7 @@ internal class GetPackagesLatestVersionHandler : IRequestHandler<GetPackagesLate
         try
         {
             var repo = request.RepositorySources.ToList().AsReadOnly();
-            var result = await _repositorySourceService.GetLatestVersionAsync(request.Packages, repo, ct);
+            var result = await _repositorySourceService.GetLatestVersionAsync(request.Packages, ct);
 
             return result.ToList();
             //TODO: HANDLE DOMAIN EXCEPTIONS

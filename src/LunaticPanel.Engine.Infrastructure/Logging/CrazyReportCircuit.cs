@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Utils.Logging;
 
-namespace LunaticPanel.Core.CrazyReport;
+namespace LunaticPanel.Engine.Infrastructure.Logging;
 
 internal class CrazyReportCircuit : ICrazyReportCircuit
 {

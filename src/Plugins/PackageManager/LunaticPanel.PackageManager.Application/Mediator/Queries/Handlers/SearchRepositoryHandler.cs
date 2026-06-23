@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets.Exceptions;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Application.Services;
@@ -20,7 +20,7 @@ internal class SearchRepositoryHandler : IRequestHandler<SearchRepositoryQuery, 
         {
             //TODO: ADD FLUENT VALIDATION FOR KEYWORDS
             var response =
-                await _repositorySource.SearchAsync(data.Search, data.Sources.AsReadOnly(), ct);
+                await _repositorySource.SearchAsync(data.Search, ct);
             return response;
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

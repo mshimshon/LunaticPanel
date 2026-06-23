@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets.Exceptions;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entites;
