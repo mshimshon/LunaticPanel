@@ -11,10 +11,10 @@ public sealed class EventScheduledBus : IEventScheduledBus
 {
 
     private readonly IEventScheduledBusExchange _eventScheduledBusExchange;
-    private readonly IPluginInfo _pluginInfo;
+    private readonly IPluginInfo? _pluginInfo;
     private readonly ICrazyReport<EventScheduledBus> _crazyReport;
 
-    public EventScheduledBus(IEventScheduledBusExchange eventBusExchange, IPluginInfo pluginInfo, ICrazyReport<EventScheduledBus> crazyReport)
+    public EventScheduledBus(IEventScheduledBusExchange eventBusExchange, IPluginInfo? pluginInfo, ICrazyReport<EventScheduledBus> crazyReport)
     {
         _eventScheduledBusExchange = eventBusExchange;
         _pluginInfo = pluginInfo;
@@ -24,7 +24,7 @@ public sealed class EventScheduledBus : IEventScheduledBus
 
     public Task<EventScheduledBusMessageResponse> PublishAsync(IEventScheduledBusMessage evt, CancellationToken cancellationToken = default)
     {
-        if (evt.isTargetInternalId(_pluginInfo.PluginId))
+        if (_pluginInfo != default && evt.isTargetInternalId(_pluginInfo.PluginId))
             if (!_pluginInfo.IsTargetInternalKeyRegistered(evt.GetKey()))
             {
                 var ex = new BusKeyNotRegisteredException(evt.GetKey(), _pluginInfo.PluginId);

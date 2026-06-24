@@ -3,6 +3,7 @@ using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Abstraction.Tools.EventScheduler;
 using LunaticPanel.Core.Messaging.EngineBus;
@@ -34,7 +35,7 @@ public static class RegisterServicesExt
         services.AddScoped<QueryBusExchange>();
         services.AddScoped<EventScheduledBusExchange>();
         services.AddScoped<EventScheduler>();
-
+        services.AddSingleton<IPluginInfo, HostInfo>();
         services.AddSingleton<GlobalTickerService>();
         services.AddScoped<IEngineBus, EngineBus>();
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();

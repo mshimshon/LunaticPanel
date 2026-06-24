@@ -11,10 +11,10 @@ public sealed class QueryBus : IQueryBus
 {
 
     private readonly IQueryBusExchange _queryBusExchange;
-    private readonly IPluginInfo _pluginInfo;
+    private readonly IPluginInfo? _pluginInfo;
     private readonly ICrazyReport<QueryBus> _crazyReport;
 
-    public QueryBus(IQueryBusExchange queryBusExchange, IPluginInfo pluginInfo, ICrazyReport<QueryBus> crazyReport)
+    public QueryBus(IQueryBusExchange queryBusExchange, IPluginInfo? pluginInfo, ICrazyReport<QueryBus> crazyReport)
     {
         _queryBusExchange = queryBusExchange;
         _pluginInfo = pluginInfo;
@@ -29,7 +29,7 @@ public sealed class QueryBus : IQueryBus
 
     public Task<QueryBusMessageResponse> QueryAsync(IQueryBusMessage qry, CancellationToken cancellationToken = default)
     {
-        if (qry.isTargetInternalId(_pluginInfo.PluginId))
+        if (_pluginInfo != default && qry.isTargetInternalId(_pluginInfo.PluginId))
             if (!_pluginInfo.IsTargetInternalKeyRegistered(qry.GetKey()))
             {
                 var ex = new BusKeyNotRegisteredException(qry.GetKey(), _pluginInfo.PluginId);

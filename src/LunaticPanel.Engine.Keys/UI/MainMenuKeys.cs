@@ -10,6 +10,6 @@ public static class MainMenuKeys
 {
     public static class UI
     {
-        public const string GetElements = $"{BaseInfo.AssemblyName}.{nameof(MainMenuKeys)}.{nameof(UI)}.{nameof(GetElements)}";
+        public const string GetElements = $"{BaseInfo.EnginePrefix}.{BaseInfo.AssemblyName}.{BaseInfo.V1}.{nameof(MainMenuKeys)}.{nameof(UI)}.{nameof(GetElements)}";
     }
 }

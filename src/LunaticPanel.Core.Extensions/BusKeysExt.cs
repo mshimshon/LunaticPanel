@@ -7,12 +7,12 @@ public static class BusKeysExt
 {
 
     public static string[] ScanKeyPackageForKeys(this Assembly keyAssembly)
-        => Assembly.GetExecutingAssembly().GetTypes()
-            .Where(type => type.IsClass || type.IsValueType)
-            .SelectMany(type => type.GetFields(BindingFlags.Public | BindingFlags.Static))
-            .Where(field => field.IsLiteral)
-            .Where(field => field.FieldType == typeof(string))
-            .Select(field => (string)field.GetRawConstantValue()!)
+        => keyAssembly.GetTypes()
+        .SelectMany(t => t.GetFields(BindingFlags.Public | BindingFlags.Static))
+        .Where(f => f.FieldType == typeof(string))
+        .Where(f => f.IsLiteral || f.IsInitOnly) // const OR static readonly
+        .Select(f => (string)f.GetValue(null)!)
+            .Select(p => p.ToLower())
             .Where(MessageKeyValidator.ValidateKeyPattern)
             .ToArray();
 }

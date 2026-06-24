@@ -16,5 +16,7 @@ public static class MessageKeyValidator
     public static bool ValidateAllowedCharacters(string key)
         => Regex.IsMatch(key, REG_VALID_CHARS, RegexOptions.IgnoreCase);
     public static bool ValidateKeyPattern(string key)
-        => ValidateAllowedCharacters(key) && Regex.IsMatch(key, string.Format(REG_PATTERN_VALIDATION, REG_VALID_PREFIX), RegexOptions.IgnoreCase);
+    {
+        return ValidateAllowedCharacters(key) && Regex.IsMatch(key, REG_PATTERN_VALIDATION, RegexOptions.IgnoreCase);
+    }
 }

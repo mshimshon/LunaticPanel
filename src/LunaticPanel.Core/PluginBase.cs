@@ -49,7 +49,7 @@ public abstract class PluginBase : IPlugin
     protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
-    private List<string> _internalKeys { get; set; }
+    private static List<string>? _internalKeys { get; set; }
     public IReadOnlyList<string> Keys { get; private set; }
 
     private bool _hasStarted;
@@ -57,8 +57,12 @@ public abstract class PluginBase : IPlugin
     protected PluginBase()
     {
         _pluginId = GetType().Namespace!;
-        _internalKeys = GetMyPackageKeys().ToList();
-        Keys = _internalKeys.AsReadOnly();
+        if (_internalKeys == default)
+        {
+            _internalKeys = GetMyPackageKeys().Select(p => p.ToLower()).ToList();
+            Keys = _internalKeys.AsReadOnly();
+        }
+
         if (_cacheBusHandlersDescriptors == default)
             _cacheBusHandlersDescriptors = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
     }
