@@ -17,6 +17,7 @@ using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Core.Utils;
+using LunaticPanel.Core.Utils.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -50,24 +51,15 @@ public abstract class PluginBase : IPlugin
     private readonly string _pluginId;
     public string PluginId => _pluginId;
     private static List<string>? _internalKeys { get; set; }
-    public IReadOnlyList<string> Keys { get; private set; }
+    public IReadOnlyList<string> Keys { get; private set; } = default!;
 
     private bool _hasStarted;
-    private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors;
+    private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors = default!;
     protected PluginBase()
     {
         _pluginId = GetType().Namespace!;
-        if (_internalKeys == default)
-        {
-            _internalKeys = GetMyPackageKeys().Select(p => p.ToLower()).ToList();
-            Keys = _internalKeys.AsReadOnly();
-        }
 
-        if (_cacheBusHandlersDescriptors == default)
-            _cacheBusHandlersDescriptors = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
     }
-
-
     /// <summary>
     /// This is required if you have a package keys or using any bus event or queries or engine you should have a package anyway<br/>
     /// you should list all YOUR keys here or else the system will reject unregistered calls you can also use the extension<br/>
@@ -113,7 +105,7 @@ public abstract class PluginBase : IPlugin
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (HasActiveCircuitFor(circuit.CircuitId)) return;
-
+        Console.WriteLine($"OnCircuitStart for {identity.PluginId}->{identity.CircuitId}");
         SetScannedHandlersCache();
         CreateBusRegistry(circuit);
 
@@ -148,7 +140,9 @@ public abstract class PluginBase : IPlugin
         }
 
         CompileHostRedirectedServices(circuit, ref finalServices);
-
+        if (!isSingletonCollectionInitialized)
+            foreach (var item in finalServices)
+                Console.WriteLine($"{_pluginId} -> {item.ServiceType.Name} -> {item.Lifetime}");
         if (singletonServices != default)
             _crossCircuitSingletonProvider = singletonServices.BuildServiceProvider().CreateScope().ServiceProvider;
 
@@ -193,16 +187,30 @@ public abstract class PluginBase : IPlugin
         if (_hostRedirectedServices == default) return;
         foreach (var item in _hostRedirectedServices)
         {
-            if (item.ServiceType.IsGenericTypeDefinition) continue;
+            if (item.ServiceType.IsGenericTypeDefinition)
+            {
+                Console.WriteLine($"Cannot Redirect Generic Type for {item.ServiceType.Name}");
+                continue;
+            }
             if (item.Lifetime == ServiceLifetime.Singleton)
+            {
+                Console.WriteLine($"Redirection For {item.ServiceType.Name} as Singleton OK!");
+
                 result.AddSingleton(item.ServiceType, (sp) =>
-                {
-                    return circuit.HostServiceProvider.GetRequiredService(item.ServiceType);
-                });
+                    {
+                        return circuit.HostServiceProvider.GetRequiredService(item.ServiceType);
+                    });
+            }
             else if (item.Lifetime == ServiceLifetime.Scoped)
+            {
+                Console.WriteLine($"Redirection For {item.ServiceType.Name} as Scoped OK!");
                 result.AddScoped(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
+            }
             else if (item.Lifetime == ServiceLifetime.Transient)
+            {
+                Console.WriteLine($"Redirection For {item.ServiceType.Name} as Transient OK!");
                 result.AddTransient(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
+            }
         }
     }
     private void DeleteBusRegistry(CircuitIdentity circuit)
@@ -256,7 +264,19 @@ public abstract class PluginBase : IPlugin
         }
         return serviceScope.ServiceProvider.GetRequiredService<IPluginContextService>();
     }
-    public void Configure(IConfiguration configuration) => LoadConfiguration(configuration);
+    public void Configure(IConfiguration configuration)
+    {
+        if (Keys == default || _internalKeys == default)
+        {
+            _internalKeys = GetMyPackageKeys().Select(p => p.ToLower()).ToList();
+            Keys = _internalKeys.AsReadOnly();
+        }
+
+        if (_cacheBusHandlersDescriptors == default)
+            _cacheBusHandlersDescriptors = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
+
+        LoadConfiguration(configuration);
+    }
     protected bool HasActiveCircuitFor(Guid circuitId)
     {
         PluginContextIdentifier identity = new(circuitId, PluginId);
@@ -319,11 +339,11 @@ public abstract class PluginBase : IPlugin
         services.AddScoped<IEngineBusReceiver, EngineBusReceiver>();
 
         services.AddScoped<EventBus>();
-        services.AddScoped<IEventBus, EventBus>();
+        services.AddScoped<IEventBus>((sp) => sp.GetRequiredService<EventBus>());
         services.AddScoped<IEventBusReceiver, EventBusReceiver>();
 
         services.AddScoped<EventScheduledBus>();
-        services.AddScoped<IEventScheduledBus, EventScheduledBus>();
+        services.AddScoped<IEventScheduledBus>((sp) => sp.GetRequiredService<EventScheduledBus>());
         services.AddScoped<IEventScheduledBusReceiver, EventScheduledBusReceiver>();
 
         services.AddScoped<QueryBus>();
@@ -435,7 +455,10 @@ public abstract class PluginBase : IPlugin
     /// plugin ID. Plugins must treat all values as optional and fall back to their own
     /// internal defaults when entries are missing or empty.
     /// </summary>
-    protected virtual void LoadConfiguration(IConfiguration configuration) { }
+    protected virtual void LoadConfiguration(IConfiguration configuration)
+    {
+
+    }
 
     /// <summary>
     /// Executes after all services have been registered and the application has been built,
@@ -498,7 +521,9 @@ public abstract class PluginBase : IPlugin
             return;
         }
         _hasStarted = true;
-
+        Console.WriteLine($"ICrazyReportCircuit ?????");
+        var dd = serviceProvider.GetRequiredService<ICrazyReportCircuit>();
+        Console.WriteLine($"ICrazyReportCircuit {dd.CircuitId}");
         var circuitRegistry = serviceProvider.GetRequiredService<ICircuitRegistry>();
         var pContext = circuitRegistry.GetPluginContext(PluginId, circuitRegistry.CurrentCircuit.CircuitId);
         await BeforeRuntimeStart(pContext);

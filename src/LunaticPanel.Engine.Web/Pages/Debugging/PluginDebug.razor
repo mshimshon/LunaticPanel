@@ -1,0 +1,31 @@
+﻿
+@page "/debugging/plugins"
+@using LunaticPanel.Engine.Web.Boostrap.Plugin
+<MudGrid>
+    <MudItem>
+        <MudTable Items=@BootstrapPlugins.Configuration.KnownPlugins Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+            <HeaderContent>
+                <MudTh>Plugin</MudTh>
+                <MudTh>Startup State</MudTh>
+                <MudTh>State</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Plugin">
+                    <MudStack>
+                        <MudText>@context.Entity.Identity.DisplayName</MudText>
+                        <MudText>@context.Entity.Identity.PackageId</MudText>
+                        <MudText>@context.Entity.Identity.PakageVersion</MudText>
+                    </MudStack>
+                </MudTd>
+                <MudTd DataLabel="Startup State">@context.Entity.Lifecycle.StartupState.ToString()</MudTd>
+                <MudTd DataLabel="State">
+                    <MudStack>
+                        <MudText>@context.Entity.Lifecycle.State.ToString()</MudText>
+                        <MudText>@context.Entity.Lifecycle.Failure?.Message</MudText>
+                        <MudText>@context.Entity.Lifecycle.Failure?.OccurredAt</MudText>
+                    </MudStack>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudItem>
+</MudGrid>

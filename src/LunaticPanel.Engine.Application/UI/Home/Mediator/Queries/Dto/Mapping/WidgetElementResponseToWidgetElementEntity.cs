@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Enums;
 
-namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto.Mapping;
+namespace LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto.Mapping;
 
 internal class WidgetElementResponseToWidgetElementEntity : ICoreMapHandler<WidgetElementResponse, WidgetElementEntity>
 {

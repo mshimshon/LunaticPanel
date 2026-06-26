@@ -37,7 +37,7 @@ internal static class BootstrapPlugins
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"Scanning ({identity.PackageId}) Plugins Exception: {ex.Message}");
                 var failure = new PluginFailure(ex.Message, DateTimeOffset.UtcNow);
                 var lifecycle = new PluginLifecycle(PluginState.Failed, PluginStartupState.Disabled, failure, DateTimeOffset.UtcNow);
                 var entity = new PluginEntity(identity, lifecycle);
@@ -60,6 +60,7 @@ internal static class BootstrapPlugins
 
         foreach (var plugin in DiscoveredPlugins)
         {
+            if (plugin.EntryPoint == default) continue;
             var discovered = knownCopy.SingleOrDefault(p => p.Entity.Identity.PackageId == plugin.Entity.Identity.PackageId);
 
             if (ShouldDisable(discovered))
@@ -69,10 +70,7 @@ internal static class BootstrapPlugins
             }
 
             if (HasPriorFailure(discovered!, plugin))
-            {
                 AddFailedPlugin(plugin, plugin.Entity.Lifecycle.Failure!);
-                continue;
-            }
 
             TryActivatePlugin(plugin, configuration.GetSection(plugin.Entity.Identity.PackageId));
         }
@@ -112,11 +110,16 @@ internal static class BootstrapPlugins
     {
         try
         {
+            Console.WriteLine($"{plugin.Entity.Identity.PackageId} is trying to activate.");
+
             plugin.EntryPoint!.Configure(configuration);
             AddActivatedPlugin(plugin);
+            Console.WriteLine($"{plugin.Entity.Identity.PackageId} activated");
         }
         catch (Exception ex)
         {
+            Console.WriteLine("===== FAILED PLUGIN ACTIVATION ====");
+            Console.WriteLine(plugin.Entity.Identity.PackageId);
             Console.WriteLine(ex.Message);
             AddFailedPlugin(plugin, new(ex.Message, DateTimeOffset.UtcNow));
         }

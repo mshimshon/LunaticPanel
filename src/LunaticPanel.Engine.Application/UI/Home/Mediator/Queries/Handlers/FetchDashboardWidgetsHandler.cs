@@ -1,12 +1,12 @@
 ﻿using CoreMap;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Dto;
+using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Keys.UI;
 using MedihatR;
 
-namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries.Handlers;
+namespace LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Handlers;
 
 internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidgetsQuery, List<EngineBusMsgResponseWithData<WidgetElementEntity>>?>
 {

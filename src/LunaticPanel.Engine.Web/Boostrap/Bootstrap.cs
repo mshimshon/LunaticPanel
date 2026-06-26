@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.Core.Utils.Logging;
 using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using LunaticPanel.Engine.Web.Services.Circuit;
@@ -141,6 +142,9 @@ public static class Bootstrap
         crazyReport.ReportInfo("Loading Plugin: {0}", plugin.Entity.Identity.DisplayName);
         crazyReport.ReportInfo("Location: {0}", plugin.PluginDir);
         crazyReport.ReportInfo("PackageId: {0}", plugin.Entity.Identity.PackageId);
+        Console.WriteLine($"InitializeActivePlugin ICrazyReportCircuit ?????");
+        var dd = masterSp.GetRequiredService<ICrazyReportCircuit>();
+        Console.WriteLine($"InitializeActivePlugin ICrazyReportCircuit {dd.CircuitId}");
         await plugin.EntryPoint!.BeforeRuntimeStartAsync(masterSp);
         crazyReport.ReportSuccess("Plugin {0} has been initialized.", plugin.Entity.Identity.DisplayName);
     }
@@ -148,13 +152,14 @@ public static class Bootstrap
     {
 
         var masterSp = serviceProvider.CreateScope().ServiceProvider;
+
         var crazyReport = masterSp.GetRequiredService<ICrazyReport>();
         crazyReport.SetClass(nameof(Bootstrap));
         crazyReport.SetModule("Plugin");
 
         var circuitRegistry = masterSp.GetRequiredService<CircuitRegistry>();
         var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
-
+        Console.WriteLine($"Configure Active Plugins ({Configuration.ActivePlugins.Count})");
         foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
             await ConfigureActivePlugin(plugin, webApp, masterSp, configuration, crazyReport);
 

@@ -6,7 +6,7 @@ public static class MessageKeyValidator
 {
     private const string REG_PATTERN_VALIDATION = @"(enginekey|querykey|eventkey)\.[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*\.v[1-9][0-9]*\.[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$";
     private const string REG_ASSEMBLY_VALIDATION = @"^(enginekey|querykey|eventkey)\.{0}\.v[1-9][0-9]*\.[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*$";
-    private const string REG_VALID_CHARS = @"^[a-zA-Z0-9.]+$";
+    private const string REG_VALID_CHARS = @"^[a-zA-Z0-9._]+$";
     private const string REG_VALID_PREFIX = @"^(enginekey|querykey|eventkey)\.";
     public static bool ValidatePrefix(string key)
         => Regex.IsMatch(key, REG_VALID_PREFIX, RegexOptions.IgnoreCase);

@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using MedihatR;
 
-namespace LunaticPanel.Engine.Application.UI.Home.CQRS.Queries;
+namespace LunaticPanel.Engine.Application.UI.Home.Mediator.Queries;
 
 public record FetchDashboardWidgetsQuery : IRequest<List<EngineBusMsgResponseWithData<WidgetElementEntity>>?>
 {

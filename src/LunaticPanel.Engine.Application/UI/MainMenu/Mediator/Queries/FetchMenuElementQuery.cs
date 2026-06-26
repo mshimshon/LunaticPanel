@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using MedihatR;
 
-namespace LunaticPanel.Engine.Application.UI.MainMenu.CQRS.Queries;
+namespace LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries;
 
 public record FetchMenuElementQuery() : IRequest<List<EngineBusMsgResponseWithData<MenuElementEntity>>>
 {

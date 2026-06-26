@@ -10,7 +10,7 @@ namespace LunaticPanel.Core.Abstraction.Widgets;
     "SonarLint",
     "S3881:Implement the IDisposable pattern correctly",
     Justification = "Blazor components do not use the full dispose pattern.")]
-public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncDisposable
+public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncDisposable, IWidgetComponent
         where TPluginEntry : IPlugin
 {
     [Inject] protected IServiceProvider HostProvider { get; set; } = default!;

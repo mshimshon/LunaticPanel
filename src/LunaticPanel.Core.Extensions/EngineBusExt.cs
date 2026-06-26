@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+using LunaticPanel.Core.Abstraction.Widgets;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Core.Extensions;
@@ -65,7 +66,8 @@ public static class EngineBusExt
     }).ToArray();
 
 
-    private static RenderFragment CreateRenderFragmentComponent<TComponent>() where TComponent : IComponent
+    private static RenderFragment CreateRenderFragmentComponent<TComponent>()
+        where TComponent : IComponent, IWidgetComponent
     => builder =>
     {
         builder.OpenComponent<TComponent>(0);
@@ -73,25 +75,29 @@ public static class EngineBusExt
         builder.CloseComponent();
     };
 
-    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage)
+        where TComponent : IComponent, IWidgetComponent
     {
         RenderFragment fragment = CreateRenderFragmentComponent<TComponent>();
         var result = new EngineBusResponse(typeof(TComponent));
         return Task.FromResult(result);
     }
-    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, object data) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, object data)
+        where TComponent : IComponent, IWidgetComponent
     {
         var result = new EngineBusResponse(typeof(TComponent), data);
         return Task.FromResult(result);
     }
 
-    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, object data, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, object data, Func<EngineBusResponse, EngineBusResponse> extra)
+        where TComponent : IComponent, IWidgetComponent
     {
         var result = new EngineBusResponse(typeof(TComponent), data);
         result = extra?.Invoke(result) ?? result;
         return Task.FromResult(result);
     }
-    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, Func<EngineBusResponse, EngineBusResponse> extra) where TComponent : IComponent
+    public static Task<EngineBusResponse> ReplyWithTypeOf<TComponent>(this IEngineBusMessage engineBusMessage, Func<EngineBusResponse, EngineBusResponse> extra)
+        where TComponent : IComponent, IWidgetComponent
     {
         var result = new EngineBusResponse(typeof(TComponent));
         result = extra?.Invoke(result) ?? result;

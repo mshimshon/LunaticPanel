@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Application.UI.Home.CQRS.Queries;
+﻿using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries;
 using LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Actions;
 using MedihatR;
 using StatePulse.Net;
