@@ -1,12 +1,12 @@
 ﻿using LunaticPanel.Core;
 using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.PackageManager.Infrastructure;
 using LunaticPanel.PackageManager.Keys;
 using LunaticPanel.PackageManager.Pages;
 using LunaticPanel.PackageManager.Pages.ViewModels;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.PackageManager;
 /*
@@ -31,7 +31,7 @@ public class PluginEntry : PluginBase
     public override string[] GetMyPackageKeys()
         => typeof(PackageManagerKeys).Assembly.ScanKeyPackageForKeys();
 
-    protected override void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
+    protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)
     {
         services.AddScoped<IHomeViewModel, HomeViewModel>();
         services.AddInfrasctructureServices();

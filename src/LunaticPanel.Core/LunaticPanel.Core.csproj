@@ -14,7 +14,14 @@
     <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
 	  
   </PropertyGroup>
-
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>LunaticPanel.Engine.Web</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>LunaticPanel.Engine.Infrastructure</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 	<!--  <ItemGroup>
 	<Analyzer Include="..\LunaticPanel.Core.Analyzer\bin\$(Configuration)\netstandard2.0\LunaticPanel.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	<None Include="..\LunaticPanel.Core.Analyzer\bin\$(Configuration)\netstandard2.0\LunaticPanel.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

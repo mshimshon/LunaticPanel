@@ -48,11 +48,7 @@ public static class Bootstrap
     }
 
 
-    private static async Task ConfigureActivePlugin(BootstrapPluginDescriptor plugin,
-        WebApplication webApp,
-        IServiceProvider masterSp,
-        IConfiguration configuration,
-        ICrazyReport crazyReport)
+    private static async Task ConfigureActivePlugin(BootstrapPluginDescriptor plugin, WebApplication webApp, IServiceProvider masterSp, IConfiguration configuration, ICrazyReport crazyReport)
     {
         var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
 
@@ -145,6 +141,7 @@ public static class Bootstrap
         Console.WriteLine($"InitializeActivePlugin ICrazyReportCircuit ?????");
         var dd = masterSp.GetRequiredService<ICrazyReportCircuit>();
         Console.WriteLine($"InitializeActivePlugin ICrazyReportCircuit {dd.CircuitId}");
+
         await plugin.EntryPoint!.BeforeRuntimeStartAsync(masterSp);
         crazyReport.ReportSuccess("Plugin {0} has been initialized.", plugin.Entity.Identity.DisplayName);
     }

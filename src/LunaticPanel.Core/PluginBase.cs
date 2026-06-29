@@ -10,6 +10,7 @@ using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Abstraction.Tools.EventScheduler;
 using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.Core.DependencyInjection;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
 using LunaticPanel.Core.Messaging.EventBus;
@@ -47,12 +48,14 @@ public abstract class PluginBase : IPlugin
     private readonly static Dictionary<PluginContextIdentifier, EventScheduledBusRegistry> _eventScheduledBusRegistry = new();
     private readonly static object _lockEventScheduledBusRegistry = new object();
 
+    private ServiceCollection _crossCircuitSingletonProviderCollection = new();
     protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
-    private static List<string>? _internalKeys { get; set; }
-    public IReadOnlyList<string> Keys { get; private set; } = default!;
+    public IReadOnlyList<string> Keys { get; private set; } = new List<string>();
 
+    private readonly static Dictionary<string, List<string>> _pluginKeys = new();
+    private readonly static object _pluginKeysLock = new object();
     private bool _hasStarted;
     private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors = default!;
     protected PluginBase()
@@ -80,8 +83,18 @@ public abstract class PluginBase : IPlugin
         _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors
             .Where(p => !string.Equals(key, p.Key, StringComparison.OrdinalIgnoreCase))
             .ToList();
-        _internalKeys = _internalKeys.Where(p => !string.Equals(key, p, StringComparison.OrdinalIgnoreCase)).ToList();
-        Keys = _internalKeys.AsReadOnly();
+        lock (_pluginKeysLock)
+        {
+            if (_pluginKeys.ContainsKey(PluginId))
+            {
+                _pluginKeys[PluginId] = _pluginKeys[PluginId].Where(p => !string.Equals(key, p, StringComparison.OrdinalIgnoreCase)).ToList();
+                Keys = _pluginKeys[PluginId].AsReadOnly();
+                Console.WriteLine($"{PluginId} disabled feature {key}");
+
+            }
+        }
+
+
     }
 
     public IReadOnlyList<string> CheckDependencyGracefully(Func<string, bool> isBusAvailable)
@@ -109,51 +122,36 @@ public abstract class PluginBase : IPlugin
         SetScannedHandlersCache();
         CreateBusRegistry(circuit);
 
-        var allServices = new ServiceCollection();
+        var allServices = new PluginServiceCollection();
         RegisterCommonServices(allServices, circuit);
         RegisterPluginServices(allServices, circuit);
-
-        bool isSingletonCollectionInitialized = _crossCircuitSingletonProvider != default;
-        ServiceCollection? singletonServices = isSingletonCollectionInitialized ? default : new();
-
-        if (!isSingletonCollectionInitialized)
+        bool requiresCrossCircuitProvider = _crossCircuitSingletonProvider == default;
+        if (requiresCrossCircuitProvider)
         {
-            RegisterCommonSingletonServices(singletonServices!, circuit);
-            RegisterPluginSingletonServices(singletonServices!, circuit);
+            ProcessSingletonRouting(allServices, _crossCircuitSingletonProviderCollection);
+            PrintDebugServiceCollectionFor(_crossCircuitSingletonProviderCollection);
+            _crossCircuitSingletonProvider = _crossCircuitSingletonProviderCollection.BuildServiceProvider().CreateScope().ServiceProvider;
         }
+        //PrintDebugServiceCollectionFor(_crossCircuitSingletonProviderCollection);
+        //PrintDebugServiceCollectionFor(allServices.Collection);
 
-        var finalServices = new ServiceCollection();
-        foreach (var item in allServices)
-        {
-            bool isGlobalState = false;
-            if (!isSingletonCollectionInitialized && item.Lifetime == ServiceLifetime.Singleton)
-            {
-                isGlobalState = item.ServiceType.GetInterfaces().Any(i => i.FullName == "StatePulse.Net.IStateFeatureSingleton");
-                if (isGlobalState)
-                    singletonServices!.Add(item);
-            }
+        CompileHostRedirectedServices(circuit, allServices);
+        CompileCrossCircuitRedirectedServices(allServices);
 
-            if (isGlobalState && item.Lifetime == ServiceLifetime.Singleton)
-                finalServices.AddSingleton(item.ServiceType, (sp) => _crossCircuitSingletonProvider!.GetRequiredService(item.ServiceType));
-            else
-                finalServices.Add(item);
-        }
-
-        CompileHostRedirectedServices(circuit, ref finalServices);
-        if (!isSingletonCollectionInitialized)
-            foreach (var item in finalServices)
-                Console.WriteLine($"{_pluginId} -> {item.ServiceType.Name} -> {item.Lifetime}");
-        if (singletonServices != default)
-            _crossCircuitSingletonProvider = singletonServices.BuildServiceProvider().CreateScope().ServiceProvider;
-
-        var serviceProvider = finalServices.BuildServiceProvider();
+        var serviceProvider = allServices.Build();
         var scope = serviceProvider.CreateScope();
         lock (_circuitServiceProviders)
             _circuitServiceProviders[identity] = scope;
 
         OnAfterCircuitStart(scope.ServiceProvider);
     }
-
+    private void PrintDebugServiceCollectionFor(ServiceCollection services)
+    {
+        foreach (var item in services)
+        {
+            Console.WriteLine($"{PluginId} -> {item.ServiceType}");
+        }
+    }
     private void CreateBusRegistry(CircuitIdentity circuit)
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
@@ -182,7 +180,7 @@ public abstract class PluginBase : IPlugin
             _hostRedirectedServices.AddRange(serviceTypes);
         }
     }
-    public void CompileHostRedirectedServices(CircuitIdentity circuit, ref ServiceCollection result)
+    private void CompileHostRedirectedServices(CircuitIdentity circuit, PluginServiceCollection result)
     {
         if (_hostRedirectedServices == default) return;
         foreach (var item in _hostRedirectedServices)
@@ -212,6 +210,15 @@ public abstract class PluginBase : IPlugin
                 result.AddTransient(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
             }
         }
+    }
+    private void CompileCrossCircuitRedirectedServices(PluginServiceCollection services)
+    {
+        foreach (var d in _crossCircuitSingletonProviderCollection)
+        {
+            Console.WriteLine($"{PluginId} redirects {d.ServiceType} to Cross Circuit Service");
+            services.Collection.AddSingleton(d.ServiceType, sp => _crossCircuitSingletonProvider!.GetRequiredService(d.ServiceType));
+        }
+
     }
     private void DeleteBusRegistry(CircuitIdentity circuit)
     {
@@ -266,11 +273,22 @@ public abstract class PluginBase : IPlugin
     }
     public void Configure(IConfiguration configuration)
     {
-        if (Keys == default || _internalKeys == default)
+        Console.WriteLine($"{PluginId} Configuring...");
+        lock (_pluginKeysLock)
         {
-            _internalKeys = GetMyPackageKeys().Select(p => p.ToLower()).ToList();
-            Keys = _internalKeys.AsReadOnly();
+            if (!_pluginKeys.ContainsKey(PluginId))
+            {
+                var keys = GetMyPackageKeys().Select(p => p.ToLower()).ToList();
+                Console.WriteLine($"{PluginId} found {keys.Count} Bus Keys");
+                _pluginKeys[PluginId] = keys;
+                Keys = _pluginKeys[PluginId].AsReadOnly();
+                foreach (var key in Keys)
+                {
+                    Console.WriteLine($"{PluginId} owns {key}");
+                }
+            }
         }
+
 
         if (_cacheBusHandlersDescriptors == default)
             _cacheBusHandlersDescriptors = BusScannerExt.ScanBusHandlers(p => { }, GetPluginInternalAssemblies());
@@ -285,8 +303,16 @@ public abstract class PluginBase : IPlugin
             return _circuitServiceProviders.ContainsKey(identity);
         }
     }
-    private void RegisterCommonSingletonServices(IServiceCollection services, CircuitIdentity circuit)
+
+    private void RegisterCommonServices(PluginServiceCollection services, CircuitIdentity circuit)
     {
+
+        //services.AddPluginLocationUtilityService(PluginId);
+        services.Collection.AddLunaticPanelUtilityServices(PluginId);
+
+        //services.AddLinuxCommandUtilityService();
+        //services.AddSafeFileWriterUtilityService();
+
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         services.AddSingleton<IEngineBusRegistry>((sp) =>
         {
@@ -316,22 +342,6 @@ public abstract class PluginBase : IPlugin
                 return _queryBusRegistry[identity];
             }
         });
-    }
-
-    private void RegisterCommonServices(IServiceCollection services, CircuitIdentity circuit)
-    {
-
-        //services.AddPluginLocationUtilityService(PluginId);
-        services.AddLunaticPanelUtilityServices(PluginId);
-
-        //services.AddLinuxCommandUtilityService();
-        //services.AddSafeFileWriterUtilityService();
-
-        PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
-        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEngineBusRegistry>());
-        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEventBusRegistry>());
-        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IQueryBusRegistry>());
-        services.AddSingleton((sp) => _crossCircuitSingletonProvider!.GetRequiredService<IEventScheduledBusRegistry>());
 
         services.AddScoped<IPluginInfo>((sp) => this);
         services.AddScoped<EngineBus>();
@@ -364,8 +374,6 @@ public abstract class PluginBase : IPlugin
             IReadOnlyCollection<BusHandlerDescriptor> cache;
             lock (_lockScannedCachedBusHandlers)
                 cache = _scannedCachedBusHandlers[identity.PluginId];
-
-
             foreach (BusHandlerDescriptor busInfo in cache)
             {
                 if (busInfo.BusLifetime == EBusLifetime.Scoped)
@@ -399,7 +407,15 @@ public abstract class PluginBase : IPlugin
 
     }
 
+    private void ProcessSingletonRouting(PluginServiceCollection services, ServiceCollection singletonCrossCircuit)
+    {
+        foreach (var d in services.CrossCircuitRedirected)
+        {
+            Console.WriteLine($"{PluginId} adds to cross circuit service {d.ServiceType}");
+            singletonCrossCircuit.Add(d);
+        }
 
+    }
 
     /// <summary>
     /// Registers any additional services required by the plugin, including services
@@ -408,38 +424,11 @@ public abstract class PluginBase : IPlugin
     /// assembly scanning or other expensive operations here, as this would introduce
     /// significant runtime overhead.
     /// </summary>
-    protected virtual void RegisterPluginServices(IServiceCollection services, CircuitIdentity circuit)
+    protected virtual void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)
     {
 
     }
 
-    /// <summary>
-    /// <para>
-    /// Singleton services intended to be shared across all circuits must be registered twice.
-    /// </para>
-    /// <para>
-    /// First, in the global singleton pool, where the actual instance is created.
-    /// </para>
-    /// <para>
-    /// Second, in each circuit service collection, as a forwarding registration that resolves
-    /// the instance from the global singleton pool.
-    /// </para>
-    /// <para>
-    /// This allows the service to be injected normally through the circuit IServiceProvider
-    /// while still guaranteeing a single shared instance across all circuits.
-    /// </para>
-    /// <para>Usage:</para>
-    /// <code>
-    /// // Global singleton pool (inside your RegisterPluginSingletonServices)
-    /// services.AddSingleton&lt;IEngineBusRegistry, EngineBusRegistry&gt;();
-    ///
-    /// // Circuit pool forwarding (inside your RegisterPluginServices)
-    /// services.AddSingleton(sp => _singletonProvider!.GetRequiredService&lt;IEngineBusRegistry&gt;());
-    /// </code>
-    /// </summary>
-    protected virtual void RegisterPluginSingletonServices(IServiceCollection services, CircuitIdentity circuit)
-    {
-    }
 
     /// <summary>
     /// Returns the set of assemblies that should be scanned for this plugin.
@@ -513,6 +502,7 @@ public abstract class PluginBase : IPlugin
         return PerformValidation();
     }
 
+
     public async Task BeforeRuntimeStartAsync(IServiceProvider serviceProvider)
     {
         if (_hasStarted)
@@ -521,6 +511,7 @@ public abstract class PluginBase : IPlugin
             return;
         }
         _hasStarted = true;
+
         Console.WriteLine($"ICrazyReportCircuit ?????");
         var dd = serviceProvider.GetRequiredService<ICrazyReportCircuit>();
         Console.WriteLine($"ICrazyReportCircuit {dd.CircuitId}");

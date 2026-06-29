@@ -1,10 +1,11 @@
 ﻿@if (!ViewModel.Loading)
 {
     <MudGrid>
-
-        <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Secondary" Class="mud-width-full pa-2">
-            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
-        </MudNavMenu>
+         <MudItem xs="12">
+            <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Secondary" Class="mud-width-full pa-2">
+                <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            </MudNavMenu>
+        </MudItem>
         @if (ViewModel.State.MenuElements.Count > 0)
         {
 
@@ -28,9 +29,12 @@
                 </MudAlert>
             </MudItem>
         }
+         <MudItem xs="12">
+
         <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Secondary" Class="mud-width-full pa-2">
             <MudNavLink Href="/debugging/plugins" Icon="@Icons.Material.Filled.BugReport">Plugin (Debug)</MudNavLink>
         </MudNavMenu>
+        </MudItem>
     </MudGrid>
 
 
