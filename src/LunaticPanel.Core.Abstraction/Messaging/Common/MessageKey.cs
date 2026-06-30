@@ -18,7 +18,9 @@ public sealed record MessageKey
             throw new BusKeySchematicPatternViolationException(fullname);
     }
 
-    public MessageKey(string prefix, string plugin, string action) : this($"{prefix}.{plugin}.{action}") { }
+    public MessageKey(string prefix, string plugin, string action) : this($"{prefix}.[{plugin}].{action}") { }
+    public MessageKey(string prefix, string plugin, string version, string action) : this(prefix, plugin, $"v{version}.{action}") { }
+    public MessageKey(string prefix, Func<string> plugin, string version, string action) : this(prefix, plugin(), version, action) { }
     public MessageKey(string prefix, Func<string> plugin, string action) : this(prefix, plugin(), action) { }
     public override string ToString() => _fullname;
 }

@@ -16,7 +16,7 @@ public partial class PluginEntry : PluginBase
     }
 
     public override string[] GetMyPackageKeys()
-        => typeof(BaseInfo).Assembly.ScanKeyPackageForKeys();
+        => typeof(LPEngineKeys).Assembly.ScanKeyPackageForKeys();
 
 
     protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)

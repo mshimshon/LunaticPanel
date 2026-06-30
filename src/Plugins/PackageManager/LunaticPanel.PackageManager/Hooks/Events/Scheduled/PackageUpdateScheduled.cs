@@ -8,7 +8,7 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Hooks.Events.Scheduled;
 
-[EventScheduledBusKey(PackageManagerKeys.Event.Scheduled.PackageUpdateSchedule, 0, 30, RunAtStartup = true)]
+[EventScheduledBusKey(LPPackageManagerKeys.Event.Scheduled.PackageUpdateSchedule, 0, 30, RunAtStartup = true)]
 internal class PackageUpdateScheduled : IEventScheduledBusHandler
 {
     private readonly IStateAccessor<PackageUpdateScheduleState> _packageUpdateScheduleStateAccess;

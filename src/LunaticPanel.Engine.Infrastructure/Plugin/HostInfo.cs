@@ -11,7 +11,7 @@ internal class HostInfo : IPluginInfo
     public IReadOnlyList<string> Keys { get; }
     public HostInfo()
     {
-        var keys = typeof(BaseInfo).Assembly.ScanKeyPackageForKeys().Select(p => p.ToLower()).ToList();
+        var keys = typeof(LPEngineKeys).Assembly.ScanKeyPackageForKeys().Select(p => p.ToLower()).ToList();
         Console.WriteLine("HOSTINFO -> " + string.Join(',', keys));
         Keys = keys;
     }

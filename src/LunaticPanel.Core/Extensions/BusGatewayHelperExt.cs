@@ -6,7 +6,7 @@ namespace LunaticPanel.Core.Extensions;
 internal static class BusGatewayHelperExt
 {
     private static bool CheckIfInternalId(string prefix, string id, string pluginId)
-        => id.StartsWith($"{prefix}.{pluginId}", StringComparison.OrdinalIgnoreCase);
+        => id.StartsWith($"{prefix}.[{pluginId}]", StringComparison.OrdinalIgnoreCase);
 
 
     public static bool isTargetInternalId(this IBusMessage busMessage, string pluginId)

@@ -29,7 +29,7 @@ public class PluginEntry : PluginBase
     }
 
     public override string[] GetMyPackageKeys()
-        => typeof(PackageManagerKeys).Assembly.ScanKeyPackageForKeys();
+        => typeof(LPPackageManagerKeys).Assembly.ScanKeyPackageForKeys();
 
     protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)
     {

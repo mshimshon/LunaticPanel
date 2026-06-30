@@ -4,13 +4,13 @@ public static class PluginKeys
 {
     public static class Queries
     {
-        public const string FetchAll = $"{BaseInfo.QueryPrefix}.{BaseInfo.AssemblyName}.{BaseInfo.V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchAll)}";
+        public const string FetchAll = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchAll)}";
     }
 
     public static class Events
     {
-        public const string OnInitialize = $"{BaseInfo.EventPrefix}.{BaseInfo.AssemblyName}.{BaseInfo.V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnInitialize)}";
-        public const string OnParameterSet = $"{BaseInfo.EventPrefix}.{BaseInfo.AssemblyName}.{BaseInfo.V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnParameterSet)}";
-        public const string OnAfterRender = $"{BaseInfo.EventPrefix}.{BaseInfo.AssemblyName}.{BaseInfo.V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnAfterRender)}";
+        public const string OnInitialize = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnInitialize)}";
+        public const string OnParameterSet = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnParameterSet)}";
+        public const string OnAfterRender = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnAfterRender)}";
     }
 }
