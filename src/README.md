@@ -10,25 +10,20 @@ Project Application Layer /CQRS/ = Internal Medihater CQRS pattern.
 Versioning:
 - x. = Major Breaking Changes
 - x.x = Minor (Small New Features without break) that means any Core package contracts remains unchanged.
-- x.x.x = Fixes (non breaking fixes of issues)
+- x.x.x = Fixes (non breaking fixes of issues internal only)
 
 Updates:
 - Panel will auto-update constantly with garantuees.
 - Panel will auto-update from x.0.0 to x.9.9 then next update is an upgrade.
 
 Upgrade:
-- Panel will auto-upgrade only if each enabled plugins are compatible with panel x.0.0+
+- Panel will never auto-upgrade without manual action or mass automation action.
 
 Plugin Version:
 - Plugin version policies aren't important what is important is the filename oof the package:
-	- My_Plugin_3.3.4_v1 = My_Plugin version 3.3.4 which is compatible from v1 to v1.3.9 of the panel. 
-	- My_Plugin_3.3.5_v1.4 = My_Plugin version 3.3.5 which is compatible from v1.4 to v1.9.9 of the panel. 
-	- My_Plugin_3.3.6_v2.0 = My_Plugin version 3.3.6 which is compatible from v2.0 to v2.9.9 of the panel. 
-	- My_Plugin_3.3.7_v3.0 = My_Plugin version 3.3.4 which is compatible from v3.0 to v3.9.9 of the panel.
+	- All plugins must follow the panel's version sematic and all plugins will auto-update up to breaking changes.
 
-With this method, we ensure that each update and upgrade are consistent and compatible we avoid updates in the face uncertainty 
-therefore if a single plugin is no longer maintained and doesn't update to major version support eg: 2.0 then the panel will be stuck 
-to 1.x forever or until the plugin is disabled.
+The essence of idea is .NET versioning method where as all plugins are built against a specifric Panel version ie: 1.2/1.3 or 2.1, to upgrade a panel from 1.x to 2.x all plugins must have an available update to install for panel 2.x all major versions are bound to the plugins and thus plugins will likely update before you upgrade your panel.
 
 # Plugin Compatibility and Core Versioning Policy
 
