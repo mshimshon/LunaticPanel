@@ -5,6 +5,26 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<Title>$(AssemblyName)</Title>
+	<Version>$(GlobalVersion)</Version>
+	<Company>$(GlobalCompany)</Company>
+	<Copyright>$(GlobalCopyright)</Copyright>
+	<Authors>$(GlobalAuthors)</Authors>
+	<Description>Core Package for Lunatic Panel's PLugin</Description>
+	<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Core.Utils.Abstraction\LunaticPanel.Core.Utils.Abstraction.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+  </ItemGroup>
 
 </Project>
