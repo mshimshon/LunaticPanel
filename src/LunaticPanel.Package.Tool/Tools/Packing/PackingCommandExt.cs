@@ -1,9 +1,11 @@
-﻿using LunaticPanel.Package.Tool.Extensions;
+﻿using LunaticPanel.Package.Tool.Exceptions;
+using LunaticPanel.Package.Tool.Extensions;
 using LunaticPanel.Package.Tool.Payloads;
 using LunaticPanel.Package.Tool.Tools.Plugin;
 using LunaticPanel.Package.Tool.Tools.Validation;
 using System.CommandLine;
 using System.IO.Compression;
+using System.Reflection;
 namespace LunaticPanel.Package.Tool.Tools.Packing;
 
 internal static class PackingCommandExt
@@ -250,34 +252,87 @@ internal static class PackingCommandExt
         bool isValid = await PluginValidatorCommandExt.ValidatePackageAsync(input);
         if (!isValid)
             return false;
-
+        var files = FilterArchiveFiles(input);
+        await PackToFile(files, input, output);
+        return true;
     }
 
-
-    public static void PackLpkg(string inputFolder, string output)
+    public static List<string> FilterArchiveFiles(string inputFolder)
     {
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
-
-        string plugin = PluginUtilitiesExt.FindPluginEntryFile(inputFolder);
-        string version = PluginUtilitiesExt.GetAssemblyVersion(plugin);
-        string pluginName = Path.GetFileNameWithoutExtension(plugin);
-        string outputPackage = Path.Combine(output, $"{pluginName}.{version}.lpkg");
-        if (File.Exists(outputPackage))
-            File.Delete(outputPackage);
-
-        using var zip = ZipFile.Open(outputPackage, ZipArchiveMode.Create);
         var basePath = Path.GetFullPath(inputFolder);
         var files = Directory.GetFiles(basePath, "*", SearchOption.AllDirectories);
+        var outputFiles = new List<string>();
         foreach (var file in files)
         {
             // SKIP Excluded DLL those are host supplied.
             if (_excludedDlls.Contains(Path.GetFileNameWithoutExtension(file).ToLower()))
                 continue;
+            outputFiles.Add(file);
+        }
+        return outputFiles;
 
+    }
+
+    public static PluginManifestPayload GetManifestInformation(string inputFolder)
+    {
+        if (!Directory.Exists(inputFolder))
+            throw new DirectoryNotFoundException(inputFolder);
+
+        string pluginFile = PluginUtilitiesExt.FindPluginEntryFile(inputFolder);
+        var pluginLoader = PluginUtilitiesExt.PluginLoaderFor(pluginFile);
+        var asm = pluginLoader.LoadDefaultAssembly();
+        var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
+        var company = asm.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company;
+        var product = asm.GetCustomAttribute<AssemblyProductAttribute>()?.Product;
+        var title = asm.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
+        var fileVersion = asm.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+        var copyright = asm.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright;
+        var pluginId = asm.GetName().Name;
+
+        if (pluginId == default)
+            throw new PluginIdNotFoundException(pluginFile);
+
+        if (fileVersion == default)
+            throw new PluginVersionNotFoundException(pluginId);
+
+        if (description == default)
+            throw new PluginDescriptionNotFoundException(pluginId);
+
+        return new()
+        {
+            Id = pluginId,
+            Title = title ?? pluginId,
+            Company = company,
+            Copyright = copyright,
+            Description = description,
+            Version = fileVersion
+        };
+
+    }
+    public static async Task PackToFile(List<string> files, string inputFolder, string outputFolder)
+    {
+        if (!Directory.Exists(inputFolder))
+            throw new DirectoryNotFoundException(inputFolder);
+
+        string plugin = PluginUtilitiesExt.FindPluginEntryFile(inputFolder);
+
+
+
+        string version = PluginUtilitiesExt.GetAssemblyVersion(plugin);
+        string pluginName = Path.GetFileNameWithoutExtension(plugin);
+        string outputPackage = Path.Combine(outputFolder, $"{pluginName}.{version}.lpkg");
+        if (File.Exists(outputPackage))
+            File.Delete(outputPackage);
+
+        using var zip = ZipFile.Open(outputPackage, ZipArchiveMode.Create);
+        var basePath = Path.GetFullPath(inputFolder);
+        foreach (var file in files)
+        {
             var fullPath = Path.GetFullPath(file);
             var relative = fullPath.Substring(basePath.Length).TrimStart(Path.DirectorySeparatorChar);
-            zip.CreateEntryFromFile(fullPath, relative, CompressionLevel.Optimal);
+            await zip.CreateEntryFromFileAsync(fullPath, relative, CompressionLevel.Optimal);
         }
 
     }

@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="McMaster.NETCore.Plugins" />
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
 
@@ -25,6 +26,7 @@
     <ProjectReference Include="..\LunaticPanel.Core.Utils.Abstraction\LunaticPanel.Core.Utils.Abstraction.csproj" />
     <ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
     <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Engine.Plugin\LunaticPanel.Engine.Plugin.csproj" />
   </ItemGroup>
 
 </Project>

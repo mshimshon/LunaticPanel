@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Domain.Plugin.Entites;
-using McMaster.NETCore.Plugins;
+using LunaticPanel.Engine.Plugin;
 using System.Text.Json.Serialization;
 
 namespace LunaticPanel.Engine.Web.Boostrap.Plugin;
@@ -13,7 +13,7 @@ internal record BootstrapPluginDescriptor
     public IPlugin? EntryPoint { get; set; }
 
     [JsonIgnore]
-    public PluginLoader? Loader { get; set; }
+    public IPluginLoader? Loader { get; set; }
 
     public string PluginDir { get; set; } = default!;
 }

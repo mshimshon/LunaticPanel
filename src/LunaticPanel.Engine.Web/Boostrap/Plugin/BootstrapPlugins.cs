@@ -4,6 +4,8 @@ using LunaticPanel.Engine.Domain.Plugin.Entites;
 using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 using LunaticPanel.Engine.Infrastructure.Plugin;
+using LunaticPanel.Engine.Plugin;
+using LunaticPanel.Engine.Plugin.Entities;
 using Microsoft.Extensions.Configuration;
 namespace LunaticPanel.Engine.Web.Boostrap.Plugin;
 
@@ -16,16 +18,16 @@ internal static class BootstrapPlugins
     public static IPluginRegistry Registry { get; set; } = new PluginRegistry();
     public static void DetectPlugins()
     {
-        var scanner = new BootstrapPluginScanner(PluginDirectory);
-        var result = scanner.Scan();
-        foreach (BootstrapPluginScanResult item in result)
+        var result = PluginScannerExt.ScanAndFindPlugins(PluginDirectory);
+        foreach (PluginScannedEntity item in result)
         {
             var identity = new PluginIdentity(item.PluginId, item.Version, item.PluginId);
             try
             {
-                IPlugin plugin = (IPlugin)Activator.CreateInstance(item.PluginType)!;
+                IPlugin plugin = item.CreateEntryPoint();
                 var lifecycle = new PluginLifecycle(PluginState.Loaded, PluginStartupState.Disabled, default, DateTimeOffset.UtcNow);
                 var entity = new PluginEntity(identity, lifecycle);
+
                 DiscoveredPlugins.Add(new BootstrapPluginDescriptor()
                 {
                     Entity = entity,
@@ -88,7 +90,7 @@ internal static class BootstrapPlugins
 
     private static void AddDisabledPlugin(BootstrapPluginDescriptor plugin)
     {
-        plugin.Loader?.Dispose();
+        plugin.Loader!.Unload();
         Configuration.KnownPlugins.Add(plugin.DisablePluginMapping());
     }
 

@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Package.Tool.Payloads;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Package.Tool.Payloads;
 using System.CommandLine;
 
 namespace LunaticPanel.Package.Tool.Extensions;
@@ -31,17 +32,22 @@ internal static class CommandLineExt
             success = true;
             return success;
         }
+        catch (HostCodedException ex)
+        {
+            var outResult = new ResultResponse()
+            {
+                Error = new ErrorResponse(ex.Code, ex.Message)
+            };
+            await outResult.PrintAsync();
+            return success;
+        }
         catch (Exception ex)
         {
             var outResult = new ResultResponse()
             {
                 Error = new ErrorResponse(ex)
             };
-            //Console.Error.WriteLine(ex);
-            // TODO: LOG
             await outResult.PrintAsync();
-
-
             return success;
         }
     }

@@ -39,6 +39,7 @@
   <ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
   <ProjectReference Include="..\LunaticPanel.Engine.Domain\LunaticPanel.Engine.Domain.csproj" />
   <ProjectReference Include="..\LunaticPanel.Engine.Infrastructure\LunaticPanel.Engine.Infrastructure.csproj" />
+  <ProjectReference Include="..\LunaticPanel.Engine.Plugin\LunaticPanel.Engine.Plugin.csproj" />
 </ItemGroup>
 
 <Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">

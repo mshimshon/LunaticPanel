@@ -35,11 +35,7 @@ internal static class BootstrapPluginsValidator
     "S1215:Do not call GC.Collect()",
     Justification = "Required for unloading collectible AssemblyLoadContext")]
 
-    internal static void GarbageCleanUp()
-    {
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-    }
+
 
     private static void UnloadFailedPlugin(BootstrapPluginDescriptor plugin, string message)
     {
@@ -51,8 +47,7 @@ internal static class BootstrapPluginsValidator
         Configuration.ActivePlugins.Remove(activePluginItem);
         Configuration.KnownPlugins.Remove(knownPluginItem);
         Configuration.KnownPlugins.Add(plugin.FailedToLoadMapping(message));
-        plugin.Loader!.Dispose();
-        GarbageCleanUp();
+        plugin.Loader!.Unload();
 
     }
 
