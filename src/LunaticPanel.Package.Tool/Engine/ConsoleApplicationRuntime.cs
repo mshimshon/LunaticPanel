@@ -1,4 +1,7 @@
-﻿using LunaticPanel.Package.Tool.Extensions;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Package.Tool.Extensions;
+using LunaticPanel.Package.Tool.Payloads;
+using LunaticPanel.Package.Tool.Tools.Packing;
 using System.CommandLine;
 
 namespace LunaticPanel.Package.Tool.Engine;
@@ -6,40 +9,19 @@ namespace LunaticPanel.Package.Tool.Engine;
 public sealed class ConsoleApplicationRuntime
 {
     public IServiceProvider ServiceProvider { get; init; } = default!;
-    public string[] Arguments { get; init; } = default!;
-
+    private string[] _args { get; init; } = default!;
+    public ConsoleApplicationRuntime(string[] args)
+    {
+        _args = args;
+    }
     public async Task RunAsync(CancellationToken ct = default)
     {
-        await RunStartupCommandAsync(ct, Arguments);
+        await RunStartupCommandAsync(ct, _args);
     }
     internal static async Task RunStartupCommandAsync(CancellationToken ct, params string[] args)
     {
         var rootCommand = new RootCommand("Game Server Installation CLI");
-        var modCommand = new Command("mod", "All commands related to mods support.")
-        .AddOption<bool>("check", "c", "Check if the game server is supporting mods.")
-        .AddOption<bool>("details", "dt", "Get the details about mods.")
-        .AddOption<bool>("rm-current", "rmc", "Remove current as active modlist.")
-        .SetModAction(services);
-
-        var setupCommand = new Command("setup", "All commands related to setup.")
-            .AddOption<bool>("install", "i", "Perform installation of the game server.")
-            .AddOption<bool>("update", "u", "Perform update for game server.")
-            .AddOption<bool>("version", "v", "Perform check for curren version of installed game server.")
-            .AddOption<bool>("check-update", "cu", "Perform check if new update for game server is available.")
-            .SetInstallationAction(services);
-
-        var serverCommand = new Command("server", "All commands related to server control.")
-            .AddOption<bool>("start", "st", "Start the server.")
-            .AddOption<bool>("stop", "sp", "Stop the server.")
-            .AddOption<bool>("restart", "r", "Restart the server.")
-            .AddOption<bool>("status", "s", "Status the server.")
-            .SetServerAction(services);
-        var initCommand = new Command("initialize", "Command to install and setup all prerequisite for the installation of new game server.")
-.SetInitializingAction(services);
-        rootCommand.WithSubCommand(modCommand)
-            .WithSubCommand(setupCommand)
-            .WithSubCommand(serverCommand)
-            .WithSubCommand(initCommand);
+        rootCommand.WithPackCommands();
 
 
         var cmdParsed = rootCommand.Parse(args);
@@ -51,7 +33,30 @@ public sealed class ConsoleApplicationRuntime
         }
         else
         {
-            await cmdParsed.InvokeAsync(null, ct);
+            try
+            {
+                await cmdParsed.InvokeAsync(null, ct);
+
+            }
+            catch (HostCodedException ex)
+            {
+                var errorPrint = new ResultResponse()
+                {
+                    Error = new ErrorResponse(ex.Code, ex.Message)
+                };
+                await errorPrint.PrintAsync();
+                Environment.Exit(1);
+
+            }
+            catch (Exception ex)
+            {
+                var errorPrint = new ResultResponse()
+                {
+                    Error = new ErrorResponse(ex)
+                };
+                await errorPrint.PrintAsync();
+                Environment.Exit(1);
+            }
         }
 
     }

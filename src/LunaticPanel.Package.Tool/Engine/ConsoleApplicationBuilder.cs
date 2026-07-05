@@ -10,17 +10,15 @@ public sealed class ConsoleApplicationBuilder
     public ConsoleApplicationBuilder(string[] args)
     {
         Services = new ServiceCollection();
-        Services.AddInstallationServices();
         _args = args;
     }
 
     public ConsoleApplicationRuntime Build()
     {
         var sp = Services.BuildServiceProvider();
-        return new ConsoleApplicationRuntime()
+        return new ConsoleApplicationRuntime(_args)
         {
             ServiceProvider = sp.CreateScope().ServiceProvider,
-            Arguments = _args
         };
     }
 }

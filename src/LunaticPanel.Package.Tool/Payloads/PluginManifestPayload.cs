@@ -8,7 +8,8 @@ public sealed record PluginManifestPayload
     public string Version { get; set; } = default!;
     public string Description { get; set; } = default!;
     public string? Copyright { get; set; }
-
+    public string PanelVersion { get; set; } = default!;
+    public int DotnetVersion { get; set; }
     //var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
     //var company = asm.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company;
     //var product = asm.GetCustomAttribute<AssemblyProductAttribute>()?.Product;

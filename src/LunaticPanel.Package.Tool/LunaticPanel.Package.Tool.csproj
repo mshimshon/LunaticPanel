@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -18,10 +18,12 @@
   <ItemGroup>
     <PackageReference Include="McMaster.NETCore.Plugins" />
     <PackageReference Include="System.CommandLine" />
+
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Core.Extensions\LunaticPanel.Core.Extensions.csproj" />
     <ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
     <ProjectReference Include="..\LunaticPanel.Core.Utils.Abstraction\LunaticPanel.Core.Utils.Abstraction.csproj" />
     <ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />

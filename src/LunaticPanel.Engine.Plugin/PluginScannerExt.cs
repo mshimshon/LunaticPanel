@@ -17,13 +17,13 @@ public static class PluginScannerExt
         Console.WriteLine($"Plugin Root: {locationForPlugins}");
         foreach (var dir in Directory.EnumerateDirectories(locationForPlugins))
         {
-            Console.Out.WriteLine($"Plugin Folder: {dir}");
             var entity = FindPluginDllInDirectory(dir, p => processed.Add(p));
             if (entity == default)
             {
                 Console.Out.WriteLine($"No Plugin Found In: {dir}");
                 continue;
             }
+            Console.Out.WriteLine($"Plugin Folder: {dir}");
             results.Add(entity);
         }
 
@@ -35,11 +35,13 @@ public static class PluginScannerExt
 
     public static PluginScannedEntity? FindPluginDllInDirectory(string pluginFolder, Func<string, bool>? skipDll = default)
     {
-        foreach (var dll in Directory.GetFiles(pluginFolder, "*.dll"))
+        Console.Out.WriteLine($"[Search for Plugin File]");
+        foreach (var dll in Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly))
         {
-
+            Console.Out.WriteLine($"{dll}");
             if (skipDll != default && !skipDll(Path.GetFullPath(dll)))
                 continue;
+
             var entity = LoadPluginInformation(dll);
             if (entity == default) continue;
             return entity;
@@ -60,6 +62,7 @@ public static class PluginScannerExt
 
             var assembly = tmpLoader.LoadDefaultAssembly();
             var pluginId = assembly.GetName().Name;
+            Console.Out.WriteLine($"Testing Dll for {pluginId}");
             var pluginEntryType = assembly.GetTypes()
                 .SingleOrDefault(t => t.IsClass && !t.IsAbstract &&
                     typeof(IPlugin).IsAssignableFrom(t) && t.Namespace == pluginId);
@@ -67,11 +70,11 @@ public static class PluginScannerExt
             bool unloadAndSkip = false;
             if (pluginEntryType == default)
                 unloadAndSkip = true;
-            else if (typeof(IPlugin).IsAssignableFrom(pluginEntryType))
-                unloadAndSkip = true;
 
             if (unloadAndSkip)
             {
+                Console.Out.WriteLine($"{pluginId} not a plugin, unloading.");
+
                 tmpLoader.Dispose();
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
@@ -103,7 +106,7 @@ public static class PluginScannerExt
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine(ex.Message);
+            Console.Error.WriteLine($"Testing Plugin Failed with {ex.Message}");
         }
         return default;
     }

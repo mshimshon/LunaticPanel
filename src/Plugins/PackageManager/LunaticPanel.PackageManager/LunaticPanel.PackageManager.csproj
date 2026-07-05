@@ -12,20 +12,10 @@
 		<Description>Official Package Manager Plugin for Lunatic Panel</Description>
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
 	</PropertyGroup>
-	<ItemGroup>
-		<None Include="$(OutputPath)**\*.*"
-			  Pack="true"
-			  PackagePath="plugin" />
-	</ItemGroup>
-	<Target Name="RemoveHostOwnedAssembliesAfterBuild" AfterTargets="Build" Condition="'$(IsPublish)' != 'true'">
-		<ItemGroup>
-			<_DeleteDlls Include="$(OutputPath)**\Microsoft.*.dll;	$(OutputPath)MudBlazor.dll" />
-		</ItemGroup>
-		<Delete Files="@(_DeleteDlls)" />
-	</Target>
-	
+
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
 	</ItemGroup>
@@ -49,12 +39,4 @@
 	  <Folder Include="Hooks\Queries\" />
 	</ItemGroup>
 
-	<Target Name="RemoveHostOwnedAssembliesAfterBuild" AfterTargets="Build" Condition="'$(IsPublish)' != 'true'">
-
-		<ItemGroup>
-			<_DeleteDlls Include="$(OutputPath)**\Microsoft.*.dll;	$(OutputPath)MudBlazor.dll" />
-		</ItemGroup>
-
-		<Delete Files="@(_DeleteDlls)" />
-	</Target>
 </Project>

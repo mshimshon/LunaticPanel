@@ -7,22 +7,32 @@ namespace LunaticPanel.Package.Tool.Extensions;
 
 internal static class CommandLineExt
 {
-    internal static async Task<bool> ExecuteCommandAsync(Func<Task> task)
+
+    internal static void SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task> task)
     {
-        bool success = await ExecuteCommandResultAsync(async () =>
+        command.SetAction(async (a, b) => await ExecuteCommandAsync(a, b, task));
+    }
+    internal static void SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task<object?>> task)
+    {
+        command.SetAction(async (a, b) => await ExecuteCommandAsync(a, b, task));
+    }
+    internal static async Task<bool> ExecuteCommandAsync(ParseResult parseResult, CancellationToken ct, Func<ParseResult, CancellationToken, Task> task)
+    {
+        bool success = await ExecuteCommandAsync(parseResult, ct, async (p, b) =>
         {
-            await task();
+            await task(p, b);
             return "Success";
         });
         return success;
     }
-    internal static async Task<bool> ExecuteCommandResultAsync(Func<Task<object?>> task)
+
+    internal static async Task<bool> ExecuteCommandAsync(ParseResult parseResult, CancellationToken ct, Func<ParseResult, CancellationToken, Task<object?>> task)
     {
         bool success = false;
         try
         {
 
-            object? serviceResult = await task();
+            object? serviceResult = await task(parseResult, ct);
             var outResult = new ResultResponse()
             {
                 Data = serviceResult

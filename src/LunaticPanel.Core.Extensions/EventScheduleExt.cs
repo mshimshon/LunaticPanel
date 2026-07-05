@@ -110,7 +110,6 @@ public static class EventScheduleExt
     /// Be aware that scheduled events may overlap; the event handler is responsible for preventing
     /// concurrent execution when overlap is not allowed, which may require maintaining internal state.
     /// </summary>
-    /// <remarks>
     public static EventScheduledBusMessageData ReplyWithAction(this IEventScheduledBusMessage msg, Func<CancellationToken, Task> action)
     => new EventScheduledBusMessageData(action);
     public static EventScheduledBusMessageData SkipExecution(this EventScheduledBusMessageData eventScheduledBusMessageData)

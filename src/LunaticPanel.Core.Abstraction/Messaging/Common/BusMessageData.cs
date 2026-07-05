@@ -16,8 +16,10 @@ public class BusMessageData
     {
         Data = data;
         DataType = data.GetType();
+
         ProcessDataToJson();
     }
+
     public object? GetData()
     {
         if (JsonObjectData != default) return JsonObjectData;
