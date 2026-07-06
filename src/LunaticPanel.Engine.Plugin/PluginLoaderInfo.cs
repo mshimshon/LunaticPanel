@@ -7,6 +7,7 @@ internal class PluginLoaderInfo : IPluginLoader
 {
     private readonly PluginLoader _pluginLoader;
     private Assembly? _loaded = default;
+    public bool IsLoaded => _loaded != default;
     public PluginLoaderInfo(PluginLoader pluginLoader)
     {
         _pluginLoader = pluginLoader;
@@ -18,6 +19,7 @@ internal class PluginLoaderInfo : IPluginLoader
         _loaded = _pluginLoader.LoadDefaultAssembly();
         return _loaded;
     }
+
     public void Unload()
     {
         _pluginLoader.Dispose();

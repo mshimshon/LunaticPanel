@@ -2,8 +2,10 @@
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Exceptions.PackExceptions;
+using LunaticPanel.Package.Tool.Exceptions.UnpackExceptions;
 using LunaticPanel.Package.Tool.Extensions;
 using LunaticPanel.Package.Tool.Payloads;
+using LunaticPanel.Package.Tool.Tools.Plugin;
 using LunaticPanel.Package.Tool.Tools.Validation;
 using System.CommandLine;
 using System.IO.Compression;
@@ -30,8 +32,7 @@ internal static class PackingCommandExt
         var command = new Command("pack", "pack plugin folder to .lpkg")
             .AddOption<string>("input", "in", "this is the input folder of the plugin.")
             .AddOption<string>("output", "out", "this is the folder where to write the 'pluginid.version.lpkg' file.")
-
-            .SetPackingAction();
+            .SetExecuteCommand(PackingAction);
         return root.WithSubCommand(command);
     }
     public static RootCommand WithUnPackCommands(this RootCommand root)
@@ -39,30 +40,66 @@ internal static class PackingCommandExt
         var command = new Command("unpack", "pack plugin folder to .lpkg")
             .AddOption<string>("input", "in", "this is the .lpkg file.")
             .AddOption<string>("output", "out", "where to write files.")
-            .SetPackingAction();
+            .SetExecuteCommand(UnPackingAction);
+
         return root.WithSubCommand(command);
     }
-    public static bool IsDirectoryPath(string path)
+
+    private static async Task UnPackingAction(ParseResult parseResult, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(path))
-            return false;
-
-        char last = path[path.Length - 1];
-
-        // Explicit directory indicator
-        if (last == Path.DirectorySeparatorChar || last == Path.AltDirectorySeparatorChar)
-            return true;
-
-        // If last segment has no dot, assume directory
-        string name = Path.GetFileName(path);
-        return !name.Contains('.');
+        var input = parseResult.GetValue<string>("--input");
+        var output = parseResult.GetValue<string>("--output");
+        bool missingParams = input == default || output == default;
+        if (missingParams)
+            throw new MissingParametersException("--input or --output is missing and required for packing.");
+        else if (!File.Exists(input))
+            throw new UnpackInputFileMissingException(input!);
+        else if (!IsDirectoryPath(output!))
+            throw new UnpackOutputDirectoryInvalidException(output!);
+        else
+            await UnpackAsync(input, output!);
     }
 
-    private static Command SetPackingAction(this Command command)
+
+    public static async Task UnpackAsync(string input, string output)
     {
-        command.SetExecuteCommand(PackingAction);
-        return command;
+        var manifest = PluginUtilitiesExt.ReadManifestFromArchive(input);
+        Console.Out.WriteLine($"Trying to Unpack {input}");
+        await UnpackToLocation(manifest, input, output);
     }
+
+    public static async Task UnpackToLocation(PluginManifestPayload manifest, string input, string outputFolder)
+    {
+        var targetExtraction = Path.Combine(outputFolder, manifest.Id);
+        if (Directory.Exists(targetExtraction))
+        {
+            Console.Out.WriteLine($"Removing Existing {targetExtraction}".Cyan());
+            Directory.Delete(targetExtraction);
+        }
+
+        Console.Out.WriteLine($"Unpacking {manifest.Id} to {targetExtraction}".Cyan());
+        using var zip = await ZipFile.OpenReadAsync(input);
+
+        foreach (var entry in zip.Entries)
+        {
+
+            // Skip directory entries
+            if (string.IsNullOrEmpty(entry.Name))
+                continue;
+            // Build the full output path
+            string outputPath = Path.Combine(targetExtraction, entry.FullName);
+
+            // Ensure subdirectories exist
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+            await entry.ExtractToFileAsync(outputPath);
+            Console.Out.WriteLine($"Extracted to {outputPath}".Green());
+
+        }
+        Console.Out.WriteLine($"Package Created Finished Extracting to {targetExtraction}".Green());
+
+
+    }
+
     private static async Task PackingAction(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
@@ -77,7 +114,6 @@ internal static class PackingCommandExt
         else
             await PackAsync(input, output!);
     }
-
     public static async Task PackAsync(string input, string output)
     {
         Console.Out.WriteLine($"Trying to Pack {input}");
@@ -115,7 +151,7 @@ internal static class PackingCommandExt
     {
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
-        var entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder);
+        LunaticPanel.Engine.Plugin.Entities.PluginScannedEntity? entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder);
         if (entity == default)
             throw new PluginDllNotFoundException(inputFolder);
 
@@ -159,7 +195,8 @@ internal static class PackingCommandExt
             Description = description,
             Version = version,
             PanelVersion = sdkVersionObj.Major.ToString(),
-            DotnetVersion = PackSettings.DotNetVersion
+            DotnetVersion = PackSettings.DotNetVersion,
+            PluginEntryFile = Path.GetFileName(entity.Location)
         };
 
     }
@@ -195,15 +232,30 @@ internal static class PackingCommandExt
         foreach (var file in files)
         {
             var fullPath = Path.GetFullPath(file);
-            var relative = fullPath.Substring(inputFolder.Length).TrimStart(Path.DirectorySeparatorChar);
-            await zip.CreateEntryFromFileAsync(fullPath, relative, CompressionLevel.Optimal);
+            var relative = Path.GetRelativePath(inputFolder, fullPath);
+            await zip.CreateEntryFromFileAsync(fullPath, relative, CompressionLevel.NoCompression);
             Console.Out.WriteLine($"Pack File {relative}.");
 
         }
 
-        await zip.CreateEntryFromFileAsync(manifestFileTmp, "manifest.json", CompressionLevel.Optimal);
+        await zip.CreateEntryFromFileAsync(manifestFileTmp, "manifest.json", CompressionLevel.NoCompression);
         Console.Out.WriteLine($"Package Created at {outputPackage}".Green());
 
+    }
+    private static bool IsDirectoryPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        char last = path[path.Length - 1];
+
+        // Explicit directory indicator
+        if (last == Path.DirectorySeparatorChar || last == Path.AltDirectorySeparatorChar)
+            return true;
+
+        // If last segment has no dot, assume directory
+        string name = Path.GetFileName(path);
+        return !name.Contains('.');
     }
 
 }

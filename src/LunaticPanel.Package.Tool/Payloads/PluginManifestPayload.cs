@@ -10,6 +10,7 @@ public sealed record PluginManifestPayload
     public string? Copyright { get; set; }
     public string PanelVersion { get; set; } = default!;
     public int DotnetVersion { get; set; }
+    public string PluginEntryFile { get; set; } = default!;
     //var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
     //var company = asm.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company;
     //var product = asm.GetCustomAttribute<AssemblyProductAttribute>()?.Product;

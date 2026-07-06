@@ -8,13 +8,15 @@ namespace LunaticPanel.Package.Tool.Extensions;
 internal static class CommandLineExt
 {
 
-    internal static void SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task> task)
+    internal static Command SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task> task)
     {
         command.SetAction(async (a, b) => await ExecuteCommandAsync(a, b, task));
+        return command;
     }
-    internal static void SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task<object?>> task)
+    internal static Command SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task<object?>> task)
     {
         command.SetAction(async (a, b) => await ExecuteCommandAsync(a, b, task));
+        return command;
     }
     internal static async Task<bool> ExecuteCommandAsync(ParseResult parseResult, CancellationToken ct, Func<ParseResult, CancellationToken, Task> task)
     {

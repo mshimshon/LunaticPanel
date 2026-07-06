@@ -51,9 +51,11 @@ public static class PluginScannerExt
 
     public static PluginScannedEntity? LoadPluginInformation(string dllFile)
     {
+        PluginLoader? tmpLoader = default;
+        PluginLoader? permanentLoader = default;
         try
         {
-            var tmpLoader = PluginLoader.CreateFromAssemblyFile(
+            tmpLoader = PluginLoader.CreateFromAssemblyFile(
                 dllFile,
                 sharedTypes: _sharedTypes,
                 c => c.IsUnloadable = true
@@ -64,7 +66,7 @@ public static class PluginScannerExt
             var pluginId = assembly.GetName().Name;
             Console.Out.WriteLine($"Testing Dll for {pluginId}");
             var pluginEntryType = assembly.GetTypes()
-                .SingleOrDefault(t => t.IsClass && !t.IsAbstract &&
+                .FirstOrDefault(t => t.IsClass && !t.IsAbstract &&
                     typeof(IPlugin).IsAssignableFrom(t) && t.Namespace == pluginId);
 
             bool unloadAndSkip = false;
@@ -94,7 +96,7 @@ public static class PluginScannerExt
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            var permanentLoader = PluginLoader.CreateFromAssemblyFile(
+            permanentLoader = PluginLoader.CreateFromAssemblyFile(
                 dllFile,
                 sharedTypes: _sharedTypes,
                 c => c.IsUnloadable = true
@@ -107,6 +109,18 @@ public static class PluginScannerExt
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Testing Plugin Failed with {ex.Message}");
+        }
+        finally
+        {
+            if (tmpLoader != default && tmpLoader.IsUnloadable)
+            {
+                tmpLoader.Dispose();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+
+
         }
         return default;
     }

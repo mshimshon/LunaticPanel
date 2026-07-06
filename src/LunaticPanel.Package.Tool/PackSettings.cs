@@ -32,6 +32,7 @@ internal static class PackSettings
             "NuGet.Versioning",
   };
     public static int DotNetVersion = 0;
+    public static int LunaticPanelVersion = 0;
     public static void PopulateExclusionDlls()
     {
         var dllExclusion = _blacklistDlls.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -44,7 +45,7 @@ internal static class PackSettings
         Console.Out.WriteLine($"Found {ExcludedDlls.Count} Dlls to Exclude from Packing".Green());
         foreach (var item in ExcludedDlls)
         {
-            Console.Out.WriteLine($"{item} on exclusion list.".Red());
+            Console.Out.WriteLine($"{item} on exclusion list.".Blue());
 
         }
     }
@@ -59,6 +60,8 @@ internal static class PackSettings
 
     private static HashSet<string> ScanDllSdkLocation()
     {
+
+
         string pathSep = Path.DirectorySeparatorChar.ToString();
         string dotnetRoot = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
         Console.WriteLine($"Runtime Dotnet Location: {dotnetRoot}".Cyan());
