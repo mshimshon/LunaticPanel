@@ -46,8 +46,8 @@ internal static class PluginValidatorCommandExt
             var rootTmp = Path.GetTempPath();
             var tmpFolder = Path.GetFileNameWithoutExtension(Path.GetTempFileName());
             outputPackageTmp = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{PackSettings.LunaticPanelVersion}", tmpFolder);
-            await PackingCommandExt.UnpackToLocation(manifest, input, outputPackageTmp);
-            inputFolder = Path.Combine(outputPackageTmp, manifest.Id);
+            await PackingCommandExt.UnpackToLocation(manifest, input, outputPackageTmp, true);
+            inputFolder = outputPackageTmp;
         }
 
         try

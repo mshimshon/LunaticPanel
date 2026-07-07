@@ -40,6 +40,7 @@ internal static class PackingCommandExt
         var command = new Command("unpack", "pack plugin folder to .lpkg")
             .AddOption<string>("input", "in", "this is the .lpkg file.")
             .AddOption<string>("output", "out", "where to write files.")
+            .AddOption<bool>("root", "r", "cause the unpack to happen directly into the root output it will not unpack ./Plugin.Id folder.")
             .SetExecuteCommand(UnPackingAction);
 
         return root.WithSubCommand(command);
@@ -49,6 +50,7 @@ internal static class PackingCommandExt
     {
         var input = parseResult.GetValue<string>("--input");
         var output = parseResult.GetValue<string>("--output");
+        var rootUnpack = parseResult.GetValue<bool>("--root");
         bool missingParams = input == default || output == default;
         if (missingParams)
             throw new MissingParametersException("--input or --output is missing and required for packing.");
@@ -57,20 +59,21 @@ internal static class PackingCommandExt
         else if (!IsDirectoryPath(output!))
             throw new UnpackOutputDirectoryInvalidException(output!);
         else
-            await UnpackAsync(input, output!);
+            await UnpackAsync(input, output!, rootUnpack);
     }
 
 
-    public static async Task UnpackAsync(string input, string output)
+    public static async Task UnpackAsync(string input, string output, bool rootUnpack)
     {
         var manifest = PluginUtilitiesExt.ReadManifestFromArchive(input);
         Console.Out.WriteLine($"Trying to Unpack {input}");
-        await UnpackToLocation(manifest, input, output);
+        await UnpackToLocation(manifest, input, output, rootUnpack);
     }
 
-    public static async Task UnpackToLocation(PluginManifestPayload manifest, string input, string outputFolder)
+    public static async Task UnpackToLocation(PluginManifestPayload manifest, string input, string outputFolder, bool rootUnpack)
     {
-        var targetExtraction = Path.Combine(outputFolder, manifest.Id);
+        var linuxId = manifest.Id.Replace('.', '_').ToLower();
+        var targetExtraction = rootUnpack ? outputFolder : Path.Combine(outputFolder, linuxId);
         if (Directory.Exists(targetExtraction))
         {
             Console.Out.WriteLine($"Removing Existing {targetExtraction}".Cyan());

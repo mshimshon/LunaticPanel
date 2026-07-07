@@ -30,9 +30,6 @@ public static class PluginScannerExt
         return results;
     }
 
-
-
-
     public static PluginScannedEntity? FindPluginDllInDirectory(string pluginFolder, Func<string, bool>? skipDll = default)
     {
         Console.Out.WriteLine($"[Search for Plugin File]");
