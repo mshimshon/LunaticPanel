@@ -166,6 +166,7 @@ internal static class PackingCommandExt
         var description = asm.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description;
         Console.Out.WriteLine($"description:{description}".Magenta());
         var company = asm.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company;
+
         Console.Out.WriteLine($"company:{company}".Magenta());
         var title = asm.GetCustomAttribute<AssemblyTitleAttribute>()?.Title;
         Console.Out.WriteLine($"title:{title}".Magenta());
@@ -173,11 +174,6 @@ internal static class PackingCommandExt
         Console.Out.WriteLine($"version:{version}".Magenta());
         var copyright = asm.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright;
         Console.Out.WriteLine($"copyright:{copyright}".Magenta());
-
-        var sdkVersion = typeof(PluginManifestPayload).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion!.Split('+')[0];
-        Console.Out.WriteLine($"sdkVersion:{sdkVersion}".Magenta());
-        Console.Out.WriteLine($"Dotnet Version:{PackSettings.DotNetVersion}".Magenta());
-        var sdkVersionObj = new Version(sdkVersion!);
 
         entity.Loader.Unload();
         if (pluginId == default)
@@ -188,17 +184,20 @@ internal static class PackingCommandExt
 
         if (description == default)
             throw new PluginDescriptionNotFoundException(pluginId);
+        if (company == default)
+            throw new PluginCompanyNotFoundException();
+
 
         return new PluginManifestPayload()
         {
             Id = pluginId,
             Title = title ?? pluginId,
             Company = company,
-            Copyright = copyright,
+            Author = copyright,
             Description = description,
             Version = version,
-            PanelVersion = sdkVersionObj.Major.ToString(),
-            DotnetVersion = PackSettings.DotNetVersion,
+            PanelVersion = PackSettings.LunaticPanelVersion.ToString(),
+            DotnetVersion = PackSettings.DotNetVersion.ToString(),
             PluginEntryFile = Path.GetFileName(entity.Location)
         };
 
