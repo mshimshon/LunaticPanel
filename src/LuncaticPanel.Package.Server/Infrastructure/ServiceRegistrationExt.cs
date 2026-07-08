@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using LuncaticPanel.Package.Server.Application;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LuncaticPanel.Package.Server.Infrastructure;
 
 public static class ServiceRegistrationExt
 {
-    internal static void AddInfrastructureServices(this IServiceCollection services)
+    internal static void AddInfrastructureLayerServices(this IServiceCollection services)
     {
-
+        services.AddApplicationLayerServices();
     }
 }
 /*
