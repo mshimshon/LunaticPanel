@@ -1,0 +1,11 @@
+﻿using LuncaticPanel.Package.Server.Domain.Exceptions;
+
+namespace LuncaticPanel.Package.Server.Application.Validators.Exceptions;
+
+public sealed class PackageIdNullException : DomainCodedException
+{
+    public PackageIdNullException() :
+        base(nameof(PackageIdNullException), "Package Id cannot be null or empty.")
+    {
+    }
+}

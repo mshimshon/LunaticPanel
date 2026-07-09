@@ -25,6 +25,12 @@ internal class Mediator : IMediator
     {
         switch (request)
         {
+            case GetAllPackageVersionsQuery q:
+                return ServiceProvider.GetRequiredService<IRequestHandler<GetAllPackageVersionsQuery, TResult>>().HandleAsync(q, ct);
+            case GetSpecificPackageVersionQuery q:
+                return ServiceProvider.GetRequiredService<IRequestHandler<GetSpecificPackageVersionQuery, TResult>>().HandleAsync(q, ct);
+            case GetLatestPackageQuery q:
+                return ServiceProvider.GetRequiredService<IRequestHandler<GetLatestPackageQuery, TResult>>().HandleAsync(q, ct);
             case SearchManifestQuery q:
                 return ServiceProvider.GetRequiredService<IRequestHandler<SearchManifestQuery, TResult>>().HandleAsync(q, ct);
             default:

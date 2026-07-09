@@ -14,7 +14,7 @@ public sealed record ManifestEntity
     public PackageAuthor Author { get; }
     public PackageTitle Title { get; init; }
     public PackageCopyright? Copyright { get; init; }
-    public ManifestStatus Status { get; init; } = ManifestStatus.Visible;
+    public ManifestStatus Status { get; init; } = ManifestStatus.Hidden;
     public PackageEndOfLifeMessage? EndOfLifeMessage { get; init; }
     public ManifestEntity(PackageId packageId, PackageDescription description, PackageAuthor author,
         PackageVersion version, PackagePanelVersion panelVersion, PackageDotnetVersion dotnetVersion,

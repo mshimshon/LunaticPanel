@@ -1,8 +1,8 @@
 ﻿namespace LuncaticPanel.Package.Server.Application.Exceptions;
 
-public class ApplicationException : Exception
+public class AppLayerException : Exception
 {
-    public ApplicationException(string code, string message) : base(message)
+    public AppLayerException(string code, string message) : base(message)
     {
         Code = code;
     }

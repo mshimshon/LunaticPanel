@@ -6,7 +6,7 @@ public interface IRequestHandler<TCommand>
     Task HandleAsync(TCommand data, CancellationToken ct = default);
 }
 
-public interface IRequestHandler<TCommand, TRequest>
+public interface IRequestHandler<TCommand, TResult>
 {
-    Task<TRequest> HandleAsync(TCommand data, CancellationToken ct = default);
+    Task<TResult> HandleAsync(TCommand data, CancellationToken ct = default);
 }
