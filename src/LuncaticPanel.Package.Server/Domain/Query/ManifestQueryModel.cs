@@ -1,4 +1,5 @@
 ﻿using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
+using LuncaticPanel.Package.Server.Domain.Query.ValueObjects;
 using LuncaticPanel.Package.Server.Domain.QueryModels;
 
 namespace LuncaticPanel.Package.Server.Domain.Query;
@@ -8,7 +9,7 @@ public sealed record ManifestQueryModel : IManifestQueryModel
     public PackageId? Id { get; init; }
     public PackagePanelVersion? PanelVersion { get; init; }
 
-    public string? Keywords { get; init; }
+    public QueryKeywords? Keywords { get; init; }
 
     public bool ShowHidden { get; init; }
 

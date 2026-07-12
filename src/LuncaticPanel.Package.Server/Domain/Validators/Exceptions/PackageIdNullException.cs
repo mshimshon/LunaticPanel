@@ -1,6 +1,6 @@
 ﻿using LuncaticPanel.Package.Server.Domain.Exceptions;
 
-namespace LuncaticPanel.Package.Server.Application.Validators.Exceptions;
+namespace LuncaticPanel.Package.Server.Domain.Validators.Exceptions;
 
 public sealed class PackageIdNullException : DomainCodedException
 {

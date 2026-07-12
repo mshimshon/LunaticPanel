@@ -1,5 +1,4 @@
-﻿using LuncaticPanel.Package.Server.Application.Validators;
-using LuncaticPanel.Package.Server.Application.Validators.Exceptions;
+﻿using LuncaticPanel.Package.Server.Domain.Validators;
 using System.Text.RegularExpressions;
 
 namespace LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;

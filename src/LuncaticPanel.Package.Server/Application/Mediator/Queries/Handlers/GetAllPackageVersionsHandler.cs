@@ -1,5 +1,6 @@
 ﻿using LuncaticPanel.Package.Server.Application.Mediator.Engine;
 using LuncaticPanel.Package.Server.Application.Payloads;
+using LuncaticPanel.Package.Server.Application.Payloads.Mapping;
 using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
 using LuncaticPanel.Package.Server.Domain.Repositories;
 
@@ -17,6 +18,7 @@ public sealed class GetAllPackageVersionsHandler : IRequestHandler<GetAllPackage
     public async Task<ICollection<ManifestPayload>> HandleAsync(GetAllPackageVersionsQuery data, CancellationToken ct = default)
     {
         PackageId id = new(data.Id);
-        await _readRepository.
+        var result = await _readRepository.GetAllAsync(id, ct);
+        return result.Select(p => p.ToApplication()).ToList();
     }
 }
