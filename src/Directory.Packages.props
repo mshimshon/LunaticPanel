@@ -17,6 +17,8 @@
     <PackageVersion Include="LunaticPanel.Core" Version="0.1.836" />
     <PackageVersion Include="LunaticPanel.Engine.Keys" Version="0.1.836" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.11" />
+    <PackageVersion Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.3.11" />
     <PackageVersion Include="MudBlazor" Version="9.5.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="NuGet.Packaging" Version="7.6.0" />

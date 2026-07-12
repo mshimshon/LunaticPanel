@@ -1,12 +1,30 @@
 ﻿using LuncaticPanel.Package.Server.Web;
-using Microsoft.Extensions.DependencyInjection;
+using LuncaticPanel.Package.Server.Web.Payloads;
+using Microsoft.AspNetCore.Builder;
 
 namespace LuncaticPanel.Package.Server;
 
 public static class ServiceRegistrationExt
 {
-    public static void AddPackageServeServices(this IServiceCollection services)
+    public static void AddLunaPackage(this WebApplicationBuilder app)
     {
-        services.AddWebServices();
+        app.AddWebLayerServices();
     }
+    public static void UseLunaPackage(this WebApplication app)
+    {
+        app.AddEndpoints();
+    }
+
+    public static void UseLunaPackageCodedErrorFor<TException>(this WebApplication app, Func<TException, CodedException> onErrorFound)
+    {
+        app.EnableLunaPackageCodedError();
+        app.UseExceptionHandlerFor(onErrorFound);
+    }
+
+
+    public static void EnableLunaPackageCodedError(this WebApplication app)
+    {
+        app.UseLayerExceptionHandler();
+    }
+
 }
