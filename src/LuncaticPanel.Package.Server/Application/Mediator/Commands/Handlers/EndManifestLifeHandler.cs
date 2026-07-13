@@ -14,8 +14,8 @@ internal sealed class EndManifestLifeHandler : IRequestHandler<EndManifestLifeCo
     }
     public async Task HandleAsync(EndManifestLifeCommand data, CancellationToken ct = default)
     {
-        PackageId id = new(data.Id);
-        PackageEndOfLifeMessage message = new(data.Message);
+        PackageId id = new(data.Data.Id);
+        PackageEndOfLifeMessage message = new(data.Data.Message);
         await _writeRepository.EndLifeAsync(id, message, ct);
     }
 }

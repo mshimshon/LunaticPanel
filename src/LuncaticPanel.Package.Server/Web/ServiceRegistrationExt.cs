@@ -1,6 +1,8 @@
 ﻿using LuncaticPanel.Package.Server.Application.Exceptions;
+using LuncaticPanel.Package.Server.Application.Mediator.Commands;
 using LuncaticPanel.Package.Server.Application.Mediator.Engine;
 using LuncaticPanel.Package.Server.Application.Mediator.Queries;
+using LuncaticPanel.Package.Server.Application.Payloads;
 using LuncaticPanel.Package.Server.Application.Payloads.Requests;
 using LuncaticPanel.Package.Server.Domain.Exceptions;
 using LuncaticPanel.Package.Server.Infrastructure;
@@ -21,18 +23,36 @@ public static class ServiceRegistrationExt
         app.Services.AddInfrastructureLayerServices();
     }
 
-    internal static string[] APIs =
+    internal static HashSet<string> APIs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+
+    private static void AddEndpointsVersion1(this WebApplication app)
     {
-        "v1"
-    };
+
+        var version = "v1";
+        if (APIs.Contains(version)) return;
+        APIs.Add(version);
+        var v1Group = app.MapGroup($"/lpkg/{version}");
+        v1Group.MapPost("/package/push", (ManifestPayload data, IMediator mediator)
+            => mediator.ExecuteAsync(new CreateManifestCommand(data)));
+
+        v1Group.MapPost("/package/validate", (ManifestPayload data, IMediator mediator)
+            => mediator.ExecuteAsync(new CreateManifestCommand(data)));
+
+        v1Group.MapPost("/package/hide/{id}/{version}", (string id, string version, IMediator mediator)
+            => mediator.ExecuteAsync(new HideManifestVersionCommand(id, version)));
+        v1Group.MapPost("/package/endlife", (EndOfLifeRequest data, IMediator mediator)
+            => mediator.ExecuteAsync(new EndManifestLifeCommand(data)));
+        v1Group.MapPost("/package/search", (ManifestSearchRequest data, IMediator mediator)
+            => mediator.ExecuteAsync(new SearchManifestQuery(data)));
+        v1Group.MapGet("/package/info/{id}", (string id, IMediator mediator) =>
+            mediator.ExecuteAsync(new GetAllPackageVersionsQuery(id)));
+        v1Group.MapGet("/package/info/{id}/{version}", (string id, string version, IMediator mediator)
+            => mediator.ExecuteAsync(new GetSpecificPackageVersionQuery(id, version)));
+    }
     internal static void AddEndpoints(this WebApplication app)
     {
-        app.MapPost("/lpkg/v1/package/search", (ManifestSearchRequest data, IMediator mediator)
-            => mediator.ExecuteAsync(new SearchManifestQuery(data)));
-        app.MapGet("/lpkg/v1/package/info/{id}", (string id, IMediator mediator) =>
-            mediator.ExecuteAsync(new GetAllPackageVersionsQuery(id)));
-        app.MapGet("/lpkg/v1/package/info/{id}/{version}", (string id, string version, IMediator mediator)
-            => mediator.ExecuteAsync(new GetSpecificPackageVersionQuery(id, version)));
+        app.AddEndpointsVersion1();
         app.MapGet("/lpkg/versions", () => APIs);
     }
 

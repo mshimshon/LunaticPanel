@@ -13,9 +13,14 @@ internal static class CommandLineExt
         command.SetAction(async (a, b) => await ExecuteCommandAsync(a, b, task));
         return command;
     }
-    internal static Command SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task<object?>> task)
+    internal static Command SetExecuteCommand(this Command command, Func<ParseResult, CancellationToken, Task<object>> task)
     {
         command.SetAction(async (a, b) => await ExecuteCommandAsync(a, b, task));
+        return command;
+    }
+    internal static Command SetExecuteCommand<TResult>(this Command command, Func<ParseResult, CancellationToken, Task<TResult>> task)
+    {
+        command.SetAction(async (a, b) => await ExecuteCommandAsync<TResult>(a, b, task));
         return command;
     }
     internal static async Task<bool> ExecuteCommandAsync(ParseResult parseResult, CancellationToken ct, Func<ParseResult, CancellationToken, Task> task)
@@ -27,8 +32,14 @@ internal static class CommandLineExt
         });
         return success;
     }
-
-    internal static async Task<bool> ExecuteCommandAsync(ParseResult parseResult, CancellationToken ct, Func<ParseResult, CancellationToken, Task<object?>> task)
+    internal static Task<bool> ExecuteCommandAsync<TResult>(ParseResult parseResult, CancellationToken ct, Func<ParseResult, CancellationToken, Task<TResult>> task)
+    => ExecuteCommandAsync(parseResult, ct, async (p, c) =>
+        {
+            var result = await task.Invoke(p, c);
+            return (object)result!;
+        }
+    );
+    internal static async Task<bool> ExecuteCommandAsync(ParseResult parseResult, CancellationToken ct, Func<ParseResult, CancellationToken, Task<object>> task)
     {
         bool success = false;
         try
