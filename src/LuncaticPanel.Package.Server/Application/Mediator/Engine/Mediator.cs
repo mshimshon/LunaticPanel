@@ -1,4 +1,5 @@
 ﻿using LuncaticPanel.Package.Server.Application.Exceptions;
+using LuncaticPanel.Package.Server.Application.Mediator.Commands;
 using LuncaticPanel.Package.Server.Application.Mediator.Queries;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,10 +18,26 @@ internal class Mediator : IMediator
     {
         switch (request)
         {
+            case CreateManifestCommand c:
+                return ServiceProvider.GetRequiredService<IRequestHandler<CreateManifestCommand>>().HandleAsync(c, ct);
+            case HideManifestVersionCommand c:
+                return ServiceProvider.GetRequiredService<IRequestHandler<HideManifestVersionCommand>>().HandleAsync(c, ct);
+            case EndManifestLifeCommand c:
+                return ServiceProvider.GetRequiredService<IRequestHandler<EndManifestLifeCommand>>().HandleAsync(c, ct);
             default:
                 throw new MediatorCommandNotFoundException();
         }
     }
+
+    public Task<TResult> ExecuteAsync<TResult>(IRequest request, CancellationToken ct = default)
+    {
+        switch (request)
+        {
+            default:
+                throw new MediatorCommandNotFoundException();
+        }
+    }
+
     public Task<TResult> ExecuteAsync<TResult>(IRequest<TResult> request, CancellationToken ct = default)
     {
         switch (request)

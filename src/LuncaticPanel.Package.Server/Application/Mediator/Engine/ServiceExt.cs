@@ -1,4 +1,6 @@
-﻿using LuncaticPanel.Package.Server.Application.Mediator.Queries;
+﻿using LuncaticPanel.Package.Server.Application.Mediator.Commands;
+using LuncaticPanel.Package.Server.Application.Mediator.Commands.Handlers;
+using LuncaticPanel.Package.Server.Application.Mediator.Queries;
 using LuncaticPanel.Package.Server.Application.Mediator.Queries.Handlers;
 using LuncaticPanel.Package.Server.Application.Payloads;
 using LuncaticPanel.Package.Server.Application.Payloads.Responses;
@@ -15,5 +17,8 @@ internal static class ServiceExt
         services.AddTransient<IRequestHandler<GetAllPackageVersionsQuery, ICollection<ManifestPayload>>, GetAllPackageVersionsHandler>();
         services.AddTransient<IRequestHandler<GetLatestPackageQuery, ManifestPayload>, GetLatestPackageHandler>();
         services.AddTransient<IRequestHandler<GetSpecificPackageVersionQuery, ManifestPayload>, GetSpecificPackageVersionHandler>();
+        services.AddTransient<IRequestHandler<CreateManifestCommand>, CreateManifestHandler>();
+        services.AddTransient<IRequestHandler<HideManifestVersionCommand>, HideManifestVersionHandler>();
+        services.AddTransient<IRequestHandler<EndManifestLifeCommand>, EndManifestLifeHandler>();
     }
 }
