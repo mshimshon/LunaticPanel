@@ -57,8 +57,9 @@ public static class ServiceRegistrationExt
     }
 
 
-    public static Dictionary<Type, Func<object, CodedException>> _customException = new();
-    internal static void UseExceptionHandlerFor<TException>(this WebApplication app, Func<TException, CodedException> onErrorFound)
+    public static Dictionary<Type, Func<object, CodedExceptionPayload>> _customException = new();
+    public static Dictionary<Type, Func<object, CodedExceptionPayload>> _internalException = new();
+    internal static void UseExceptionHandlerFor<TException>(this WebApplication app, Func<TException, CodedExceptionPayload> onErrorFound)
     {
         Type exceptionType = typeof(TException);
         if (_customException.ContainsKey(exceptionType))
@@ -70,20 +71,43 @@ public static class ServiceRegistrationExt
         };
 
     }
+
+    private static void InternalExceptionHandlerFor<TException>(this WebApplication app, Func<TException, CodedExceptionPayload> onErrorFound)
+    {
+        Type exceptionType = typeof(TException);
+        if (_internalException.ContainsKey(exceptionType))
+            return;
+
+        _internalException[exceptionType] = (e) =>
+        {
+            return onErrorFound.Invoke((TException)e);
+        };
+
+    }
     private static bool _exceptionHandlingEnable = false;
     private static void HandleSelfExceptions(this WebApplication app)
     {
-        app.UseExceptionHandlerFor<DomainCodedException>(a => new CodedException(a.Code, a.Message, ExceptionProvenencePayload.Domain));
-        app.UseExceptionHandlerFor<AppLayerException>(a => new CodedException(a.Code, a.Message, ExceptionProvenencePayload.Application));
+        app.InternalExceptionHandlerFor<DomainCodedException>(a => new CodedExceptionPayload(a.Code, a.Message, ExceptionProvenencePayload.Domain));
+        app.InternalExceptionHandlerFor<AppLayerException>(a => new CodedExceptionPayload(a.Code, a.Message, ExceptionProvenencePayload.Application));
     }
 
-    private static CodedException GenerateCodedException(Exception ex)
+    private static CodedExceptionPayload GenerateCodedException(Exception ex)
     {
         var exType = ex.GetType();
-        if (!_customException.ContainsKey(exType))
-            return new CodedException("UnknownException", "Internal system unknown exception occured.", ExceptionProvenencePayload.Unknown);
-        return _customException[exType].Invoke(exType);
-
+        var testList = _customException;
+        foreach (var kv in _customException)
+        {
+            var baseType = kv.Key;
+            if (baseType.IsAssignableFrom(exType))
+                return kv.Value.Invoke(ex);
+        }
+        foreach (var kv in _internalException)
+        {
+            var baseType = kv.Key;
+            if (baseType.IsAssignableFrom(exType))
+                return kv.Value.Invoke(ex);
+        }
+        return new CodedExceptionPayload("UnknownException", "Internal system unknown exception occured.", ExceptionProvenencePayload.Unknown);
     }
     internal static void UseLayerExceptionHandler(this WebApplication app)
     {

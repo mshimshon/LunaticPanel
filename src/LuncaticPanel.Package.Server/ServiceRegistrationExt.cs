@@ -15,7 +15,7 @@ public static class ServiceRegistrationExt
         app.AddEndpoints();
     }
 
-    public static void UseLunaPackageCodedErrorFor<TException>(this WebApplication app, Func<TException, CodedException> onErrorFound)
+    public static void UseLunaPackageCodedErrorFor<TException>(this WebApplication app, Func<TException, CodedExceptionPayload> onErrorFound)
     {
         app.EnableLunaPackageCodedError();
         app.UseExceptionHandlerFor(onErrorFound);

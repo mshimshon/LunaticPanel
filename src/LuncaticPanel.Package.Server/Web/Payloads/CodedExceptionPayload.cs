@@ -2,13 +2,13 @@
 
 namespace LuncaticPanel.Package.Server.Web.Payloads;
 
-public sealed record CodedException
+public sealed record CodedExceptionPayload
 
 {
     public ExceptionProvenencePayload Provenence { get; } = ExceptionProvenencePayload.Unknown;
     public string Code { get; } = default!;
     public string Message { get; } = default!;
-    public CodedException(string code, string message, ExceptionProvenencePayload provenence)
+    public CodedExceptionPayload(string code, string message, ExceptionProvenencePayload provenence)
     {
         Code = code;
         Message = message;

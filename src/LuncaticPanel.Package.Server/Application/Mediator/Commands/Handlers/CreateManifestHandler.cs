@@ -26,7 +26,7 @@ internal sealed class CreateManifestHandler : IRequestHandler<CreateManifestComm
         else
             validation = await _packageValidatorService.ValidateLocalAsync(data.Data.Target, ct);
         if (!validation.HasPassed)
-            throw new PackageValidationException(validation.ErrorFound?.Code ?? "Unknown", validation.ErrorFound?.Message ?? "Unknown Validation Error occured.");
+            throw new PackageValidationException(validation.ErrorFound?.Code ?? "Unknown", validation.ErrorFound?.Message ?? "Unknown Validation Error occured.", validation);
         var manifest = validation!.Manifest!.ToDomain();
         await _manifestWriteRepository.CreateAsync(manifest, ct);
     }
