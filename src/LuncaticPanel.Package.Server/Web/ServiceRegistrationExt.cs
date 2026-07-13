@@ -1,5 +1,6 @@
 ﻿using LuncaticPanel.Package.Server.Application.Exceptions;
 using LuncaticPanel.Package.Server.Application.Mediator.Commands;
+using LuncaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
 using LuncaticPanel.Package.Server.Application.Mediator.Engine;
 using LuncaticPanel.Package.Server.Application.Mediator.Queries;
 using LuncaticPanel.Package.Server.Application.Payloads;
@@ -87,6 +88,7 @@ public static class ServiceRegistrationExt
     private static bool _exceptionHandlingEnable = false;
     private static void HandleSelfExceptions(this WebApplication app)
     {
+        app.InternalExceptionHandlerFor<PackageValidationException>(a => new CodedExceptionPayload(a.Code, a.Message, a.ValidationResult, ExceptionProvenencePayload.Application));
         app.InternalExceptionHandlerFor<DomainCodedException>(a => new CodedExceptionPayload(a.Code, a.Message, ExceptionProvenencePayload.Domain));
         app.InternalExceptionHandlerFor<AppLayerException>(a => new CodedExceptionPayload(a.Code, a.Message, ExceptionProvenencePayload.Application));
     }

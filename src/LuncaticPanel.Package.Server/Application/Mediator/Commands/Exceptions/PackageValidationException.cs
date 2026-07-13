@@ -1,7 +1,10 @@
-﻿namespace LuncaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
+﻿using LuncaticPanel.Package.Server.Application.Exceptions;
 
-public sealed class PackageValidationException
+namespace LuncaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
+
+public sealed class PackageValidationException : AppLayerException
 {
+
     public PackageValidationException(string code, string message, object? validationResult) : base(code, message)
     {
         ValidationResult = validationResult;
