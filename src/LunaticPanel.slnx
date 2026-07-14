@@ -30,6 +30,7 @@
   <Project Path="LunaticPanel.Engine.Plugin/LunaticPanel.Engine.Plugin.csproj" Id="fe55f553-393c-40aa-b992-a186735b7367" />
   <Project Path="LunaticPanel.Engine.Web/LunaticPanel.Engine.Web.csproj" />
   <Project Path="LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj" Id="77efe45b-bcc3-470e-8120-d2edd02f93cb" />
+  <Project Path="LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj" Id="8747fc7c-1a46-4c59-a72a-aa568f6855e7" />
   <Project Path="LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj" Id="5f35e089-266b-4c66-bad5-030e0ac27c97" />
   <Project Path="LunaticPanel.Plugin.Test/LunaticPanel.Plugin.Test.csproj" Id="a427bd3f-1ce3-45f3-b7ad-3071354631f4" />
   <Project Path="LuncaticPanel.Package.Server/LuncaticPanel.Package.Server.csproj" Id="7f6d8ca4-1ab3-429f-899f-1a954fc90dd8" />

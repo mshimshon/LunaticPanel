@@ -19,6 +19,8 @@ public static class DomainValidationExt
     public const int PKG_DESC_MAX_LENGTH = 4000;
     public const int PKG_AUTHOR_MIN_LENGTH = 1;
     public const int PKG_AUTHOR_MAX_LENGTH = 256;
+    public const int PKG_COPYRIGHT_MIN_LENGTH = 1; // TODO: IMPLEMENT VALIDATION ON DOMAIN
+    public const int PKG_COPYRIGHT_MAX_LENGTH = 256;
 
 
 }
