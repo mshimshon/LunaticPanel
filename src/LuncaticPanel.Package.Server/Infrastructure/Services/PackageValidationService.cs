@@ -5,6 +5,7 @@ using LuncaticPanel.Package.Server.Application.Services;
 using LuncaticPanel.Package.Server.Infrastructure.Exceptions;
 using LuncaticPanel.Package.Server.Infrastructure.Payloads;
 using LuncaticPanel.Package.Server.Infrastructure.Payloads.Responses;
+using Octokit;
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -41,19 +42,17 @@ internal sealed class PackageValidationService : IPackageValidatorService
         var tool = await FetchValidatorToolAsync(manifest.PanelVersion);
         return await RunValidationAsync(tool, target, target, ct);
     }
-
     public async Task<PackageValidationResponse> ValidateRemoteAsync(string target, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(target))
             throw new PackageTargetEmptyException();
         else if (Regex.IsMatch(target, URL_PATTERN_VAL, RegexOptions.IgnoreCase))
             throw new PackageTargetPatternViolationException();
-        var filePath = await DownloadAsync(target, ct);
+        var filePath = await DownloadPackageAsync(target, ct);
         var manifest = ReadManifestFromArchive(filePath);
         var tool = await FetchValidatorToolAsync(manifest.PanelVersion);
         return await RunValidationAsync(tool, filePath, target, ct);
     }
-
     private async Task<PackageValidationResponse> RunValidationAsync(string tool, string package, string target, CancellationToken ct = default)
     {
         var validationCommandResult = await _linuxCommand
@@ -77,7 +76,7 @@ internal sealed class PackageValidationService : IPackageValidatorService
             Target = target
         };
     }
-    private async Task<string> DownloadAsync(string target, CancellationToken ct = default)
+    private async Task<string> DownloadPackageAsync(string target, CancellationToken ct = default)
     {
         {
             using var response = await _http.GetAsync(target, HttpCompletionOption.ResponseHeadersRead);
@@ -128,7 +127,6 @@ internal sealed class PackageValidationService : IPackageValidatorService
             }
         }
     }
-
     public ManifestExternalPayload ReadManifestFromArchive(string input)
     {
         try
@@ -151,7 +149,6 @@ internal sealed class PackageValidationService : IPackageValidatorService
         }
 
     }
-
     public async Task<string> FetchValidatorToolAsync(string panelVersion, CancellationToken ct = default)
     {
         // TODO: FETCH FROM GITHUB RELEASE
@@ -160,13 +157,119 @@ internal sealed class PackageValidationService : IPackageValidatorService
         string tmpSub = Path.Combine(tmpRoot, "lunapkg_tools");
         if (!Directory.Exists(tmpSub))
             Directory.CreateDirectory(tmpSub);
+        string cacheToolPath = Path.Combine(tmpSub, $".lpkg_{panelVersion}.cache");
+        bool useLocalTool = false;
+        bool hasLocalTool = File.Exists(cacheToolPath);
+        if (hasLocalTool)
+            useLocalTool = DateTime.UtcNow.Date == DateTime.Parse(File.ReadAllText(cacheToolPath)).Date;
+        bool fallback = useLocalTool;
+        if (!fallback)
+        {
+            try
+            {
+                var releaseAsset = await GetLatestMajorToolUrlAsync(panelVersion, ct);
+                await DownloadAndInstallTool(releaseAsset.Value, releaseAsset.Key, ct);
+            }
+            catch (Exception)
+            {
+                if (!hasLocalTool)
+                    throw;
+            }
+        }
+
         string tmpTargetDir = Path.Combine(tmpSub, panelVersion);
-        string? toolFallback = Directory.GetDirectories(tmpTargetDir, "", SearchOption.TopDirectoryOnly).FirstOrDefault(p => p.StartsWith($"{panelVersion}."));
-        if (toolFallback == default)
+        string? selectedTool = Directory.GetDirectories(tmpTargetDir, "", SearchOption.TopDirectoryOnly)
+            .Where(p => p.StartsWith($"{panelVersion}."))
+            .OrderByDescending(x => x)
+            .FirstOrDefault();
+        if (selectedTool == default)
             throw new FailedToLocateRequiredValidatorException(panelVersion);
-        string pathToExe = Path.Combine(toolFallback, "LunaticPanel.Package.Tool");
+
+        string pathToExe = Path.Combine(selectedTool, "LunaticPanel.Package.Tool");
         if (!File.Exists(pathToExe))
             throw new FailedToLocateRequiredValidatorException(panelVersion);
         return pathToExe;
+    }
+    private async Task<KeyValuePair<string, string>> GetLatestMajorToolUrlAsync(string panelMajor, CancellationToken ct = default)
+    {
+        var client = new GitHubClient(new ProductHeaderValue("LunaticPanel"));
+        var releases = await client.Repository.Release.GetAll("mshimshon", "LunaticPanel");
+        var parsed = releases
+            .Select(r =>
+            {
+                var tag = r.TagName?.Trim();
+                if (string.IsNullOrEmpty(tag))
+                    return null;
+
+                if (tag.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                    tag = tag.Substring(1);
+
+                if (!Version.TryParse(tag, out var v))
+                    return null;
+                return new { Release = r, Version = v };
+            })
+            .Where(x => x != null)
+            .ToList();
+
+        var matchingMajor = parsed
+            .Where(p => p != null)
+            .Where(x => x!.Version.Major.ToString() == panelMajor)
+            .OrderByDescending(x => x!.Version)
+            .FirstOrDefault();
+
+        if (matchingMajor == null)
+            throw new PackageToolNotFoundException(panelMajor);
+
+        // Find lpkg_tool asset
+        var asset = matchingMajor.Release.Assets.FirstOrDefault(a => a.Name.StartsWith("lpkg_tool", StringComparison.OrdinalIgnoreCase));
+
+        if (asset == null)
+            throw new PackageToolNotFoundException(panelMajor);
+
+        return new($"{matchingMajor.Version.Major}.{matchingMajor.Version.Minor}.{matchingMajor.Version.Build}", asset.BrowserDownloadUrl);
+    }
+    private async Task DownloadAndInstallTool(string target, string toolVersion, CancellationToken ct = default)
+    {
+        string tmpRoot = Path.GetTempPath();
+        string tmpSub = Path.Combine(tmpRoot, "lunapkg_tools");
+        if (!Directory.Exists(tmpSub))
+            Directory.CreateDirectory(tmpSub);
+        string major = toolVersion.Split('.')[0];
+        string cacheToolPath = Path.Combine(tmpSub, $".lpkg_{major}.cache");
+        string cacheToolPathWrite = Path.Combine(tmpSub, $".lpkg_{major}.write");
+
+        string tmpDownloads = Path.Combine(tmpSub, "downloads");
+
+        using var response = await _http.GetAsync(target, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+        string filename = Path.GetRandomFileName();
+        string fullDownloadPath = Path.Combine(tmpDownloads, $"{filename}.dl");
+        string fullTargetPath = Path.Combine(tmpDownloads, $"{filename}.zip");
+        await using var input = await response.Content.ReadAsStreamAsync();
+        await using var output = File.Create(fullDownloadPath);
+        await input.CopyToAsync(output);
+        File.Move(fullDownloadPath, fullTargetPath);
+        string targetRoot = Path.Combine(tmpSub, toolVersion);
+        await ExtractZipToRoot(fullTargetPath, targetRoot, ct);
+        File.WriteAllText(cacheToolPathWrite, DateTime.UtcNow.ToString());
+        File.Move(cacheToolPath, cacheToolPathWrite);
+    }
+    private async Task ExtractZipToRoot(string zipPath, string targetRoot, CancellationToken ct = default)
+    {
+        if (Directory.Exists(targetRoot))
+            Directory.Delete(targetRoot, true);
+        Directory.CreateDirectory(targetRoot);
+
+        using var zip = ZipFile.OpenRead(zipPath);
+
+        foreach (var entry in zip.Entries)
+        {
+            // Skip directory entries
+            if (string.IsNullOrEmpty(entry.Name))
+                continue;
+            string outputPath = Path.Combine(targetRoot, entry.FullName);
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+            await entry.ExtractToFileAsync(outputPath);
+        }
     }
 }
