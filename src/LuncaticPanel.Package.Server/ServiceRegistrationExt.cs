@@ -16,6 +16,7 @@ public static class ServiceRegistrationExt
     }
 
     public static void UseLunaPackageCodedErrorFor<TException>(this WebApplication app, Func<TException, CodedExceptionPayload> onErrorFound)
+        where TException : Exception
     {
         app.EnableLunaPackageCodedError();
         app.UseExceptionHandlerFor(onErrorFound);

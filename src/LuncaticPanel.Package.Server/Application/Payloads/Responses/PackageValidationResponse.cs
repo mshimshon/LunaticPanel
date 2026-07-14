@@ -9,7 +9,5 @@ public sealed record PackageValidationResponse
     public string ValidatorVersion { get; init; } = default!;
     public string ValidatorSource { get; init; } = default!;
     public DateTime ValidatedAt { get; init; } = DateTime.UtcNow;
-    public PackageValidationFailureResponse? ErrorFound { get; init; }
-    public bool HasPassed => ErrorFound == default && Manifest != default;
-    public ManifestPayload? Manifest { get; init; }
+    public ManifestPayload Manifest { get; init; } = default!;
 }

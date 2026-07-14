@@ -7,6 +7,7 @@ using LuncaticPanel.Package.Server.Application.Payloads;
 using LuncaticPanel.Package.Server.Application.Payloads.Requests;
 using LuncaticPanel.Package.Server.Domain.Exceptions;
 using LuncaticPanel.Package.Server.Infrastructure;
+using LuncaticPanel.Package.Server.Infrastructure.Exceptions;
 using LuncaticPanel.Package.Server.Web.Payloads;
 using LuncaticPanel.Package.Server.Web.Payloads.Enums;
 using Microsoft.AspNetCore.Builder;
@@ -61,6 +62,7 @@ public static class ServiceRegistrationExt
     public static Dictionary<Type, Func<object, CodedExceptionPayload>> _customException = new();
     public static Dictionary<Type, Func<object, CodedExceptionPayload>> _internalException = new();
     internal static void UseExceptionHandlerFor<TException>(this WebApplication app, Func<TException, CodedExceptionPayload> onErrorFound)
+        where TException : Exception
     {
         Type exceptionType = typeof(TException);
         if (_customException.ContainsKey(exceptionType))
@@ -74,6 +76,7 @@ public static class ServiceRegistrationExt
     }
 
     private static void InternalExceptionHandlerFor<TException>(this WebApplication app, Func<TException, CodedExceptionPayload> onErrorFound)
+        where TException : Exception
     {
         Type exceptionType = typeof(TException);
         if (_internalException.ContainsKey(exceptionType))
@@ -91,6 +94,7 @@ public static class ServiceRegistrationExt
         app.InternalExceptionHandlerFor<PackageValidationException>(a => new CodedExceptionPayload(a.Code, a.Message, a.ValidationResult, ExceptionProvenencePayload.Application));
         app.InternalExceptionHandlerFor<DomainCodedException>(a => new CodedExceptionPayload(a.Code, a.Message, ExceptionProvenencePayload.Domain));
         app.InternalExceptionHandlerFor<AppLayerException>(a => new CodedExceptionPayload(a.Code, a.Message, ExceptionProvenencePayload.Application));
+        app.InternalExceptionHandlerFor<InfrastructureCodedException>(a => new CodedExceptionPayload(a.Code, a.Message, ExceptionProvenencePayload.Application));
     }
 
     private static CodedExceptionPayload GenerateCodedException(Exception ex)

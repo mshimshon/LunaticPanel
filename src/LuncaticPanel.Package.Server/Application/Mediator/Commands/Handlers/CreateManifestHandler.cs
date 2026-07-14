@@ -1,5 +1,4 @@
-﻿using LuncaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
-using LuncaticPanel.Package.Server.Application.Mediator.Engine;
+﻿using LuncaticPanel.Package.Server.Application.Mediator.Engine;
 using LuncaticPanel.Package.Server.Application.Payloads.Mapping;
 using LuncaticPanel.Package.Server.Application.Payloads.Responses;
 using LuncaticPanel.Package.Server.Domain.Repositories;
@@ -20,9 +19,7 @@ internal sealed class CreateManifestHandler : IRequestHandler<CreateManifestComm
     {
         var validationCmd = new PackageValidationCommand(data.Data);
         PackageValidationResponse validation = await _mediator.ExecuteAsync(validationCmd, ct);
-        if (!validation.HasPassed)
-            throw new PackageValidationException(validation.ErrorFound?.Code ?? "Unknown", validation.ErrorFound?.Message ?? "Unknown Validation Error occured.", validation);
-        var manifest = validation!.Manifest!.ToDomain();
+        var manifest = validation.Manifest.ToDomain();
         await _manifestWriteRepository.CreateAsync(manifest, ct);
     }
 }

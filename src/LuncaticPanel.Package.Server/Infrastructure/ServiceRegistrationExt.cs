@@ -1,4 +1,7 @@
-﻿using LuncaticPanel.Package.Server.Application;
+﻿using LunaticPanel.Core.Utils;
+using LuncaticPanel.Package.Server.Application;
+using LuncaticPanel.Package.Server.Application.Services;
+using LuncaticPanel.Package.Server.Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LuncaticPanel.Package.Server.Infrastructure;
@@ -8,6 +11,8 @@ public static class ServiceRegistrationExt
     internal static void AddInfrastructureLayerServices(this IServiceCollection services)
     {
         services.AddApplicationLayerServices();
+        services.AddTransient<IPackageValidatorService, PackageValidationService>();
+        services.AddLinuxCommandUtilityService();
     }
 }
 /*
