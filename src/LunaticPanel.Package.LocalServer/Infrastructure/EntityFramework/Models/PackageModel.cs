@@ -1,10 +1,12 @@
-﻿namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
+﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models.Contracts;
 
-public sealed record PackageModel
+namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
+
+public sealed record PackageModel : IModelTimestamps
 {
-    public string Id { get; init; } = default!;
-    public DateTime Created { get; init; }
-    public DateTime Updated { get; init; }
-    public string? EndOfLifeMessage { get; init; }
-    public ICollection<PackageInfoModel> Versions { get; init; } = default!;
+    public string Id { get; set; } = default!;
+    public string? EndOfLifeMessage { get; set; }
+    public ICollection<PackageInfoModel> Versions { get; set; } = default!;
+    public DateTime Created { get; set; }
+    public DateTime Updated { get; set; }
 }

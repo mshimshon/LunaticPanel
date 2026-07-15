@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
 using LuncaticPanel.Package.Server.Domain.Validators;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Globalization;
 
@@ -21,6 +22,9 @@ internal sealed class PackageModelConfiguration : IEntityTypeConfiguration<Packa
         builder.Property(p => p.Updated)
             .ValueGeneratedOnAddOrUpdate()
             .HasDefaultValueSql("CURRENT_TIMESTAMP")
-            .IsConcurrencyToken();
+            .IsConcurrencyToken()
+            .Metadata
+            .SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
     }
+
 }

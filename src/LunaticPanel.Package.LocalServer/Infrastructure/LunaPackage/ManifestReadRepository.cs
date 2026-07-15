@@ -23,9 +23,9 @@ public class ManifestReadRepository : IManifestReadRepository
         => _packageDatabase.PackageVersions.AnyAsync(p => p.PackageId == id.Value && p.Version == version.Value, ct);
     public async Task<ICollection<ManifestEntity>> GetAllAsync(PackageId id, CancellationToken ct = default)
     {
-        var result = await _packageDatabase.Packages.AsNoTracking()
+        var result = await _packageDatabase.Packages
             .AsSplitQuery()
-            .Include(p => p.Versions).AsNoTracking()
+            .Include(p => p.Versions)
             .SingleOrDefaultAsync(p => p.Id == id.Value, ct);
         //TODO: TRHOW CODED EXCEPTION
         return result.Versions.Select(p => p.ToDomain()).ToList();
@@ -33,9 +33,8 @@ public class ManifestReadRepository : IManifestReadRepository
     public async Task<ManifestEntity> GetAsync(PackageId id, PackageVersion version, CancellationToken ct = default)
     {
         var result = await _packageDatabase.PackageVersions
-            .AsNoTracking()
             .AsSplitQuery()
-            .Include(p => p.Package).AsNoTracking()
+            .Include(p => p.Package)
             .SingleOrDefaultAsync(p => p.PackageId == id.Value && p.Version == version.Value, ct);
         //TODO: TRHOW CODED EXCEPTION
         return result.ToDomain();
@@ -43,7 +42,6 @@ public class ManifestReadRepository : IManifestReadRepository
     public async Task<ManifestEntity> GetMostRecentAsync(PackageId id, CancellationToken ct = default)
     {
         var latest = _packageDatabase.PackageVersions
-            .AsNoTracking()
             .Where(p => p.PackageId == id.Value)
             .ToList()
             .OrderByDescending(p => Version.Parse(p.Version))
@@ -52,5 +50,6 @@ public class ManifestReadRepository : IManifestReadRepository
         //TODO: TRHOW CODED EXCEPTION
         return latest.ToDomain();
     }
-    public Task<IManifestQueryResultModel> SearchAsync(IManifestQueryModel q, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<IManifestQueryResultModel> SearchAsync(IManifestQueryModel q, CancellationToken ct = default)
+        => throw new NotImplementedException();
 }

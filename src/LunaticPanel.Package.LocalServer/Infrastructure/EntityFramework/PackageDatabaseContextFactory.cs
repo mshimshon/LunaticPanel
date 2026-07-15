@@ -9,6 +9,7 @@ internal class PackageDatabaseContextFactory : IDesignTimeDbContextFactory<Packa
     {
         var optionsBuilder = new DbContextOptionsBuilder<PackageDatabaseContext>();
         optionsBuilder.UseSqlite("Data Source=/etc/lunaticpackage/local.db");
+        optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         var db = new PackageDatabaseContext(optionsBuilder.Options);
         return db;
     }

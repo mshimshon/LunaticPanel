@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.ModelConfiguration;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
+using LunaticPanel.Package.LocalServer.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework;
@@ -16,4 +17,12 @@ public class PackageDatabaseContext : DbContext
         modelBuilder.ApplyConfiguration(new PackageInfoModelConfiguration());
         base.OnModelCreating(modelBuilder);
     }
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var item in ChangeTracker.Entries())
+            item.Timestamp();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+
 }

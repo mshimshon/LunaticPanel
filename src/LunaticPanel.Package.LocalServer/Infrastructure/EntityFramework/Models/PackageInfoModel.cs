@@ -1,18 +1,20 @@
-﻿namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
+﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models.Contracts;
 
-public sealed record PackageInfoModel
+namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
+
+public sealed record PackageInfoModel : IModelTimestamps
 {
-    public DateTime Created { get; init; }
-    public DateTime Updated { get; init; }
-    public string Version { get; init; } = default!;
-    public string PanelVersion { get; init; } = default!;
-    public string DotnetVersion { get; init; } = default!;
-    public string PluginEntryFile { get; init; } = default!;
-    public string Description { get; init; } = default!;
-    public string Author { get; init; } = default!;
-    public string Title { get; init; } = default!;
-    public string? Copyright { get; init; }
-    public bool Hidden { get; init; }
-    public PackageModel Package { get; init; } = default!;
-    public string PackageId { get; init; } = default!;
+    public DateTime Created { get; set; }
+    public DateTime Updated { get; set; }
+    public string Version { get; set; } = default!;
+    public string PanelVersion { get; set; } = default!;
+    public string DotnetVersion { get; set; } = default!;
+    public string PluginEntryFile { get; set; } = default!;
+    public string Description { get; set; } = default!;
+    public string Author { get; set; } = default!;
+    public string Title { get; set; } = default!;
+    public string? Copyright { get; set; }
+    public bool Hidden { get; set; }
+    public PackageModel Package { get; set; } = default!;
+    public string PackageId { get; set; } = default!;
 }
