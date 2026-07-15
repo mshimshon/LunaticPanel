@@ -51,9 +51,37 @@ public class ManifestReadRepository : IManifestReadRepository
             .FirstOrDefault();
         if (latest == default)
             throw new PackageNotFoundException(id.Value);
-        //TODO: TRHOW CODED EXCEPTION
         return latest.ToDomain();
     }
-    public Task<IManifestQueryResultModel> SearchAsync(IManifestQueryModel q, CancellationToken ct = default)
-        => throw new NotImplementedException();
+
+    public async Task<IManifestQueryResultModel> SearchAsync(IManifestQueryModel q, CancellationToken ct = default)
+    {
+        var query = _packageDatabase.PackageVersions
+            .GroupBy(p => p.PackageId)
+            .Select(g => g.OrderByDescending(x => new Version(x.Version)).First());
+
+        if (!q.ShowEndOfLife)
+            query = (IOrderedQueryable<EntityFramework.Models.PackageInfoModel>)query.Where(p => p.Package.EndOfLifeMessage == default);
+        if (!q.ShowHidden)
+            query = query.Where(p => !p.Hidden);
+        if (q.PanelVersion != default)
+            query = query.Where(p => p.PanelVersion == q.PanelVersion.Value);
+        if (q.Id != default)
+            query = query.Where(p => p.PackageId == q.Id.Value);
+        if (q.Keywords != default)
+            query = query.Where(p => q.Keywords.Value.Any(k => p.PackageId.Contains(k, StringComparison.OrdinalIgnoreCase)));
+        var result = new ManifestQueryResultModel()
+        {
+            Position = q.Position,
+            Total = query.Count()
+        };
+        var searchResult = await query.Skip(q.Position).Take(q.MaxResult).ToListAsync(ct);
+
+        result = result with
+        {
+            Result = searchResult.Select(p => p.ToDomain()).ToList()
+        }
+        ;
+        return result;
+    }
 }
