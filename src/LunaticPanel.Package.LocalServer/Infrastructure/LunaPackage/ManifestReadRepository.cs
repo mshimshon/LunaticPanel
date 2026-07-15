@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework;
+using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Exceptions;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models.Mapping;
 using LuncaticPanel.Package.Server.Domain.Entites;
 using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
@@ -27,7 +28,8 @@ public class ManifestReadRepository : IManifestReadRepository
             .AsSplitQuery()
             .Include(p => p.Versions)
             .SingleOrDefaultAsync(p => p.Id == id.Value, ct);
-        //TODO: TRHOW CODED EXCEPTION
+        if (result == default)
+            throw new PackageNotFoundException(id.Value);
         return result.Versions.Select(p => p.ToDomain()).ToList();
     }
     public async Task<ManifestEntity> GetAsync(PackageId id, PackageVersion version, CancellationToken ct = default)
@@ -36,7 +38,8 @@ public class ManifestReadRepository : IManifestReadRepository
             .AsSplitQuery()
             .Include(p => p.Package)
             .SingleOrDefaultAsync(p => p.PackageId == id.Value && p.Version == version.Value, ct);
-        //TODO: TRHOW CODED EXCEPTION
+        if (result == default)
+            throw new PackageVersionNotFoundException(id.Value, version.Value);
         return result.ToDomain();
     }
     public async Task<ManifestEntity> GetMostRecentAsync(PackageId id, CancellationToken ct = default)
@@ -46,7 +49,8 @@ public class ManifestReadRepository : IManifestReadRepository
             .ToList()
             .OrderByDescending(p => Version.Parse(p.Version))
             .FirstOrDefault();
-
+        if (latest == default)
+            throw new PackageNotFoundException(id.Value);
         //TODO: TRHOW CODED EXCEPTION
         return latest.ToDomain();
     }

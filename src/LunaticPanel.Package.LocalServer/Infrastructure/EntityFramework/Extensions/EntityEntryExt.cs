@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace LunaticPanel.Package.LocalServer.Infrastructure.Extensions;
+namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Extensions;
 
 internal static class EntityEntryExt
 {

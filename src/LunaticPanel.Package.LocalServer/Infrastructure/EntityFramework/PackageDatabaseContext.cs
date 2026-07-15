@@ -1,6 +1,6 @@
-﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.ModelConfiguration;
+﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Extensions;
+using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.ModelConfiguration;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
-using LunaticPanel.Package.LocalServer.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework;

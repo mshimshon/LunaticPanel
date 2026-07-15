@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework;
+using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Exceptions;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models.Mapping;
 using LuncaticPanel.Package.Server.Domain.Entites;
 using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
@@ -24,8 +25,8 @@ public class ManifestWriteRepository : IManifestWriteRepository
     {
         var model = await _packageDatabase.Packages.AsSplitQuery().Include(p => p.Versions)
             .SingleOrDefaultAsync(p => p.Id == id.Value, ct);
-        //TODO: THROW NOT FOUND
-
+        if (model == default)
+            throw new PackageNotFoundException(id.Value);
         model.EndOfLifeMessage = message.Value;
 
         _packageDatabase.Packages.Update(model);
@@ -39,7 +40,8 @@ public class ManifestWriteRepository : IManifestWriteRepository
     public async Task HideAsync(PackageId id, PackageVersion version, CancellationToken ct = default)
     {
         var model = await _packageDatabase.PackageVersions.SingleOrDefaultAsync(p => p.PackageId == id.Value && p.Version == version.Value, ct);
-        //TODO: THROW NOT FOUND
+        if (model == default)
+            throw new PackageVersionNotFoundException(id.Value, version.Value);
         model.Hidden = true;
         _packageDatabase.PackageVersions.Update(model);
         await _packageDatabase.SaveChangesAsync(ct);
