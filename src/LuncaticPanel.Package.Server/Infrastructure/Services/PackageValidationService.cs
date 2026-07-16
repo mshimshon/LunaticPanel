@@ -29,6 +29,9 @@ internal sealed class PackageValidationService : IPackageValidatorService
 
     public PackageValidationService(IHttpClientFactory httpClientFactory, ILinuxCommand linuxCommand)
     {
+        // Prevent this service from being a linux service.
+        if (!OperatingSystem.IsLinux())
+            throw new UnsupportedHostingPlatformException();
         _http = httpClientFactory.CreateClient();
         _linuxCommand = linuxCommand;
     }

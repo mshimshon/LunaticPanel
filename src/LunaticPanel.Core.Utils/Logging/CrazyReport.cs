@@ -6,7 +6,7 @@ namespace LunaticPanel.Core.Utils.Logging;
 
 internal class CrazyReport<TClass> : CrazyReport, ICrazyReport<TClass> where TClass : class
 {
-    public CrazyReport(ICrazyReportCircuit crazyReportCircuit, IServiceProvider serviceProvider) : base(crazyReportCircuit, serviceProvider)
+    public CrazyReport(IServiceProvider serviceProvider) : base(serviceProvider)
     {
         SetClass<TClass>();
     }
@@ -20,10 +20,11 @@ internal class CrazyReport : ICrazyReport
     private ILogger? _logger;
     private Guid _circuitId;
 
-    public CrazyReport(ICrazyReportCircuit crazyReportCircuit, IServiceProvider serviceProvider)
+    public CrazyReport(IServiceProvider serviceProvider)
     {
+        ICrazyReportCircuit? crazyReportCircuit = serviceProvider.GetService<ICrazyReportCircuit>();
         _serviceProvider = serviceProvider;
-        _circuitId = crazyReportCircuit.CircuitId;
+        _circuitId = crazyReportCircuit?.CircuitId ?? Guid.Empty;
     }
 
     private void ErrorCatch(Action action)

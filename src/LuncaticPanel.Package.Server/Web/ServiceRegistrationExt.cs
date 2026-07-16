@@ -3,7 +3,6 @@ using LuncaticPanel.Package.Server.Application.Mediator.Commands;
 using LuncaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
 using LuncaticPanel.Package.Server.Application.Mediator.Engine;
 using LuncaticPanel.Package.Server.Application.Mediator.Queries;
-using LuncaticPanel.Package.Server.Application.Payloads;
 using LuncaticPanel.Package.Server.Application.Payloads.Requests;
 using LuncaticPanel.Package.Server.Domain.Exceptions;
 using LuncaticPanel.Package.Server.Infrastructure;
@@ -35,12 +34,10 @@ public static class ServiceRegistrationExt
         if (APIs.Contains(version)) return;
         APIs.Add(version);
         var v1Group = app.MapGroup($"/lpkg/{version}");
-        v1Group.MapPost("/package/push", (ManifestPayload data, IMediator mediator)
+        v1Group.MapPost("/package/push", (PackageValidationRequest data, IMediator mediator)
             => mediator.ExecuteAsync(new CreateManifestCommand(data)));
-
-        v1Group.MapPost("/package/validate", (ManifestPayload data, IMediator mediator)
-            => mediator.ExecuteAsync(new CreateManifestCommand(data)));
-
+        v1Group.MapPost("/package/validate", (PackageValidationRequest data, IMediator mediator)
+            => mediator.ExecuteAsync(new PackageValidationCommand(data)));
         v1Group.MapPost("/package/hide/{id}/{version}", (string id, string version, IMediator mediator)
             => mediator.ExecuteAsync(new HideManifestVersionCommand(id, version)));
         v1Group.MapPost("/package/endlife", (EndOfLifeRequest data, IMediator mediator)

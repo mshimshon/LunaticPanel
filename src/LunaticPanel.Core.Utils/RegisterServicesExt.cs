@@ -21,6 +21,7 @@ public static class RegisterServicesExt
     public static void AddLinuxCommandUtilityService(this IServiceCollection services)
     {
         services.AddScoped<ILinuxCommand, LinuxCommandRunner>();
+        services.AddCrazyReportUtilityService();
     }
     public static void AddPluginLocationUtilityService(this IServiceCollection services, string assemblyName)
     {

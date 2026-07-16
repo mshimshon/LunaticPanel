@@ -11,6 +11,7 @@ public static class ServiceRegistrationExt
     internal static void AddInfrastructureLayerServices(this IServiceCollection services)
     {
         services.AddApplicationLayerServices();
+        services.AddHttpClient();
         services.AddTransient<IPackageValidatorService, PackageValidationService>();
         services.AddLinuxCommandUtilityService();
     }
