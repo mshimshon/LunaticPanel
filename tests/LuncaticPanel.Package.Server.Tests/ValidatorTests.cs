@@ -115,6 +115,7 @@ public class ValidatorTests
     [InlineData("ABC")]
     [InlineData("abc")]
     [InlineData("A1B2C3")]
+    [InlineData("string")]
     [InlineData("123")]
     public void Alphanum_ShouldValidate(string value)
     {
@@ -131,6 +132,36 @@ public class ValidatorTests
     public void Alphanum_ShouldNOTValidate(string value)
     {
         bool valid = Regex.IsMatch(value, DomainValidationExt.ALPHANUM_VALIDATION_PATTERN);
+        Assert.False(valid);
+    }
+
+    [Theory]
+    [InlineData("abc")]
+    [InlineData("abc def")]
+    [InlineData("A B C")]
+    [InlineData("file.name")]
+    [InlineData("Version 1.0")]
+    [InlineData("Hello World 2.0")]
+    public void AlphanumSpaceDot_ShouldValidate(string value)
+    {
+        bool valid = Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN, RegexOptions.IgnoreCase);
+        Assert.True(valid);
+    }
+
+    [Theory]
+    [InlineData("abc-def")]   // hyphen
+    [InlineData("a_b")]       // underscore
+    [InlineData("a!")]        // punctuation
+    [InlineData("a?")]
+    [InlineData("a,")]
+    [InlineData("a:")]
+    [InlineData("a/")]
+    [InlineData("a\\")]
+    [InlineData("a@")]
+    [InlineData("a#")]
+    public void AlphanumSpaceDot_ShouldNOTValidate(string value)
+    {
+        bool valid = Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN, RegexOptions.IgnoreCase);
         Assert.False(valid);
     }
 

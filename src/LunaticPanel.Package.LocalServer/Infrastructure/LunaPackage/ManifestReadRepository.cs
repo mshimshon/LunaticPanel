@@ -56,9 +56,14 @@ public class ManifestReadRepository : IManifestReadRepository
 
     public async Task<IManifestQueryResultModel> SearchAsync(IManifestQueryModel q, CancellationToken ct = default)
     {
-        var query = _packageDatabase.PackageVersions
-            .GroupBy(p => p.PackageId)
-            .Select(g => g.OrderByDescending(x => new Version(x.Version)).First());
+        var query = _packageDatabase.PackageVersions.Where(p =>
+        p.Version ==
+            _packageDatabase.PackageVersions
+                .Where(x => x.PackageId == p.PackageId)
+                .OrderByDescending(x => x.Version)
+                .Select(x => x.Version)
+                .FirstOrDefault()
+    );
 
         if (!q.ShowEndOfLife)
             query = (IOrderedQueryable<EntityFramework.Models.PackageInfoModel>)query.Where(p => p.Package.EndOfLifeMessage == default);
@@ -69,7 +74,12 @@ public class ManifestReadRepository : IManifestReadRepository
         if (q.Id != default)
             query = query.Where(p => p.PackageId == q.Id.Value);
         if (q.Keywords != default)
-            query = query.Where(p => q.Keywords.Value.Any(k => p.PackageId.Contains(k, StringComparison.OrdinalIgnoreCase)));
+        {
+            var lowered = q.Keywords.Value.Select(k => k.ToLower()).ToList();
+            query = query.Where(p =>
+                lowered.Any(k => p.PackageId.ToLower().Contains(k))
+            );
+        }
         var result = new ManifestQueryResultModel()
         {
             Position = q.Position,

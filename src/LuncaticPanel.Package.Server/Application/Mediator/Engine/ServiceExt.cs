@@ -20,5 +20,7 @@ internal static class ServiceExt
         services.AddTransient<IRequestHandler<CreateManifestCommand>, CreateManifestHandler>();
         services.AddTransient<IRequestHandler<HideManifestVersionCommand>, HideManifestVersionHandler>();
         services.AddTransient<IRequestHandler<EndManifestLifeCommand>, EndManifestLifeHandler>();
+        services.AddTransient<IRequestHandler<PackageValidationCommand, PackageValidationResponse>, PackageValidationHandler>();
+        services.AddTransient<IRequestHandler<SearchManifestQuery, ManifestSearchResponse>, SearchManifestHandler>();
     }
 }

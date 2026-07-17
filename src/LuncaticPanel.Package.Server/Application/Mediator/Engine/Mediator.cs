@@ -50,6 +50,8 @@ internal class Mediator : IMediator
                 return ServiceProvider.GetRequiredService<IRequestHandler<GetLatestPackageQuery, TResult>>().HandleAsync(q, ct);
             case SearchManifestQuery q:
                 return ServiceProvider.GetRequiredService<IRequestHandler<SearchManifestQuery, TResult>>().HandleAsync(q, ct);
+            case PackageValidationCommand q:
+                return ServiceProvider.GetRequiredService<IRequestHandler<PackageValidationCommand, TResult>>().HandleAsync(q, ct);
             default:
                 throw new MediatorCommandNotFoundException();
         }

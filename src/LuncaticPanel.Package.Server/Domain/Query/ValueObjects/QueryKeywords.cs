@@ -11,7 +11,7 @@ public sealed record QueryKeywords
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new QueryKeywordsEmptyException();
-        else if (Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN, RegexOptions.IgnoreCase))
+        else if (!Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN, RegexOptions.IgnoreCase))
             throw new QueryKeywordsViolationException();
 
         Value = value.Split(' ');
