@@ -10,6 +10,7 @@
 		<!-- Avoid ID conflicts with the package project. -->
 		<PackageId>$(AssemblyName)</PackageId>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>

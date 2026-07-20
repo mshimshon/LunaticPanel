@@ -18,7 +18,6 @@ using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Core.Utils;
-using LunaticPanel.Core.Utils.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -512,9 +511,6 @@ public abstract class PluginBase : IPlugin
         }
         _hasStarted = true;
 
-        Console.WriteLine($"ICrazyReportCircuit ?????");
-        var dd = serviceProvider.GetRequiredService<ICrazyReportCircuit>();
-        Console.WriteLine($"ICrazyReportCircuit {dd.CircuitId}");
         var circuitRegistry = serviceProvider.GetRequiredService<ICircuitRegistry>();
         var pContext = circuitRegistry.GetPluginContext(PluginId, circuitRegistry.CurrentCircuit.CircuitId);
         await BeforeRuntimeStart(pContext);

@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<EnableRazorComponents>true</EnableRazorComponents>
 	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
   </PropertyGroup>
 
 

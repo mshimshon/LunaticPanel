@@ -18,6 +18,7 @@
 
 	  <Description>LunaticPanel is a modular Blazor dashboard framework for building unified, server-oriented control applications with centralized orchestration and predictable composition.</Description>
 	<PackageTags>blazor, dashboard, orchestration, server-management, modular, mudblazor, dotnet, control-plane, ui-framework</PackageTags>
+	<Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
 
   </PropertyGroup>
 

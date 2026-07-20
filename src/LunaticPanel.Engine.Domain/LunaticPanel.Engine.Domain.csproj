@@ -8,6 +8,7 @@
 	  <Company>$(GlobalCompany)</Company>
 	  <Copyright>$(GlobalCopyright)</Copyright>
 	  <Authors>$(GlobalAuthors)</Authors>
+	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

@@ -11,6 +11,7 @@
 		<Description>Core Package for Lunatic Panel's PLugin</Description>
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+		<Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
 	</PropertyGroup>
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
 		<MakeDir Directories="..\..\..\..\nupkgs" />

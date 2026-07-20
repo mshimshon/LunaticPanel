@@ -11,6 +11,7 @@
 	  <Description>Plugin Handler for Lunatic Panel Engine</Description>
 	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
 	 
 
   </PropertyGroup>

@@ -53,10 +53,14 @@ public static class InfrastructureServiceRegisterExt
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<PackageDatabaseContext>();
         db.Database.EnsureCreated();
+
         scope.ServiceProvider.StartLocationWatchers();
     }
     private static void StartLocationWatchers(this IServiceProvider sp)
     {
+        if (OperatingSystem.IsLinux())
+            return;
+
         var factory = sp.GetRequiredService<IFileWatcherSystemFactory>();
         foreach (var location in PackageStorageWatch)
             factory.CreateFileWatchUsing<WatchLocation>(location, "*.lpkg", [FileWatchEvent.Created, FileWatchEvent.Updated], OnWatchLocationChanged);

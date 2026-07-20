@@ -13,13 +13,13 @@ public static class RegisterServicesExt
 {
     public static void AddInfrasctructureServices(this IPluginServiceCollection services)
     {
+        services.Services.AddMedihaterServices();
         services.AddApplicationServices();
         services.Services.AddStatePulseServices(p =>
         {
             p.PulseTrackingPerformance = StatePulse.Net.Configuration.PulseTrackingModel.BlazorServerSafe;
 
         });
-        services.Services.AddMedihaterServices();
         services.AddTransient<IRepositorySourceService, RepositorySourceService>();
         services.AddTransient<IExternalSourceService, ExternalSourceService>();
         services.AddTransient<IPackageRepository, PackageRepository>();
