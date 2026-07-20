@@ -1,7 +1,10 @@
-﻿using LunaticPanel.Core.Utils.Abstraction.LinuxCommand;
+﻿using LunaticPanel.Core.Utils.Abstraction.FileWatcher;
+using LunaticPanel.Core.Utils.Abstraction.FileWatcher.Enums;
+using LunaticPanel.Core.Utils.Abstraction.LinuxCommand;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+using LunaticPanel.Core.Utils.FileWatcher;
 using LunaticPanel.Core.Utils.LinuxCommand;
 using LunaticPanel.Core.Utils.Logging;
 using LunaticPanel.Core.Utils.Plugin;
@@ -17,7 +20,10 @@ public static class RegisterServicesExt
         services.AddPluginLocationUtilityService(assemblyName);
         services.AddCrazyReportUtilityService();
         services.AddSafeFileWriterUtilityService();
+        services.AddSafeFileWriterUtilityService();
+        services.AddFileWatcherFactoryUtilityService();
     }
+
     public static void AddLinuxCommandUtilityService(this IServiceCollection services)
     {
         services.AddScoped<ILinuxCommand, LinuxCommandRunner>();
@@ -42,4 +48,24 @@ public static class RegisterServicesExt
     {
         services.AddScoped<ISafeFileWriter, SafeFileWriter.SafeFileWriter>();
     }
+
+    public static void AddFileWatcherFactoryUtilityService(this IServiceCollection services)
+    {
+        services.AddScoped<IFileWatcherSystemFactory, FileWatcherSystemFactory>();
+    }
+
+    public static void AddFileWatcherFor<TAction>(this IServiceCollection services, string path, string filePattern, FileWatchEvent[] whatToWatch, Func<TAction, IServiceProvider, Task> onNotify)
+        where TAction : IFileWatcherAction
+    {
+        services.AddScoped<IFileWatcherSystem<TAction>>((sp) => new FileWatcherSystem<TAction>(path, filePattern, whatToWatch, onNotify, sp));
+    }
+
+    public static void AddSingletonFileWatcherFor<TAction>(this IServiceCollection services, string path, string filePattern, FileWatchEvent[] whatToWatch, Func<TAction, IServiceProvider, Task> onNotify)
+    where TAction : IFileWatcherAction
+    {
+        services.AddSingleton<IFileWatcherSystem<TAction>>((sp) => new FileWatcherSystem<TAction>(path, filePattern, whatToWatch, onNotify, sp));
+    }
+
+    public static IFileWatcherSystem<TAction> StartFileWatcherFor<TAction>(this IServiceProvider sp)
+        where TAction : IFileWatcherAction => sp.GetRequiredService<IFileWatcherSystem<TAction>>();
 }
