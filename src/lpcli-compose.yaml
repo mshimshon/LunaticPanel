@@ -1,0 +1,45 @@
+debian: 13
+services:
+    lunaticpanel:
+        dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
+        # https:// to the location of deb release file we want.
+        # deb_url: "" 
+        install: "/usr/lib/lunatic_panel"
+        # depends_on:
+        #   - rabbitmq
+plugins:
+  - local: "./Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+  #- id: LunaticPanel.Auth
+  #  version: "1.2.0"
+  #  source: "https://domain/lpkg/v1/"
+
+    
+
+# settings:
+#   - file: ./assets/PluginA/file.json
+#     to: /etc/lunaticpanel/plugins/PluginA/settings.json
+
+
+
+# [Unit]
+# Description=Lunatic Panel Service
+# After=network.target myservice.service
+# Requires=myservice.service
+
+# [Service]
+# Type=notify
+# ExecStart=/usr/lib/lunaticpanel/LunaticPanel
+# WorkingDirectory=/usr/lib/lunaticpanel
+# Restart=always
+# RestartSec=5
+
+# Optional: run under a dedicated user
+# User=lunatic
+# Group=lunatic
+
+# Logging
+# StandardOutput=journal
+# StandardError=journal
+
+# [Install]
+# WantedBy=multi-user.target
