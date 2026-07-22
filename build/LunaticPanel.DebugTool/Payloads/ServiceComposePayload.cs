@@ -2,4 +2,11 @@
 
 internal sealed record ServiceComposePayload
 {
+    public string? DotnetProject { get; set; }
+    public string? DebUrl { get; set; }
+    public string ExecStart { get; set; } = default!;
+    public string WorkingDir { get; set; } = default!;
+    public string Description { get; set; } = "My Custom Background Service";
+    public List<string> DependsOn { get; set; } = new();
+    public bool Show { get; set; }
 }

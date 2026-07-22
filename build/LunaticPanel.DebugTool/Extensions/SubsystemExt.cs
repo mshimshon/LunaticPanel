@@ -20,6 +20,21 @@ internal static class SubsystemExt
         await ProcessExt.RunProcessAsync("wsl.exe", $"--export {name} \"{tarPath}\"");
     }
 
+    public static async Task ShudownAsync(string name)
+    {
+        await ProcessExt.RunProcessAsync("wsl.exe", $"--shutdown");
+    }
+
+    public static async Task StartAsync(string name)
+    {
+        await ProcessExt.RunProcessAsync("wsl.exe", $"wsl -d  {name} --user root -- echo ready");
+    }
+
+    public static async Task DestroyAsync(string name)
+    {
+        await ProcessExt.RunProcessAsync("wsl.exe", $"wsl --unregister {name}");
+    }
+
     public static async Task ImportAsync(string name, string installDir, string tarPath)
     {
         Directory.CreateDirectory(installDir);
@@ -27,7 +42,7 @@ internal static class SubsystemExt
     }
     public static async Task<string> RunAsync(string distro, string command)
     {
-        return await ProcessExt.RunProcessAsync("wsl.exe", $"-d {distro} {command}");
+        return await ProcessExt.RunProcessAsync("wsl.exe", $"-d {distro} --user root -- bash -c  \"{command}\"");
     }
 
     public static async Task CopyFileAsync(string distro, string winPath, string wslPath)

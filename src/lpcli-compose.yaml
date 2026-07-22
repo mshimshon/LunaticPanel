@@ -1,10 +1,17 @@
-debian: 13
+apt:
+  - "openssh-server"
+  - "openssh-client" 
+  - "tmux" 
+  - "libicu-dev" 
 services:
     lunaticpanel:
         dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
         # https:// to the location of deb release file we want.
         # deb_url: "" 
-        install: "/usr/lib/lunatic_panel"
+        exec_start: "./LunaticPanel.Hybrid.Web"
+        working_dir: "/usr/lib/lunatic_panel"
+        description: "my service description"
+        show: true
         # depends_on:
         #   - rabbitmq
 plugins:
