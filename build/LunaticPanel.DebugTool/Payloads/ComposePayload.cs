@@ -1,6 +1,6 @@
 ﻿namespace LunaticPanel.DebugTool.Payloads;
 
-internal sealed class ComposePayload
+internal sealed record ComposePayload
 {
     public List<string> Apt { get; set; } = new();
     public Dictionary<string, ServiceComposePayload> Services { get; set; } = new();

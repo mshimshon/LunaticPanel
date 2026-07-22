@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.DebugTool.Payloads;
+using LunaticPanel.DebugTool.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.DebugTool.Engine;
@@ -18,6 +19,7 @@ internal class ConsoleApplication
 
     public async Task RunAsync(CancellationToken ct = default)
     {
-
+        var deployment = new DeploymentService(Configuration);
+        await deployment.DeployAsync(ct);
     }
 }

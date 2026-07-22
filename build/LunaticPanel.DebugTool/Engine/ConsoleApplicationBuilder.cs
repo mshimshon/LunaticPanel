@@ -12,6 +12,7 @@ internal class ConsoleApplicationBuilder
     {
         Services = new ServiceCollection();
         Configuration = ConfigurationExt.GenerateConfiguration(args);
+
     }
     public ConsoleApplication Build()
         => new ConsoleApplication(Services, Configuration);
