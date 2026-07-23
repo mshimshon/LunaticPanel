@@ -1,5 +1,6 @@
-﻿using LunaticPanel.DebugTool.Payloads;
+using LunaticPanel.DebugTool.Payloads;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using static LunaticPanel.DebugTool.Extensions.MSBuildExt;
 using static LunaticPanel.DebugTool.Extensions.SubsystemExt;
@@ -35,7 +36,8 @@ internal sealed class DeploymentService
         bool isFresh = false;
         Console.Out.WriteLine("Checking Distro Availability");
         bool debianExist = await WslDistroExists("Debian");
-        Console.Out.WriteLine($"Checking Distro Availability 'Debian' ({debianExist})");
+
+
         bool distroInstallRequired = !Configuration.SkipSubSystemRebuild || !File.Exists(_operatingSystemImgFile);
         if (debianExist && distroInstallRequired)
         {
@@ -54,65 +56,90 @@ internal sealed class DeploymentService
                 await DestroyAsync("Debian");
         }
 
-
         if (distroInstallRequired)
-        {
-
-            Console.Out.WriteLine("Requires Fresh Distro.");
-            await InstallOfficialDebian();
-            await SubsystemConfigure(ct);
-            await ShudownAsync("Debian");
-            await ExportAsync("Debian", _operatingSystemImgFile);
-            await ImportAsync(_deployEnvironmentName, _wslDataFolder, _operatingSystemImgFile);
-            await StartAsync(_deployEnvironmentName);
-            isFresh = true;
-        }
+            isFresh = await InstallDistro();
         else
-            Console.Out.WriteLine($"Use Existing '{_operatingSystemImgFile}'.");
-
-        bool deployExist = await WslDistroExists(_deployEnvironmentName);
-        if (deployExist)
-            await DestroyAsync(_deployEnvironmentName);
-
-
-        bool serviceInstallRequired = !Configuration.SkipServiceRebuild || !File.Exists(_serviceInstalledFile) || isFresh || !deployExist;
-        if (serviceInstallRequired)
         {
-            Console.Out.WriteLine("Requires Fresh Service Deployment.");
-            await DeployServicesAsync(ct);
-            await ShudownAsync(_deployEnvironmentName);
-            await ExportAsync(_deployEnvironmentName, _serviceInstalledFile);
+            Console.Out.WriteLine($"Use Existing '{_operatingSystemImgFile}'.");
+            bool deployExist = await WslDistroExists(_deployEnvironmentName);
+
+            if (deployExist)
+            {
+                await DestroyAsync(_deployEnvironmentName);
+            }
         }
+
+
+        bool serviceInstallRequired = !Configuration.SkipServiceRebuild || !File.Exists(_serviceInstalledFile) || isFresh;
+
+
+        if (serviceInstallRequired)
+            await InstallServicesAsync(ct);
         else
         {
             Console.Out.WriteLine($"Use Existing '{_serviceInstalledFile}'.");
             await DestroyAsync(_deployEnvironmentName);
-            await ImportAsync(_deployEnvironmentName, _wslDataFolder, _operatingSystemImgFile);
+            await ImportAsync(_deployEnvironmentName, _wslDataFolder, _serviceInstalledFile);
         }
+
+        foreach (var item in Configuration.Compose.Services)
+            await RunAsync(_deployEnvironmentName, $"systemctl status {item.Key}");
+        await FinalizeDeployment();
+    }
+    private async Task InstallServicesAsync(CancellationToken ct = default)
+    {
+        Console.Out.WriteLine("Requires Fresh Service Deployment.");
+        await ImportAsync(_deployEnvironmentName, _wslDataFolder, _operatingSystemImgFile);
+        await PrintDistros();
+        await DeployServicesAsync(ct);
+        await ExportAsync(_deployEnvironmentName, _serviceInstalledFile);
+        await PrintDistros();
+        await StartAsync(_deployEnvironmentName);
+    }
+    private async Task<bool> InstallDistro(CancellationToken ct = default)
+    {
+        Console.Out.WriteLine("Requires Fresh Distro.");
+        await InstallOfficialDebian();
+        await SubsystemConfigure(ct);
+        await ShudownAsync("Debian");
+        await ExportAsync("Debian", _operatingSystemImgFile);
+        return true;
+    }
+    public async Task FinalizeDeployment()
+    {
         List<Process> serviceShown = new();
         foreach (var item in Configuration.Compose.Services.Where(p => p.Value.Show))
             serviceShown.Add(ShowServiceAsync(_deployEnvironmentName, item.Key));
-
-        foreach (var item in serviceShown)
-            await item.WaitForExitAsync();
-        if (serviceShown.Count <= 0)
-            await WaitForCtrlCAsync();
-        else
-            Console.WriteLine("Clearing WSL environment.");
-        await ShudownAsync(_deployEnvironmentName);
+        await WaitForCtrlCAsync();
+        await CleanUp(serviceShown);
     }
-    public static Task WaitForCtrlCAsync()
+
+    private async Task CleanUp(List<Process> processes)
+    {
+        foreach (var item in processes)
+            item.Kill();
+        await ShudownAsync(_deployEnvironmentName);
+
+    }
+    public Task WaitForCtrlCAsync()
     {
         var tcs = new TaskCompletionSource();
 
+        // 1. Standard handling for CTRL+C keys typed inside the terminal window
         Console.CancelKeyPress += (sender, e) =>
         {
-            e.Cancel = true;     // prevent process termination
-            tcs.TrySetResult();  // complete the task
+            e.Cancel = true; // Block immediate exit sequence
+            tcs.TrySetResult();
         };
 
-        Console.WriteLine("Press CTRL+C to shutdown deployment and exit.");
+        // 2. FIX: Catches the OS "Window Close / Kill" signal (clicking the 'X' button)
+        using var closeSignal = PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
+        {
+            context.Cancel = true; // Request a brief window to run cleanup code
+            tcs.TrySetResult();
+        });
 
+        Console.WriteLine("Press CTRL+C or click the 'X' to cancel deployment and exit.");
         return tcs.Task;
     }
     private async Task SubsystemConfigure(CancellationToken ct = default)
@@ -145,21 +172,32 @@ internal sealed class DeploymentService
             await DownloadInstallDep(item.Key, item.Value);
 
         foreach (var item in Configuration.Compose.Services)
-            await RunAsync(_deployEnvironmentName, GenerateServiceFile(item.Key, item.Value));
+        {
+            string serviceFile = GenerateServiceFile(item.Key, item.Value);
+            await CopyFileAsync(_deployEnvironmentName, serviceFile, $"/etc/systemd/system/{item.Key}.service");
+        }
         await RunAsync(_deployEnvironmentName, $"systemctl daemon-reload");
+
         foreach (var item in Configuration.Compose.Services)
             await RunAsync(_deployEnvironmentName, $"systemctl enable {item.Key}");
-        await RunAsync(_deployEnvironmentName, $"reboot");
-        foreach (var item in Configuration.Compose.Services)
-            await RunAsync(_deployEnvironmentName, $"systemctl status {item.Key}");
+
+        await ShudownAsync(_deployEnvironmentName);
+
     }
 
     private string GenerateServiceFile(string serviceName, ServiceComposePayload serviceComposePayload)
     {
+        var tmp = Path.GetTempPath();
+        var cliTmp = Path.Combine(tmp, "lpcli");
+        var cliSysmdTmp = Path.Combine(cliTmp, "systemd");
+        if (Directory.Exists(cliSysmdTmp))
+            Directory.Delete(cliSysmdTmp, true);
+        Directory.CreateDirectory(cliSysmdTmp);
+        var serviceFileTmp = Path.Combine(cliSysmdTmp, Path.GetFileName(Path.GetTempFileName()));
         var commandBuilder = new StringBuilder();
 
-        // 1. Define the Heredoc file creation command
-        commandBuilder.AppendLine($"sudo tee /etc/systemd/system/{serviceName}.service << 'EOF'");
+
+        // 1. /etc/systemd/system/{serviceName}.service
         commandBuilder.AppendLine("[Unit]");
         commandBuilder.AppendLine($"Description={serviceComposePayload.Description}");
         commandBuilder.AppendLine($"After=network.target {string.Join(' ', serviceComposePayload.DependsOn)}");
@@ -168,21 +206,26 @@ internal sealed class DeploymentService
         commandBuilder.AppendLine(); // Empty line separator
         commandBuilder.AppendLine("[Service]");
         commandBuilder.AppendLine("Type=simple");
-        commandBuilder.AppendLine($"ExecStart={serviceComposePayload.ExecStart}");
+        commandBuilder.AppendLine($"WorkingDirectory={serviceComposePayload.WorkingDir}");
+        commandBuilder.AppendLine($"ExecStart={serviceComposePayload.ExecStart} {serviceComposePayload.StartupParameters ?? ""}");
         commandBuilder.AppendLine("Restart=always");
         commandBuilder.AppendLine("RestartSec=5");
         commandBuilder.AppendLine($"User=root");
+        foreach (var item in serviceComposePayload.Environment)
+        {
+            commandBuilder.AppendLine($"Environment={item}");
+
+        }
         commandBuilder.AppendLine($"LogsDirectory={serviceName}");
         commandBuilder.AppendLine($"StandardOutput=file:/var/log/{serviceName}.stdout.log");
         commandBuilder.AppendLine($"StandardError=file:/var/log/{serviceName}.stderr.log");
         commandBuilder.AppendLine(); // Empty line separator
         commandBuilder.AppendLine("[Install]");
         commandBuilder.AppendLine("WantedBy=multi-user.target");
-        // 3. Close the Heredoc
-        commandBuilder.AppendLine("EOF");
-
-        // Convert to final string variable
-        return commandBuilder.ToString();
+        string serviceFileContent = commandBuilder.ToString();
+        Console.Out.WriteLine(serviceFileContent);
+        File.WriteAllText(serviceFileTmp, serviceFileContent);
+        return serviceFileTmp;
     }
 
     private async Task DownloadInstallDep(string serviceName, ServiceComposePayload serviceComposePayload)
@@ -204,6 +247,11 @@ internal sealed class DeploymentService
         var cliPublishTmp = Path.Combine(cliTmp, "publish");
         var cliProjectOutput = Path.Combine(cliPublishTmp, filename);
         await CopyDirAsync(_deployEnvironmentName, cliProjectOutput, serviceComposePayload.WorkingDir);
+        await RunAsync(_deployEnvironmentName, $"ls '{serviceComposePayload.WorkingDir}'");
+
+        Console.Out.WriteLine($"Service Target -> '{serviceComposePayload.ExecStart}'");
+        await RunAsync(_deployEnvironmentName, $"[ -f '{serviceComposePayload.ExecStart}' ] || exit 1");
+        await RunAsync(_deployEnvironmentName, $"chmod +x '{serviceComposePayload.ExecStart}'");
     }
 
 }

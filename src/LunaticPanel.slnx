@@ -1,10 +1,4 @@
 <Solution>
-  <Configurations>
-    <BuildType Name="Debug" />
-    <BuildType Name="PipelineStart" />
-    <BuildType Name="PipelineStop" />
-    <BuildType Name="Release" />
-  </Configurations>
   <Folder Name="/Plugins/" />
   <Folder Name="/Plugins/PackageManager/">
     <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Application/LunaticPanel.PackageManager.Application.csproj" Id="cf5fe086-ce80-4145-a983-98235ebbd5bf" />
@@ -24,10 +18,7 @@
     <Project Path="../tests/LunaticPanel.Core.Tests/LunaticPanel.Core.Tests.csproj" Id="5b01a88a-6915-470d-be3d-48e586e4d2a7" />
     <Project Path="../tests/LuncaticPanel.Package.Server.Tests/LuncaticPanel.Package.Server.Tests.csproj" Id="aebc0d94-f668-4d4e-8765-bf786211755c" />
   </Folder>
-  <Project Path="../build/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj" Id="c1f5a752-378b-42a9-a699-c70129d93aa3">
-    <BuildType Solution="PipelineStart|*" Project="Debug" />
-    <BuildType Solution="PipelineStop|*" Project="Debug" />
-  </Project>
+  <Project Path="../build/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj" Id="c1f5a752-378b-42a9-a699-c70129d93aa3" />
   <Project Path="LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj" Id="7e195f8a-1e26-4614-9faa-e3227850601a" />
   <Project Path="LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj" Id="e13603f4-70bc-4ed3-b15e-803aabf0385c" />
   <Project Path="LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj" />

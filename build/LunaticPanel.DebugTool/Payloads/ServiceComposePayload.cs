@@ -2,7 +2,8 @@
 
 internal sealed record ServiceComposePayload
 {
-
+    public string? StartupParameters { get; set; }
+    public List<string> Environment { get; set; } = new List<string>();
     public string? DotnetProject { get; set; }
     public string? DebUrl { get; set; }
     public string ExecStart { get; set; } = default!;

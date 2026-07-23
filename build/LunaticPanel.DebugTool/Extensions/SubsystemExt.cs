@@ -28,13 +28,17 @@ internal static class SubsystemExt
     }
     public static async Task<bool> WslDistroExists(string distroName)
     {
-        string output = await ProcessExt.RunProcessAsync("wsl.exe", "-l -q");
+        string output = await PrintDistros();
         output = output.Replace("\r", "");
         var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(p => CleanOutput(p).Trim())
             .Where(p => !string.IsNullOrWhiteSpace(p)).Where(x => x.Length > 0);
-        Console.Out.WriteLine($"{string.Join(',', lines)}");
-        Console.Out.WriteLine($"{string.Join(',', lines)} Contains {distroName}?");
         return lines.Any(d => d.Equals(distroName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static async Task<string> PrintDistros()
+    {
+        Console.Out.WriteLine("Available WSL");
+        return await ProcessExt.RunProcessAsync("wsl.exe", "-l -q");
     }
 
     public static async Task InstallOfficialDebian()
@@ -84,11 +88,11 @@ internal static class SubsystemExt
 
     public static Process ShowServiceAsync(string distro, string serviceName)
     {
-        string cmd = $"-d {distro} --user root -- bash -c \"wsl -d {distro} tail -f /var/log/{serviceName}.stdout.log /var/log/{serviceName}.stderr.log\"";
+        string cmd = $"wsl -d {distro} --user root -- bash -c 'tail -f -n 100 /var/log/{serviceName}.stdout.log /var/log/{serviceName}.stderr.log'";
         return Process.Start(new ProcessStartInfo
         {
             FileName = "cmd.exe",
-            Arguments = $"/k {cmd}",
+            Arguments = $"/k \"{cmd}\"",
             UseShellExecute = true,
             CreateNoWindow = false,
             WindowStyle = ProcessWindowStyle.Normal
@@ -113,6 +117,7 @@ internal static class SubsystemExt
             .Replace("\\", "/");
         Console.Out.WriteLine($"Copying Folder {wslSource} -> {wslPath}");
 
-        await RunAsync(distro, $"install -d \"{wslPath}\" && cp -a \"{wslSource}/.\" \"{wslPath}\"");
+        await RunAsync(distro, $"install -d '{wslPath}' && cp -a '{wslSource}/.' '{wslPath}'");
+        await RunAsync(distro, $"ls '{wslPath}'");
     }
 }

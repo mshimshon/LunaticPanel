@@ -10,10 +10,23 @@ services:
         # deb_url: "" 
         exec_start: "./LunaticPanel.Hybrid.Web"
         working_dir: "/usr/lib/lunatic_panel"
-        description: "my service description"
+        description: "Lunatic Panel dashboard hosting."
+        environment:
+          - "ASPNETCORE_ENVIRONMENT=Development"
         show: true
-        # depends_on:
-        #   - rabbitmq
+        depends_on:
+           - lpkg_localserver
+    lpkg_localserver:
+        dotnet_project: "./LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj"
+        # https:// to the location of deb release file we want.
+        # deb_url: "" 
+        startup_parameters: "--urls \"http://localhost:5001;\""
+        exec_start: "./LunaticPanel.Package.LocalServer"
+        working_dir: "/usr/lib/lpkg_localserver"
+        description: "Lunatic Panel Local Package Server"
+        environment:
+          - "ASPNETCORE_ENVIRONMENT=Development"
+        show: true
 plugins:
   - local: "./Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
   #- id: LunaticPanel.Auth
@@ -26,27 +39,3 @@ plugins:
 #   - file: ./assets/PluginA/file.json
 #     to: /etc/lunaticpanel/plugins/PluginA/settings.json
 
-
-
-# [Unit]
-# Description=Lunatic Panel Service
-# After=network.target myservice.service
-# Requires=myservice.service
-
-# [Service]
-# Type=notify
-# ExecStart=/usr/lib/lunaticpanel/LunaticPanel
-# WorkingDirectory=/usr/lib/lunaticpanel
-# Restart=always
-# RestartSec=5
-
-# Optional: run under a dedicated user
-# User=lunatic
-# Group=lunatic
-
-# Logging
-# StandardOutput=journal
-# StandardError=journal
-
-# [Install]
-# WantedBy=multi-user.target

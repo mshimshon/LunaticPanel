@@ -48,6 +48,7 @@ internal static class ConfigurationExt
                 Services = compose.Services.Select(p => new KeyValuePair<string, ServiceComposePayload>(p.Key, p.Value with
                 {
                     DotnetProject = p.Value.DotnetProject != default ? Path.GetFullPath(Path.Combine(workingDir, p.Value.DotnetProject)) : default,
+                    ExecStart = Path.Combine(p.Value.WorkingDir, p.Value.ExecStart).Replace('\\', '/').Replace("/./", "/")
 
                 })).ToDictionary()
             }

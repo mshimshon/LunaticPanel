@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 var app = builder.Build();
+Console.WriteLine($"Development: {app.Environment.IsDevelopment()}");
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -20,10 +21,13 @@ if (app.Environment.IsDevelopment())
     {
         options.SwaggerEndpoint("/openapi/v1.json", "v1");
     });
+
 }
+else
+    app.UseHttpsRedirection();
 app.UseLunaPackage();
 app.UseLocalServerInfrastructure();
 app.EnableLunaPackageCodedError();
 app.UseLunaPackageCodedErrorFor<InfrastructureException>(p => new(p.Code, p.Message, ExceptionProvenencePayload.Infrastructure));
-app.UseHttpsRedirection();
+
 app.Run();
