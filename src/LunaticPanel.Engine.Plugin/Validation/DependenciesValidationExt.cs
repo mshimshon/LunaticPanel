@@ -21,7 +21,7 @@ public static class DependenciesValidationExt
         foreach (var dll in Directory.GetFiles(pluginDir, "*.dll"))
         {
 
-            var entity = PluginScannerExt.LoadPluginInformation(dll);
+            var entity = PluginScannerExt.LoadPluginInformation(dll, []);
             if (entity == default) continue;
             var asm = entity.Loader.Load();
             var iPluginCount = asm.GetTypes().Count(t => t.IsClass && !t.IsAbstract && typeof(IPlugin).IsAssignableFrom(t));
@@ -36,7 +36,7 @@ public static class DependenciesValidationExt
         foreach (var dll in Directory.GetFiles(pluginDir, "*.dll"))
         {
 
-            var entity = PluginScannerExt.LoadPluginInformation(dll);
+            var entity = PluginScannerExt.LoadPluginInformation(dll, []);
 
             if (entity == default) continue;
             count++;

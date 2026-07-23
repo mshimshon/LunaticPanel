@@ -1,48 +1,29 @@
 ﻿using LunaticPanel.Core.Extensions;
-using LunaticPanel.Package.Tool.Engine;
 using LunaticPanel.Package.Tool.Exceptions;
 
 namespace LunaticPanel.Package.Tool;
 
 internal static class PackSettings
 {
-    public static HashSet<string> ExcludedDlls = default!;
 
-    private static string[] _blacklistDlls = new string[]
-  {
-            "LunaticPanel.Core",
-            "LunaticPanel.Core.Abstraction",
-            "LunaticPanel.Core.Analyzer",
-            "LunaticPanel.Core.Extensions",
-            "LunaticPanel.Core.PluginValidator",
-            "LunaticPanel.Core.Utils",
-            "LunaticPanel.Core.Utils.Abstraction",
-            "LunaticPanel.Engine.Application",
-            "LunaticPanel.Engine.Domain",
-            "LunaticPanel.Engine.Infrastructure",
-            "LunaticPanel.Engine.Web",
-            "LunaticPanel.Hybrid.Web",
-            "LunaticPanel.Engine.Plugin",
-            "MudBlazor"
-  };
     public static int DotNetVersion = 0;
     public static int LunaticPanelVersion = 0;
-    public static void PopulateExclusionDlls()
-    {
-        var dllExclusion = _blacklistDlls.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        dllExclusion.UnionWith(ScanDllSdkLocation());
+    //public static void PopulateExclusionDlls()
+    //{
+    //    var dllExclusion = _blacklistDlls.ToHashSet(StringComparer.OrdinalIgnoreCase);
+    //    dllExclusion.UnionWith(ScanDllSdkLocation());
 
-        dllExclusion.UnionWith(typeof(object).ScanDllAssemblyLocation());
-        dllExclusion.UnionWith(typeof(WebApplication).ScanDllAssemblyLocation());
-        dllExclusion.UnionWith(typeof(ConsoleApplicationBuilder).ScanAssemblyReferences());
-        ExcludedDlls = dllExclusion;
-        Console.Out.WriteLine($"Found {ExcludedDlls.Count} Dlls to Exclude from Packing".Green());
-        foreach (var item in ExcludedDlls)
-        {
-            Console.Out.WriteLine($"{item} on exclusion list.".Blue());
+    //    dllExclusion.UnionWith(typeof(object).ScanDllAssemblyLocation());
+    //    dllExclusion.UnionWith(typeof(WebApplication).ScanDllAssemblyLocation());
+    //    dllExclusion.UnionWith(typeof(ConsoleApplicationBuilder).ScanAssemblyReferences());
+    //    ExcludedDlls = dllExclusion;
+    //    Console.Out.WriteLine($"Found {ExcludedDlls.Count} Dlls to Exclude from Packing".Green());
+    //    foreach (var item in ExcludedDlls)
+    //    {
+    //        Console.Out.WriteLine($"{item} on exclusion list.".Blue());
 
-        }
-    }
+    //    }
+    //}
 
     private static HashSet<string> ScanDllAssemblyLocation(this Type t)
     {
@@ -50,6 +31,7 @@ internal static class PackSettings
         return Directory.GetFiles(aspNetDir, "*.dll")
             .Select(Path.GetFileNameWithoutExtension)
             .ToHashSet(StringComparer.OrdinalIgnoreCase)!;
+
     }
 
     private static HashSet<string> ScanDllSdkLocation()

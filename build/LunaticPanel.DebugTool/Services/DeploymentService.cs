@@ -205,6 +205,8 @@ internal sealed class DeploymentService
             if (resultReponse == default || resultReponse.Data == default)
                 throw new Exception($"Failed to read manifest for {finalData}");
             Console.Out.WriteLine($"Plugin {resultReponse.Data.Id} is packed and ready to deploy.");
+            if (Directory.Exists(cliLpkgUnpackTmp))
+                Directory.Delete(cliLpkgUnpackTmp, true);
             var cmdUnpack = $"unpack --input \"{Path.Combine(cliLpkgTmp, $"{resultReponse.Data.Id}.{resultReponse.Data.Version}.lpkg")}\" --output \"{cliLpkgUnpackTmp}\"";
             await ProcessExt.RunProcessAsync(cliPackingTool, cmdUnpack);
             return resultReponse.Data;

@@ -10,14 +10,14 @@ public static class PluginScannerExt
     {
         typeof(IPlugin)
     };
-    public static IReadOnlyList<PluginScannedEntity> ScanAndFindPlugins(string locationForPlugins)
+    public static IReadOnlyList<PluginScannedEntity> ScanAndFindPlugins(string locationForPlugins, Type[] sharedType)
     {
         var results = new List<PluginScannedEntity>();
         var processed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         Console.WriteLine($"Plugin Root: {locationForPlugins}");
         foreach (var dir in Directory.EnumerateDirectories(locationForPlugins))
         {
-            var entity = FindPluginDllInDirectory(dir, p => processed.Add(p));
+            var entity = FindPluginDllInDirectory(dir, sharedType, p => processed.Add(p));
             if (entity == default)
             {
                 Console.Out.WriteLine($"No Plugin Found In: {dir}");
@@ -30,7 +30,7 @@ public static class PluginScannerExt
         return results;
     }
 
-    public static PluginScannedEntity? FindPluginDllInDirectory(string pluginFolder, Func<string, bool>? skipDll = default)
+    public static PluginScannedEntity? FindPluginDllInDirectory(string pluginFolder, Type[] sharedType, Func<string, bool>? skipDll = default)
     {
         Console.Out.WriteLine($"[Search for Plugin File]");
         foreach (var dll in Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly))
@@ -39,14 +39,14 @@ public static class PluginScannerExt
             if (skipDll != default && !skipDll(Path.GetFullPath(dll)))
                 continue;
 
-            var entity = LoadPluginInformation(dll);
+            var entity = LoadPluginInformation(dll, sharedType);
             if (entity == default) continue;
             return entity;
         }
         return default;
     }
 
-    public static PluginScannedEntity? LoadPluginInformation(string dllFile)
+    public static PluginScannedEntity? LoadPluginInformation(string dllFile, Type[] sharedType)
     {
         PluginLoader? tmpLoader = default;
         PluginLoader? permanentLoader = default;
@@ -54,7 +54,7 @@ public static class PluginScannerExt
         {
             tmpLoader = PluginLoader.CreateFromAssemblyFile(
                 dllFile,
-                sharedTypes: _sharedTypes,
+                sharedTypes: [.. _sharedTypes, .. sharedType],
                 c => c.IsUnloadable = true
             );
 

@@ -129,7 +129,7 @@ internal static class PackingCommandExt
 
     public static List<string> FilterArchiveFiles(string inputFolder)
     {
-        PackSettings.PopulateExclusionDlls();
+        //PackSettings.PopulateExclusionDlls();
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
         var basePath = Path.GetFullPath(inputFolder);
@@ -139,11 +139,11 @@ internal static class PackingCommandExt
         {
             var name = Path.GetFileNameWithoutExtension(file);
             // SKIP Excluded DLL those are host supplied.
-            if (PackSettings.ExcludedDlls.Contains(name))
-            {
-                Console.Out.WriteLine($"Removed {file}.".Yellow());
-                continue;
-            }
+            //if (PackSettings.ExcludedDlls.Contains(name))
+            //{
+            //    Console.Out.WriteLine($"Removed {file}.".Yellow());
+            //    continue;
+            //}
             outputFiles.Add(file);
             Console.Out.WriteLine($"Allowed {file}.".Cyan());
         }
@@ -155,7 +155,7 @@ internal static class PackingCommandExt
     {
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
-        LunaticPanel.Engine.Plugin.Entities.PluginScannedEntity? entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder);
+        LunaticPanel.Engine.Plugin.Entities.PluginScannedEntity? entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder, []);
         if (entity == default)
             throw new PluginDllNotFoundException(inputFolder);
 

@@ -62,6 +62,8 @@ internal static class CommandLineExt
                 Error = new ErrorResponse(ex.Code, ex.Message)
             };
             await outResult.PrintAsync();
+            Environment.Exit(1);
+
             return success;
         }
         catch (Exception ex)
@@ -70,7 +72,9 @@ internal static class CommandLineExt
             {
                 Error = new ErrorResponse(ex)
             };
+
             await outResult.PrintAsync();
+            Environment.Exit(1);
             return success;
         }
     }

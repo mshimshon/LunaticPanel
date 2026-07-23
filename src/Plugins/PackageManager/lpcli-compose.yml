@@ -1,0 +1,8 @@
+services:
+     import_lp:
+        import_from: "../../lpcli-compose.yml"  # will import all the services from Panel Source first
+
+plugins:
+   #- importFrom: "../../Panel/src/lpcli-compose.yml"  # will import all the plugins from Panel Source firs  
+  - local: "./LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+    enabled: true

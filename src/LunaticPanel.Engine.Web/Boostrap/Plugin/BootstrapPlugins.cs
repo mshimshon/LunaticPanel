@@ -11,6 +11,9 @@ namespace LunaticPanel.Engine.Web.Boostrap.Plugin;
 
 internal static class BootstrapPlugins
 {
+    public static List<Type> SharedFrameworkTypes { get; internal set; } = new List<Type>();
+
+
     private static List<BootstrapPluginDescriptor> DiscoveredPlugins { get; set; } = new();
     public static BootstrapConfiguration Configuration => Bootstrap.Configuration;
     public static string PluginDirectory => Bootstrap.PluginDirectory;
@@ -18,7 +21,7 @@ internal static class BootstrapPlugins
     public static IPluginRegistry Registry { get; set; } = new PluginRegistry();
     public static void DetectPlugins()
     {
-        var result = PluginScannerExt.ScanAndFindPlugins(PluginDirectory);
+        var result = PluginScannerExt.ScanAndFindPlugins(PluginDirectory, SharedFrameworkTypes.ToArray());
         foreach (PluginScannedEntity item in result)
         {
             var identity = new PluginIdentity(item.PluginId, item.Version, item.PluginId);
@@ -34,6 +37,7 @@ internal static class BootstrapPlugins
                     EntryPoint = plugin,
                     Loader = item.Loader,
                     PluginDir = Path.GetDirectoryName(item.Location)!
+
                 });
 
             }
