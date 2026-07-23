@@ -4,6 +4,8 @@ apt:
   - "tmux" 
   - "libicu-dev" 
 services:
+    import:
+        importFrom: "../../Panel/src/lpcli-compose.yml"  # will import all the services from Panel Source first
     lunaticpanel:
         dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
         # https:// to the location of deb release file we want.
@@ -28,6 +30,7 @@ services:
           - "ASPNETCORE_ENVIRONMENT=Development"
         show: true
 plugins:
+  - importFrom: "../../Panel/src/lpcli-compose.yml"  # will import all the plugins from Panel Source firs  
   - local: "./Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
     enabled: true
   #- id: LunaticPanel.Auth
@@ -35,8 +38,23 @@ plugins:
   #  source: "https://domain/lpkg/v1/"
 
     
-
-# settings:
-#   - file: ./assets/PluginA/file.json
-#     to: /etc/lunaticpanel/plugins/PluginA/settings.json
+# Post processing is design to allow mocking data or extra information to be moved to WSL in a fast flexible way
+# You can build extra projects IE: Tools or plugin specific sub folders such as installers or optional feature underlaying softwares.
+# You can choose to build, publish csproject and archive it than move it to WSL... same for folders and files.
+post_processing:
+  - importFrom: "../../Panel/src/lpcli-compose.yml"  # will import all the post_processing from Panel Source firs  
+  - dotnet: "./xxx.csproj"
+    buildTo: "/etc/lunaticpanel/mockData/myPublish"
+    publishTo: "/etc/lunaticpanel/mockData/myPublish"
+    archive: "tar.gz" # Make tar.gz or .zip
+    archiveTo: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
+  
+  - folder: "./cc/ccc/ccc/"
+    folderTo: "/etc/lunaticpanel/plugins/"
+    archive: "tar.gz" # Make tar.gz or .zip
+    archiveTo: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
+  - file: ./assets/PluginA/file.json
+    fileTo: /etc/lunaticpanel/plugins/PluginA/settings.json
+    archive: "tar.gz" # Make tar.gz or .zip
+    archiveTo: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
 
