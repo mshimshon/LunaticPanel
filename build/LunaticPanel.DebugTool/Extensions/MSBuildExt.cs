@@ -21,4 +21,24 @@ internal static class MSBuildExt
 
         await ProcessExt.RunProcessAsync("dotnet", cmd);
     }
+
+    public static async Task BuildProjectAsync(string project)
+    {
+        Console.Out.WriteLine($"Publishing '{project}'");
+        string filename = Path.GetFileNameWithoutExtension(project);
+        var tmp = Path.GetTempPath();
+        var cliTmp = Path.Combine(tmp, "lpcli");
+        var cliPublishTmp = Path.Combine(cliTmp, "build");
+        Console.Out.WriteLine($"Temp Publish At '{cliPublishTmp}'");
+        if (!Directory.Exists(cliPublishTmp))
+            Directory.CreateDirectory(cliPublishTmp);
+        var cliProjectOutput = Path.Combine(cliPublishTmp, filename);
+        Console.Out.WriteLine($"Temp Publish Target At '{cliProjectOutput}'");
+        if (Directory.Exists(cliProjectOutput))
+            Directory.Delete(cliProjectOutput, true);
+        string cmd = $"build \"{project}\" -c Debug -o \"{cliProjectOutput}\" /p:RuntimeIdentifier=linux-x64 /p:CopyLocalLockFileAssemblies=true";
+        Console.Out.WriteLine($"dotnet {cmd}");
+
+        await ProcessExt.RunProcessAsync("dotnet", cmd);
+    }
 }

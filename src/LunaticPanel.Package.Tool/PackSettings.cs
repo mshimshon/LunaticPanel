@@ -23,13 +23,7 @@ internal static class PackSettings
             "LunaticPanel.Engine.Web",
             "LunaticPanel.Hybrid.Web",
             "LunaticPanel.Engine.Plugin",
-            "MudBlazor",
-            "NuGet.Common",
-            "NuGet.Configuration",
-            "NuGet.Frameworks",
-            "NuGet.Packaging",
-            "NuGet.Protocol",
-            "NuGet.Versioning",
+            "MudBlazor"
   };
     public static int DotNetVersion = 0;
     public static int LunaticPanelVersion = 0;

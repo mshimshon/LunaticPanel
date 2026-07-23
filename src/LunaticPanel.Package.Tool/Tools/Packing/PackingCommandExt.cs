@@ -103,7 +103,7 @@ internal static class PackingCommandExt
 
     }
 
-    private static async Task PackingAction(ParseResult parseResult, CancellationToken ct = default)
+    private static async Task<PluginManifestPayload> PackingAction(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
         var output = parseResult.GetValue<string>("--output");
@@ -114,16 +114,17 @@ internal static class PackingCommandExt
             throw new PackInputDirectoryInvalidException(input!);
         else if (!IsDirectoryPath(output!))
             throw new PackOutputDirectoryInvalidException(output!);
-        else
-            await PackAsync(input, output!);
+
+        return await PackAsync(input, output!);
+
     }
-    public static async Task PackAsync(string input, string output)
+    public static async Task<PluginManifestPayload> PackAsync(string input, string output)
     {
         Console.Out.WriteLine($"Trying to Pack {input}");
 
         await PluginValidatorCommandExt.ValidatePackageAsync(input);
         var files = FilterArchiveFiles(input);
-        await PackToFile(files, input, output);
+        return await PackToFile(files, input, output);
     }
 
     public static List<string> FilterArchiveFiles(string inputFolder)
@@ -211,7 +212,7 @@ internal static class PackingCommandExt
         return tmp;
     }
 
-    public static async Task PackToFile(List<string> files, string inputFolder, string outputFolder)
+    public static async Task<PluginManifestPayload> PackToFile(List<string> files, string inputFolder, string outputFolder)
     {
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
@@ -242,7 +243,7 @@ internal static class PackingCommandExt
 
         await zip.CreateEntryFromFileAsync(manifestFileTmp, "manifest.json", CompressionLevel.NoCompression);
         Console.Out.WriteLine($"Package Created at {outputPackage}".Green());
-
+        return JsonSerializer.Deserialize<PluginManifestPayload>(File.ReadAllText(manifestFileTmp), _jsonSerializerOptions)!;
     }
     private static bool IsDirectoryPath(string path)
     {

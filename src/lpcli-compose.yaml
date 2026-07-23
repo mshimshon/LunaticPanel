@@ -29,6 +29,7 @@ services:
         show: true
 plugins:
   - local: "./Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+    enabled: true
   #- id: LunaticPanel.Auth
   #  version: "1.2.0"
   #  source: "https://domain/lpkg/v1/"

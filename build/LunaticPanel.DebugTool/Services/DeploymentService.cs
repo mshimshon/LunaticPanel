@@ -1,7 +1,10 @@
+using LunaticPanel.DebugTool.Extensions;
 using LunaticPanel.DebugTool.Payloads;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using static LunaticPanel.DebugTool.Extensions.MSBuildExt;
 using static LunaticPanel.DebugTool.Extensions.SubsystemExt;
 namespace LunaticPanel.DebugTool.Services;
@@ -62,7 +65,6 @@ internal sealed class DeploymentService
         {
             Console.Out.WriteLine($"Use Existing '{_operatingSystemImgFile}'.");
             bool deployExist = await WslDistroExists(_deployEnvironmentName);
-
             if (deployExist)
             {
                 await DestroyAsync(_deployEnvironmentName);
@@ -78,13 +80,161 @@ internal sealed class DeploymentService
         else
         {
             Console.Out.WriteLine($"Use Existing '{_serviceInstalledFile}'.");
-            await DestroyAsync(_deployEnvironmentName);
+            bool deployExist = await WslDistroExists(_deployEnvironmentName);
+            if (deployExist)
+            {
+                await DestroyAsync(_deployEnvironmentName);
+            }
             await ImportAsync(_deployEnvironmentName, _wslDataFolder, _serviceInstalledFile);
         }
-
+        await InstallPlugins(ct);
+        await ShudownAsync(_deployEnvironmentName);
+        await StartAsync(_deployEnvironmentName);
         foreach (var item in Configuration.Compose.Services)
             await RunAsync(_deployEnvironmentName, $"systemctl status {item.Key}");
+
+        await RunAsync(_deployEnvironmentName, $"cat /etc/lunaticpanel/bootstrap.json");
         await FinalizeDeployment();
+    }
+
+    private async Task InstallPlugins(CancellationToken ct = default)
+    {
+        var csprojects = Configuration.Compose.Plugins.Where(p => p.Local != default && p.Local.EndsWith(".csproj"));
+        foreach (var item in csprojects)
+            await BuildProjectAsync(item.Local!);
+        Dictionary<PluginComposePayload, PackToolPluginManifestExternalPayload> manifests = new();
+        foreach (var item in csprojects)
+        {
+            var manifestTmp = await PackProjectAsync(item, ct);
+            manifests[item] = manifestTmp;
+        }
+        List<JsonObject> bootstrapDefinition = new List<JsonObject>();
+        foreach (var item in manifests)
+        {
+            var def = await InstallPluginInSubSystem(item.Key, item.Value, ct);
+            bootstrapDefinition.Add(def);
+        }
+
+        await BuildAndPublishBootstrap(bootstrapDefinition);
+    }
+
+    private async Task<JsonObject> InstallPluginInSubSystem(PluginComposePayload csproj, PackToolPluginManifestExternalPayload manifestExternalPayload, CancellationToken ct = default)
+    {
+        string linuxFolder = manifestExternalPayload.Id.ToLower().Replace('.', '_');
+        string filename = Path.GetFileNameWithoutExtension(csproj.Local!);
+        var tmp = Path.GetTempPath();
+        var cliTmp = Path.Combine(tmp, "lpcli");
+        var cliLpkgUnpackTmp = Path.Combine(cliTmp, "lpkgs_unpack");
+        var cliLpkgDir = Path.Combine(cliLpkgUnpackTmp, linuxFolder);
+        var cliLpkgTmp = Path.Combine(cliTmp, "lpkgs");
+
+        var clilpkgLocal = Path.Combine(cliLpkgTmp, $"{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
+        // /usr/lib/lunaticpanel/plugins
+        await CopyDirAsync(_deployEnvironmentName, cliLpkgDir, $"/usr/lib/lunaticpanel/plugins/{linuxFolder}");
+        await RunAsync(_deployEnvironmentName, $"ls /usr/lib/lunaticpanel/plugins/{linuxFolder}");
+        ///var/lib/lunaticpanel_package/lpkgs
+        await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/lib/lunaticpanel_package/lpkgs/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
+        // 1. Build the leaf objects (Identity and Lifecycle)
+        var identityNode = new JsonObject
+        {
+            ["PackageId"] = manifestExternalPayload.Id,
+            ["PakageVersion"] = manifestExternalPayload.Version,
+            ["DisplayName"] = manifestExternalPayload.Title
+        };
+
+        var lifecycleNode = new JsonObject
+        {
+            ["State"] = 4,
+            ["StartupState"] = csproj.Enabled ? 1 : 0
+        };
+
+        // 2. Build the Entity parent container
+        var entityNode = new JsonObject
+        {
+            ["Identity"] = identityNode,
+            ["Lifecycle"] = lifecycleNode
+        };
+
+        // 3. Create the plugin list item entry
+        var pluginEntry = new JsonObject
+        {
+            ["Entity"] = entityNode,
+            ["PluginDir"] = $"/usr/lib/lunaticpanel/plugins/{linuxFolder}"
+        };
+        return pluginEntry;
+
+    }
+    private async Task<PackToolPluginManifestExternalPayload> PackProjectAsync(PluginComposePayload pluginComposePayload, CancellationToken ct = default)
+    {
+        string filename = Path.GetFileNameWithoutExtension(pluginComposePayload.Local!);
+        var tmp = Path.GetTempPath();
+        var cliTmp = Path.Combine(tmp, "lpcli");
+        var cliPublishTmp = Path.Combine(cliTmp, "build");
+        var cliLpkgTmp = Path.Combine(cliTmp, "lpkgs");
+        var cliLpkgUnpackTmp = Path.Combine(cliTmp, "lpkgs_unpack");
+        if (!Directory.Exists(cliLpkgUnpackTmp))
+            Directory.CreateDirectory(cliLpkgUnpackTmp);
+        var cliLpkgDir = Path.Combine(cliPublishTmp, filename);
+        string currentFolder = AppDomain.CurrentDomain.BaseDirectory;
+        var cliPackingTool = Path.Combine(currentFolder, "LunaticPanel.Package.Tool.exe");
+        var cmd = $"pack --input \"{cliLpkgDir}\" --output \"{cliLpkgTmp}\"";
+        var result = await ProcessExt.RunProcessAsync(cliPackingTool, cmd);
+        Console.Out.WriteLine("Finished Packing");
+        string[] lines = result.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+        bool payloadFound = false;
+        StringBuilder jsonData = new StringBuilder();
+        string? finalData = default;
+        Console.Out.WriteLine("Extracting Payload");
+        int startIndex = Array.LastIndexOf(lines, "<<<PAYLOAD_BEGIN>>>"), stopIndex = Array.LastIndexOf(lines, "<<<PAYLOAD_END>>>");
+        if (startIndex < 0 || stopIndex < 0)
+            throw new Exception($"Failed to get manifest for {pluginComposePayload.Local}");
+        for (int i = startIndex + 1; i < stopIndex; i++)
+        {
+            jsonData.AppendLine(lines[i]);
+        }
+        var tmpJsonResult = jsonData.ToString();
+        finalData = string.IsNullOrWhiteSpace(tmpJsonResult) ? default : tmpJsonResult;
+
+        Console.Out.WriteLine($"Payload Found ? {payloadFound} ({finalData != default})");
+
+        try
+        {
+            if (finalData == default)
+                throw new Exception($"Failed to get manifest for {pluginComposePayload.Local}");
+            PackToolResultExternalPayload? resultReponse = JsonSerializer.Deserialize<PackToolResultExternalPayload>(finalData);
+            if (resultReponse == default || resultReponse.Data == default)
+                throw new Exception($"Failed to read manifest for {finalData}");
+            Console.Out.WriteLine($"Plugin {resultReponse.Data.Id} is packed and ready to deploy.");
+            var cmdUnpack = $"unpack --input \"{Path.Combine(cliLpkgTmp, $"{resultReponse.Data.Id}.{resultReponse.Data.Version}.lpkg")}\" --output \"{cliLpkgUnpackTmp}\"";
+            await ProcessExt.RunProcessAsync(cliPackingTool, cmdUnpack);
+            return resultReponse.Data;
+        }
+        catch
+        {
+            Console.Error.WriteLine(finalData);
+            throw;
+        }
+
+
+    }
+    private async Task BuildAndPublishBootstrap(List<JsonObject> defs, CancellationToken ct = default)
+    {
+        var tmp = Path.GetTempPath();
+        var cliTmp = Path.Combine(tmp, "lpcli");
+        var cliPublishTmp = Path.Combine(cliTmp, "bootstrap.json");
+        if (File.Exists(cliPublishTmp))
+            File.Delete(cliPublishTmp);
+
+        ///etc/lunaticpanel/bootstrap.json
+        var root = new JsonObject
+        {
+            ["KnownPlugins"] = new JsonArray(defs.ToArray<JsonNode>())
+        };
+        string json = JsonSerializer.Serialize(root);
+        File.WriteAllText(cliPublishTmp, json);
+        await CopyFileAsync(_deployEnvironmentName, cliPublishTmp, "/etc/lunaticpanel/bootstrap.json");
+
+
     }
     private async Task InstallServicesAsync(CancellationToken ct = default)
     {
@@ -105,11 +255,12 @@ internal sealed class DeploymentService
         await ExportAsync("Debian", _operatingSystemImgFile);
         return true;
     }
-    public async Task FinalizeDeployment()
+    private async Task FinalizeDeployment()
     {
         List<Process> serviceShown = new();
         foreach (var item in Configuration.Compose.Services.Where(p => p.Value.Show))
             serviceShown.Add(ShowServiceAsync(_deployEnvironmentName, item.Key));
+
         await WaitForCtrlCAsync();
         await CleanUp(serviceShown);
     }

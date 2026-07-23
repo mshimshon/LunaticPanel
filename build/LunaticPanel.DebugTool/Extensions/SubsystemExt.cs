@@ -108,7 +108,7 @@ internal static class SubsystemExt
             .Replace("\\", "/");
 
         Console.Out.WriteLine($"Copying File {wslSource} -> {wslPath}");
-        await RunAsync(distro, $"cp \"{wslSource}\" \"{wslPath}\"");
+        await RunAsync(distro, $"install -d \"$(dirname '{wslPath}')\" && cp '{wslSource}' '{wslPath}'");
     }
     public static async Task CopyDirAsync(string distro, string winPath, string wslPath)
     {
