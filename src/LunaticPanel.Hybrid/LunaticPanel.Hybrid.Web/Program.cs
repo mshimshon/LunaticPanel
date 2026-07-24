@@ -1,42 +1,10 @@
-using LunaticPanel.Core.Abstraction.Plugin;
-using LunaticPanel.Engine.Web;
 using LunaticPanel.Engine.Web.Boostrap;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Security.Claims;
 using App = LunaticPanel.Hybrid.Web.App;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddCircuitOptions(o => o.DetailedErrors = true);
 builder.WebHost.UseKestrel();
 
-builder
-            .AddSharedType<IPlugin>()
-            // ==========================================
-            // 2. MudBlazor & UI Interop Libraries
-            // ==========================================
-            .AddSharedType<MudBlazor.MudButton>()                                // Blocks MudBlazor.dll
-            .AddSharedType<HtmlRenderer>()   // Blocks Microsoft.AspNetCore.Components.Web.dll
-            .AddSharedType<ComponentBase>()      // Blocks Microsoft.AspNetCore.Components.dll
-            .AddSharedType<Microsoft.JSInterop.IJSRuntime>()                     // Blocks Microsoft.JSInterop.dll
 
-            // ==========================================
-            // 3. ASP.NET Core Framework Foundations
-            // ==========================================
-            .AddSharedType<WebApplication>()        // Blocks Microsoft.AspNetCore.dll
-            .AddSharedType<HttpContext>()              // Blocks Microsoft.AspNetCore.Http.Abstractions.dll
-            .AddSharedType<IServiceCollection>() // Blocks Microsoft.Extensions.DependencyInjection.Abstractions.dll
-            .AddSharedType<ILogger>()                // Blocks Microsoft.Extensions.Logging.Abstractions.dll
-            .AddSharedType<IConfiguration>()  // Blocks Microsoft.Extensions.Configuration.Abstractions.dll
-
-            // ==========================================
-            // 4. Vulnerable "System" Extended Utilities
-            // ==========================================
-            .AddSharedType<HttpClient>()                         // Blocks System.Net.Http.dll
-            .AddSharedType<DiagnosticSource>()                 // Blocks System.Diagnostics.DiagnosticSource.dll
-            .AddSharedType<ClaimsPrincipal>()             // Blocks System.Security.Claims.dll
-            .AddSharedType<Component>();
 Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
 
 WebApplication app = builder.Build();

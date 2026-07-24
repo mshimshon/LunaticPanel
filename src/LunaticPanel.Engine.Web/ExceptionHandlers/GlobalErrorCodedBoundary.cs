@@ -24,4 +24,5 @@ public class GlobalErrorCodedBoundary : ErrorBoundary
 
         return base.OnErrorAsync(exception);
     }
+
 }

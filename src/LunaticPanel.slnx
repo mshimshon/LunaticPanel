@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/Plugins/" />
+  <Folder Name="/Plugins/">
+    <File Path="Plugins/lpcli-compose.yml" />
+  </Folder>
   <Folder Name="/Plugins/PackageManager/">
     <File Path="Plugins/PackageManager/lpcli-compose.yml" />
     <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Application/LunaticPanel.PackageManager.Application.csproj" Id="cf5fe086-ce80-4145-a983-98235ebbd5bf" />
@@ -13,6 +15,7 @@
     <File Path=".version" />
     <File Path="Directory.Packages.props" />
     <File Path="lpcli-compose.yml" />
+    <File Path="pack_debug.ps1" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">

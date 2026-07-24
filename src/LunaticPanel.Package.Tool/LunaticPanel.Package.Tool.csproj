@@ -21,7 +21,7 @@
   <ItemGroup>
     <PackageReference Include="McMaster.NETCore.Plugins" />
     <PackageReference Include="System.CommandLine" />
-
+	  <PackageReference Include="MudBlazor" />
   </ItemGroup>
 
   <ItemGroup>

@@ -495,7 +495,8 @@ public abstract class PluginBase : IPlugin
             return _passValidation;
         List<PluginValidationResult> resultToReturn = [
                 this.FindAnyInvalidRoutesNames(),
-                this.FindAnyWidgetNotUsingProperComponentBase()
+                this.FindAnyWidgetNotUsingProperComponentBase(),
+                this.ValidateCoreAssemblies()
             ];
         _passValidation = resultToReturn.AsReadOnly();
         return PerformValidation();

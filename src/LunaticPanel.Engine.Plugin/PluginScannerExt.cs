@@ -1,23 +1,20 @@
-﻿using LunaticPanel.Core.Abstraction.Plugin;
-using LunaticPanel.Engine.Plugin.Entities;
+﻿using LunaticPanel.Engine.Plugin.Entities;
 using McMaster.NETCore.Plugins;
+using System.Reflection;
 
 namespace LunaticPanel.Engine.Plugin;
 
 public static class PluginScannerExt
 {
-    private static readonly Type[] _sharedTypes =
-    {
-        typeof(IPlugin)
-    };
-    public static IReadOnlyList<PluginScannedEntity> ScanAndFindPlugins(string locationForPlugins, Type[] sharedType)
+
+    public static IReadOnlyList<PluginScannedEntity> ScanAndFindPlugins(string locationForPlugins, Type[] sharedType, AssemblyName[] sharedAssemblies)
     {
         var results = new List<PluginScannedEntity>();
         var processed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         Console.WriteLine($"Plugin Root: {locationForPlugins}");
         foreach (var dir in Directory.EnumerateDirectories(locationForPlugins))
         {
-            var entity = FindPluginDllInDirectory(dir, sharedType, p => processed.Add(p));
+            var entity = FindPluginDllInDirectory(dir, sharedType, sharedAssemblies, p => processed.Add(p));
             if (entity == default)
             {
                 Console.Out.WriteLine($"No Plugin Found In: {dir}");
@@ -30,7 +27,7 @@ public static class PluginScannerExt
         return results;
     }
 
-    public static PluginScannedEntity? FindPluginDllInDirectory(string pluginFolder, Type[] sharedType, Func<string, bool>? skipDll = default)
+    public static PluginScannedEntity? FindPluginDllInDirectory(string pluginFolder, Type[] sharedType, AssemblyName[] sharedAssemblies, Func<string, bool>? skipDll = default)
     {
         Console.Out.WriteLine($"[Search for Plugin File]");
         foreach (var dll in Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly))
@@ -39,14 +36,14 @@ public static class PluginScannerExt
             if (skipDll != default && !skipDll(Path.GetFullPath(dll)))
                 continue;
 
-            var entity = LoadPluginInformation(dll, sharedType);
+            var entity = LoadPluginInformation(dll, sharedType, sharedAssemblies);
             if (entity == default) continue;
             return entity;
         }
         return default;
     }
 
-    public static PluginScannedEntity? LoadPluginInformation(string dllFile, Type[] sharedType)
+    public static PluginScannedEntity? LoadPluginInformation(string dllFile, Type[] sharedType, AssemblyName[] sharedAssemblies)
     {
         PluginLoader? tmpLoader = default;
         PluginLoader? permanentLoader = default;
@@ -54,8 +51,13 @@ public static class PluginScannerExt
         {
             tmpLoader = PluginLoader.CreateFromAssemblyFile(
                 dllFile,
-                sharedTypes: [.. _sharedTypes, .. sharedType],
-                c => c.IsUnloadable = true
+                sharedTypes: sharedType,
+                c =>
+                {
+                    c.IsUnloadable = true;
+                    foreach (var item in sharedAssemblies)
+                        c.SharedAssemblies.Add(item);
+                }
             );
 
 
@@ -63,8 +65,9 @@ public static class PluginScannerExt
             var pluginId = assembly.GetName().Name;
             Console.Out.WriteLine($"Testing Dll for {pluginId}");
             var pluginEntryType = assembly.GetTypes()
-                .FirstOrDefault(t => t.IsClass && !t.IsAbstract &&
-                    typeof(IPlugin).IsAssignableFrom(t) && t.Namespace == pluginId);
+                .FirstOrDefault(t => t.IsClass && !t.IsAbstract && t.Namespace == pluginId &&
+                    t.GetInterfaces().Any(i => string.Equals(i.FullName, "LunaticPanel.Core.Abstraction.Plugin.IPlugin", StringComparison.Ordinal)));
+
 
             bool unloadAndSkip = false;
             if (pluginEntryType == default)
@@ -95,8 +98,13 @@ public static class PluginScannerExt
             GC.Collect();
             permanentLoader = PluginLoader.CreateFromAssemblyFile(
                 dllFile,
-                sharedTypes: _sharedTypes,
-                c => c.IsUnloadable = true
+                sharedTypes: sharedType,
+                c =>
+                {
+                    c.IsUnloadable = true;
+                    foreach (var item in sharedAssemblies)
+                        c.SharedAssemblies.Add(item);
+                }
             );
             return new PluginScannedEntity(PluginId: asmName,
                 Version: asmVersion ?? new Version(1, 0, 0, 0),

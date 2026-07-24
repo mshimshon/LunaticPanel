@@ -155,7 +155,7 @@ internal static class PackingCommandExt
     {
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
-        LunaticPanel.Engine.Plugin.Entities.PluginScannedEntity? entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder, []);
+        LunaticPanel.Engine.Plugin.Entities.PluginScannedEntity? entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder, [], DependencySettings.ScanSharedFrameworkNames());
         if (entity == default)
             throw new PluginDllNotFoundException(inputFolder);
 

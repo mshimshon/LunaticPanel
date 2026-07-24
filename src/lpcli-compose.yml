@@ -4,32 +4,30 @@ apt:
   - "tmux" 
   - "libicu-dev" 
 services:
-     #import_lp:
-       #  importFrom: "../../Panel/src/lpcli-compose.yml"  # will import all the services from Panel Source first
+    - dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
+      service_name: "lunaticpanel"
+      # https:// to the location of deb release file we want.
+      # deb_url: "" 
+      exec_start: "./LunaticPanel.Hybrid.Web"
+      working_dir: "/usr/lib/lunatic_panel"
+      description: "Lunatic Panel dashboard hosting."
+      environment:
+        - "ASPNETCORE_ENVIRONMENT=Development"
+      show: true
+      depends_on:
+          - lpkg_localserver
 
-    lunaticpanel:
-        dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
-        # https:// to the location of deb release file we want.
-        # deb_url: "" 
-        exec_start: "./LunaticPanel.Hybrid.Web"
-        working_dir: "/usr/lib/lunatic_panel"
-        description: "Lunatic Panel dashboard hosting."
-        environment:
-          - "ASPNETCORE_ENVIRONMENT=Development"
-        show: true
-        depends_on:
-           - lpkg_localserver
-    lpkg_localserver:
-        dotnet_project: "./LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj"
-        # https:// to the location of deb release file we want.
-        # deb_url: "" 
-        startup_parameters: "--urls \"http://localhost:5001;\""
-        exec_start: "./LunaticPanel.Package.LocalServer"
-        working_dir: "/usr/lib/lpkg_localserver"
-        description: "Lunatic Panel Local Package Server"
-        environment:
-          - "ASPNETCORE_ENVIRONMENT=Development"
-        show: true
+    - dotnet_project: "./LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj"
+      service_name: "lpkg_localserver"
+      # https:// to the location of deb release file we want.
+      # deb_url: "" 
+      startup_parameters: "--urls \"http://localhost:5001;\""
+      exec_start: "./LunaticPanel.Package.LocalServer"
+      working_dir: "/usr/lib/lpkg_localserver"
+      description: "Lunatic Panel Local Package Server"
+      environment:
+        - "ASPNETCORE_ENVIRONMENT=Development"
+      show: true
 # plugins:
 #   - import_from: "./Plugins/PackageManager/lpcli-compose.yml"  will import all the plugins from Panel Source firs  
   #- local: "./Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
@@ -42,20 +40,21 @@ services:
 # Post processing is design to allow mocking data or extra information to be moved to WSL in a fast flexible way
 # You can build extra projects IE: Tools or plugin specific sub folders such as installers or optional feature underlaying softwares.
 # You can choose to build, publish csproject and archive it than move it to WSL... same for folders and files.
-post_processing:
-   #- import_from: "../../Panel/src/lpcli-compose.yml"  # will import all the post_processing from Panel Source firs  
-  - dotnet: "./xxx.csproj"
-    buildTo: "/etc/lunaticpanel/mockData/myPublish"
-    publishTo: "/etc/lunaticpanel/mockData/myPublish"
-    archive: "tar.gz" # Make tar.gz or .zip
-    archiveTo: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
+# post_processing:
+#    - import_from: "../../Panel/src/lpcli-compose.yml"  will import all the post_processing from Panel Source firs  
+#   - dotnet_project: "./xxx.csproj"
+#     build_to: "/etc/lunaticpanel/mockData/myPublish"
+#     publish_to: "/etc/lunaticpanel/mockData/myPublish"
+#     archive: "tar.gz" Make tar.gz or .zip
+#     archive_to: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
   
-  - folder: "./cc/ccc/ccc/"
-    folderTo: "/etc/lunaticpanel/plugins/"
-    archive: "tar.gz" # Make tar.gz or .zip
-    archiveTo: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
-  - file: ./assets/PluginA/file.json
-    fileTo: /etc/lunaticpanel/plugins/PluginA/settings.json
-    archive: "tar.gz" # Make tar.gz or .zip
-    archiveTo: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
+#   - folder: "./cc/ccc/ccc/"
+#     folder_to: "/etc/lunaticpanel/plugins/"
+#     archive: "tar.gz" Make tar.gz or .zip
+#     archive_to: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
+
+#   - file: ./assets/PluginA/file.json
+#     file_to: /etc/lunaticpanel/plugins/PluginA/settings.json
+#     archive: "tar.gz" Make tar.gz or .zip
+#     archive_to: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
 

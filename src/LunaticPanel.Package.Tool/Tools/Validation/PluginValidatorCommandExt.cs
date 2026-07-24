@@ -53,7 +53,7 @@ internal static class PluginValidatorCommandExt
         try
         {
             Console.Out.WriteLine($"Validating Plugin for {inputFolder}");
-            entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder, []);
+            entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder, [], DependencySettings.ScanSharedFrameworkNames());
             if (entity == default)
                 throw new PluginDllNotFoundException(inputFolder);
             Console.Out.WriteLine($"We Found {entity.PluginId}".Green());

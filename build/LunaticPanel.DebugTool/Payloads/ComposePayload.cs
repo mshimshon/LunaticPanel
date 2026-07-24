@@ -11,6 +11,7 @@ internal sealed record ComposePayload
         // we can intercept it or safely clear and copy.
         set => _apt = value != null ? new HashSet<string>(value, StringComparer.OrdinalIgnoreCase) : new(StringComparer.OrdinalIgnoreCase);
     }
-    public Dictionary<string, ServiceComposePayload> Services { get; set; } = new();
+    public List<ServiceComposePayload> Services { get; set; } = new();
     public List<PluginComposePayload> Plugins { get; set; } = new();
+    public List<PostProcessingComposePayload> PostProcessing { get; set; } = new();
 }

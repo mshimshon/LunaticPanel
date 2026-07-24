@@ -91,7 +91,7 @@ internal sealed class DeploymentService
         await ShudownAsync(_deployEnvironmentName);
         await StartAsync(_deployEnvironmentName);
         foreach (var item in Configuration.Compose.Services)
-            await RunAsync(_deployEnvironmentName, $"systemctl status {item.Key}");
+            await RunAsync(_deployEnvironmentName, $"systemctl status {item.ServiceName}");
 
         await RunAsync(_deployEnvironmentName, $"cat /etc/lunaticpanel/bootstrap.json");
         await FinalizeDeployment();
@@ -99,9 +99,9 @@ internal sealed class DeploymentService
 
     private async Task InstallPlugins(CancellationToken ct = default)
     {
-        var csprojects = Configuration.Compose.Plugins.Where(p => p.Local != default && p.Local.EndsWith(".csproj"));
+        var csprojects = Configuration.Compose.Plugins.Where(p => p.DotnetProject != default && p.DotnetProject.EndsWith(".csproj"));
         foreach (var item in csprojects)
-            await BuildProjectAsync(item.Local!);
+            await BuildProjectAsync(item.DotnetProject!);
         Dictionary<PluginComposePayload, PackToolPluginManifestExternalPayload> manifests = new();
         foreach (var item in csprojects)
         {
@@ -121,7 +121,7 @@ internal sealed class DeploymentService
     private async Task<JsonObject> InstallPluginInSubSystem(PluginComposePayload csproj, PackToolPluginManifestExternalPayload manifestExternalPayload, CancellationToken ct = default)
     {
         string linuxFolder = manifestExternalPayload.Id.ToLower().Replace('.', '_');
-        string filename = Path.GetFileNameWithoutExtension(csproj.Local!);
+        string filename = Path.GetFileNameWithoutExtension(csproj.DotnetProject!);
         var tmp = Path.GetTempPath();
         var cliTmp = Path.Combine(tmp, "lpcli");
         var cliLpkgUnpackTmp = Path.Combine(cliTmp, "lpkgs_unpack");
@@ -166,7 +166,7 @@ internal sealed class DeploymentService
     }
     private async Task<PackToolPluginManifestExternalPayload> PackProjectAsync(PluginComposePayload pluginComposePayload, CancellationToken ct = default)
     {
-        string filename = Path.GetFileNameWithoutExtension(pluginComposePayload.Local!);
+        string filename = Path.GetFileNameWithoutExtension(pluginComposePayload.DotnetProject!);
         var tmp = Path.GetTempPath();
         var cliTmp = Path.Combine(tmp, "lpcli");
         var cliPublishTmp = Path.Combine(cliTmp, "build");
@@ -187,7 +187,7 @@ internal sealed class DeploymentService
         Console.Out.WriteLine("Extracting Payload");
         int startIndex = Array.LastIndexOf(lines, "<<<PAYLOAD_BEGIN>>>"), stopIndex = Array.LastIndexOf(lines, "<<<PAYLOAD_END>>>");
         if (startIndex < 0 || stopIndex < 0)
-            throw new Exception($"Failed to get manifest for {pluginComposePayload.Local}");
+            throw new Exception($"Failed to get manifest for {pluginComposePayload.DotnetProject}");
         for (int i = startIndex + 1; i < stopIndex; i++)
         {
             jsonData.AppendLine(lines[i]);
@@ -200,14 +200,17 @@ internal sealed class DeploymentService
         try
         {
             if (finalData == default)
-                throw new Exception($"Failed to get manifest for {pluginComposePayload.Local}");
+                throw new Exception($"Failed to get manifest for {pluginComposePayload.DotnetProject}");
             PackToolResultExternalPayload? resultReponse = JsonSerializer.Deserialize<PackToolResultExternalPayload>(finalData);
             if (resultReponse == default || resultReponse.Data == default)
                 throw new Exception($"Failed to read manifest for {finalData}");
             Console.Out.WriteLine($"Plugin {resultReponse.Data.Id} is packed and ready to deploy.");
-            if (Directory.Exists(cliLpkgUnpackTmp))
-                Directory.Delete(cliLpkgUnpackTmp, true);
-            var cmdUnpack = $"unpack --input \"{Path.Combine(cliLpkgTmp, $"{resultReponse.Data.Id}.{resultReponse.Data.Version}.lpkg")}\" --output \"{cliLpkgUnpackTmp}\"";
+            string linuxName = resultReponse.Data.Id.ToLower().Replace('.', '_');
+            string unpackTo = Path.Combine(cliLpkgUnpackTmp, linuxName);
+            if (Directory.Exists(unpackTo))
+                Directory.Delete(unpackTo, true);
+            Directory.CreateDirectory(unpackTo);
+            var cmdUnpack = $"unpack --root --input \"{Path.Combine(cliLpkgTmp, $"{resultReponse.Data.Id}.{resultReponse.Data.Version}.lpkg")}\" --output \"{unpackTo}\"";
             await ProcessExt.RunProcessAsync(cliPackingTool, cmdUnpack);
             return resultReponse.Data;
         }
@@ -241,6 +244,11 @@ internal sealed class DeploymentService
     private async Task InstallServicesAsync(CancellationToken ct = default)
     {
         Console.Out.WriteLine("Requires Fresh Service Deployment.");
+        bool deployExist = await WslDistroExists(_deployEnvironmentName);
+        if (deployExist)
+        {
+            await DestroyAsync(_deployEnvironmentName);
+        }
         await ImportAsync(_deployEnvironmentName, _wslDataFolder, _operatingSystemImgFile);
         await PrintDistros();
         await DeployServicesAsync(ct);
@@ -260,8 +268,8 @@ internal sealed class DeploymentService
     private async Task FinalizeDeployment()
     {
         List<Process> serviceShown = new();
-        foreach (var item in Configuration.Compose.Services.Where(p => p.Value.Show))
-            serviceShown.Add(ShowServiceAsync(_deployEnvironmentName, item.Key));
+        foreach (var item in Configuration.Compose.Services.Where(p => p.Show))
+            serviceShown.Add(ShowServiceAsync(_deployEnvironmentName, item.ServiceName!));
 
         await WaitForCtrlCAsync();
         await CleanUp(serviceShown);
@@ -316,29 +324,29 @@ internal sealed class DeploymentService
 
     private async Task DeployServicesAsync(CancellationToken ct = default)
     {
-        foreach (var item in Configuration.Compose.Services.Where(p => File.Exists(p.Value.DotnetProject)))
-            await PublishDotnetService(item.Value);
-        foreach (var item in Configuration.Compose.Services.Where(p => File.Exists(p.Value.DotnetProject)))
-            await CopyDotnetServices(item.Value);
+        foreach (var item in Configuration.Compose.Services.Where(p => File.Exists(p.DotnetProject)))
+            await PublishDotnetService(item);
+        foreach (var item in Configuration.Compose.Services.Where(p => File.Exists(p.DotnetProject)))
+            await CopyDotnetServices(item);
 
-        foreach (var item in Configuration.Compose.Services.Where(p => p.Value.DebUrl != default))
-            await DownloadInstallDep(item.Key, item.Value);
+        foreach (var item in Configuration.Compose.Services.Where(p => p.DebUrl != default))
+            await DownloadInstallDep(item);
 
         foreach (var item in Configuration.Compose.Services)
         {
-            string serviceFile = GenerateServiceFile(item.Key, item.Value);
-            await CopyFileAsync(_deployEnvironmentName, serviceFile, $"/etc/systemd/system/{item.Key}.service");
+            string serviceFile = GenerateServiceFile(item);
+            await CopyFileAsync(_deployEnvironmentName, serviceFile, $"/etc/systemd/system/{item.ServiceName}.service");
         }
         await RunAsync(_deployEnvironmentName, $"systemctl daemon-reload");
 
         foreach (var item in Configuration.Compose.Services)
-            await RunAsync(_deployEnvironmentName, $"systemctl enable {item.Key}");
+            await RunAsync(_deployEnvironmentName, $"systemctl enable {item.ServiceName}");
 
         await ShudownAsync(_deployEnvironmentName);
 
     }
 
-    private string GenerateServiceFile(string serviceName, ServiceComposePayload serviceComposePayload)
+    private string GenerateServiceFile(ServiceComposePayload serviceComposePayload)
     {
         var tmp = Path.GetTempPath();
         var cliTmp = Path.Combine(tmp, "lpcli");
@@ -369,9 +377,9 @@ internal sealed class DeploymentService
             commandBuilder.AppendLine($"Environment={item}");
 
         }
-        commandBuilder.AppendLine($"LogsDirectory={serviceName}");
-        commandBuilder.AppendLine($"StandardOutput=file:/var/log/{serviceName}.stdout.log");
-        commandBuilder.AppendLine($"StandardError=file:/var/log/{serviceName}.stderr.log");
+        commandBuilder.AppendLine($"LogsDirectory={serviceComposePayload.ServiceName}");
+        commandBuilder.AppendLine($"StandardOutput=file:/var/log/{serviceComposePayload.ServiceName}.stdout.log");
+        commandBuilder.AppendLine($"StandardError=file:/var/log/{serviceComposePayload.ServiceName}.stderr.log");
         commandBuilder.AppendLine(); // Empty line separator
         commandBuilder.AppendLine("[Install]");
         commandBuilder.AppendLine("WantedBy=multi-user.target");
@@ -381,10 +389,10 @@ internal sealed class DeploymentService
         return serviceFileTmp;
     }
 
-    private async Task DownloadInstallDep(string serviceName, ServiceComposePayload serviceComposePayload)
+    private async Task DownloadInstallDep(ServiceComposePayload serviceComposePayload)
     {
-        await RunAsync(_deployEnvironmentName, $"wget '{serviceComposePayload.DebUrl!}' -O '/tmp/{serviceName}.deb");
-        await RunAsync(_deployEnvironmentName, $"apt install -y '/tmp/{serviceName}.deb");
+        await RunAsync(_deployEnvironmentName, $"wget '{serviceComposePayload.DebUrl!}' -O '/tmp/{serviceComposePayload.ServiceName}.deb");
+        await RunAsync(_deployEnvironmentName, $"apt install -y '/tmp/{serviceComposePayload.ServiceName}.deb");
     }
 
     private async Task PublishDotnetService(ServiceComposePayload serviceComposePayload)

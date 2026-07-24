@@ -12,7 +12,7 @@
 	  <Description>Core Package for Lunatic Panel's PLugin</Description>
 	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+	  <Configurations>Debug;Release;</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

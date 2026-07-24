@@ -15,14 +15,12 @@ using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils;
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Infrastructure.Services;
-using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using LunaticPanel.Engine.Web.Layout;
 using LunaticPanel.Engine.Web.Layout.Menu;
 using LunaticPanel.Engine.Web.Pages.Dashboard;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using LunaticPanel.Engine.Web.Services.PanelControl;
 using MedihatR;
-using Microsoft.AspNetCore.Builder;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
@@ -97,11 +95,7 @@ public static class RegisterServicesExt
         services.AddHostRedirectedServices();
         return services;
     }
-    public static WebApplicationBuilder AddSharedType<T>(this WebApplicationBuilder applicationBuilder)
-    {
-        BootstrapPlugins.SharedFrameworkTypes.Add(typeof(T));
-        return applicationBuilder;
-    }
+
     /// <summary>
     /// This is also called by Bootstraper so ensure it follows a factory pattern or ensure full dependencies are included.
     /// </summary>

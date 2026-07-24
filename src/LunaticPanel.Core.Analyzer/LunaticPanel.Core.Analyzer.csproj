@@ -6,11 +6,14 @@
 		<IsPackable>true</IsPackable>
 		<IsRoslynAnalyzer>true</IsRoslynAnalyzer>
 		<PackageType>Analyzer</PackageType>
-		<ForceExtendedAnalyzerRules>true</ForceExtendedAnalyzerRules>
 		<!-- Avoid ID conflicts with the package project. -->
 		<PackageId>$(AssemblyName)</PackageId>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+		<!-- 2. Ensure symbols packaging doesn't break a library-less pack -->
+		<IncludeSymbols>false</IncludeSymbols>
+		<!-- FIX RS1036: Enforce modern analyzer rule validations -->
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -21,6 +24,14 @@
 		<AdditionalFiles Include="@(RazorComponent)" />
 		<AdditionalFiles Include="**\*.razor" />
 	</ItemGroup>
+	<ItemGroup>
+		<!-- 3. Explicitly bundle the analyzer DLL into the correct NuGet path -->
+		<None Include="$(OutputPath)\$(AssemblyName).dll"
+			  Pack="true"
+			  PackagePath="analyzers/dotnet/cs"
+			  Visible="false" />
+	</ItemGroup>
+	
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
 		<MakeDir Directories="..\..\..\..\nupkgs" />
 		<ItemGroup>
