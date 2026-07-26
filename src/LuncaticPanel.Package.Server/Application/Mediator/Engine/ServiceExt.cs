@@ -22,5 +22,6 @@ internal static class ServiceExt
         services.AddTransient<IRequestHandler<EndManifestLifeCommand>, EndManifestLifeHandler>();
         services.AddTransient<IRequestHandler<PackageValidationCommand, PackageValidationResponse>, PackageValidationHandler>();
         services.AddTransient<IRequestHandler<SearchManifestQuery, ManifestSearchResponse>, SearchManifestHandler>();
+        services.AddTransient<IRequestHandler<GetPackageDownloadTargetQuery, PackageDownloadTargetResponse>, GetPackageDownloadTargetHandler>();
     }
 }

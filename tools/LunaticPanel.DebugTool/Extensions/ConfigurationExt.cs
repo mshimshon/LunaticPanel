@@ -6,9 +6,23 @@ namespace LunaticPanel.DebugTool.Extensions;
 
 internal static class ConfigurationExt
 {
-    private static string ComposeTarget { get; set; }
+    private static string ComposeTarget { get; set; } = default!;
+
+    public static void PrintHelp()
+    {
+        Console.WriteLine($"lpcli [\"path to .lpcli-compose\" or run directly from compose path]");
+        Console.WriteLine($"lpcli --hard-reset | Run before deploy, Purge the whole temp folder including WSL snapshots and disks.");
+        Console.WriteLine($"lpcli --clean | Run before deploy, selectively clean all the temp folder from build, pack, publish artifacts! it can safely be ran everytime.");
+        Console.WriteLine($"lpcli --deploy | execute steps from compose file and deploy services + plugins.");
+        Console.WriteLine($"lpcli --no-interaction | prevent user input requirement and auto allow everything.");
+        Console.WriteLine($"lpcli --debug | print all information in cmd.");
+        Console.WriteLine($"lpcli --skip-wsl | after initial deploy subsequents deploy will skip rebuilding the base Debian system.");
+        Console.WriteLine($"lpcli --skip-services | prevent subsequents deploy from rebuilding services and directly jump to plugin deployment.");
+        Console.WriteLine($"lpcli --snap \"name\" | start executing steps from the snapshot step in compose.");
+    }
     private static void ValidateParameters(string[] args)
     {
+        PrintHelp();
         string workingDir = Environment.CurrentDirectory;
         if (args.Length > 0 && Directory.Exists(args[0]))
             workingDir = args[0];

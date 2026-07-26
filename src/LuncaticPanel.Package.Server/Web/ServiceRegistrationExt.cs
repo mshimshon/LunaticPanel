@@ -48,6 +48,8 @@ public static class ServiceRegistrationExt
             mediator.ExecuteAsync(new GetAllPackageVersionsQuery(id)));
         v1Group.MapGet("/package/info/{id}/{version}", (string id, string version, IMediator mediator)
             => mediator.ExecuteAsync(new GetSpecificPackageVersionQuery(id, version)));
+        v1Group.MapGet("/package/download/{id}/{version}", (string id, string version, IMediator mediator)
+            => mediator.ExecuteAsync(new GetPackageDownloadTargetQuery(id, version)));
     }
     internal static void AddEndpoints(this WebApplication app)
     {

@@ -8,7 +8,7 @@
 	<PackAsTool>true</PackAsTool>
 	<ToolCommandName>lpcli</ToolCommandName>
 	  <Title>$(AssemblyName)</Title>
-	  <Version>1.0.0</Version>
+	  <Version>1.0.1</Version>
 	  <Company>Maksim Shimshon</Company>
 	  <Copyright>Maksim Shimshon © 2026</Copyright>
 	  <Authors>Maksim Shimshon</Authors>

@@ -29,14 +29,7 @@ internal class Mediator : IMediator
         }
     }
 
-    public Task<TResult> ExecuteAsync<TResult>(IRequest request, CancellationToken ct = default)
-    {
-        switch (request)
-        {
-            default:
-                throw new MediatorCommandNotFoundException();
-        }
-    }
+
 
     public Task<TResult> ExecuteAsync<TResult>(IRequest<TResult> request, CancellationToken ct = default)
     {
@@ -52,6 +45,8 @@ internal class Mediator : IMediator
                 return ServiceProvider.GetRequiredService<IRequestHandler<SearchManifestQuery, TResult>>().HandleAsync(q, ct);
             case PackageValidationCommand q:
                 return ServiceProvider.GetRequiredService<IRequestHandler<PackageValidationCommand, TResult>>().HandleAsync(q, ct);
+            case GetPackageDownloadTargetQuery q:
+                return ServiceProvider.GetRequiredService<IRequestHandler<GetPackageDownloadTargetQuery, TResult>>().HandleAsync(q, ct);
             default:
                 throw new MediatorCommandNotFoundException();
         }
