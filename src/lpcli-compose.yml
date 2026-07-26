@@ -46,15 +46,12 @@ services:
 #     build_to: "/etc/lunaticpanel/mockData/myPublish"
 #     publish_to: "/etc/lunaticpanel/mockData/myPublish"
 #     archive: "tar.gz" Make tar.gz or .zip
-#     archive_to: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
   
 #   - folder: "./cc/ccc/ccc/"
 #     folder_to: "/etc/lunaticpanel/plugins/"
 #     archive: "tar.gz" Make tar.gz or .zip
-#     archive_to: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
 
 #   - file: ./assets/PluginA/file.json
 #     file_to: /etc/lunaticpanel/plugins/PluginA/settings.json
 #     archive: "tar.gz" Make tar.gz or .zip
-#     archive_to: "/etc/lunaticpanel/mockData/myInstall.tar.gz"
 

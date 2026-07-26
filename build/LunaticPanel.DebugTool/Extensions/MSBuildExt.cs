@@ -7,7 +7,7 @@ internal static class MSBuildExt
         Console.Out.WriteLine($"Publishing '{project}'");
         string filename = Path.GetFileNameWithoutExtension(project);
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
+        var cliTmp = Path.Combine(tmp, "lpcli", "temp");
         var cliPublishTmp = Path.Combine(cliTmp, "publish");
         Console.Out.WriteLine($"Temp Publish At '{cliPublishTmp}'");
         if (!Directory.Exists(cliPublishTmp))
@@ -27,7 +27,7 @@ internal static class MSBuildExt
         Console.Out.WriteLine($"Publishing '{project}'");
         string filename = Path.GetFileNameWithoutExtension(project);
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
+        var cliTmp = Path.Combine(tmp, "lpcli", "temp");
         var cliPublishTmp = Path.Combine(cliTmp, "build");
         Console.Out.WriteLine($"Temp Publish At '{cliPublishTmp}'");
         if (!Directory.Exists(cliPublishTmp))

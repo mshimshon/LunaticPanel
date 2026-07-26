@@ -15,5 +15,4 @@ public sealed record PostProcessingComposePayload
     public string? FileTo { get; set; }
 
     public string? Archive { get; set; }
-    public string? ArchiveTo { get; set; }
 }

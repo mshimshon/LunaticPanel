@@ -19,21 +19,54 @@ internal sealed class DeploymentService
     private readonly string[] _systemDependencies = [
         "wget"
         ];
+    private readonly string _tempLocation;
     public ConfigurationPayload Configuration { get; }
     public DeploymentService(ConfigurationPayload configuration)
     {
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
-        var cliWSLDataTmp = Path.Combine(cliTmp, "data");
+        _tempLocation = Path.Combine(tmp, "lpcli", "temp");
+        var cliWSLDataTmp = Path.Combine(_tempLocation, "data");
         if (!Directory.Exists(cliWSLDataTmp))
             Directory.CreateDirectory(cliWSLDataTmp);
-        _operatingSystemImgFile = Path.Combine(cliTmp, "os_debian.tar.gz");
-        _serviceInstalledFile = Path.Combine(cliTmp, "os_debian_service.tar.gz");
+        _operatingSystemImgFile = Path.Combine(_tempLocation, "os_debian.tar.gz");
+        _serviceInstalledFile = Path.Combine(_tempLocation, "os_debian_service.tar.gz");
         _wslDataFolder = cliWSLDataTmp;
         Configuration = configuration;
     }
 
+    public async Task CleanUp(bool soft, CancellationToken ct = default)
+    {
+        var tmp = Path.GetTempPath();
+        Console.WriteLine($"Temp: {_tempLocation}");
+        if (!soft)
+        {
+            bool deployExist = await WslDistroExists(_deployEnvironmentName);
+            if (deployExist)
+                await DestroyAsync(_deployEnvironmentName);
+            if (Directory.Exists(_tempLocation))
+                Directory.Delete(_tempLocation, true);
+        }
+        else
+        {
+            if (Directory.Exists(Path.Combine(_tempLocation, "archives")))
+                Directory.Delete(Path.Combine(_tempLocation, "archives"), true);
+            if (Directory.Exists(Path.Combine(_tempLocation, "build")))
+                Directory.Delete(Path.Combine(_tempLocation, "build"), true);
+            if (Directory.Exists(Path.Combine(_tempLocation, "lpkgs")))
+                Directory.Delete(Path.Combine(_tempLocation, "lpkgs"), true);
+            if (Directory.Exists(Path.Combine(_tempLocation, "lpkgs_unpack")))
+                Directory.Delete(Path.Combine(_tempLocation, "lpkgs_unpack"), true);
+            if (Directory.Exists(Path.Combine(_tempLocation, "publish")))
+                Directory.Delete(Path.Combine(_tempLocation, "publish"), true);
+            if (Directory.Exists(Path.Combine(_tempLocation, "systemd")))
+                Directory.Delete(Path.Combine(_tempLocation, "systemd"), true);
+            if (File.Exists(Path.Combine(_tempLocation, "bootstrap.json")))
+                File.Delete(Path.Combine(_tempLocation, "bootstrap.json"));
+        }
 
+
+
+    }
     public async Task DeployAsync(CancellationToken ct = default)
     {
         bool isFresh = false;
@@ -88,6 +121,7 @@ internal sealed class DeploymentService
             await ImportAsync(_deployEnvironmentName, _wslDataFolder, _serviceInstalledFile);
         }
         await InstallPlugins(ct);
+        await RunPostProcessing(ct);
         await ShudownAsync(_deployEnvironmentName);
         await StartAsync(_deployEnvironmentName);
         foreach (var item in Configuration.Compose.Services)
@@ -96,7 +130,98 @@ internal sealed class DeploymentService
         await RunAsync(_deployEnvironmentName, $"cat /etc/lunaticpanel/bootstrap.json");
         await FinalizeDeployment();
     }
+    private async Task RunPostProcessing(CancellationToken ct = default)
+    {
+        var tmp = Path.GetTempPath();
+        var cliArchivesTmp = Path.Combine(_tempLocation, "archives");
+        if (Directory.Exists(cliArchivesTmp))
+            Directory.Delete(cliArchivesTmp, true);
+        Directory.CreateDirectory(cliArchivesTmp);
+        foreach (var pp in Configuration.Compose.PostProcessing)
+        {
 
+            string? finalizeFrom = string.Empty;
+            string? targetTo = string.Empty;
+            if (!string.IsNullOrWhiteSpace(pp.Command))
+            {
+                await RunAsync(_deployEnvironmentName, pp.Command!);
+                continue;
+            }
+            else if (!string.IsNullOrWhiteSpace(pp.DotnetProject) && !string.IsNullOrWhiteSpace(pp.PublishTo))
+            {
+                Configuration.PrintDebug($"[PostProcessing]::Detected Dotnet Project to publish.");
+                await PublishProjectAsync(pp.DotnetProject!);
+                string filename = Path.GetFileNameWithoutExtension(pp.DotnetProject);
+                var cliPublishTmp = Path.Combine(_tempLocation, "publish");
+                finalizeFrom = Path.Combine(cliPublishTmp, filename);
+                targetTo = pp.PublishTo;
+                Configuration.PrintDebug($"[PostProcessing]::'{finalizeFrom}' -> '{targetTo}'.");
+            }
+            else if (!string.IsNullOrWhiteSpace(pp.DotnetProject) && !string.IsNullOrWhiteSpace(pp.BuildTo))
+            {
+                Configuration.PrintDebug($"[PostProcessing]::Detected Dotnet Project to build.");
+                await BuildProjectAsync(pp.DotnetProject!);
+                string filename = Path.GetFileNameWithoutExtension(pp.DotnetProject);
+                var cliPublishTmp = Path.Combine(_tempLocation, "build");
+                finalizeFrom = Path.Combine(cliPublishTmp, filename);
+                targetTo = pp.BuildTo;
+                Configuration.PrintDebug($"[PostProcessing]::'{finalizeFrom}' -> '{targetTo}'.");
+            }
+            else if (!string.IsNullOrWhiteSpace(pp.File) && !string.IsNullOrWhiteSpace(pp.FileTo))
+            {
+                Configuration.PrintDebug($"[PostProcessing]::Detected File to copy.");
+                if (!File.Exists(pp.File))
+                    throw new Exception($"'{pp.File}' not found.");
+                finalizeFrom = pp.File;
+                targetTo = pp.FileTo;
+                Configuration.PrintDebug($"[PostProcessing]::'{finalizeFrom}' -> '{targetTo}'.");
+            }
+            else if (!string.IsNullOrWhiteSpace(pp.Folder) && !string.IsNullOrWhiteSpace(pp.FolderTo))
+            {
+                Configuration.PrintDebug($"[PostProcessing]::Detected folder to copy.");
+                if (!Directory.Exists(pp.Folder))
+                    throw new Exception($"'{pp.Folder}' not found.");
+                finalizeFrom = pp.Folder;
+                targetTo = pp.FolderTo;
+                Configuration.PrintDebug($"[PostProcessing]::'{finalizeFrom}' -> '{targetTo}'.");
+            }
+            else
+            {
+                throw new Exception($"1: Invalid pp command {pp}");
+            }
+            if (string.IsNullOrWhiteSpace(targetTo) || string.IsNullOrWhiteSpace(finalizeFrom))
+                throw new Exception($"2: Invalid pp command {pp}");
+
+            if (!string.IsNullOrWhiteSpace(pp.Archive))
+            {
+                var tmpArchivePath = Path.GetTempFileName();
+                if (File.Exists(finalizeFrom))
+                    if (pp.Archive == "zip")
+                        await ArchiveExt.CreateZipAsync(finalizeFrom, tmpArchivePath, ct);
+                    else if (pp.Archive == "zip")
+                        await ArchiveExt.CreateFileTarGzAsync(finalizeFrom, tmpArchivePath, ct);
+                    else throw new Exception($"{pp.Archive} not supported format.");
+                else if (Directory.Exists(finalizeFrom))
+                    if (pp.Archive == "zip")
+                        await ArchiveExt.CreateZipFolderAsync(finalizeFrom, tmpArchivePath, ct);
+                    else if (pp.Archive == "tar.gz")
+                        await ArchiveExt.CreateFolderTarGzAsync(finalizeFrom, tmpArchivePath, ct);
+                    else throw new Exception($"{pp.Archive} not supported format.");
+                else
+                    throw new Exception($"{finalizeFrom} does not exist.");
+                await CopyFileAsync(_deployEnvironmentName, tmpArchivePath, targetTo);
+                File.Delete(tmpArchivePath);
+            }
+            else if (File.Exists(finalizeFrom))
+                await CopyFileAsync(_deployEnvironmentName, finalizeFrom, targetTo);
+            else if (Directory.Exists(finalizeFrom))
+                await CopyDirAsync(_deployEnvironmentName, finalizeFrom, targetTo);
+            else
+                throw new Exception($"3: Invalid pp command {pp}");
+
+        }
+
+    }
     private async Task InstallPlugins(CancellationToken ct = default)
     {
         var csprojects = Configuration.Compose.Plugins.Where(p => p.DotnetProject != default && p.DotnetProject.EndsWith(".csproj"));
@@ -123,10 +248,9 @@ internal sealed class DeploymentService
         string linuxFolder = manifestExternalPayload.Id.ToLower().Replace('.', '_');
         string filename = Path.GetFileNameWithoutExtension(csproj.DotnetProject!);
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
-        var cliLpkgUnpackTmp = Path.Combine(cliTmp, "lpkgs_unpack");
+        var cliLpkgUnpackTmp = Path.Combine(_tempLocation, "lpkgs_unpack");
         var cliLpkgDir = Path.Combine(cliLpkgUnpackTmp, linuxFolder);
-        var cliLpkgTmp = Path.Combine(cliTmp, "lpkgs");
+        var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
 
         var clilpkgLocal = Path.Combine(cliLpkgTmp, $"{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
         // /usr/lib/lunaticpanel/plugins
@@ -168,10 +292,9 @@ internal sealed class DeploymentService
     {
         string filename = Path.GetFileNameWithoutExtension(pluginComposePayload.DotnetProject!);
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
-        var cliPublishTmp = Path.Combine(cliTmp, "build");
-        var cliLpkgTmp = Path.Combine(cliTmp, "lpkgs");
-        var cliLpkgUnpackTmp = Path.Combine(cliTmp, "lpkgs_unpack");
+        var cliPublishTmp = Path.Combine(_tempLocation, "build");
+        var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
+        var cliLpkgUnpackTmp = Path.Combine(_tempLocation, "lpkgs_unpack");
         if (!Directory.Exists(cliLpkgUnpackTmp))
             Directory.CreateDirectory(cliLpkgUnpackTmp);
         var cliLpkgDir = Path.Combine(cliPublishTmp, filename);
@@ -225,8 +348,7 @@ internal sealed class DeploymentService
     private async Task BuildAndPublishBootstrap(List<JsonObject> defs, CancellationToken ct = default)
     {
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
-        var cliPublishTmp = Path.Combine(cliTmp, "bootstrap.json");
+        var cliPublishTmp = Path.Combine(_tempLocation, "bootstrap.json");
         if (File.Exists(cliPublishTmp))
             File.Delete(cliPublishTmp);
 
@@ -263,6 +385,7 @@ internal sealed class DeploymentService
         await SubsystemConfigure(ct);
         await ShudownAsync("Debian");
         await ExportAsync("Debian", _operatingSystemImgFile);
+        await DestroyAsync("Debian");
         return true;
     }
     private async Task FinalizeDeployment()
@@ -349,8 +472,7 @@ internal sealed class DeploymentService
     private string GenerateServiceFile(ServiceComposePayload serviceComposePayload)
     {
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
-        var cliSysmdTmp = Path.Combine(cliTmp, "systemd");
+        var cliSysmdTmp = Path.Combine(_tempLocation, "systemd");
         if (Directory.Exists(cliSysmdTmp))
             Directory.Delete(cliSysmdTmp, true);
         Directory.CreateDirectory(cliSysmdTmp);
@@ -404,8 +526,7 @@ internal sealed class DeploymentService
     {
         string filename = Path.GetFileNameWithoutExtension(serviceComposePayload.DotnetProject!);
         var tmp = Path.GetTempPath();
-        var cliTmp = Path.Combine(tmp, "lpcli");
-        var cliPublishTmp = Path.Combine(cliTmp, "publish");
+        var cliPublishTmp = Path.Combine(_tempLocation, "publish");
         var cliProjectOutput = Path.Combine(cliPublishTmp, filename);
         await CopyDirAsync(_deployEnvironmentName, cliProjectOutput, serviceComposePayload.WorkingDir);
         await RunAsync(_deployEnvironmentName, $"ls '{serviceComposePayload.WorkingDir}'");

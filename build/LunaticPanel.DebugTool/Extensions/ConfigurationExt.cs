@@ -41,6 +41,9 @@ internal static class ConfigurationExt
             WorkingDir = workingDir,
             DebugMode = DebugMode,
             SkipSubSystemRebuild = args.Any(p => p.Equals("--skip-wsl", StringComparison.OrdinalIgnoreCase)),
+            PerformSoftCleanup = args.Any(p => p.Equals("--clean", StringComparison.OrdinalIgnoreCase)),
+            PerformCleanup = args.Any(p => p.Equals("--hard-reset", StringComparison.OrdinalIgnoreCase)),
+            PerformDeploy = args.Any(p => p.Equals("--deploy", StringComparison.OrdinalIgnoreCase)),
             SkipServiceRebuild = args.Any(p => p.Equals("--skip-services", StringComparison.OrdinalIgnoreCase)),
             NoInteraction = args.Any(p => p.Equals("--no-interaction", StringComparison.OrdinalIgnoreCase)),
 
@@ -295,28 +298,27 @@ internal static class ConfigurationExt
         bool isCommand = !string.IsNullOrWhiteSpace(p.Command);
         if (isCommand) return;
         bool isCopyFile = !string.IsNullOrWhiteSpace(p.File) || !string.IsNullOrWhiteSpace(p.FileTo);
-        bool isArchive = !string.IsNullOrWhiteSpace(p.Archive) || !string.IsNullOrWhiteSpace(p.ArchiveTo);
+        bool isArchive = !string.IsNullOrWhiteSpace(p.Archive);
         if (!isDotnet && !isCopyFolder && !isCopyFile)
             throw new Exception($"Post Processing must copy folder, file, linux command or build dotnet project... {p}");
         if (isDotnet && string.IsNullOrWhiteSpace(p.DotnetProject))
             throw new Exception($"Dotnet project not spefcified {p}.");
         if (isDotnet && !File.Exists(p.DotnetProject))
             throw new Exception($"{p.DotnetProject} does not exist.");
-        if (isDotnet && (string.IsNullOrWhiteSpace(p.BuildTo) && string.IsNullOrWhiteSpace(p.PublishTo) && string.IsNullOrWhiteSpace(p.ArchiveTo)))
+        if (isDotnet && string.IsNullOrWhiteSpace(p.BuildTo) && string.IsNullOrWhiteSpace(p.PublishTo))
             throw new Exception($"{p.DotnetProject} does not have a WSL build or publish or archive target.");
 
-        if (isCopyFolder && string.IsNullOrWhiteSpace(p.FolderTo) && string.IsNullOrWhiteSpace(p.ArchiveTo))
+        if (isCopyFolder && string.IsNullOrWhiteSpace(p.FolderTo))
             throw new Exception($"{p.Folder} Copy Content Where???.");
         if (isCopyFolder && string.IsNullOrWhiteSpace(p.Folder))
             throw new Exception($"{p.FolderTo} Copy Content From???.");
-        if (isCopyFile && string.IsNullOrWhiteSpace(p.FileTo) && string.IsNullOrWhiteSpace(p.ArchiveTo))
+        if (isCopyFile && string.IsNullOrWhiteSpace(p.FileTo))
             throw new Exception($"{p.File} Copy File Where???.");
         if (isCopyFile && string.IsNullOrWhiteSpace(p.File))
             throw new Exception($"{p.FileTo} Copy File From???.");
-        if (isArchive && string.IsNullOrWhiteSpace(p.ArchiveTo))
+        if (isArchive && string.IsNullOrWhiteSpace(p.FolderTo) && string.IsNullOrWhiteSpace(p.PublishTo) && string.IsNullOrWhiteSpace(p.BuildTo)
+            && string.IsNullOrWhiteSpace(p.FileTo))
             throw new Exception($"Archive has no destination {p}.");
-        if (isArchive && string.IsNullOrWhiteSpace(p.Archive))
-            throw new Exception($"Archive has no type 'zip', 'tar.gz' {p}.");
         if (isArchive && p.Archive != "tar.gz" && p.Archive != "zip")
             throw new Exception($"Archive has no valid type 'zip', 'tar.gz' {p}.");
     }
