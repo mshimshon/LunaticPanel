@@ -19,6 +19,8 @@ internal class ConsoleApplication
 
     public async Task RunAsync(CancellationToken ct = default)
     {
+        Console.WriteLine(Configuration);
+
         if (Configuration.PerformCleanup || Configuration.PerformSoftCleanup)
         {
             if (Configuration.PerformCleanup && Configuration.PerformSoftCleanup)

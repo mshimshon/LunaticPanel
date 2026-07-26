@@ -20,11 +20,13 @@ internal sealed class DeploymentService
         "wget"
         ];
     private readonly string _tempLocation;
+    private bool _skipStep = false;
     public ConfigurationPayload Configuration { get; }
     public DeploymentService(ConfigurationPayload configuration)
     {
         var tmp = Path.GetTempPath();
         _tempLocation = Path.Combine(tmp, "lpcli", "temp");
+        var snapLocation = Path.Combine(_tempLocation, "snapshots");
         var cliWSLDataTmp = Path.Combine(_tempLocation, "data");
         if (!Directory.Exists(cliWSLDataTmp))
             Directory.CreateDirectory(cliWSLDataTmp);
@@ -32,6 +34,13 @@ internal sealed class DeploymentService
         _serviceInstalledFile = Path.Combine(_tempLocation, "os_debian_service.tar.gz");
         _wslDataFolder = cliWSLDataTmp;
         Configuration = configuration;
+        if (!string.IsNullOrWhiteSpace(Configuration.Snap))
+        {
+            var snapshotLocation = Path.Combine(snapLocation, $"{Configuration.Snap}.tar.gz");
+            _skipStep = File.Exists(snapshotLocation);
+            Console.WriteLine($"Snapshot Mode ({_skipStep}): {Configuration.Snap} ({snapshotLocation})");
+        }
+
     }
 
     public async Task CleanUp(bool soft, CancellationToken ct = default)
@@ -73,53 +82,64 @@ internal sealed class DeploymentService
         Console.Out.WriteLine("Checking Distro Availability");
         bool debianExist = await WslDistroExists("Debian");
 
-
-        bool distroInstallRequired = !Configuration.SkipSubSystemRebuild || !File.Exists(_operatingSystemImgFile);
-        if (debianExist && distroInstallRequired)
+        if (!_skipStep)
         {
-            Console.Out.WriteLine("We require to destroy 'Debian' distro currently on your WSL.");
-            Console.Out.WriteLine("Export it under another name or continue pressing Y/n");
-            bool allowedDestroy = Configuration.NoInteraction ? true : false;
-            if (!Configuration.NoInteraction)
+            bool distroInstallRequired = !Configuration.SkipSubSystemRebuild || !File.Exists(_operatingSystemImgFile);
+            if (debianExist && distroInstallRequired)
             {
-                var key = Console.ReadKey(intercept: true);
-                allowedDestroy = key.Key == ConsoleKey.Y;
+                Console.Out.WriteLine("We require to destroy 'Debian' distro currently on your WSL.");
+                Console.Out.WriteLine("Export it under another name or continue pressing Y/n");
+                bool allowedDestroy = Configuration.NoInteraction ? true : false;
+                if (!Configuration.NoInteraction)
+                {
+                    var key = Console.ReadKey(intercept: true);
+                    allowedDestroy = key.Key == ConsoleKey.Y;
+                }
+                else
+                    Console.Out.WriteLine("No Interaction mode activate Y is automatic.");
+
+                if (allowedDestroy)
+                    await DestroyAsync("Debian");
             }
+
+            if (distroInstallRequired)
+                isFresh = await InstallDistro();
             else
-                Console.Out.WriteLine("No Interaction mode activate Y is automatic.");
-
-            if (allowedDestroy)
-                await DestroyAsync("Debian");
-        }
-
-        if (distroInstallRequired)
-            isFresh = await InstallDistro();
-        else
-        {
-            Console.Out.WriteLine($"Use Existing '{_operatingSystemImgFile}'.");
-            bool deployExist = await WslDistroExists(_deployEnvironmentName);
-            if (deployExist)
             {
-                await DestroyAsync(_deployEnvironmentName);
+                Console.Out.WriteLine($"Use Existing '{_operatingSystemImgFile}'.");
+                bool deployExist = await WslDistroExists(_deployEnvironmentName);
+                if (deployExist)
+                {
+                    await DestroyAsync(_deployEnvironmentName);
+                }
+            }
+            bool serviceInstallRequired = !Configuration.SkipServiceRebuild || !File.Exists(_serviceInstalledFile) || isFresh;
+
+
+            if (serviceInstallRequired)
+                await InstallServicesAsync(ct);
+            else
+            {
+                Console.Out.WriteLine($"Use Existing '{_serviceInstalledFile}'.");
+                bool deployExist = await WslDistroExists(_deployEnvironmentName);
+                if (deployExist)
+                    await DestroyAsync(_deployEnvironmentName);
+
+                await ImportAsync(_deployEnvironmentName, _wslDataFolder, _serviceInstalledFile);
             }
         }
-
-
-        bool serviceInstallRequired = !Configuration.SkipServiceRebuild || !File.Exists(_serviceInstalledFile) || isFresh;
-
-
-        if (serviceInstallRequired)
-            await InstallServicesAsync(ct);
         else
         {
-            Console.Out.WriteLine($"Use Existing '{_serviceInstalledFile}'.");
             bool deployExist = await WslDistroExists(_deployEnvironmentName);
             if (deployExist)
-            {
                 await DestroyAsync(_deployEnvironmentName);
-            }
-            await ImportAsync(_deployEnvironmentName, _wslDataFolder, _serviceInstalledFile);
+            await ImportAsync(_deployEnvironmentName, _wslDataFolder, Path.Combine(_tempLocation, "snapshots", $"{Configuration.Snap}.tar.gz"));
         }
+
+
+
+
+
         await InstallPlugins(ct);
         await RunPostProcessing(ct);
         await ShudownAsync(_deployEnvironmentName);
@@ -137,12 +157,26 @@ internal sealed class DeploymentService
         if (Directory.Exists(cliArchivesTmp))
             Directory.Delete(cliArchivesTmp, true);
         Directory.CreateDirectory(cliArchivesTmp);
+        Configuration.PrintDebug($"[PostProcessing]::Starting (Searching Snapshot? {_skipStep}).");
+
         foreach (var pp in Configuration.Compose.PostProcessing)
         {
 
             string? finalizeFrom = string.Empty;
             string? targetTo = string.Empty;
-            if (!string.IsNullOrWhiteSpace(pp.Command))
+            if (_skipStep && !string.IsNullOrWhiteSpace(pp.Snap) && pp.Snap == Configuration.Snap)
+            {
+                Configuration.PrintDebug($"[PostProcessing]::Snapshot Step Match, Stop Skipping.");
+                _skipStep = false;
+                continue;
+            }
+            else if (!_skipStep && !string.IsNullOrWhiteSpace(pp.Snap))
+            {
+                Configuration.PrintDebug($"[PostProcessing]::Snapshot Step Creating Snapshot.");
+                await CreateSnapshot(pp.Snap, ct);
+                continue;
+            }
+            else if (!string.IsNullOrWhiteSpace(pp.Command))
             {
                 await RunAsync(_deployEnvironmentName, pp.Command!);
                 continue;
@@ -224,41 +258,54 @@ internal sealed class DeploymentService
     }
     private async Task InstallPlugins(CancellationToken ct = default)
     {
-        var csprojects = Configuration.Compose.Plugins.Where(p => p.DotnetProject != default && p.DotnetProject.EndsWith(".csproj"));
-        foreach (var item in csprojects)
-            await BuildProjectAsync(item.DotnetProject!);
-        Dictionary<PluginComposePayload, PackToolPluginManifestExternalPayload> manifests = new();
-        foreach (var item in csprojects)
-        {
-            var manifestTmp = await PackProjectAsync(item, ct);
-            manifests[item] = manifestTmp;
-        }
         List<JsonObject> bootstrapDefinition = new List<JsonObject>();
-        foreach (var item in manifests)
+        bool containsSnapTarget = _skipStep && Configuration.Compose.Plugins.Any(p => !string.IsNullOrWhiteSpace(p.Snap) && p.Snap == Configuration.Snap);
+        if (_skipStep && !containsSnapTarget) return;
+        foreach (var plugin in Configuration.Compose.Plugins)
         {
-            var def = await InstallPluginInSubSystem(item.Key, item.Value, ct);
-            bootstrapDefinition.Add(def);
-        }
+            if (_skipStep && !string.IsNullOrWhiteSpace(plugin.Snap) && plugin.Snap == Configuration.Snap)
+            {
+                Configuration.PrintDebug($"[Plugin]::Snapshot Step Match Stop Skipping.");
+                string bootstrapProgressFile = Path.Combine(_tempLocation, "snapshots", $"{plugin.Snap}_bootstrap.json");
+                if (!File.Exists(bootstrapProgressFile))
+                    throw new Exception($"'{bootstrapProgressFile}' does not exist run --hard-reset to fully clear cache.");
+                bootstrapDefinition = JsonSerializer.Deserialize<List<JsonObject>>(File.ReadAllText(bootstrapProgressFile))!;
 
+                _skipStep = false;
+                continue;
+            }
+            else if (_skipStep)
+            {
+                Configuration.PrintDebug($"[Plugin]::{plugin.Id} Already into snapshot, skipping.");
+                continue;
+            }
+            else if (!_skipStep && !string.IsNullOrWhiteSpace(plugin.Snap))
+            {
+                Configuration.PrintDebug($"[Plugin]::Snapshot Step Creating...");
+                string bootstrapProgressFile = Path.Combine(_tempLocation, "snapshots", $"{plugin.Snap}_bootstrap.json");
+                if (File.Exists(bootstrapProgressFile))
+                    File.Delete(bootstrapProgressFile);
+                File.WriteAllText(bootstrapProgressFile, JsonSerializer.Serialize(bootstrapDefinition));
+                await CreateSnapshot(plugin.Snap, ct);
+
+            }
+            else if (!string.IsNullOrWhiteSpace(plugin.DotnetProject))
+            {
+                await BuildProjectAsync(plugin.DotnetProject);
+                var manifestTmp = await PackProjectAsync(plugin, ct);
+                await InstallPluginInSubSystem(plugin, manifestTmp, ct);
+
+
+                var def = BuildBootstrapManifestFrom(plugin, manifestTmp);
+                bootstrapDefinition.Add(def);
+            }
+
+        }
         await BuildAndPublishBootstrap(bootstrapDefinition);
     }
-
-    private async Task<JsonObject> InstallPluginInSubSystem(PluginComposePayload csproj, PackToolPluginManifestExternalPayload manifestExternalPayload, CancellationToken ct = default)
+    private JsonObject BuildBootstrapManifestFrom(PluginComposePayload csproj, PackToolPluginManifestExternalPayload manifestExternalPayload)
     {
         string linuxFolder = manifestExternalPayload.Id.ToLower().Replace('.', '_');
-        string filename = Path.GetFileNameWithoutExtension(csproj.DotnetProject!);
-        var tmp = Path.GetTempPath();
-        var cliLpkgUnpackTmp = Path.Combine(_tempLocation, "lpkgs_unpack");
-        var cliLpkgDir = Path.Combine(cliLpkgUnpackTmp, linuxFolder);
-        var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
-
-        var clilpkgLocal = Path.Combine(cliLpkgTmp, $"{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
-        // /usr/lib/lunaticpanel/plugins
-        await CopyDirAsync(_deployEnvironmentName, cliLpkgDir, $"/usr/lib/lunaticpanel/plugins/{linuxFolder}");
-        await RunAsync(_deployEnvironmentName, $"ls /usr/lib/lunaticpanel/plugins/{linuxFolder}");
-        ///var/lib/lunaticpanel_package/lpkgs
-        await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/lib/lunaticpanel_package/lpkgs/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
-        // 1. Build the leaf objects (Identity and Lifecycle)
         var identityNode = new JsonObject
         {
             ["PackageId"] = manifestExternalPayload.Id,
@@ -286,6 +333,23 @@ internal sealed class DeploymentService
             ["PluginDir"] = $"/usr/lib/lunaticpanel/plugins/{linuxFolder}"
         };
         return pluginEntry;
+    }
+    private async Task InstallPluginInSubSystem(PluginComposePayload csproj, PackToolPluginManifestExternalPayload manifestExternalPayload, CancellationToken ct = default)
+    {
+        string linuxFolder = manifestExternalPayload.Id.ToLower().Replace('.', '_');
+        string filename = Path.GetFileNameWithoutExtension(csproj.DotnetProject!);
+        var tmp = Path.GetTempPath();
+        var cliLpkgUnpackTmp = Path.Combine(_tempLocation, "lpkgs_unpack");
+        var cliLpkgDir = Path.Combine(cliLpkgUnpackTmp, linuxFolder);
+        var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
+
+        var clilpkgLocal = Path.Combine(cliLpkgTmp, $"{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
+        // /usr/lib/lunaticpanel/plugins
+        await CopyDirAsync(_deployEnvironmentName, cliLpkgDir, $"/usr/lib/lunaticpanel/plugins/{linuxFolder}");
+        await RunAsync(_deployEnvironmentName, $"ls /usr/lib/lunaticpanel/plugins/{linuxFolder}");
+        ///var/lib/lunaticpanel_package/lpkgs
+        await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/lib/lunaticpanel_package/lpkgs/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
+
 
     }
     private async Task<PackToolPluginManifestExternalPayload> PackProjectAsync(PluginComposePayload pluginComposePayload, CancellationToken ct = default)
@@ -535,5 +599,15 @@ internal sealed class DeploymentService
         await RunAsync(_deployEnvironmentName, $"[ -f '{serviceComposePayload.ExecStart}' ] || exit 1");
         await RunAsync(_deployEnvironmentName, $"chmod +x '{serviceComposePayload.ExecStart}'");
     }
-
+    private async Task CreateSnapshot(string snap, CancellationToken ct = default)
+    {
+        string file = Path.Combine(_tempLocation, "snapshots", $"{snap}.tar.gz");
+        if (!Directory.Exists(Path.Combine(_tempLocation, "snapshots")))
+            Directory.CreateDirectory(Path.Combine(_tempLocation, "snapshots"));
+        if (File.Exists(file))
+            File.Delete(file);
+        await ShudownAsync(_deployEnvironmentName);
+        await ExportAsync(_deployEnvironmentName, file);
+        await StartAsync(_deployEnvironmentName);
+    }
 }

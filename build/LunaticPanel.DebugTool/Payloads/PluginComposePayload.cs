@@ -8,4 +8,5 @@ internal sealed record PluginComposePayload
     public string? Id { get; set; }         // remote plugin id
     public string? Version { get; set; }    // optional
     public string? Source { get; set; }     // remote repo URL
+    public string? Snap { get; set; }
 }

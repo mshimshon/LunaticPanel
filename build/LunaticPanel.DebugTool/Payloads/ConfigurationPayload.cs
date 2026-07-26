@@ -11,7 +11,7 @@ internal sealed record ConfigurationPayload
     public bool PerformDeploy { get; init; }
     public bool NoInteraction { get; init; }
     public ComposePayload Compose { get; init; } = default!;
-
+    public string? Snap { get; init; }
 
     public void PrintDebug(string line)
     {

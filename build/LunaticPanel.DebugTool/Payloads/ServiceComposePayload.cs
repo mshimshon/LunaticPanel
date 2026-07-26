@@ -13,4 +13,5 @@ internal sealed record ServiceComposePayload
     public string Description { get; set; } = "My Custom Background Service";
     public List<string> DependsOn { get; set; } = new();
     public bool Show { get; set; }
+
 }

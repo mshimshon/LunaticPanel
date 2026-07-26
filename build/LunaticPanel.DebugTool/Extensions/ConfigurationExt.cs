@@ -36,10 +36,17 @@ internal static class ConfigurationExt
             Console.Out.WriteLine($"Parameter: {item}");
         }
         DebugMode = args.Any(p => p.Equals("--debug", StringComparison.OrdinalIgnoreCase));
+        string? snap = default;
+        int snapIndex = args.IndexOf("--snap", StringComparer.OrdinalIgnoreCase);
+        if (snapIndex >= 0)
+        {
+            snap = args[snapIndex + 1];
+        }
         var result = new ConfigurationPayload()
         {
             WorkingDir = workingDir,
             DebugMode = DebugMode,
+            Snap = snap,
             SkipSubSystemRebuild = args.Any(p => p.Equals("--skip-wsl", StringComparison.OrdinalIgnoreCase)),
             PerformSoftCleanup = args.Any(p => p.Equals("--clean", StringComparison.OrdinalIgnoreCase)),
             PerformCleanup = args.Any(p => p.Equals("--hard-reset", StringComparison.OrdinalIgnoreCase)),
@@ -265,6 +272,8 @@ internal static class ConfigurationExt
     {
         bool isDotnet = !string.IsNullOrWhiteSpace(p.DotnetProject);
         bool isSource = !string.IsNullOrWhiteSpace(p.Id) || !string.IsNullOrWhiteSpace(p.Source);
+        bool isSnap = !string.IsNullOrWhiteSpace(p.Snap);
+        if (isSnap) return;
         if (!isDotnet && !isSource)
             throw new Exception($"Plugin must either be dotnet project or plugin source + id.");
         if (isDotnet && !File.Exists(p.DotnetProject))
@@ -293,6 +302,9 @@ internal static class ConfigurationExt
 
     private static void PostProcessingJobValidation(PostProcessingComposePayload p)
     {
+        bool isSnap = !string.IsNullOrWhiteSpace(p.Snap);
+        if (isSnap) return;
+
         bool isDotnet = !string.IsNullOrWhiteSpace(p.DotnetProject) || !string.IsNullOrWhiteSpace(p.BuildTo) || !string.IsNullOrWhiteSpace(p.PublishTo);
         bool isCopyFolder = !string.IsNullOrWhiteSpace(p.Folder) || !string.IsNullOrWhiteSpace(p.FolderTo);
         bool isCommand = !string.IsNullOrWhiteSpace(p.Command);
