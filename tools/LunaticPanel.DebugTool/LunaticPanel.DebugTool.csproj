@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<PackAsTool>true</PackAsTool>
+	<ToolCommandName>lpcli</ToolCommandName>
+	  <Title>$(AssemblyName)</Title>
+	  <Version>1.0.0</Version>
+	  <Company>Maksim Shimshon</Company>
+	  <Copyright>Maksim Shimshon © 2026</Copyright>
+	  <Authors>Maksim Shimshon</Authors>
+	  <Description>Core Package for Lunatic Panel's PLugin</Description>
+	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+	  <Configurations>Debug;Release;</Configurations>
+	  <ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <ProjectReference Include="..\..\src\LunaticPanel.Package.Tool\LunaticPanel.Package.Tool.csproj" >
+
+		  <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+		  <IncludeAssets>all</IncludeAssets>
+	  </ProjectReference>
+
+  </ItemGroup>
+
+	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
+		<MakeDir Directories="..\..\..\..\nupkgs" />
+		<ItemGroup>
+			<PackageFiles Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PackageFiles)" DestinationFolder="..\..\..\..\nupkgs" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" Condition="'$(BuildingInsideVisualStudio)' == 'true'" />
+	</Target>
+</Project>
