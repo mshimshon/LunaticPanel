@@ -3,3 +3,6 @@ services:
 
 plugins:
   - import_from: "./PackageManager/lpcli-compose.yml"  # will import all the plugins from Panel Source firs  
+  
+post_processing:
+  - import_from: "../lpcli-compose.yml"

@@ -8,6 +8,7 @@ public sealed record PluginManifestPayload
     public string Version { get; set; } = default!;
     public string Description { get; set; } = default!;
     public string? Author { get; set; }
+    public string? Copyright { get; set; }
     public string PanelVersion { get; set; } = default!;
     public string DotnetVersion { get; set; } = default!;
     public string PluginEntryFile { get; set; } = default!;

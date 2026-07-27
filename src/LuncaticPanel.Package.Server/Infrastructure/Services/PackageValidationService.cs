@@ -47,7 +47,10 @@ internal sealed class PackageValidationService : IPackageValidatorService
         Console.WriteLine($"Reading Local Package Manifest {target}");
         var manifest = ReadManifestFromArchive(target);
         Console.WriteLine($"Package Compiled Using Tool v{manifest.PanelVersion}");
-        var tool = await FetchValidatorToolAsync(manifest.PanelVersion);
+        string tool = Path.Combine("/opt/lpcli_tool", "LunaticPanel.Package.Tool");
+        if (!File.Exists(tool))
+            tool = await FetchValidatorToolAsync(manifest.PanelVersion);
+        else Console.WriteLine($"Use Master Override {tool} (SHOULD NOT BE USED IN PRODUCTION)");
         Console.WriteLine($"Package Compiled Tool Available at {tool}");
         return await RunValidationAsync(tool, target, target, ct);
     }

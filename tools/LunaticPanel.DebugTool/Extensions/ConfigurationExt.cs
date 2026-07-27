@@ -350,8 +350,8 @@ internal static class ConfigurationExt
             throw new Exception($"Dotnet project not spefcified {p}.");
         if (isDotnet && !File.Exists(p.DotnetProject))
             throw new Exception($"{p.DotnetProject} does not exist.");
-        if (isDotnet && string.IsNullOrWhiteSpace(p.BuildTo) && string.IsNullOrWhiteSpace(p.PublishTo))
-            throw new Exception($"{p.DotnetProject} does not have a WSL build or publish or archive target.");
+        if (!string.IsNullOrWhiteSpace(p.DotnetProject) && string.IsNullOrWhiteSpace(p.BuildTo) && string.IsNullOrWhiteSpace(p.PublishTo))
+            throw new Exception($"{p.DotnetProject} does not have a WSL build or publish or archive target. {p}");
 
         if (isCopyFolder && string.IsNullOrWhiteSpace(p.FolderTo))
             throw new Exception($"{p.Folder} Copy Content Where???.");

@@ -5,6 +5,7 @@ using LunaticPanel.Engine.Plugin.Validation;
 using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Exceptions.ValidateExceptions;
 using LunaticPanel.Package.Tool.Extensions;
+using LunaticPanel.Package.Tool.Payloads;
 using LunaticPanel.Package.Tool.Tools.Packing;
 using LunaticPanel.Package.Tool.Tools.Plugin;
 using System.CommandLine;
@@ -21,7 +22,7 @@ internal static class PluginValidatorCommandExt
 
         return root.WithSubCommand(command);
     }
-    private static async Task ValidateAction(ParseResult parseResult, CancellationToken ct = default)
+    private static async Task<PluginManifestPayload> ValidateAction(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
         bool missingParams = input == default;
@@ -29,25 +30,30 @@ internal static class PluginValidatorCommandExt
             throw new MissingParametersException("--input is missing and required for packing.");
         else if (!Directory.Exists(input) && !File.Exists(input))
             throw new ValidateInputInvalidException(input!);
-        else
-            await ValidatePackageAsync(input);
+        return await ValidatePackageAsync(input);
+
     }
 
-    public static async Task ValidatePackageAsync(string input)
+    public static async Task<PluginManifestPayload> ValidatePackageAsync(string input)
     {
         bool isPackage = !Directory.Exists(input) && File.Exists(input);
         var inputFolder = input;
         string? outputPackageTmp = default;
         PluginScannedEntity? entity = default;
+        PluginManifestPayload? manifest = default;
         if (isPackage)
         {
             Console.Out.WriteLine($"Validating Package for {input}");
-            var manifest = PluginUtilitiesExt.ReadManifestFromArchive(input);
+            manifest = PluginUtilitiesExt.ReadManifestFromArchive(input);
             var rootTmp = Path.GetTempPath();
             var tmpFolder = Path.GetFileNameWithoutExtension(Path.GetTempFileName());
             outputPackageTmp = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{PackSettings.LunaticPanelVersion}", tmpFolder);
             await PackingCommandExt.UnpackToLocation(manifest, input, outputPackageTmp, true);
             inputFolder = outputPackageTmp;
+        }
+        else
+        {
+            manifest = PluginUtilitiesExt.GetManifestInformation(input);
         }
 
         try
@@ -84,6 +90,7 @@ internal static class PluginValidatorCommandExt
 
                 throw new PluginValidationFailedException(plugin.PluginId, error);
             }
+            return manifest;
         }
         catch
         {

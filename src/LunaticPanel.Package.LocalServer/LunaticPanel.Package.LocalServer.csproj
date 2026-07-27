@@ -5,6 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+	  <Version>$(GlobalVersion)</Version>
+	  <Company>$(GlobalCompany)</Company>
+	  <Copyright>$(GlobalCopyright)</Copyright>
+	  <Authors>$(GlobalAuthors)</Authors>
+
   </PropertyGroup>
 
   <ItemGroup>

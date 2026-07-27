@@ -42,10 +42,10 @@ services:
 # Post processing is design to allow mocking data or extra information to be moved to WSL in a fast flexible way
 # You can build extra projects IE: Tools or plugin specific sub folders such as installers or optional feature underlaying softwares.
 # You can choose to build, publish csproject and archive it than move it to WSL... same for folders and files.
-# post_processing:
+post_processing:
 #    - import_from: "../../Panel/src/lpcli-compose.yml"  will import all the post_processing from Panel Source firs  
-#   - dotnet_project: "./xxx.csproj"
-#     build_to: "/etc/lunaticpanel/mockData/myPublish"
+     - dotnet_project: "./LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj"
+       publish_to: "/opt/lpcli_tool"
 #     publish_to: "/etc/lunaticpanel/mockData/myPublish"
 #     archive: "tar.gz" Make tar.gz or .zip
   

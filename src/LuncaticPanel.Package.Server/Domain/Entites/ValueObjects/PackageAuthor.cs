@@ -12,7 +12,7 @@ public sealed record PackageAuthor
             throw new PackageAuthorRequiredException();
         else if (value.Length < DomainValidationExt.PKG_AUTHOR_MIN_LENGTH || value.Length > DomainValidationExt.PKG_AUTHOR_MAX_LENGTH)
             throw new PackageAuthorLengthException();
-        else if (!Regex.IsMatch(value, DomainValidationExt.ALPHANUM_VALIDATION_PATTERN))
+        else if (!Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN))
             throw new PackageAuthorViolationException(value);
         Value = value;
     }
