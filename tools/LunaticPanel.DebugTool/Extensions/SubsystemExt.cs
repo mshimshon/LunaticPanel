@@ -88,11 +88,24 @@ internal static class SubsystemExt
 
     public static Process ShowServiceAsync(string distro, string serviceName)
     {
-        string cmd = $"wsl -d {distro} --user root -- bash -c 'tail -f -n 100 /var/log/{serviceName}.stdout.log /var/log/{serviceName}.stderr.log'";
+        string cmd = $"wsl -d {distro} --user root -- bash -c 'journalctl -u {serviceName} -n 100 -f'";
         return Process.Start(new ProcessStartInfo
         {
             FileName = "cmd.exe",
             Arguments = $"/k \"{cmd}\"",
+            UseShellExecute = true,
+            CreateNoWindow = false,
+            WindowStyle = ProcessWindowStyle.Normal
+        })!;
+    }
+
+    public static Process ShowShellAsync(string distro)
+    {
+        string cmd = $"wsl -d {distro} --user root";
+        return Process.Start(new ProcessStartInfo
+        {
+            FileName = "cmd.exe",
+            Arguments = $"/k  \"{cmd}\"",
             UseShellExecute = true,
             CreateNoWindow = false,
             WindowStyle = ProcessWindowStyle.Normal

@@ -12,12 +12,16 @@ internal static class ConfigurationExt
     {
         Console.WriteLine($"lpcli [\"path to .lpcli-compose\" or run directly from compose path]");
         Console.WriteLine($"lpcli --hard-reset | Run before deploy, Purge the whole temp folder including WSL snapshots and disks.");
+        Console.WriteLine($"lpcli --no-open | Prevent the opening of services or terminal after depoy.");
+        Console.WriteLine($"lpcli --open-only \"service_name,service_name,service_name\" | Open specific services and ignore all others.");
+        Console.WriteLine($"lpcli --open-shell | open a interactable shell at deploy");
         Console.WriteLine($"lpcli --clean | Run before deploy, selectively clean all the temp folder from build, pack, publish artifacts! it can safely be ran everytime.");
         Console.WriteLine($"lpcli --deploy | execute steps from compose file and deploy services + plugins.");
         Console.WriteLine($"lpcli --no-interaction | prevent user input requirement and auto allow everything.");
         Console.WriteLine($"lpcli --debug | print all information in cmd.");
-        Console.WriteLine($"lpcli --skip-wsl | after initial deploy subsequents deploy will skip rebuilding the base Debian system.");
+        Console.WriteLine($"lpcli --skip-apt | after initial deploy subsequents deploy will skip rebuilding the base Debian system and installing apt dependencies.");
         Console.WriteLine($"lpcli --skip-services | prevent subsequents deploy from rebuilding services and directly jump to plugin deployment.");
+        Console.WriteLine($"lpcli --auto-kill | Automatically kill processes opened at the deploy time when CTRL+C.");
         Console.WriteLine($"lpcli --snap \"name\" | start executing steps from the snapshot step in compose.");
     }
     private static void ValidateParameters(string[] args)
@@ -39,6 +43,19 @@ internal static class ConfigurationExt
     private static List<string> LoadedPPComposer { get; set; } = new();
     private static Action<string> PrintDebug { get; set; } = (s) => { };
     private static bool DebugMode { get; set; }
+
+    private static string? GetParameterValue(this string[] args, string key)
+    {
+        int snapIndex = args.IndexOf("key", StringComparer.OrdinalIgnoreCase);
+        if (snapIndex >= 0)
+        {
+            return args[snapIndex + 1];
+        }
+        return default;
+    }
+
+    private static bool HasFlag(this string[] args, string key)
+     => args.Any(p => p.Equals(key, StringComparison.OrdinalIgnoreCase));
     public static ConfigurationPayload GenerateConfiguration(string[] args)
     {
         string workingDir = Environment.CurrentDirectory;
@@ -50,23 +67,25 @@ internal static class ConfigurationExt
             Console.Out.WriteLine($"Parameter: {item}");
         }
         DebugMode = args.Any(p => p.Equals("--debug", StringComparison.OrdinalIgnoreCase));
-        string? snap = default;
-        int snapIndex = args.IndexOf("--snap", StringComparer.OrdinalIgnoreCase);
-        if (snapIndex >= 0)
-        {
-            snap = args[snapIndex + 1];
-        }
+        string? snap = args.GetParameterValue("--snap");
+        string[] targetedOpens = args.GetParameterValue("--open-only")?.Split(',') ?? Array.Empty<string>();
+
+
         var result = new ConfigurationPayload()
         {
             WorkingDir = workingDir,
             DebugMode = DebugMode,
             Snap = snap,
-            SkipSubSystemRebuild = args.Any(p => p.Equals("--skip-wsl", StringComparison.OrdinalIgnoreCase)),
-            PerformSoftCleanup = args.Any(p => p.Equals("--clean", StringComparison.OrdinalIgnoreCase)),
-            PerformCleanup = args.Any(p => p.Equals("--hard-reset", StringComparison.OrdinalIgnoreCase)),
-            PerformDeploy = args.Any(p => p.Equals("--deploy", StringComparison.OrdinalIgnoreCase)),
-            SkipServiceRebuild = args.Any(p => p.Equals("--skip-services", StringComparison.OrdinalIgnoreCase)),
-            NoInteraction = args.Any(p => p.Equals("--no-interaction", StringComparison.OrdinalIgnoreCase)),
+            OpenOnly = targetedOpens,
+            AutoKill = args.HasFlag("--auto-kill"),
+            NoOpen = args.HasFlag("--no-open"),
+            OpenShell = args.HasFlag("--open-shell"),
+            SkipSubSystemRebuild = args.HasFlag("--skip-apt"),
+            PerformSoftCleanup = args.HasFlag("--clean"),
+            PerformCleanup = args.HasFlag("--hard-reset"),
+            PerformDeploy = args.HasFlag("--deploy"),
+            SkipServiceRebuild = args.HasFlag("--skip-services"),
+            NoInteraction = args.HasFlag("--no-interaction"),
 
         };
         PrintDebug = result.PrintDebug;

@@ -2,14 +2,16 @@ apt:
   - "openssh-server"
   - "openssh-client" 
   - "tmux" 
-  - "libicu-dev" 
+  - "libicu-dev"
+  - "socat"
+  - "screen"
 services:
     - dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
       service_name: "lunaticpanel"
       # https:// to the location of deb release file we want.
       # deb_url: "" 
       exec_start: "./LunaticPanel.Hybrid.Web"
-      working_dir: "/usr/lib/lunatic_panel"
+      working_dir: "/srv/lunaticpanel"
       description: "Lunatic Panel dashboard hosting."
       environment:
         - "ASPNETCORE_ENVIRONMENT=Development"
@@ -23,7 +25,7 @@ services:
       # deb_url: "" 
       startup_parameters: "--urls \"http://localhost:5001;\""
       exec_start: "./LunaticPanel.Package.LocalServer"
-      working_dir: "/usr/lib/lpkg_localserver"
+      working_dir: "/srv/lunaticpanel_lpkg_localserver"
       description: "Lunatic Panel Local Package Server"
       environment:
         - "ASPNETCORE_ENVIRONMENT=Development"

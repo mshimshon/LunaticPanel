@@ -13,7 +13,7 @@ namespace LunaticPanel.PackageManager.Infrastructure.Repositories;
 internal class PackageRepository : IPackageRepository
 {
     private const string BOOTSTRAP_LOCATION = "/etc/lunaticpanel/bootstrap.json";
-    private const string BOOTSTRAP_PLUGIN_LOCATION_FMT = "/usr/lib/lunaticpanel/plugins/{0}";
+    private const string BOOTSTRAP_PLUGIN_LOCATION_FMT = "/srv/lunaticpanel/plugins/{0}";
     private readonly ISafeFileWriter _safeFileWriter;
     private ExternalBootstrapPayload _bootstrap = default!;
     private JsonSerializerOptions _jsonSerializerOptions = new()

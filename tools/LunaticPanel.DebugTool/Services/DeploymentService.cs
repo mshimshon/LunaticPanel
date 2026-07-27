@@ -145,7 +145,7 @@ internal sealed class DeploymentService
         await ShudownAsync(_deployEnvironmentName);
         await StartAsync(_deployEnvironmentName);
         foreach (var item in Configuration.Compose.Services)
-            await RunAsync(_deployEnvironmentName, $"systemctl status {item.ServiceName}");
+            await RunAsync(_deployEnvironmentName, $"systemctl status {item.ServiceName} || true");
 
         await RunAsync(_deployEnvironmentName, $"cat /etc/lunaticpanel/bootstrap.json");
         await FinalizeDeployment();
@@ -330,7 +330,7 @@ internal sealed class DeploymentService
         var pluginEntry = new JsonObject
         {
             ["Entity"] = entityNode,
-            ["PluginDir"] = $"/usr/lib/lunaticpanel/plugins/{linuxFolder}"
+            ["PluginDir"] = $"/srv/lunaticpanel/plugins/{linuxFolder}"
         };
         return pluginEntry;
     }
@@ -345,10 +345,10 @@ internal sealed class DeploymentService
 
         var clilpkgLocal = Path.Combine(cliLpkgTmp, $"{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
         // /usr/lib/lunaticpanel/plugins
-        await CopyDirAsync(_deployEnvironmentName, cliLpkgDir, $"/usr/lib/lunaticpanel/plugins/{linuxFolder}");
-        await RunAsync(_deployEnvironmentName, $"ls /usr/lib/lunaticpanel/plugins/{linuxFolder}");
-        ///var/lib/lunaticpanel_package/lpkgs
-        await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/lib/lunaticpanel_package/lpkgs/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
+        await CopyDirAsync(_deployEnvironmentName, cliLpkgDir, $"/srv/lunaticpanel/plugins/{linuxFolder}");
+        await RunAsync(_deployEnvironmentName, $"ls /srv/lunaticpanel/plugins/{linuxFolder}");
+        ///var/lib/lunatic_panel_package/lpkgs
+        await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/var/lib/lunaticpanel_lpkg_localserver/lpkgs/awaiting/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
 
 
     }
@@ -455,17 +455,28 @@ internal sealed class DeploymentService
     private async Task FinalizeDeployment()
     {
         List<Process> serviceShown = new();
-        foreach (var item in Configuration.Compose.Services.Where(p => p.Show))
-            serviceShown.Add(ShowServiceAsync(_deployEnvironmentName, item.ServiceName!));
+        if (!Configuration.NoOpen)
+        {
+            IEnumerable<ServiceComposePayload>? toOpen = new List<ServiceComposePayload>();
+            if (Configuration.OpenOnly.Length > 0)
+                toOpen = Configuration.Compose.Services.Where(p => Configuration.OpenOnly.Contains(p.ServiceName, StringComparer.OrdinalIgnoreCase));
+            else
+                toOpen = Configuration.Compose.Services.Where(p => p.Show);
+            foreach (var item in toOpen)
+                serviceShown.Add(ShowServiceAsync(_deployEnvironmentName, item.ServiceName!));
 
+        }
+        if (Configuration.OpenShell)
+            serviceShown.Add(ShowShellAsync(_deployEnvironmentName));
         await WaitForCtrlCAsync();
         await CleanUp(serviceShown);
     }
 
     private async Task CleanUp(List<Process> processes)
     {
-        foreach (var item in processes)
-            item.Kill();
+        if (Configuration.AutoKill)
+            foreach (var item in processes)
+                item.Kill();
         await ShudownAsync(_deployEnvironmentName);
 
     }
@@ -555,17 +566,13 @@ internal sealed class DeploymentService
         commandBuilder.AppendLine("Type=simple");
         commandBuilder.AppendLine($"WorkingDirectory={serviceComposePayload.WorkingDir}");
         commandBuilder.AppendLine($"ExecStart={serviceComposePayload.ExecStart} {serviceComposePayload.StartupParameters ?? ""}");
-        commandBuilder.AppendLine("Restart=always");
-        commandBuilder.AppendLine("RestartSec=5");
-        commandBuilder.AppendLine($"User=root");
+        commandBuilder.AppendLine("Restart=no");
         foreach (var item in serviceComposePayload.Environment)
         {
             commandBuilder.AppendLine($"Environment={item}");
 
         }
         commandBuilder.AppendLine($"LogsDirectory={serviceComposePayload.ServiceName}");
-        commandBuilder.AppendLine($"StandardOutput=file:/var/log/{serviceComposePayload.ServiceName}.stdout.log");
-        commandBuilder.AppendLine($"StandardError=file:/var/log/{serviceComposePayload.ServiceName}.stderr.log");
         commandBuilder.AppendLine(); // Empty line separator
         commandBuilder.AppendLine("[Install]");
         commandBuilder.AppendLine("WantedBy=multi-user.target");
@@ -592,7 +599,7 @@ internal sealed class DeploymentService
         var tmp = Path.GetTempPath();
         var cliPublishTmp = Path.Combine(_tempLocation, "publish");
         var cliProjectOutput = Path.Combine(cliPublishTmp, filename);
-        await CopyDirAsync(_deployEnvironmentName, cliProjectOutput, serviceComposePayload.WorkingDir);
+        await CopyDirAsync(_deployEnvironmentName, cliProjectOutput, serviceComposePayload.WorkingDir!);
         await RunAsync(_deployEnvironmentName, $"ls '{serviceComposePayload.WorkingDir}'");
 
         Console.Out.WriteLine($"Service Target -> '{serviceComposePayload.ExecStart}'");

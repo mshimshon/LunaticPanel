@@ -26,7 +26,7 @@ if (app.Environment.IsDevelopment())
 else
     app.UseHttpsRedirection();
 app.UseLunaPackage();
-app.UseLocalServerInfrastructure();
+await app.UseLocalServerInfrastructure();
 app.EnableLunaPackageCodedError();
 app.UseLunaPackageCodedErrorFor<InfrastructureException>(p => new(p.Code, p.Message, ExceptionProvenencePayload.Infrastructure));
 

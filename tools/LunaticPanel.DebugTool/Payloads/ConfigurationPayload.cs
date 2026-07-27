@@ -10,8 +10,12 @@ internal sealed record ConfigurationPayload
     public bool PerformCleanup { get; init; }
     public bool PerformDeploy { get; init; }
     public bool NoInteraction { get; init; }
+    public bool OpenShell { get; init; }
+    public bool NoOpen { get; init; }
+    public bool AutoKill { get; init; }
     public ComposePayload Compose { get; init; } = default!;
     public string? Snap { get; init; }
+    public string[] OpenOnly { get; init; } = Array.Empty<string>();
 
     public void PrintDebug(string line)
     {

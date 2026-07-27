@@ -21,6 +21,7 @@ internal sealed class PackageValidationHandler : IRequestHandler<PackageValidati
     {
         try
         {
+            Console.WriteLine($"Trying to Validate {data.Data.Target}");
             if (data.Data.LocationType == PackageValidationLocation.Remote)
                 return await _packageValidatorService.ValidateRemoteAsync(data.Data.Target, ct);
             else
@@ -28,11 +29,13 @@ internal sealed class PackageValidationHandler : IRequestHandler<PackageValidati
         }
         catch (PackageValidationException ex)
         {
+            Console.WriteLine($"PackageValidationHandler {ex.Message}");
             _ = _packageValidationEvents?.OnValidationFailure(data.Data, ex);
             throw;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"PackageValidationHandler {ex.Message}");
             _ = _packageValidationEvents?.OnValidationFailure(data.Data, new PackageValidationException("Unknown", "Unknown Internal Error Occured.", null));
             throw;
         }

@@ -12,12 +12,12 @@ internal static class ServiceExt
 {
     public static void AddMediatorServices(this IServiceCollection services)
     {
-        services.AddTransient<IMediator, Mediator>();
+        services.AddScoped<IMediator, Mediator>();
         services.AddTransient<IRequestHandler<SearchManifestQuery, ManifestSearchResponse>, SearchManifestHandler>();
         services.AddTransient<IRequestHandler<GetAllPackageVersionsQuery, ICollection<ManifestPayload>>, GetAllPackageVersionsHandler>();
         services.AddTransient<IRequestHandler<GetLatestPackageQuery, ManifestPayload>, GetLatestPackageHandler>();
         services.AddTransient<IRequestHandler<GetSpecificPackageVersionQuery, ManifestPayload>, GetSpecificPackageVersionHandler>();
-        services.AddTransient<IRequestHandler<CreateManifestCommand>, CreateManifestHandler>();
+        services.AddTransient<IRequestHandler<CreateManifestCommand, ManifestPayload>, CreateManifestHandler>();
         services.AddTransient<IRequestHandler<HideManifestVersionCommand>, HideManifestVersionHandler>();
         services.AddTransient<IRequestHandler<EndManifestLifeCommand>, EndManifestLifeHandler>();
         services.AddTransient<IRequestHandler<PackageValidationCommand, PackageValidationResponse>, PackageValidationHandler>();

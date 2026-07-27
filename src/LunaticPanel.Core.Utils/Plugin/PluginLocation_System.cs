@@ -22,7 +22,7 @@ internal partial class PluginLocation : IPluginSystemLocation
     public const string DOWNLOAD_FOLDER_NAME = "download";
     private void InitSystemLocation(string assemblyName)
     {
-        PluginFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxUsrFolderName, IPluginLocation.LinuxLibFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
+        PluginFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxSrvFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
         PluginEtcFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxEtcFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
         PluginVarFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxVarFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
         StaticWebContentFolder = Path.Combine(PluginFolder, WEB_FOLDER_NAME);

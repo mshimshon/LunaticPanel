@@ -27,6 +27,7 @@ public interface IPluginLocation : IPluginSystemLocation, IPluginUserLocation, I
     const string LunaticPanelFolderName = "lunaticpanel";
     const string LunaticPanelPluginsFolderName = "plugins";
     const string LinuxUsrFolderName = "usr";
+    const string LinuxSrvFolderName = "srv";
     const string LinuxLibFolderName = "lib";
     const string LinuxEtcFolderName = "etc";
     const string LinuxVarFolderName = "var";

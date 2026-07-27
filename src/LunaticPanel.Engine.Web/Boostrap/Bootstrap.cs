@@ -30,7 +30,7 @@ public static class Bootstrap
 
     public static void BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
     {
-        LibraryLocation = "/usr/lib";
+        LibraryLocation = "/srv";
         ConfigLocation = "/etc";
 
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.

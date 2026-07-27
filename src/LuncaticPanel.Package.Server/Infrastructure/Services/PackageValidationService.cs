@@ -29,6 +29,8 @@ internal sealed class PackageValidationService : IPackageValidatorService
 
     public PackageValidationService(IHttpClientFactory httpClientFactory, ILinuxCommand linuxCommand)
     {
+        Console.WriteLine($"PackageValidationService Created");
+
         // Prevent this service from being a linux service.
         if (!OperatingSystem.IsLinux())
             throw new UnsupportedHostingPlatformException();
@@ -37,12 +39,16 @@ internal sealed class PackageValidationService : IPackageValidatorService
     }
     public async Task<PackageValidationResponse> ValidateLocalAsync(string target, CancellationToken ct = default)
     {
+        Console.WriteLine($"Validate Local Package {target}");
         if (string.IsNullOrWhiteSpace(target))
             throw new PackageTargetEmptyException();
         else if (!File.Exists(target))
             throw new PackageTargetNoFoundException();
+        Console.WriteLine($"Reading Local Package Manifest {target}");
         var manifest = ReadManifestFromArchive(target);
+        Console.WriteLine($"Package Compiled Using Tool v{manifest.PanelVersion}");
         var tool = await FetchValidatorToolAsync(manifest.PanelVersion);
+        Console.WriteLine($"Package Compiled Tool Available at {tool}");
         return await RunValidationAsync(tool, target, target, ct);
     }
     public async Task<PackageValidationResponse> ValidateRemoteAsync(string target, CancellationToken ct = default)
@@ -81,6 +87,7 @@ internal sealed class PackageValidationService : IPackageValidatorService
     }
     private async Task<string> DownloadPackageAsync(string target, CancellationToken ct = default)
     {
+        try
         {
             using var response = await _http.GetAsync(target, HttpCompletionOption.ResponseHeadersRead);
             if (!response.IsSuccessStatusCode)
@@ -92,42 +99,40 @@ internal sealed class PackageValidationService : IPackageValidatorService
             string filename = Path.GetRandomFileName();
             string fullDownloadPath = Path.Combine(tmpSub, $"{filename}.dl");
             string fullTargetPath = Path.Combine(tmpSub, $"{filename}.lpkg");
-            try
-            {
-                await using var input = await response.Content.ReadAsStreamAsync();
-                await using var output = File.Create(fullDownloadPath);
-                await input.CopyToAsync(output);
-                File.Move(fullDownloadPath, fullTargetPath);
-                return fullTargetPath;
-            }
-            catch (ArgumentNullException)
-            {
-                throw new PackageDownloadOuputNullOrInvalidException();
-            }
-            catch (ArgumentException)
-            {
-                throw new PackageDownloadOuputNullOrInvalidException();
-            }
-            catch (PathTooLongException)
-            {
-                throw new PackageDownloadPathTooLongException();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                throw new PackageDownloadPermissionDeniedException();
-            }
-            catch (FileNotFoundException)
-            {
-                throw new PackageDownloadOuputNullOrInvalidException();
-            }
-            catch (IOException)
-            {
-                throw new PackageDownloadDiskErrorException();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+
+            await using var input = await response.Content.ReadAsStreamAsync();
+            await using var output = File.Create(fullDownloadPath);
+            await input.CopyToAsync(output);
+            File.Move(fullDownloadPath, fullTargetPath);
+            return fullTargetPath;
+        }
+        catch (ArgumentNullException)
+        {
+            throw new PackageDownloadOuputNullOrInvalidException();
+        }
+        catch (ArgumentException)
+        {
+            throw new PackageDownloadOuputNullOrInvalidException();
+        }
+        catch (PathTooLongException)
+        {
+            throw new PackageDownloadPathTooLongException();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            throw new PackageDownloadPermissionDeniedException();
+        }
+        catch (FileNotFoundException)
+        {
+            throw new PackageDownloadOuputNullOrInvalidException();
+        }
+        catch (IOException)
+        {
+            throw new PackageDownloadDiskErrorException();
+        }
+        catch (Exception)
+        {
+            throw;
         }
     }
     public ManifestExternalPayload ReadManifestFromArchive(string input)
@@ -154,7 +159,6 @@ internal sealed class PackageValidationService : IPackageValidatorService
     }
     public async Task<string> FetchValidatorToolAsync(string panelVersion, CancellationToken ct = default)
     {
-        // TODO: FETCH FROM GITHUB RELEASE
         // Fallback local
         string tmpRoot = Path.GetTempPath();
         string tmpSub = Path.Combine(tmpRoot, "lunapkg_tools");
@@ -166,20 +170,27 @@ internal sealed class PackageValidationService : IPackageValidatorService
         if (hasLocalTool)
             useLocalTool = DateTime.UtcNow.Date == DateTime.Parse(File.ReadAllText(cacheToolPath)).Date;
         bool fallback = useLocalTool;
+        Console.WriteLine($"Tool Fallback ({fallback}) On ({hasLocalTool}) ? {cacheToolPath}");
         if (!fallback)
         {
             try
             {
                 var releaseAsset = await GetLatestMajorToolUrlAsync(panelVersion, ct);
+                if (releaseAsset.Value == default || releaseAsset.Key == default)
+                    throw new PackageToolNotFoundException(panelVersion);
+
                 await DownloadAndInstallTool(releaseAsset.Value, releaseAsset.Key, ct);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine($"{ex.Message}");
+                Console.WriteLine($"Local Fallback? ({hasLocalTool})-> {cacheToolPath}");
                 if (!hasLocalTool)
                     throw;
             }
         }
 
+        Console.WriteLine($"Tool Fetch Completed");
         string tmpTargetDir = Path.Combine(tmpSub, panelVersion);
         string? selectedTool = Directory.GetDirectories(tmpTargetDir, "", SearchOption.TopDirectoryOnly)
             .Where(p => p.StartsWith($"{panelVersion}."))
@@ -193,29 +204,32 @@ internal sealed class PackageValidationService : IPackageValidatorService
             throw new FailedToLocateRequiredValidatorException(panelVersion);
         return pathToExe;
     }
+    private readonly string _versionRegexPattern = @"^[vV](?<version>\d+\.\d+\.\d+)$";
     private async Task<KeyValuePair<string, string>> GetLatestMajorToolUrlAsync(string panelMajor, CancellationToken ct = default)
     {
+        Console.WriteLine($"Get Latest Release for Tool v{panelMajor}");
+        IReadOnlyList<Release>? releases = default;
         var client = new GitHubClient(new ProductHeaderValue("LunaticPanel"));
-        var releases = await client.Repository.Release.GetAll("mshimshon", "LunaticPanel");
+        var clientResult = client.Repository.Release.GetAll("mshimshon", "LunaticPanel");
+
+        releases = await clientResult;
+        Console.WriteLine($"Github Release Status {clientResult.Status}");
+        Console.WriteLine($"Latest Release Result ? {releases.Count}");
+        if (releases == default || releases.Count <= 0)
+            throw new PackageToolNotFoundException(panelMajor);
         var parsed = releases
-            .Select(r =>
+            .Where(p => !string.IsNullOrWhiteSpace(p.TagName))
+            .Select(p =>
             {
-                var tag = r.TagName?.Trim();
-                if (string.IsNullOrEmpty(tag))
-                    return null;
-
-                if (tag.StartsWith("v", StringComparison.OrdinalIgnoreCase))
-                    tag = tag.Substring(1);
-
-                if (!Version.TryParse(tag, out var v))
-                    return null;
-                return new { Release = r, Version = v };
+                var match = Regex.Match(p.TagName, _versionRegexPattern, RegexOptions.IgnoreCase);
+                if (!match.Success) return null;
+                return new { Release = p, Version = new Version(match.Groups["version"].Value) };
             })
-            .Where(x => x != null)
-            .ToList();
-
-        var matchingMajor = parsed
             .Where(p => p != null)
+            .ToList();
+        if (parsed.Count <= 0)
+            throw new PackageToolNotFoundException(panelMajor);
+        var matchingMajor = parsed
             .Where(x => x!.Version.Major.ToString() == panelMajor)
             .OrderByDescending(x => x!.Version)
             .FirstOrDefault();

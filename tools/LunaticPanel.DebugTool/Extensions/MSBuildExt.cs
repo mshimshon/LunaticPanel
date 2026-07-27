@@ -41,4 +41,6 @@ internal static class MSBuildExt
 
         await ProcessExt.RunProcessAsync("dotnet", cmd);
     }
+
+
 }
