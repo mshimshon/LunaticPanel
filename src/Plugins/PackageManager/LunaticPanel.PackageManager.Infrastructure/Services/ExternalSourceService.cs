@@ -5,30 +5,37 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
+using LunaticPanel.PackageManager.Infrastructure.Services.Payloads;
 using LunaticPanel.PackageManager.Keys;
-using NuGet.Common;
-using NuGet.Configuration;
-using NuGet.Packaging;
-using NuGet.Protocol.Core.Types;
-using NuGet.Versioning;
+using Microsoft.Extensions.DependencyInjection;
+using System.IO.Compression;
+using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
-internal class ExternalSourceService : IExternalSourceService
+internal class ExternalSourceService : IExternalSourceService, IDisposable
 {
     private readonly string _sourceFile;
     private readonly string _sourceCached;
     private readonly string _sourceApiCached;
     private readonly ICrazyReport<RepositorySourceService> _crazyReport;
     private readonly ISafeFileWriter _safeFileWriter;
-    private JsonSerializerOptions _jsonSerializer = new()
+    private static JsonSerializerOptions _jsonSerializerOptions = new()
     {
+#if DEBUG
+        WriteIndented = true,
+#endif
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
         PropertyNameCaseInsensitive = true,
-        ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    public ExternalSourceService(IPluginLocation pluginLocation, ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter)
+    public HttpClient _client;
+    private bool _disposedValue;
+    private readonly IPluginSystemLocation _pluginSystemLocation;
+    public ExternalSourceService(IPluginLocation pluginLocation, ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter,
+        IServiceProvider serviceProvider)
     {
         _crazyReport = crazyReport;
         _safeFileWriter = safeFileWriter;
@@ -37,7 +44,12 @@ internal class ExternalSourceService : IExternalSourceService
         _sourceFile = pluginLocation.GetConfigFor(LPPackageManagerKeys.MODULE_NAME, "sources.json");
         _sourceCached = pluginLocation.GetAppDataBase(".pkg_source_cache");
         _sourceApiCached = pluginLocation.GetAppDataBase(".pkg_api_cache");
-
+        _client = serviceProvider.GetService<IHttpClientFactory>()?.CreateClient() ??
+            new HttpClient(new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.All
+            });
+        _pluginSystemLocation = pluginLocation;
     }
 
     public async Task FindAndDownloadToCache(string id, string version, CancellationToken ct = default)
@@ -47,22 +59,44 @@ internal class ExternalSourceService : IExternalSourceService
             throw new PackageNotFoundException(id, version);
         await DownloadToCache(id, version, source, ct);
     }
+    private async Task DownloadFromRemoteAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    {
+        var relative = "lpkg/v1/package/download";
+        var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
+        var httpResponse = await _client.GetAsync($"{apiEndpoint}/{id}/{version}");
+        if (!httpResponse.IsSuccessStatusCode)
+            httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
+        var target = await httpResponse.Content.ReadFromJsonAsync<PluginDownloadExtTargetPayload>(ct);
+        if (target == default)
+            throw new Exception(""); // TODO: THROW Deserialize Error
 
+        var tempPath = Path.GetTempFileName();
+
+        using var response = await _client.GetAsync(target.Target, HttpCompletionOption.ResponseHeadersRead);
+        response.EnsureSuccessStatusCode();
+
+        await using (var input = await response.Content.ReadAsStreamAsync())
+        await using (var output = File.Create(tempPath))
+        {
+            await input.CopyToAsync(output);
+        }
+        File.Move(tempPath, Path.Combine(_sourceCached, $"{id}.{version}.lpkg"), overwrite: true);
+    }
     public async Task DownloadToCache(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
         if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            await DownloadFromNugetAsync(id, version, source, ct);
+            await DownloadFromRemoteAsync(id, version, source, ct);
         else
             await CopyFromLocalAsync(id, version, source, ct);
 
         string file = Path.Combine(_sourceCached, $"{id}.{version}.json");
-        await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(source, _jsonSerializer), ct);
+        await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(source, _jsonSerializerOptions), ct);
 
     }
     public async Task<PackagePayload?> GetPackageInfoForAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
         if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            return await GetPackageInfoForFromNugetAsync(id, version, source, ct);
+            return await GetRemotePackageInfoAsync(id, version, source, ct);
         else
             return await GetPackageInfoForFromLocalAsync(id, version, source, ct);
     }
@@ -71,7 +105,7 @@ internal class ExternalSourceService : IExternalSourceService
         if (!File.Exists(_sourceFile))
             return Array.Empty<Version>();
         string sourceJson = File.ReadAllText(_sourceFile);
-        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
+        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializerOptions);
         if (configSources == default)
             throw new SourceCorruptedException();
         if (configSources.Count <= 0)
@@ -91,17 +125,13 @@ internal class ExternalSourceService : IExternalSourceService
         }
         return result.ToArray();
     }
-
-
     public async Task<Version[]> GetVersionsForAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
         if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            return await GetVersionsForFromNugetAsync(id, source, ct);
+            return await GetRemoteVersionsAsync(id, source, ct);
         else
             return await GetVersionsForFromLocalAsync(id, source, ct);
     }
-
-
     public Task ClearSourceCacheForAsync(string id, string packageVersion, CancellationToken ct = default)
     {
         string file = Path.Combine(_sourceCached, $"{id}.{packageVersion}.json");
@@ -109,7 +139,6 @@ internal class ExternalSourceService : IExternalSourceService
             File.Delete(file);
         return Task.CompletedTask;
     }
-
     public Task ClearSourceCacheAsync(CancellationToken ct = default)
     {
         if (Directory.Exists(_sourceCached))
@@ -123,7 +152,7 @@ internal class ExternalSourceService : IExternalSourceService
         if (File.Exists(file))
         {
             string json = File.ReadAllText(file);
-            ExternalSourceRepositoryPayload? result = JsonSerializer.Deserialize<ExternalSourceRepositoryPayload>(json, _jsonSerializer);
+            ExternalSourceRepositoryPayload? result = JsonSerializer.Deserialize<ExternalSourceRepositoryPayload>(json, _jsonSerializerOptions);
             if (result != default)
                 return result;
         }
@@ -134,7 +163,7 @@ internal class ExternalSourceService : IExternalSourceService
     {
         string file = Path.Combine(_sourceCached, $"{id}.{version}.json");
         string sourceJson = File.ReadAllText(_sourceFile);
-        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
+        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializerOptions);
         if (configSources == default)
             throw new SourceCorruptedException();
         if (configSources.Count <= 0)
@@ -146,7 +175,7 @@ internal class ExternalSourceService : IExternalSourceService
                 continue;
             var package = await GetPackageInfoForAsync(id, version, item, ct);
             if (package == default) continue;
-            await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(item, _jsonSerializer), ct);
+            await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(item, _jsonSerializerOptions), ct);
             return item;
         }
         return default;
@@ -165,7 +194,7 @@ internal class ExternalSourceService : IExternalSourceService
     public async Task<PackagePayload?> FindMostRecentPackage(string id, CancellationToken ct = default)
     {
         string sourceJson = File.ReadAllText(_sourceFile);
-        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
+        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializerOptions);
         if (configSources == default)
             throw new SourceCorruptedException();
         if (configSources.Count <= 0)
@@ -178,7 +207,7 @@ internal class ExternalSourceService : IExternalSourceService
 
             PackagePayload? package = default;
             if (item.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-                package = await GetNuGetLatestVersionFromAsync(id, item, ct);
+                package = await GetRemoteLatestVersionFromAsync(id, item, ct);
             else
                 package = await GetLocalLatestVersionFromAsync(id, item, ct);
 
@@ -197,25 +226,31 @@ internal class ExternalSourceService : IExternalSourceService
     }
 
 
-    private async Task<PackagePayload?> GetNuGetLatestVersionFromAsync(string packageId, ExternalSourceRepositoryPayload source, CancellationToken ct)
+    private async Task<PackagePayload?> GetRemoteLatestVersionFromAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct)
     {
 
-        var providers = Repository.Provider.GetCoreV3();
-        var repo = new SourceRepository(new PackageSource(source.Source), providers);
+        var relative = "lpkg/v1/package/latest";
+        var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
+        var httpResponse = await _client.GetAsync($"{apiEndpoint}/{id}");
+        if (!httpResponse.IsSuccessStatusCode)
+            httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
+        var manifest = await httpResponse.Content.ReadFromJsonAsync<PluginManifestExtPayload>(ct);
+        if (manifest == default)
+            throw new Exception(""); // TODO: THROW Deserialize Error
 
-        var resource = await repo.GetResourceAsync<FindPackageByIdResource>(ct);
-
-        using var cache = new SourceCacheContext();
-
-        // Get all versions
-        var versions = await resource.GetAllVersionsAsync(packageId, cache, NullLogger.Instance, ct);
-
-        if (versions == null || !versions.Any())
-            return default;
-        var lastVersion = versions.Max()!;
-        var package = await GetPackageInfoForFromNugetAsync(packageId, $"{lastVersion.Major}.{lastVersion.Minor}.{lastVersion.Patch}", source, ct);
-        // NuGetVersion implements proper SemVer sorting
-        return package;
+        return new()
+        {
+            Version = manifest.Version,
+            Info = new()
+            {
+                Description = manifest.Description,
+                Name = manifest.Title,
+                PackageId = manifest.Id,
+                State = Application.Payloads.Enums.PackageStatePayload.Unknown
+            },
+            RepositorySource = source.Source,
+            RepositoryType = source.SourceType.ToApplicationPayload()
+        };
     }
     private async Task CopyFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
@@ -227,75 +262,59 @@ internal class ExternalSourceService : IExternalSourceService
 
     private PackagePayload GetPackageInformation(string file)
     {
-        using var reader = new PackageArchiveReader(file);
-
-        // read the nuspec
-        var nuspec = reader.NuspecReader;
-
-        // extract metadata
-        string id = nuspec.GetId();
-        var v = nuspec.GetVersion();
-        string version = $"{v.Major}.{v.Minor}.{v.Patch}";
-        string description = nuspec.GetDescription();
-        string summary = nuspec.GetSummary();
-        string authors = nuspec.GetAuthors();
-        string title = nuspec.GetTitle();
-        string projectUrl = nuspec.GetProjectUrl();
-        string iconUrl = nuspec.GetIconUrl();
-        //var dependencies = nuspec.GetDependencyGroups();
+        var manifest = ReadManifestFromArchive(file);
         return new()
         {
-            Version = version,
+            Version = manifest.Version,
             Info = new()
             {
-                Description = summary,
-                Name = title,
-                PackageId = id,
+                Description = manifest.Description,
+                Name = manifest.Title,
+                PackageId = manifest.Id,
                 State = Application.Payloads.Enums.PackageStatePayload.Unknown
             }
         };
     }
-    private async Task<Version[]> GetVersionsForFromNugetAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    public static PluginManifestExtPayload ReadManifestFromArchive(string input)
     {
-
-        var providers = Repository.Provider.GetCoreV3();
-        var repo = new SourceRepository(new PackageSource("https://api.nuget.org/v3/index.json"), providers);
-
-        var resource = await repo.GetResourceAsync<FindPackageByIdResource>();
-        var versions = await resource.GetAllVersionsAsync(id, new SourceCacheContext(), NullLogger.Instance, CancellationToken.None);
-        return versions.Select(p => new Version($"{p.Major}.{p.Minor}.{p.Patch}")).ToArray();
+        using var zip = ZipFile.OpenRead(input);
+        var entry = zip.GetEntry("manifest.json");
+        if (entry == null)
+            throw new Exception("manifest.json not found in package");
+        using var stream = entry.Open();
+        return JsonSerializer.Deserialize<PluginManifestExtPayload>(stream, _jsonSerializerOptions)!;
     }
-    private async Task<PackagePayload?> GetPackageInfoForFromNugetAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+
+    private async Task<Version[]> GetRemoteVersionsAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
-        var providers = Repository.Provider.GetCoreV3();
-        var repo = new SourceRepository(new PackageSource(source.Source), providers);
-
-        var metadataResource = await repo.GetResourceAsync<PackageMetadataResource>(ct);
-
-        NuGetVersion nugetVersion = NuGetVersion.Parse(version);
-
-        var metadata = await metadataResource.GetMetadataAsync(
-            id,
-            includePrerelease: true,
-            includeUnlisted: true,
-            sourceCacheContext: new SourceCacheContext(),
-            log: NullLogger.Instance,
-            token: ct);
-        var result = metadata.FirstOrDefault(m =>
-        {
-            var a = new Version(m.Identity.Version.Major, m.Identity.Version.Minor, m.Identity.Version.Patch);
-            var b = new Version(version);
-            return a == b;
-        });
-        if (result == default) return default;
+        var relative = "lpkg/v1/package/info";
+        var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
+        var httpResponse = await _client.GetAsync($"{apiEndpoint}/{id}");
+        if (!httpResponse.IsSuccessStatusCode)
+            httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
+        var manifest = await httpResponse.Content.ReadFromJsonAsync<List<PluginManifestExtPayload>>(ct);
+        if (manifest == default)
+            throw new Exception(""); // TODO: THROW Deserialize Error
+        return manifest.Select(p => new Version(p.Version)).ToArray();
+    }
+    private async Task<PackagePayload?> GetRemotePackageInfoAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    {
+        var relative = "lpkg/v1/package/info";
+        var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
+        var httpResponse = await _client.GetAsync($"{apiEndpoint}/{id}/{version}");
+        if (!httpResponse.IsSuccessStatusCode)
+            httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
+        var manifest = await httpResponse.Content.ReadFromJsonAsync<PluginManifestExtPayload>(ct);
+        if (manifest == default)
+            throw new Exception(""); // TODO: THROW Deserialize Error
         return new()
         {
-            Version = version,
+            Version = manifest.Version,
             Info = new()
             {
-                Description = result.Summary,
-                Name = result.Title,
-                PackageId = result.Identity.Id,
+                Description = manifest.Description,
+                Name = manifest.Title,
+                PackageId = manifest.Id,
                 State = Application.Payloads.Enums.PackageStatePayload.Unknown
             },
             RepositorySource = source.Source,
@@ -313,4 +332,23 @@ internal class ExternalSourceService : IExternalSourceService
 
     private async Task<Version[]> GetVersionsForFromLocalAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
         => GetLocalFileNamesFor(id, source).Select(GetPackageInformation).Select(p => new Version(p.Version)).ToArray();
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _client.Dispose();
+            }
+
+            _disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 }

@@ -4,6 +4,8 @@
   </Folder>
   <Folder Name="/Plugins/PackageManager/">
     <File Path="Plugins/PackageManager/lpcli-compose.yml" />
+    <File Path="sources.dev.json" />
+    <File Path="sources.json" />
     <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Application/LunaticPanel.PackageManager.Application.csproj" Id="cf5fe086-ce80-4145-a983-98235ebbd5bf" />
     <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Domain/LunaticPanel.PackageManager.Domain.csproj" Id="98a0a306-4ba4-45f0-9e6d-f2769d90e306" />
     <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Infrastructure/LunaticPanel.PackageManager.Infrastructure.csproj" Id="c4cc6a32-014d-4a07-b764-06aeebca104d" />

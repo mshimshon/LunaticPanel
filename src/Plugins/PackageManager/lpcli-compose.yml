@@ -7,3 +7,6 @@ plugins:
     enabled: true
 
 
+post_processing:
+  - file: "./sources.dev.json"
+    file_to: /etc/lunaticpanel/plugins/lunaticpanel_packagemanager/config/packagemanager/sources.json

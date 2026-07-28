@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Local Directory",
+    "source": "/var/lib/lunaticpanel/plugins/lunaticpanel_packagemanager/local_lpkgs",
+    "sourceType": 0,
+    "state": 1
+  },
+  {
+    "name": "Official",
+    "source": "https://packages.lunaticpanel.com/",
+    "sourceType": 1,
+    "state": 1
+  }
+]
