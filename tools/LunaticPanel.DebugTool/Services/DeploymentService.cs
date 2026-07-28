@@ -458,6 +458,7 @@ internal sealed class DeploymentService
         if (!Configuration.NoOpen)
         {
             IEnumerable<ServiceComposePayload>? toOpen = new List<ServiceComposePayload>();
+            Configuration.PrintDebug($"Open Only: {Configuration.OpenOnly.Length}");
             if (Configuration.OpenOnly.Length > 0)
                 toOpen = Configuration.Compose.Services.Where(p => Configuration.OpenOnly.Contains(p.ServiceName, StringComparer.OrdinalIgnoreCase));
             else

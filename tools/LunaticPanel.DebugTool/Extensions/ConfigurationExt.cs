@@ -66,7 +66,7 @@ internal static class ConfigurationExt
         {
             Console.Out.WriteLine($"Parameter: {item}");
         }
-        DebugMode = args.Any(p => p.Equals("--debug", StringComparison.OrdinalIgnoreCase));
+        DebugMode = args.HasFlag("--debug");
         string? snap = args.GetParameterValue("--snap");
         string[] targetedOpens = args.GetParameterValue("--open-only")?.Split(',') ?? Array.Empty<string>();
 

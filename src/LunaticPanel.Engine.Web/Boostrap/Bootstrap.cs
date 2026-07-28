@@ -31,7 +31,7 @@ public static class Bootstrap
     public static void BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
     {
         LibraryLocation = "/srv";
-        ConfigLocation = "/var/lib/lunaticpanel/config";
+        ConfigLocation = "/var/lib";
 
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
@@ -201,7 +201,7 @@ public static class Bootstrap
 
 
         PluginDirectory = Path.Combine(LibraryLocation, ConfigNameKey, "plugins");
-        ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey);
+        ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey, "config");
         EnsurePathCreated(PluginDirectory, ConfigDirectory);
 
     }
