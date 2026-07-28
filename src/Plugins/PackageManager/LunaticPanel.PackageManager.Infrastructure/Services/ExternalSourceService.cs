@@ -322,7 +322,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         };
     }
     private string[] GetLocalFileNamesFor(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
-        => Directory.GetFiles(source.Source, "*.nupkg").Where(f => Path.GetFileName(f).StartsWith(id + ".", StringComparison.OrdinalIgnoreCase))
+        => Directory.GetFiles(source.Source, "*.lpkg").Where(f => Path.GetFileName(f).StartsWith(id + ".", StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
     private async Task<PackagePayload?> GetPackageInfoForFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)

@@ -10,6 +10,7 @@ internal class LoadLocalPackagesDoneReducer : IReducer<PackageManagerState, Load
         => state with
         {
             IsPackageLoading = false,
+            IsPackageInitialized = true,
             InstalledPackages = action.Packages
         };
 }

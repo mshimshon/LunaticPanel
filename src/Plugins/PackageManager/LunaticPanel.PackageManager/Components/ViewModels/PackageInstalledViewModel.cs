@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using StatePulse.Net;
 
@@ -24,6 +25,8 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
     {
         if (firstRender)
         {
+            if (!PackageManagerState.IsPackageInitialized)
+                await _statePulse.Dispatcher.Prepare<LoadLocalPackagesAction>().Await().DispatchAsync();
         }
     }
 }

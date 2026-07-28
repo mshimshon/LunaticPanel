@@ -31,7 +31,7 @@ public static class Bootstrap
     public static void BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
     {
         LibraryLocation = "/srv";
-        ConfigLocation = "/etc";
+        ConfigLocation = "/var/lib/lunaticpanel/config";
 
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);

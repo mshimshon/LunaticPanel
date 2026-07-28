@@ -147,7 +147,7 @@ internal sealed class DeploymentService
         foreach (var item in Configuration.Compose.Services)
             await RunAsync(_deployEnvironmentName, $"systemctl status {item.ServiceName} || true");
 
-        await RunAsync(_deployEnvironmentName, $"cat /etc/lunaticpanel/bootstrap.json");
+        await RunAsync(_deployEnvironmentName, $"cat /var/lib/lunaticpanel/config/bootstrap.json");
         await FinalizeDeployment();
     }
     private async Task RunPostProcessing(CancellationToken ct = default)
@@ -423,7 +423,7 @@ internal sealed class DeploymentService
         };
         string json = JsonSerializer.Serialize(root);
         File.WriteAllText(cliPublishTmp, json);
-        await CopyFileAsync(_deployEnvironmentName, cliPublishTmp, "/etc/lunaticpanel/bootstrap.json");
+        await CopyFileAsync(_deployEnvironmentName, cliPublishTmp, "/var/lib/lunaticpanel/config/bootstrap.json");
 
 
     }

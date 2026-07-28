@@ -12,7 +12,7 @@ internal static class ExternalPluginEntityMapExt
 
     public static PackageInfo MapToDomainPackageInfo(this ExternalPluginEntityPayload data)
         => new PackageInfo(new(data.Identity.PackageId), new(data.Identity.DisplayName),
-            new("This shit is not yet supported"), data.Lifecycle.StartupState.MapToDomain());
+            new(data.Identity.Description ?? "No Description Found."), data.Lifecycle.StartupState.MapToDomain());
     public static PackageState MapToDomain(this ExternalPluginEntityLifecycleStartupState data)
         => data switch
         {

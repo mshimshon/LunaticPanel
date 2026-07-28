@@ -1,7 +1,9 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Respositories;
+using LunaticPanel.PackageManager.Keys;
 using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
@@ -9,10 +11,13 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 internal class GetAllPackagesHandler : IRequestHandler<GetAllPackagesQuery, ICollection<PackagePayload>>
 {
     private readonly IPackageRepository _packageRepository;
+    private readonly ICrazyReport<GetAllPackagesHandler> _crazyReport;
 
-    public GetAllPackagesHandler(IPackageRepository packageRepository)
+    public GetAllPackagesHandler(IPackageRepository packageRepository, ICrazyReport<GetAllPackagesHandler> crazyReport)
     {
         _packageRepository = packageRepository;
+        _crazyReport = crazyReport;
+        _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
     public async Task<ICollection<PackagePayload>> Handle(
         GetAllPackagesQuery query,
@@ -25,9 +30,9 @@ internal class GetAllPackagesHandler : IRequestHandler<GetAllPackagesQuery, ICol
             return result.Select(p => p.ToApplicationPayload()).ToList();
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            _crazyReport.ReportErrorException(ex.Message, ex);
             throw new HostUnkownException();
         }
 
