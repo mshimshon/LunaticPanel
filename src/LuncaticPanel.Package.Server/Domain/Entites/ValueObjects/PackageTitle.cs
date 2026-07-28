@@ -13,7 +13,7 @@ public sealed record PackageTitle
             throw new PackageTitleNullException();
         else if (value.Length < DomainValidationExt.PKG_TITLE_MIN_LENGTH || value.Length > DomainValidationExt.PKG_TITLE_MAX_LENGTH)
             throw new PackageTitleLengthException();
-        else if (!Regex.IsMatch(value, DomainValidationExt.ALPHANUM_VALIDATION_PATTERN))
+        else if (!Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN))
             throw new PackageTitlePatternViolationException(value);
 
         Value = value;

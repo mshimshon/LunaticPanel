@@ -10,7 +10,7 @@ public sealed record PackagePanelVersion
     {
         if (string.IsNullOrWhiteSpace(value))
             throw new PackagePanelVersionRequiredException();
-        else if (Regex.IsMatch(value, DomainValidationExt.PANEL_VERSION_VALIDATION_PATTERN))
+        else if (!Regex.IsMatch(value, DomainValidationExt.PANEL_VERSION_VALIDATION_PATTERN))
             throw new PackagePanelVersionInvalidException(value);
         Value = value;
     }

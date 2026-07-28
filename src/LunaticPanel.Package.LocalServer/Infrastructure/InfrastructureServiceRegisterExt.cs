@@ -147,12 +147,12 @@ public static class InfrastructureServiceRegisterExt
         };
         Console.WriteLine($"Sending request for '{file}'.");
         var manifest = await mediator.ExecuteAsync(new CreateManifestCommand(validationRequest));
-        Console.WriteLine($"{manifest.Id} {manifest.Version} was created.");
+        Console.WriteLine($"{manifest.Id} {manifest.Version} was created ('{file}').");
         var baseDir = Path.GetDirectoryName(file);
-        var serveLocation = Path.GetRelativePath(baseDir!, "../available");
+        var serveLocation = Path.GetFullPath(Path.Combine(baseDir!, "../available"));
         var filename = $"{manifest.Id}.{manifest.Version}";
-        Console.WriteLine($"{manifest.Id} {manifest.Version} moving package.");
         var moveTo = Path.Combine(serveLocation, $"{filename.ToBase32()}.lpkg");
+        Console.WriteLine($"'{file}' -> '{moveTo}'.");
         File.Move(file, moveTo);
         Console.WriteLine($"{file} moved and available '{moveTo}'.");
     }
