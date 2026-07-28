@@ -1,9 +1,10 @@
 ﻿@page "/LunaticPanel.PackageManager/"
+@using LunaticPanel.PackageManager.Components
 @using LunaticPanel.PackageManager.Pages.ViewModels
 @inherits WidgetComponentBase<PluginEntry, IHomeViewModel>
 
 <MudGrid>
     <MudItem>
-
+        <PackageInstalled OnParentStateHasChanged=OnParentStateHasChanged  />
     </MudItem>
 </MudGrid>

@@ -16,9 +16,9 @@ namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
 internal class ExternalSourceService : IExternalSourceService
 {
-    private const string SOURCE_FILE = @"/etc/lunaticpanel/sources.json";
-    private const string SOURCE_CACHE = @"/etc/lunaticpanel/.pkg_source_cache";
-    private const string SOURCE_NUGET_CACHE = @"/etc/lunaticpanel/.pkg_nuget_cache";
+    private const string SOURCE_FILE = @"/var/lib/lunaticpanel/sources.json";
+    private const string SOURCE_CACHE = @"/var/lib/lunaticpanel/.pkg_source_cache";
+    private const string SOURCE_NUGET_CACHE = @"/var/lib/lunaticpanel/.pkg_nuget_cache";
     private const string SOURCE_CACHE_FILE_FMT = SOURCE_CACHE + @"{0}";
     private readonly ICrazyReport<RepositorySourceService> _crazyReport;
     private readonly ISafeFileWriter _safeFileWriter;

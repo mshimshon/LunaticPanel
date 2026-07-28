@@ -4,9 +4,9 @@
 
 <MudCard>
     <MudCardContent>
-        <MudText>@ViewModel..Data.Info.Name</MudText>
-        <MudText Typo="Typo.subtitle1">@ViewModel..Data.Info.PackageId</MudText>
-        <MudText Typo="Typo.body2">@ViewModel..Data.Info.Description</MudText>
+        <MudText>@ViewModel.Data.Info.Name</MudText>
+        <MudText Typo="Typo.subtitle1">@ViewModel.Data.Info.PackageId</MudText>
+        <MudText Typo="Typo.body2">@ViewModel.Data.Info.Description</MudText>
         <MudChip T="string" Color="Color.Primary">@($"v{ViewModel.Data.Version}")</MudChip>
         @if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
         {

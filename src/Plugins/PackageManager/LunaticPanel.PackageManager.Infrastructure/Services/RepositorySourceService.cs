@@ -11,8 +11,8 @@ namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
 internal class RepositorySourceService : IRepositorySourceService
 {
-    private const string SOURCE_FILE = @"/etc/lunaticpanel/sources.json";
-    private const string SOURCE_CACHE = @"/etc/lunaticpanel/.pkg_cache";
+    private const string SOURCE_FILE = @"/var/lib/lunaticpanel/sources.json";
+    private const string SOURCE_CACHE = @"/var/lib/lunaticpanel/.pkg_cache";
     private const string SOURCE_CACHE_FILE_FMT = SOURCE_CACHE + @"{0}";
     private readonly ICrazyReport<RepositorySourceService> _crazyReport;
     private readonly ISafeFileWriter _safeFileWriter;

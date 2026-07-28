@@ -1,7 +1,9 @@
 ﻿using LunaticPanel.Core;
 using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.PackageManager.Components.ViewModels;
 using LunaticPanel.PackageManager.Infrastructure;
 using LunaticPanel.PackageManager.Keys;
 using LunaticPanel.PackageManager.Pages;
@@ -33,6 +35,8 @@ public class PluginEntry : PluginBase
 
     protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)
     {
+        services.AddScoped<IPackageInstalledCardViewModel, PackageInstalledCardViewModel>();
+        services.AddScoped<IPackageInstalledViewModel, PackageInstalledViewModel>();
         services.AddScoped<IHomeViewModel, HomeViewModel>();
         services.AddInfrasctructureServices();
     }
@@ -40,4 +44,6 @@ public class PluginEntry : PluginBase
     {
 
     }
+
+    protected override Task BeforeRuntimeStart(IPluginContextService pluginContext) => base.BeforeRuntimeStart(pluginContext);
 }
