@@ -24,9 +24,9 @@ internal partial class PluginLocation : IPluginSystemLocation
     {
         PluginFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxSrvFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
         PluginEtcFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxEtcFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
-        PluginVarFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxVarFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
+        PluginVarFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxVarFolderName, IPluginLocation.LinuxLibFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
         StaticWebContentFolder = Path.Combine(PluginFolder, WEB_FOLDER_NAME);
-        DynamicWebContentFolder = Path.Combine(PluginEtcFolder, WEB_FOLDER_NAME);
+        DynamicWebContentFolder = Path.Combine(PluginVarFolder, WEB_FOLDER_NAME);
         BashFolder = Path.Combine(PluginFolder, BASH_FOLDER_NAME);
         ConfigFolder = Path.Combine(PluginEtcFolder, CONFIG_FOLDER_NAME);
         ReposFolder = Path.Combine(PluginEtcFolder, REPOS_FOLDER_NAME);

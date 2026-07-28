@@ -22,7 +22,7 @@ public class BashPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetBashBase("MyModule");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "usr", "lib", "lunaticpanel", "plugins", "test_assembly", "bash", "mymodule");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "bash", "mymodule");
         Assert.Equal(path, correctPath);
     }
 
@@ -31,8 +31,8 @@ public class BashPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetBashBase("MyModule", "my", "sub", "folder");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "usr",
-            "lib", "lunaticpanel", "plugins", "test_assembly",
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}",
+            "srv", "lunaticpanel", "plugins", "test_assembly",
             "bash", "mymodule", "my", "sub", "folder"
             );
         Assert.Equal(path, correctPath);
@@ -43,7 +43,7 @@ public class BashPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetBashFor("MyModule", "myfile.sh");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "usr", "lib",
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv",
             "lunaticpanel", "plugins", "test_assembly",
             "bash", "mymodule", "myfile.sh");
         Assert.Equal(path, correctPath);
@@ -55,7 +55,7 @@ public class BashPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetBashFor("MyModule", "myfile.sh");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "usr", "lib",
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv",
             "lunaticpanel", "plugins", "test_assembly",
             "bash", "mymodule", "myfile2.sh");
         Assert.NotEqual(path, correctPath);
@@ -67,7 +67,7 @@ public class BashPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetBashFor("MyModule", ["sub", "folder"], "myfile.sh");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "usr", "lib",
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv",
             "lunaticpanel", "plugins", "test_assembly",
             "bash", "mymodule", "sub", "folder", "myfile.sh");
         Assert.Equal(path, correctPath);
@@ -77,7 +77,7 @@ public class BashPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetBashFor("MyModule", ["sub", "folder"], "myfile.sh", "-o", "-f \"/etc/fdfd/ere.sh\"");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "usr", "lib",
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv",
             "lunaticpanel", "plugins", "test_assembly",
             "bash", "mymodule", "sub", "folder", "myfile.sh") + " \\\"-o\\\" \\\"-f \"/etc/fdfd/ere.sh\"\\\"";
         Assert.Equal(path, correctPath);
@@ -88,7 +88,7 @@ public class BashPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetBashFor("MyModule", "myfile.sh", "-o", "-f \"/etc/fdfd/ere.sh\"");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "usr", "lib",
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv",
             "lunaticpanel", "plugins", "test_assembly",
             "bash", "mymodule", "myfile.sh") + " \\\"-o\\\" \\\"-f \"/etc/fdfd/ere.sh\"\\\"";
         Assert.Equal(path, correctPath);

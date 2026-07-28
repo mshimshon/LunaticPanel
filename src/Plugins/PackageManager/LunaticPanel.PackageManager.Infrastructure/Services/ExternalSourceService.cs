@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
@@ -27,7 +28,7 @@ internal class ExternalSourceService : IExternalSourceService
         PropertyNameCaseInsensitive = true,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    public ExternalSourceService(ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter)
+    public ExternalSourceService(IPluginLocation pluginLocation, ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter)
     {
         _crazyReport = crazyReport;
         _safeFileWriter = safeFileWriter;

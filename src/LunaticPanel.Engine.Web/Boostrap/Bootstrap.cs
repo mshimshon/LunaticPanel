@@ -54,7 +54,7 @@ public static class Bootstrap
 
         pluginRegistry.Register(new(plugin.EntryPoint!, plugin.Entity));
         string linuxName = plugin.Entity.Identity.PackageId.Replace('.', '_').ToLower();
-        string dynamicWwwRoot = $"/etc/lunaticpanel/plugins/{linuxName}/wwwroot";
+        string dynamicWwwRoot = $"/var/lib/lunaticpanel/plugins/{linuxName}/wwwroot";
         if (!Directory.Exists(dynamicWwwRoot) && OperatingSystem.IsLinux())
             Directory.CreateDirectory(dynamicWwwRoot, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                 UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
