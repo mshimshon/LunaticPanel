@@ -1,5 +1,6 @@
 ﻿global using Microsoft.Extensions.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
@@ -18,6 +19,7 @@ using LunaticPanel.Engine.Infrastructure.Services;
 using LunaticPanel.Engine.Web.Layout;
 using LunaticPanel.Engine.Web.Layout.Menu;
 using LunaticPanel.Engine.Web.Pages.Dashboard;
+using LunaticPanel.Engine.Web.Services;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using LunaticPanel.Engine.Web.Services.PanelControl;
 using MedihatR;
@@ -38,7 +40,7 @@ public static class RegisterServicesExt
         services.AddCrazyReportUtilityService();
         services.AddLinuxCommandUtilityService();
         services.AddPluginLocationUtilityService("lunaticpanel");
-
+        services.AddScoped<HostExceptionHandler>();
         services.AddScoped<MainMenuViewModel>();
         services.AddScoped<MainLayoutViewModel>();
         services.AddScoped<DashboardViewModel>();
@@ -106,7 +108,7 @@ public static class RegisterServicesExt
         services.AddEngineInfrastructureRedirected();
         services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
         services.AddScoped<IPanelControl>((sp) => sp.GetRequiredService<PanelControl>());
-
+        services.AddScoped<IHostExceptionHandler>((sp) => sp.GetRequiredService<HostExceptionHandler>());
 
         services.AddMudServices(config =>
         {

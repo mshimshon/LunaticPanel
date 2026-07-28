@@ -4,17 +4,22 @@
 
 <MudCard>
     <MudCardContent>
-        <MudText>@ViewModel.Data.Info.Name</MudText>
-        <MudText Typo="Typo.subtitle1">@ViewModel.Data.Info.PackageId</MudText>
-        <MudText Typo="Typo.body2">@ViewModel.Data.Info.Description</MudText>
-        <MudChip T="string" Color="Color.Primary">@($"v{ViewModel.Data.Version}")</MudChip>
+
+        <MudText Typo="Typo.subtitle1">@ViewModel.Data.Info.Name</MudText>
+        <MudText Typo="Typo.subtitle2">@ViewModel.Data.Info.PackageId</MudText>
+        <MudText Typo="Typo.subtitle2">@ViewModel.Data.Info.Description</MudText>
+        <MudDivider />
+
+        <MudChip Size=Size.Small T="string" Color="Color.Info">@($"v{ViewModel.Data.Version}")</MudChip>
         @if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
         {
-            <MudChip T="string" Color="Color.Default">@(PACKAGE_ENABLED)</MudChip>
+            <MudChip Size=Size.Small T="string" Color="Color.Primary">
+                @(PACKAGE_ENABLED)
+            </MudChip>
         }
         else if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Disabled)
         {
-            <MudChip T="string" Color="Color.Primary">@(PACKAGE_DISABLED)</MudChip>
+            <MudChip Size=Size.Small T="string" Color="Color.Default">@(PACKAGE_DISABLED)</MudChip>
         }
     </MudCardContent>
     <MudCardActions>

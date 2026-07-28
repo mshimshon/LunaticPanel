@@ -34,7 +34,7 @@ public class PluginEntry : PluginBase
 
     protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)
     {
-        services.AddScoped<IPackageInstalledCardViewModel, PackageInstalledCardViewModel>();
+        services.AddTransient<IPackageInstalledCardViewModel, PackageInstalledCardViewModel>();
         services.AddScoped<IPackageInstalledViewModel, PackageInstalledViewModel>();
         services.AddScoped<IHomeViewModel, HomeViewModel>();
         services.AddInfrasctructureServices();

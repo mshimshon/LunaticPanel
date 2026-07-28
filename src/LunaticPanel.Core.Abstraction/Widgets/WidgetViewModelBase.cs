@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets.Enum;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Abstraction.Widgets.Enum;
 
 namespace LunaticPanel.Core.Abstraction.Widgets;
 
@@ -22,6 +23,9 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleVi
     }
 
     public bool FirstRenderCompleted => _syncFirstRenderCompleted && _asyncFirstRenderCompleted;
+
+    protected IHostExceptionHandler HostExceptionHandler { get; private set; } = default!;
+
     private bool _syncFirstRenderCompleted, _asyncFirstRenderCompleted;
 
     public event Func<SpreadChangeOption, Task>? SpreadChanges;
@@ -104,4 +108,40 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleVi
     protected virtual void OnViewModelAfterRender(bool firstRender) { }
     protected virtual void OnViewModelBeforeRender() { }
     protected virtual Task OnViewModelBeforeRenderAsync() => Task.CompletedTask;
+    protected void FailSafeExecution(Action action)
+    {
+        try
+        {
+            action.Invoke();
+        }
+        catch (HostCodedException ex)
+        {
+            HostExceptionHandler.Throw(ex);
+        }
+        catch (Exception ex)
+        {
+            HostExceptionHandler.Throw(ex);
+        }
+    }
+
+    protected Task FailSafeExecutionAsync(Func<Task> action)
+    {
+        try
+        {
+            return action.Invoke();
+        }
+        catch (HostCodedException ex)
+        {
+            HostExceptionHandler.Throw(ex);
+            return Task.CompletedTask;
+        }
+        catch (Exception ex)
+        {
+            HostExceptionHandler.Throw(ex);
+            return Task.CompletedTask;
+        }
+    }
+
+    public void SetHostExceptionHandler(IHostExceptionHandler exceptionHandler) =>
+        HostExceptionHandler = exceptionHandler;
 }

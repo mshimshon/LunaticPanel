@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+	  <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<PackAsTool>true</PackAsTool>
 	<ToolCommandName>lpcli</ToolCommandName>
 	  <Title>$(AssemblyName)</Title>
-	  <Version>1.0.26</Version>
+	  <Version>1.0.29</Version>
 	  <Company>Maksim Shimshon</Company>
 	  <Copyright>Maksim Shimshon © 2026</Copyright>
 	  <Authors>Maksim Shimshon</Authors>

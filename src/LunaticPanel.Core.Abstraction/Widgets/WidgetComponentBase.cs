@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Abstraction.Widgets.Enum;
 using Microsoft.AspNetCore.Components;
@@ -15,6 +16,8 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
 {
     [Inject] protected IServiceProvider HostProvider { get; set; } = default!;
     [Inject] private IWidgetComponentLifecycle WidgetComponentLifecycle { get; set; } = default!;
+    [Inject] internal IHostExceptionHandler HostExceptionHandler { get; set; } = default!;
+
     protected IPluginContextService PluginContextService { get; private set; } = default!;
 
     [Parameter] public EventCallback OnParentStateHasChanged { get; set; }
@@ -29,13 +32,48 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
 
     private bool _disposed = false;
     private readonly SemaphoreSlim _disposeLock = new(1, 1);
-    protected sealed override void OnInitialized()
+
+    protected void FailSafeExecution(Action action)
+    {
+        try
+        {
+            action.Invoke();
+        }
+        catch (HostCodedException ex)
+        {
+            HostExceptionHandler.Throw(ex);
+        }
+        catch (Exception ex)
+        {
+            HostExceptionHandler.Throw(ex);
+        }
+    }
+
+    protected async Task FailSafeExecutionAsync(Func<Task> action)
+    {
+        try
+        {
+            await action.Invoke();
+        }
+        catch (HostCodedException ex)
+        {
+            HostExceptionHandler.Throw(ex);
+        }
+        catch (Exception ex)
+        {
+            HostExceptionHandler.Throw(ex);
+        }
+    }
+    private void Init()
     {
         var circuitRegistry = HostProvider.GetRequiredService<ICircuitRegistry>();
         PluginContextService = circuitRegistry.GetPluginContext(typeof(TPluginEntry).Namespace!, circuitRegistry.CurrentCircuit.CircuitId);
+        BaseConstructor();
         OnWidgetInitialized();
         BaseOnInitialized();
     }
+    protected sealed override void OnInitialized()
+        => FailSafeExecution(Init);
 
     protected async Task InvokeParentStateChanged()
     {
@@ -83,10 +121,10 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
             await _renderGate.WaitAsync();
             try
             {
-                SafeInvokeAsync(BaseOnBeforeRender);
-                await SafeInvokeAsync(BaseOnBeforeRenderAsync);
-                SafeInvokeAsync(OnWidgetBeforeRender);
-                await SafeInvokeAsync(OnWidgetBeforeRenderAsync);
+                FailSafeExecution(BaseOnBeforeRender);
+                await FailSafeExecutionAsync(BaseOnBeforeRenderAsync);
+                FailSafeExecution(OnWidgetBeforeRender);
+                await FailSafeExecutionAsync(OnWidgetBeforeRenderAsync);
 
                 StateHasChanged();
             }
@@ -113,55 +151,30 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
         else
             return InvokeParentStateChanged();
     }
-    private static async Task SafeInvokeAsync(Func<Task> asyncMethod)
-    {
-        try
-        {
-            var task = asyncMethod();
-            if (task != null)
-                await task;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"WidgetComponentBase:: {ex.Message}");
-            // TODO: LOG
-        }
-    }
-    private static void SafeInvokeAsync(Action method)
-    {
-        try
-        {
-            method();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"WidgetComponentBase:: {ex.Message}");
-            // TODO: LOG
-        }
-    }
 
-
-
-    protected sealed override async Task OnInitializedAsync()
+    private async Task InitAsync()
     {
         await WidgetComponentLifecycle.BringComponentAlive();
         await OnWidgetInitializedAsync();
         await BaseOnInitializedAsync();
     }
+    protected sealed override Task OnInitializedAsync()
+        => FailSafeExecutionAsync(InitAsync);
+    internal virtual void BaseConstructor() { }
     internal virtual void BaseOnInitialized() { }
     internal virtual Task BaseOnInitializedAsync() => Task.CompletedTask;
     protected virtual void OnWidgetInitialized() { }
     protected virtual Task OnWidgetInitializedAsync() => Task.CompletedTask;
-
-    protected sealed override void OnParametersSet()
+    private void SetParam()
     {
         OnWidgetParametersSet();
         BaseOnParametersSet();
         OnWidgetBeforeRender();
         BaseOnBeforeRender();
     }
-
-    protected sealed override async Task OnParametersSetAsync()
+    protected sealed override void OnParametersSet()
+        => FailSafeExecution(SetParam);
+    private async Task SetParamAsync()
     {
         await BaseOnParametersSetAsync();
         await OnWidgetParametersSetAsync();
@@ -169,6 +182,9 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
         await BaseOnBeforeRenderAsync();
         await OnWidgetBeforeRenderAsync();
     }
+    protected sealed override Task OnParametersSetAsync()
+        => FailSafeExecutionAsync(SetParamAsync);
+
     internal virtual void BaseOnParametersSet() { }
     internal virtual Task BaseOnParametersSetAsync() => Task.CompletedTask;
     protected virtual void OnWidgetParametersSet() { }
@@ -178,21 +194,23 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
     internal virtual Task BaseOnBeforeRenderAsync() => Task.CompletedTask;
     protected virtual void OnWidgetBeforeRender() { }
     protected virtual Task OnWidgetBeforeRenderAsync() => Task.CompletedTask;
-
-    protected sealed override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task AfterRenderAsync(bool firstRender)
     {
-
         await OnWidgetAfterRenderAsync(firstRender);
         await BaseOnAfterRenderAsync(firstRender);
     }
+    protected sealed override Task OnAfterRenderAsync(bool firstRender)
+        => FailSafeExecutionAsync(() => AfterRenderAsync(firstRender));
 
-    protected sealed override void OnAfterRender(bool firstRender)
+    private void AfterRender(bool firstRender)
     {
         if (firstRender)
             FirstRenderCompleted = true;
         OnWidgetAfterRender(firstRender);
         BaseOnAfterRender(firstRender);
     }
+    protected sealed override void OnAfterRender(bool firstRender)
+        => FailSafeExecution(() => AfterRender(firstRender));
     internal virtual Task BaseOnAfterRenderAsync(bool firstRender) => Task.CompletedTask;
     internal virtual void BaseOnAfterRender(bool firstRender) { }
     protected virtual void OnWidgetAfterRender(bool firstRender) { }
@@ -237,21 +255,27 @@ public abstract class WidgetComponentBase<TPluginEntry, TViewModel> : WidgetComp
     protected IWidgetContext WidgetContext { get; private set; } = default!;
     protected TViewModel ViewModel { get; private set; } = default!;
     private IWidgetLifecycleViewModel? _widgetLifecycleViewModel;
-    internal sealed override void BaseOnInitialized()
+    internal sealed override void BaseConstructor()
     {
-        base.BaseOnInitialized();
         WidgetContext = PluginContextService.GetRequired<IWidgetContext>();
         ViewModel = WidgetContext.GetViewModel<TViewModel>();
+        ViewModel.SetHostExceptionHandler(HostExceptionHandler);
+
         try
         {
             _widgetLifecycleViewModel = (IWidgetLifecycleViewModel)ViewModel;
         }
         catch
         {
-            Console.WriteLine("{0} underlaying type does not inherit {1}, it is not mandatory but will disabled internal features.",
+            Console.WriteLine("{0} underlaying type does not inherit {1}, it is not mandatory but will disabled internal lifecycle features.",
                 typeof(TViewModel).Name,
                 typeof(WidgetViewModelBase).Name);
         }
+    }
+    internal sealed override void BaseOnInitialized()
+    {
+        base.BaseOnInitialized();
+
         ViewModel.SpreadChanges += InvokeStateChanges;
         if (_widgetLifecycleViewModel != default)
             _widgetLifecycleViewModel.OnInitialized();
