@@ -144,8 +144,8 @@ internal sealed class DeploymentService
         await RunPostProcessing(ct);
         await ShudownAsync(_deployEnvironmentName);
         await StartAsync(_deployEnvironmentName);
-        foreach (var item in Configuration.Compose.Services)
-            await RunAsync(_deployEnvironmentName, $"systemctl status {item.ServiceName} || true");
+        //foreach (var item in Configuration.Compose.Services)
+        //    await RunAsync(_deployEnvironmentName, $"systemctl status {item.ServiceName} || true");
 
         await RunAsync(_deployEnvironmentName, $"cat /var/lib/lunaticpanel/config/bootstrap.json");
         await FinalizeDeployment();

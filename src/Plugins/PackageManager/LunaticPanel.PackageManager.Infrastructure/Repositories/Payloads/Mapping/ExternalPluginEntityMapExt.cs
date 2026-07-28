@@ -8,11 +8,24 @@ namespace LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mappi
 internal static class ExternalPluginEntityMapExt
 {
     public static PackageEntity MapToDomainEntity(this ExternalPluginEntityPayload data, RepositorySourceInfo source)
-        => new PackageEntity(data.MapToDomainPackageInfo(), source, new(data.Identity.PakageVersion), new List<PackageDependency>());
+    {
+
+        var info = data.MapToDomainPackageInfo();
+        var version = new PackageVersion(data.Identity.PakageVersion);
+        return new PackageEntity(info, source, version, new List<PackageDependency>());
+    }
 
     public static PackageInfo MapToDomainPackageInfo(this ExternalPluginEntityPayload data)
-        => new PackageInfo(new(data.Identity.PackageId), new(data.Identity.DisplayName),
-            new(data.Identity.Description ?? "No Description Found."), data.Lifecycle.StartupState.MapToDomain());
+    {
+        var id = new PackageId(data.Identity.PackageId);
+        var title = new PackageName(data.Identity.DisplayName);
+        var desc = new PackageDescription(data.Identity.Description ?? "No Description Found.");
+        var status = data.Lifecycle.StartupState.MapToDomain();
+        return new PackageInfo(id, title, desc, status)
+        {
+
+        };
+    }
     public static PackageState MapToDomain(this ExternalPluginEntityLifecycleStartupState data)
         => data switch
         {

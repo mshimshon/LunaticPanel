@@ -1,4 +1,6 @@
-﻿namespace LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+﻿using LunaticPanel.PackageManager.Domain.Entites.Exceptions;
+
+namespace LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
 
 public sealed record PackageVersion : IComparable<PackageVersion>
 {
@@ -24,9 +26,7 @@ public sealed record PackageVersion : IComparable<PackageVersion>
         else if (split.Length == 3)
             _version = new Version(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
         else
-        {
-            // TODO: THROW
-        }
+            throw new PackageVersionInvalidException(version);
         Value = _version!.ToString();
     }
 

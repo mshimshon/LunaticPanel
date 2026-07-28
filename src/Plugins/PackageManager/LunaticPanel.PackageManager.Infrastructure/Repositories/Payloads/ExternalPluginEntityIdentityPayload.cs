@@ -4,6 +4,7 @@ internal sealed record ExternalPluginEntityIdentityPayload
 {
     public string PackageId { get; set; } = default!;
     public string PakageVersion { get; set; } = default!;
+    public string PanelVersion { get; set; } = default!;
     public string DisplayName { get; set; } = default!;
     public string? Author { get; set; }
     public string? CompanyName { get; set; }

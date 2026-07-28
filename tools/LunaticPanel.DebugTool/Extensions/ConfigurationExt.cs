@@ -46,7 +46,7 @@ internal static class ConfigurationExt
 
     private static string? GetParameterValue(this string[] args, string key)
     {
-        int snapIndex = args.IndexOf("key", StringComparer.OrdinalIgnoreCase);
+        int snapIndex = args.IndexOf(key, StringComparer.OrdinalIgnoreCase);
         if (snapIndex >= 0)
         {
             return args[snapIndex + 1];
