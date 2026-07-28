@@ -5,6 +5,7 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
+using LunaticPanel.PackageManager.Keys;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging;
@@ -17,10 +18,9 @@ namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
 internal class ExternalSourceService : IExternalSourceService
 {
-    private const string SOURCE_FILE = @"/var/lib/lunaticpanel/sources.json";
-    private const string SOURCE_CACHE = @"/var/lib/lunaticpanel/.pkg_source_cache";
-    private const string SOURCE_NUGET_CACHE = @"/var/lib/lunaticpanel/.pkg_nuget_cache";
-    private const string SOURCE_CACHE_FILE_FMT = SOURCE_CACHE + @"{0}";
+    private readonly string _sourceFile;
+    private readonly string _sourceCached;
+    private readonly string _sourceApiCached;
     private readonly ICrazyReport<RepositorySourceService> _crazyReport;
     private readonly ISafeFileWriter _safeFileWriter;
     private JsonSerializerOptions _jsonSerializer = new()
@@ -32,9 +32,12 @@ internal class ExternalSourceService : IExternalSourceService
     {
         _crazyReport = crazyReport;
         _safeFileWriter = safeFileWriter;
-        _crazyReport.SetModule("PackageManager");
-        if (!Directory.Exists(SOURCE_CACHE_FILE_FMT))
-            Directory.CreateDirectory(SOURCE_CACHE_FILE_FMT);
+        _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
+
+        _sourceFile = pluginLocation.GetConfigFor(LPPackageManagerKeys.MODULE_NAME, "sources.json");
+        _sourceCached = pluginLocation.GetAppDataBase(".pkg_source_cache");
+        _sourceApiCached = pluginLocation.GetAppDataBase(".pkg_api_cache");
+
     }
 
     public async Task FindAndDownloadToCache(string id, string version, CancellationToken ct = default)
@@ -52,7 +55,7 @@ internal class ExternalSourceService : IExternalSourceService
         else
             await CopyFromLocalAsync(id, version, source, ct);
 
-        string file = string.Format(SOURCE_CACHE_FILE_FMT, $"{id}.{version}.json");
+        string file = Path.Combine(_sourceCached, $"{id}.{version}.json");
         await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(source, _jsonSerializer), ct);
 
     }
@@ -65,7 +68,9 @@ internal class ExternalSourceService : IExternalSourceService
     }
     public async Task<Version[]> FindAllVersionsForAsync(string id, CancellationToken ct = default)
     {
-        string sourceJson = File.ReadAllText(SOURCE_FILE);
+        if (!File.Exists(_sourceFile))
+            return Array.Empty<Version>();
+        string sourceJson = File.ReadAllText(_sourceFile);
         List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
         if (configSources == default)
             throw new SourceCorruptedException();
@@ -99,23 +104,22 @@ internal class ExternalSourceService : IExternalSourceService
 
     public Task ClearSourceCacheForAsync(string id, string packageVersion, CancellationToken ct = default)
     {
-        string file = string.Format(SOURCE_CACHE_FILE_FMT, $"{id}.{packageVersion}.json");
+        string file = Path.Combine(_sourceCached, $"{id}.{packageVersion}.json");
         if (File.Exists(file))
             File.Delete(file);
         return Task.CompletedTask;
     }
 
-    public Task ClearSourceCacheAsync(string id, string packageVersion, CancellationToken ct = default)
+    public Task ClearSourceCacheAsync(CancellationToken ct = default)
     {
-        string file = string.Format(SOURCE_CACHE_FILE_FMT, $"{id}.{packageVersion}.json");
-        if (Directory.Exists(SOURCE_CACHE_FILE_FMT))
-            Directory.Delete(SOURCE_CACHE_FILE_FMT, true);
-        Directory.CreateDirectory(SOURCE_CACHE_FILE_FMT);
+        if (Directory.Exists(_sourceCached))
+            Directory.Delete(_sourceCached, true);
+        Directory.CreateDirectory(_sourceCached);
         return Task.CompletedTask;
     }
     public async Task<ExternalSourceRepositoryPayload?> GetPackageCacheSourceForAsync(string id, string packageVersion, CancellationToken ct = default)
     {
-        string file = string.Format(SOURCE_CACHE_FILE_FMT, $"{id}.{packageVersion}.json");
+        string file = Path.Combine(_sourceCached, $"{id}.{packageVersion}.json");
         if (File.Exists(file))
         {
             string json = File.ReadAllText(file);
@@ -126,10 +130,10 @@ internal class ExternalSourceService : IExternalSourceService
         return await GetPackageSourceForAsync(id, packageVersion, ct);
     }
 
-    public async Task<ExternalSourceRepositoryPayload?> GetPackageSourceForAsync(string id, string packageVersion, CancellationToken ct = default)
+    public async Task<ExternalSourceRepositoryPayload?> GetPackageSourceForAsync(string id, string version, CancellationToken ct = default)
     {
-        string file = string.Format(SOURCE_CACHE_FILE_FMT, $"{id}.{packageVersion}.json");
-        string sourceJson = File.ReadAllText(SOURCE_FILE);
+        string file = Path.Combine(_sourceCached, $"{id}.{version}.json");
+        string sourceJson = File.ReadAllText(_sourceFile);
         List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
         if (configSources == default)
             throw new SourceCorruptedException();
@@ -140,7 +144,7 @@ internal class ExternalSourceService : IExternalSourceService
         {
             if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
                 continue;
-            var package = await GetPackageInfoForAsync(id, packageVersion, item, ct);
+            var package = await GetPackageInfoForAsync(id, version, item, ct);
             if (package == default) continue;
             await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(item, _jsonSerializer), ct);
             return item;
@@ -160,7 +164,7 @@ internal class ExternalSourceService : IExternalSourceService
 
     public async Task<PackagePayload?> FindMostRecentPackage(string id, CancellationToken ct = default)
     {
-        string sourceJson = File.ReadAllText(SOURCE_FILE);
+        string sourceJson = File.ReadAllText(_sourceFile);
         List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializer);
         if (configSources == default)
             throw new SourceCorruptedException();
@@ -213,35 +217,10 @@ internal class ExternalSourceService : IExternalSourceService
         // NuGetVersion implements proper SemVer sorting
         return package;
     }
-    private async Task DownloadFromNugetAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
-    {
-        var providers = Repository.Provider.GetCoreV3();
-        var repo = new SourceRepository(new PackageSource(source.Source), providers);
-
-        // Get the resource that can download packages
-        var findResource = await repo.GetResourceAsync<FindPackageByIdResource>(ct);
-
-        var nugetVersion = NuGetVersion.Parse(version);
-        if (!Directory.Exists(SOURCE_NUGET_CACHE))
-            Directory.CreateDirectory(SOURCE_NUGET_CACHE);
-
-        string outputPath = Path.Combine(SOURCE_NUGET_CACHE, $"{id}.{version}.nupkg");
-
-        using var cache = new SourceCacheContext();
-        using var packageStream = File.Create(outputPath);
-
-        bool success = await findResource.CopyNupkgToStreamAsync(id, nugetVersion, packageStream, cache, NullLogger.Instance, ct);
-
-        if (!success)
-            throw new Exception($"Failed to download {id} {version}");
-    }
     private async Task CopyFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
-        if (!Directory.Exists(SOURCE_NUGET_CACHE))
-            Directory.CreateDirectory(SOURCE_NUGET_CACHE);
-
-        string outputPath = Path.Combine(SOURCE_NUGET_CACHE, $"{id}.{version}.nupkg");
-        if (File.Exists(outputPath)) return;
+        string outputPath = Path.Combine(_sourceApiCached, $"{id}.{version}.nupkg");
+        if (!File.Exists(outputPath)) return;
         string inputPath = Path.Combine(source.Source, $"{id}.{version}.nupkg");
         File.Copy(inputPath, outputPath, true);
     }

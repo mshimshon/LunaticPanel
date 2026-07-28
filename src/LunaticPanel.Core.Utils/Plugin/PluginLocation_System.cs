@@ -8,6 +8,7 @@ internal partial class PluginLocation : IPluginSystemLocation
     public string PluginEtcFolder { get; set; } = default!;
     public string PluginVarFolder { get; set; } = default!;
     private string BashFolder { get; set; } = default!;
+    private string DownloadFolder { get; set; } = default!;
     private string StaticWebContentFolder { get; set; } = default!;
     private string DynamicWebContentFolder { get; set; } = default!;
 
@@ -27,9 +28,10 @@ internal partial class PluginLocation : IPluginSystemLocation
         PluginVarFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxVarFolderName, IPluginLocation.LinuxLibFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
         StaticWebContentFolder = Path.Combine(PluginFolder, WEB_FOLDER_NAME);
         DynamicWebContentFolder = Path.Combine(PluginVarFolder, WEB_FOLDER_NAME);
-        BashFolder = Path.Combine(PluginFolder, BASH_FOLDER_NAME);
-        ConfigFolder = Path.Combine(PluginEtcFolder, CONFIG_FOLDER_NAME);
-        ReposFolder = Path.Combine(PluginEtcFolder, REPOS_FOLDER_NAME);
+        BashFolder = GetAppBinBase(BASH_FOLDER_NAME);
+        ConfigFolder = GetAppConfigBase(CONFIG_FOLDER_NAME);
+        ReposFolder = GetAppDataBase(REPOS_FOLDER_NAME);
+        DownloadFolder = GetAppDataBase(PluginVarFolder, DOWNLOAD_FOLDER_NAME);
     }
 
     public string GetReposBase(string moduleName)
@@ -64,6 +66,30 @@ internal partial class PluginLocation : IPluginSystemLocation
     public string GetBashFor(string moduleName, string[] subFolders, string filename, params string[] args)
         => GetBashFor(moduleName, subFolders, filename) + " " + ArgumentsToString(args);
 
+    public string GetAppBinBase()
+    => EnsureCreated(PluginFolder);
+    public string GetAppBinBase(params string[] subFolders)
+        => EnsureCreated(Path.Combine([GetAppBinBase(), .. subFolders]));
+
+    public string GetAppConfigBase()
+        => EnsureCreated(PluginEtcFolder);
+    public string GetAppConfigBase(params string[] subFolders)
+        => EnsureCreated(Path.Combine([GetAppConfigBase(), .. subFolders]));
+
+    public string GetAppDataBase()
+    => EnsureCreated(PluginVarFolder);
+    public string GetAppDataBase(params string[] subFolders)
+        => EnsureCreated(Path.Combine([GetAppDataBase(), .. subFolders]));
+
+    public string GetDownloadBase(string moduleName)
+        => EnsureCreated(GetAppDataBase(DownloadFolder, moduleName.ToLower()));
+    public string GetDownloadBase(string moduleName, params string[] subFolders)
+        => EnsureCreated(Path.Combine([GetDownloadBase(moduleName), .. subFolders]));
+    public string GetDownloadFor(string moduleName, string[] subFolders, string filename)
+        => Path.Combine(GetDownloadBase(moduleName, subFolders), filename);
+    public string GetDownloadFor(string moduleName, string filename)
+          => Path.Combine(GetDownloadBase(moduleName), filename);
+
     public string GetStaticWebContentBase() => EnsureCreated(StaticWebContentFolder);
     public string GetStaticWebContentBase(string[] subFolders)
          => EnsureCreated(Path.Combine([GetStaticWebContentBase(), .. subFolders]));
@@ -96,4 +122,5 @@ internal partial class PluginLocation : IPluginSystemLocation
         => GetDynamicWebContentFor([moduleName.ToLower()], filename);
     public string GetDynamicWebContentFor(string moduleName, string[] subFolders, string filename)
         => GetDynamicWebContentFor([moduleName.ToLower(), .. subFolders], filename);
+
 }

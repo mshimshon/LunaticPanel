@@ -3,6 +3,7 @@
 public static class LPPackageManagerKeys
 {
     public const string AssemblyName = "LunaticPanel.PackageManager";
+    public const string MODULE_NAME = "packagemanager";
     public const string API_V1 = "v1";
     internal const string EventPrefix = $"eventkey.[{AssemblyName}]";
     internal const string EnginePrefix = $"enginekey.[{AssemblyName}]";

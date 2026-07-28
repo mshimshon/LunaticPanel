@@ -10,7 +10,16 @@ public interface IPluginSystemLocation
     string GetConfigBase(string moduleName, params string[] subFolders);
     string GetConfigFor(string moduleName, string filename);
     string GetConfigFor(string moduleName, string[] subFolders, string filename);
-
+    string GetAppConfigBase();
+    string GetAppConfigBase(params string[] subFolders);
+    string GetAppDataBase();
+    string GetAppDataBase(params string[] subFolders);
+    public string GetAppBinBase();
+    public string GetAppBinBase(params string[] subFolders);
+    string GetDownloadBase(string moduleName);
+    string GetDownloadBase(string moduleName, params string[] subFolders);
+    string GetDownloadFor(string moduleName, string[] subFolders, string filename);
+    string GetDownloadFor(string moduleName, string filename);
 
 
     string GetStaticWebContentBase();
