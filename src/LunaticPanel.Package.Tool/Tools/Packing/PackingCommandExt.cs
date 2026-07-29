@@ -30,6 +30,7 @@ internal static class PackingCommandExt
         var command = new Command("pack", "pack plugin folder to .lpkg")
             .AddOption<string>("input", "in", "this is the input folder of the plugin.")
             .AddOption<string>("output", "out", "this is the folder where to write the 'pluginid.version.lpkg' file.")
+            .AddOption<string>("version", "v", "define which version plugin will have use to compile.")
             .SetExecuteCommand(PackingAction);
         return root.WithSubCommand(command);
     }
@@ -105,6 +106,7 @@ internal static class PackingCommandExt
     {
         var input = parseResult.GetValue<string>("--input");
         var output = parseResult.GetValue<string>("--output");
+        var version = parseResult.GetValue<string>("--version");
         bool missingParams = input == default || output == default;
         if (missingParams)
             throw new MissingParametersException("--input or --output is missing and required for packing.");
@@ -113,10 +115,10 @@ internal static class PackingCommandExt
         else if (!IsDirectoryPath(output!))
             throw new PackOutputDirectoryInvalidException(output!);
 
-        return await PackAsync(input, output!);
+        return await PackAsync(input, output!, version);
 
     }
-    public static async Task<PluginManifestPayload> PackAsync(string input, string output)
+    public static async Task<PluginManifestPayload> PackAsync(string input, string output, string? version)
     {
         Console.Out.WriteLine($"Trying to Pack {input}");
 

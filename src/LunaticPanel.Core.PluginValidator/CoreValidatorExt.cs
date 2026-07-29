@@ -51,7 +51,7 @@ public static class CoreValidatorExt
                 else
                 {
                     policyType = "Production Policy (x.y.z)";
-                    if (baselineVersion.Major != targetVersion.Major)
+                    if (baselineVersion < targetVersion)
                     {
                         isViolation = true;
                     }

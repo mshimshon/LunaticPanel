@@ -4,21 +4,21 @@ namespace LunaticPanel.Engine.Plugin;
 
 public static class DependencySettings
 {
-    public static AssemblyName[] SharedAssembliesToLoad { get; } =
-    [
-        // ==========================================
-        // 1. Core
-        // ==========================================
+    public static AssemblyName[] OptionalCoreAssemblies { get; } = {
         new AssemblyName("LunaticPanel.Core"),
-        new AssemblyName("LunaticPanel.Core.Abstraction"),
         new AssemblyName("LunaticPanel.Core.Extensions"),
         new AssemblyName("LunaticPanel.Core.Utils"),
-        new AssemblyName("LunaticPanel.Core.Utils.Abstraction"),
+        new AssemblyName("LunaticPanel.Core.Utils.Abstraction")
+    };
+    public static AssemblyName[] SharedAssembliesToLoad { get; } =
+    [
+        .. OptionalCoreAssemblies,
+        new AssemblyName("LunaticPanel.Core.Abstraction"),
         new AssemblyName("MudBlazor"),
         new AssemblyName("System.Runtime"),
         new AssemblyName("System.Collections"),
         new AssemblyName("System.Net.Http"),
- new AssemblyName("Microsoft.AspNetCore.Components"),
+        new AssemblyName("Microsoft.AspNetCore.Components"),
         new AssemblyName("Microsoft.AspNetCore.Components.Web"),
         new AssemblyName("Microsoft.AspNetCore.Components.Forms"),
         new AssemblyName("Microsoft.AspNetCore.Components.Authorization"),

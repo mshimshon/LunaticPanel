@@ -9,6 +9,7 @@ using LunaticPanel.Package.Tool.Payloads;
 using LunaticPanel.Package.Tool.Tools.Packing;
 using LunaticPanel.Package.Tool.Tools.Plugin;
 using System.CommandLine;
+using System.Reflection;
 
 namespace LunaticPanel.Package.Tool.Tools.Validation;
 
@@ -51,32 +52,36 @@ internal static class PluginValidatorCommandExt
             await PackingCommandExt.UnpackToLocation(manifest, input, outputPackageTmp, true);
             inputFolder = outputPackageTmp;
         }
-        else
-        {
-            manifest = PluginUtilitiesExt.GetManifestInformation(input);
-        }
 
         try
         {
             Console.Out.WriteLine($"Validating Plugin for {inputFolder}");
-            entity = PluginScannerExt.FindPluginDllInDirectory(inputFolder, [], DependencySettings.ScanSharedFrameworkNames());
-            if (entity == default)
+            var dll = PluginScannerExt.FindPluginDllInDirectory(inputFolder, [], DependencySettings.ScanSharedFrameworkNames());
+            if (dll == default)
                 throw new PluginDllNotFoundException(inputFolder);
-            Console.Out.WriteLine($"We Found {entity.PluginId}".Green());
+            PluginScannerExt.RunPluginDllValidator(dll);
+            manifest = PluginUtilitiesExt.GetManifestInformation(inputFolder);
+            Console.Out.WriteLine($"We Found {dll}".Green());
 
             // No Plugins can dependent on other plugins directly.
-            Console.Out.WriteLine($"Checking Hard Dependencies for {entity.PluginId}".Cyan());
+            Console.Out.WriteLine($"Checking Hard Dependencies for {dll}".Cyan());
 
             var hasValidDependencyRule = DependenciesValidationExt.ValidateNoHardDependencies(inputFolder);
             if (!hasValidDependencyRule)
                 throw new PluginHardDependencyViolationException(inputFolder);
-            Console.Out.WriteLine($"Checking if {entity.PluginId} has duplicated implementation for PluginBase/IPlugin.".Cyan());
+            Console.Out.WriteLine($"Checking if {inputFolder} has duplicated implementation for PluginBase/IPlugin.".Cyan());
 
-            var hasDuplicatedIPlugin = DependenciesValidationExt.ValidateNoIPluginDuplicates(inputFolder);
+            var hasDuplicatedIPlugin = DependenciesValidationExt.ValidateNoIPluginDuplicates(dll);
             if (!hasDuplicatedIPlugin)
                 throw new PluginDuplicateEntryPointException();
-            Console.Out.WriteLine($"Test Plugin Loader for {entity.PluginId}".Cyan());
+            Console.Out.WriteLine($"Test Plugin Loader for {dll}".Cyan());
 
+            entity = PluginScannerExt.LoadPluginInformation(dll, [], DependencySettings.ScanSharedFrameworkNames());
+            if (entity == default)
+                throw new PluginLoadFailedException(dll);
+
+            var name = AssemblyName.GetAssemblyName(entity.Location);
+            var version = name.Version;
             var pluginAsm = entity.Loader.Load();
             Console.Out.WriteLine($"Creating Entry Point for {entity.PluginId}".Cyan());
             var plugin = entity.CreateEntryPoint(pluginAsm);

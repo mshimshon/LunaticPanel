@@ -16,7 +16,7 @@ public sealed class ConsoleApplicationBuilder
         var sdkVersion = typeof(PluginManifestPayload).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion!.Split('+')[0];
         Console.Out.WriteLine($"sdkVersion:{sdkVersion}".Magenta());
         var sdkVersionObj = new Version(sdkVersion!);
-        PackSettings.LunaticPanelVersion = sdkVersionObj.Major;
+        PackSettings.LunaticPanelVersion = $"{sdkVersionObj.Major}.{sdkVersionObj.Minor}.{sdkVersionObj.Build}";
         var rootTmp = Path.GetTempPath();
         var cleanFolder = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{PackSettings.LunaticPanelVersion}");
         if (Directory.Exists(cleanFolder))

@@ -5,7 +5,6 @@ using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 using LunaticPanel.Engine.Infrastructure.Plugin;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Plugin.Entities;
 using Microsoft.Extensions.Configuration;
 namespace LunaticPanel.Engine.Web.Boostrap.Plugin;
 
@@ -19,8 +18,21 @@ internal static class BootstrapPlugins
     public static void DetectPlugins()
     {
         var result = PluginScannerExt.ScanAndFindPlugins(PluginDirectory, [], DependencySettings.ScanSharedFrameworkNames());
-        foreach (PluginScannedEntity item in result)
+
+        foreach (var dll in result)
         {
+            if (!PluginScannerExt.IsPluginDllValid(dll))
+            {
+                Console.WriteLine($"Failed to load '{dll}', skipping.");
+                continue;
+            }
+
+            var item = PluginScannerExt.LoadPluginInformation(dll, [], DependencySettings.ScanSharedFrameworkNames());
+            if (item == default)
+            {
+                Console.WriteLine($"Failed to load '{dll}', skipping.");
+                continue;
+            }
             var identity = new PluginIdentity(item.PluginId, item.Version, item.PluginId);
             try
             {

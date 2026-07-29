@@ -8,7 +8,7 @@ public static class DomainValidationExt
     public const string ALPHANUM_VALIDATION_PATTERN = @"^[a-zA-Z0-9]+$";
     public const string ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN = @"^[a-zA-Z0-9 .,]+$";
     public const string DOTNET_VERSION_VALIDATION_PATTERN = @"^(?:[0-9]|[1-9][0-9]{1,2}|1000)$";
-    public const string PANEL_VERSION_VALIDATION_PATTERN = DOTNET_VERSION_VALIDATION_PATTERN;
+    public const string PANEL_VERSION_VALIDATION_PATTERN = PKG_VERSION_VALIDATION_PATTERN;
     public const string PKG_VERSION_VALIDATION_PATTERN = @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$";
     public const string PKG_ENTRYFILE_VALIDATION_PATTERN = @"^[^\\/:*?""<>|]+\.dll$";
     public const int PKG_TITLE_MIN_LENGTH = 1;

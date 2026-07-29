@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core;
 using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.PackageManager.Components.ViewModels;
 using LunaticPanel.PackageManager.Infrastructure;
@@ -22,7 +23,7 @@ namespace LunaticPanel.PackageManager;
     </dependencies>
  *  
  */
-public class PluginEntry : PluginBase
+public class PluginEntry : PluginBase, IPlugin
 {
     public override void CheckFeatureDegradation(Func<string, bool> isBusAvailable)
     {

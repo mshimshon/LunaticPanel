@@ -7,7 +7,7 @@ internal static class PackSettings
 {
 
     public static int DotNetVersion = 0;
-    public static int LunaticPanelVersion = 0;
+    public static string LunaticPanelVersion = default!;
     //public static void PopulateExclusionDlls()
     //{
     //    var dllExclusion = _blacklistDlls.ToHashSet(StringComparer.OrdinalIgnoreCase);
