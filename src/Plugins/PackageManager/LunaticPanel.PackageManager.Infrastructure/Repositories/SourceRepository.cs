@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
-using LunaticPanel.PackageManager.Domain.Entites;
+using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads;

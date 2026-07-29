@@ -25,7 +25,7 @@ internal class GetAllPackagesHandler : IRequestHandler<GetAllPackagesQuery, ICol
     {
         try
         {
-            ICollection<Domain.Entites.PackageEntity> result = await _packageRepository.GetAll(ct);
+            ICollection<Domain.Entities.PackageEntity> result = await _packageRepository.GetAll(ct);
 
             return result.Select(p => p.ToApplicationPayload()).ToList();
             //TODO: HANDLE DOMAIN EXCEPTIONS

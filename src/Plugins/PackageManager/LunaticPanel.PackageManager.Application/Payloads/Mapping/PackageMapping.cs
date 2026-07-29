@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads.Enums;
-using LunaticPanel.PackageManager.Domain.Entites;
-using LunaticPanel.PackageManager.Domain.Entites.Enums;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Domain.Entities.Enums;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 
 namespace LunaticPanel.PackageManager.Application.Payloads.Mapping;
 
@@ -46,8 +46,9 @@ public static class PackageMapping
         var sourceInfo = new RepositorySourceInfo(source, data.RepositoryType.ToDomainEntity());
         var depList = data.Dependencies.Select(p => p.ToDomainEntity()).ToArray();
         var version = new PackageVersion(data.Version);
-        return data.Failure == default ? new PackageEntity(info, sourceInfo, version, depList) :
-            new PackageEntity(info, sourceInfo, version, depList, new(data.Failure));
+        var panelVersion = new PackagePanelVersion(data.Version);
+        return data.Failure == default ? new PackageEntity(info, sourceInfo, version, panelVersion, depList) :
+            new PackageEntity(info, sourceInfo, version, panelVersion, depList, new(data.Failure));
     }
 
     public static PackageInfo ToDomainEntity(this PackageInfoPayload data)

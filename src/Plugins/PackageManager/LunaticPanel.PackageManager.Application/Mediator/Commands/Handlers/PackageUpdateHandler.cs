@@ -2,7 +2,7 @@
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
-using LunaticPanel.PackageManager.Domain.Entites;
+using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using MedihatR;
 

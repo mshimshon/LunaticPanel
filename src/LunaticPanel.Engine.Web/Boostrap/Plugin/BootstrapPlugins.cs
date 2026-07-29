@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Plugin;
+using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Domain.Plugin.Entites;
 using LunaticPanel.Engine.Domain.Plugin.Enums;
@@ -21,7 +22,7 @@ internal static class BootstrapPlugins
 
         foreach (var dll in result)
         {
-            if (!PluginScannerExt.IsPluginDllValid(dll))
+            if (!LibraryValidatorExt.IsPluginDllValid(dll))
             {
                 Console.WriteLine($"Failed to load '{dll}', skipping.");
                 continue;

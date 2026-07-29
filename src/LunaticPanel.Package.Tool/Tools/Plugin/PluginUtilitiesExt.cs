@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Extensions;
+using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Payloads;
@@ -41,7 +42,7 @@ internal static class PluginUtilitiesExt
         string? dll = PluginScannerExt.FindPluginDllInDirectory(inputFolder, [], DependencySettings.ScanSharedFrameworkNames());
         if (dll == default)
             throw new PluginDllNotFoundException(inputFolder);
-        var meta = DotnetInspectorExt.ExtractMetadata(dll);
+        var meta = LibraryValidatorExt.ExtractMetadata(dll);
         foreach (var item in meta)
             Console.Out.WriteLine($"{item.Key}:{item.Value}".Cyan());
         Console.Out.WriteLine($"Extract Manifest".Cyan());

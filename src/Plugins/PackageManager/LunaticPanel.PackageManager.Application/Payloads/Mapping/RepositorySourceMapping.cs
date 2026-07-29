@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads.Enums;
-using LunaticPanel.PackageManager.Domain.Entites;
-using LunaticPanel.PackageManager.Domain.Entites.Enums;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Domain.Entities.Enums;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 
 namespace LunaticPanel.PackageManager.Application.Payloads.Mapping;
 

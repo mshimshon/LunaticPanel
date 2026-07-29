@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Extensions;
+using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Plugin.Entities;
 using LunaticPanel.Engine.Plugin.Validation;
@@ -59,7 +60,7 @@ internal static class PluginValidatorCommandExt
             var dll = PluginScannerExt.FindPluginDllInDirectory(inputFolder, [], DependencySettings.ScanSharedFrameworkNames());
             if (dll == default)
                 throw new PluginDllNotFoundException(inputFolder);
-            PluginScannerExt.RunPluginDllValidator(dll);
+            LibraryValidatorExt.RunPluginDllValidator(dll);
             manifest = PluginUtilitiesExt.GetManifestInformation(inputFolder);
             Console.Out.WriteLine($"We Found {dll}".Green());
 

@@ -1,4 +1,4 @@
-﻿using LunaticPanel.PackageManager.Domain.Entites.Enums;
+﻿using LunaticPanel.PackageManager.Domain.Entities.Enums;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 
 namespace LunaticPanel.PackageManager.Domain.QueryModels;

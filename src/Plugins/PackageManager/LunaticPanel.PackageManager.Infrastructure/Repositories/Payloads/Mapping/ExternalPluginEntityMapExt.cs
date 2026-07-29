@@ -1,6 +1,6 @@
-﻿using LunaticPanel.PackageManager.Domain.Entites;
-using LunaticPanel.PackageManager.Domain.Entites.Enums;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+﻿using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Domain.Entities.Enums;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Enums;
 
 namespace LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
@@ -12,7 +12,8 @@ internal static class ExternalPluginEntityMapExt
 
         var info = data.MapToDomainPackageInfo();
         var version = new PackageVersion(data.Identity.PakageVersion);
-        return new PackageEntity(info, source, version, new List<PackageDependency>());
+        var panelVersion = new PackagePanelVersion(data.Identity.PanelVersion);
+        return new PackageEntity(info, source, version, panelVersion, new List<PackageDependency>());
     }
 
     public static PackageInfo MapToDomainPackageInfo(this ExternalPluginEntityPayload data)

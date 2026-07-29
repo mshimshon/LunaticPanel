@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
-using LunaticPanel.PackageManager.Domain.Entites;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
@@ -146,7 +146,7 @@ internal class PackageRepository : IPackageRepository
                 return result;
             })
             .ToList();
-        var mockRepos = new RepositorySourceInfo(new RepositorySourceLocal("local"), Domain.Entites.Enums.RepositorySourceType.Local);
+        var mockRepos = new RepositorySourceInfo(new RepositorySourceLocal("local"), Domain.Entities.Enums.RepositorySourceType.Local);
         ICollection<PackageEntity> result = validPlugins?
             .Where(p => p != null)
             .Select(p =>

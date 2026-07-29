@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using MedihatR;
 

@@ -1,4 +1,6 @@
-﻿namespace LunaticPanel.Engine.Plugin.Validation;
+﻿using LunaticPanel.Core.PluginValidator;
+
+namespace LunaticPanel.Engine.Plugin.Validation;
 
 public static class DependenciesValidationExt
 {
@@ -8,14 +10,14 @@ public static class DependenciesValidationExt
         foreach (var dll in Directory.GetFiles(pluginDir, "*.dll", SearchOption.TopDirectoryOnly))
         {
             if (count > 1) return false;
-            count += DotnetInspectorExt.CountIPluginImplementations(dll);
+            count += LibraryValidatorExt.CountIPluginImplementations(dll);
         }
         return true;
     }
 
     public static bool ValidateNoIPluginDuplicates(string dll)
     {
-        var count = DotnetInspectorExt.CountIPluginImplementations(dll);
+        var count = LibraryValidatorExt.CountIPluginImplementations(dll);
         return count <= 1;
     }
 

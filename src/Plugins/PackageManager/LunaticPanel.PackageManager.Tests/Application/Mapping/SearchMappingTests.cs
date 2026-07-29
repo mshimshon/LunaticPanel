@@ -1,8 +1,8 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
-using LunaticPanel.PackageManager.Domain.Entites.Enums;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+using LunaticPanel.PackageManager.Domain.Entities.Enums;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels;
 
 namespace LunaticPanel.PackageManager.Tests.Application.Mapping;

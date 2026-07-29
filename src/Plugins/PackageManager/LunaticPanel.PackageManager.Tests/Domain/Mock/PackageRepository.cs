@@ -1,5 +1,5 @@
-﻿using LunaticPanel.PackageManager.Domain.Entites;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+﻿using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Domain.Respositories.Exceptions;
@@ -25,7 +25,7 @@ internal class PackageRepository : IPackageRepository
         {
             Info = package.Info with
             {
-                State = PackageManager.Domain.Entites.Enums.PackageState.Disabled
+                State = PackageManager.Domain.Entities.Enums.PackageState.Disabled
             }
         });
         return Task.CompletedTask;
@@ -40,7 +40,7 @@ internal class PackageRepository : IPackageRepository
         {
             Info = package.Info with
             {
-                State = PackageManager.Domain.Entites.Enums.PackageState.Enabled
+                State = PackageManager.Domain.Entities.Enums.PackageState.Enabled
             }
         });
         return Task.CompletedTask;

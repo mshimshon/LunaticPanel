@@ -1,5 +1,5 @@
-﻿using LunaticPanel.PackageManager.Domain.Entites;
-using LunaticPanel.PackageManager.Domain.Entites.ValueObjects;
+﻿using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 
 namespace LunaticPanel.PackageManager.Domain.Respositories;

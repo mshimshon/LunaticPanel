@@ -1,4 +1,4 @@
-﻿using LunaticPanel.PackageManager.Domain.Entites;
+﻿using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
 
 namespace LunaticPanel.PackageManager.Tests.Domain.Mock;
@@ -20,7 +20,7 @@ internal class SourceRepository : ISourceRepository
         var source = Cache.SingleOrDefault(p => p == repositorySource);
         if (source == default) return Task.CompletedTask;
         Cache.Remove(source);
-        Cache.Add(source with { State = PackageManager.Domain.Entites.Enums.RepositorySourceState.Disabled });
+        Cache.Add(source with { State = PackageManager.Domain.Entities.Enums.RepositorySourceState.Disabled });
         return Task.CompletedTask;
     }
     public Task EnableAsync(RepositorySourceEntity repositorySource, CancellationToken ct = default)
@@ -28,7 +28,7 @@ internal class SourceRepository : ISourceRepository
         var source = Cache.SingleOrDefault(p => p == repositorySource);
         if (source == default) return Task.CompletedTask;
         Cache.Remove(source);
-        Cache.Add(source with { State = PackageManager.Domain.Entites.Enums.RepositorySourceState.Enabled });
+        Cache.Add(source with { State = PackageManager.Domain.Entities.Enums.RepositorySourceState.Enabled });
         return Task.CompletedTask;
     }
     public Task<IEnumerable<RepositorySourceEntity>> GetAllAsync(CancellationToken ct = default)

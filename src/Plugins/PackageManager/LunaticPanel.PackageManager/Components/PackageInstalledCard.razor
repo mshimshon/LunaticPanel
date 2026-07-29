@@ -10,7 +10,8 @@
         <MudText Typo="Typo.subtitle2">@ViewModel.Data.Info.Description</MudText>
         <MudDivider />
 
-        <MudChip Size=Size.Small T="string" Color="Color.Info">@($"v{ViewModel.Data.Version}")</MudChip>
+        <MudChip Size=Size.Small T="string" Color="Color.Info">@($"Version: {ViewModel.Data.Version}")</MudChip>
+        <MudChip Size=Size.Small T="string" Color="Color.Info">@($"Panel: {ViewModel.Data.PanelVersion}+")</MudChip>
         @if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
         {
             <MudChip Size=Size.Small T="string" Color="Color.Primary">

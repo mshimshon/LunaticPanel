@@ -1,4 +1,4 @@
-﻿using LunaticPanel.PackageManager.Domain.Entites;
+﻿using LunaticPanel.PackageManager.Domain.Entities;
 
 namespace LunaticPanel.PackageManager.Domain.Respositories;
 

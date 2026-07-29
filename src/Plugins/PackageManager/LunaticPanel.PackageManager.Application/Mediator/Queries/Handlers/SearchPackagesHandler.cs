@@ -27,7 +27,7 @@ internal class SearchPackagesHandler : IRequestHandler<SearchPackageQuery, Searc
             var queryModel = new PackageQueryModel();
             //TODO: FLUENT VALIDATION FOR QUERY
             queryModel.SearchByKeywords(query.Keywords);
-            IQueryModelResult<Domain.Entites.ValueObjects.PackageInfo> result = await _packageRepository.QueryAsync(queryModel, ct);
+            IQueryModelResult<Domain.Entities.ValueObjects.PackageInfo> result = await _packageRepository.QueryAsync(queryModel, ct);
             return result.ToApplicationSearchResponse(p => p.ToApplicationPayload());
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
