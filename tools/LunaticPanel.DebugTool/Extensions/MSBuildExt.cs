@@ -36,7 +36,7 @@ internal static class MSBuildExt
         Console.Out.WriteLine($"Temp Publish Target At '{cliProjectOutput}'");
         if (Directory.Exists(cliProjectOutput))
             Directory.Delete(cliProjectOutput, true);
-        string cmd = $"build \"{project}\" -c Debug -o \"{cliProjectOutput}\" /p:RuntimeIdentifier=linux-x64 /p:CopyLocalLockFileAssemblies=true";
+        string cmd = $"build \"{project}\" -c Debug -o \"{cliProjectOutput}\" /p:RuntimeIdentifier=linux-x64 /p:CopyLocalLockFileAssemblies=true ";
         Console.Out.WriteLine($"dotnet {cmd}");
 
         await ProcessExt.RunProcessAsync("dotnet", cmd);

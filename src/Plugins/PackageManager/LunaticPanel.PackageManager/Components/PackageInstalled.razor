@@ -20,11 +20,10 @@
     {
         @foreach (var package in ViewModel.PackageManagerState.InstalledPackages)
         {
-            <MudItem xs=12 md=4 lg=3>
+            <MudItem xs=12 >
                 <PackageInstalledCard Data=@package />
             </MudItem>
         }
-
     }
 
 </MudGrid>

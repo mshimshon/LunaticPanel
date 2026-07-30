@@ -7,5 +7,5 @@ namespace LunaticPanel.PackageManager.Application.Pulses.States;
 public sealed record SearchPackageState : IStateFeature
 {
     public bool IsLoading { get; init; }
-    public SearchResponse<PackageInfoPayload> Search { get; init; } = new();
+    public SearchResponse<PackageInfoPayload>? Search { get; init; }
 }

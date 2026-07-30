@@ -26,7 +26,8 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
         if (firstRender)
         {
             if (!PackageManagerState.IsPackageInitialized)
-                await _statePulse.Dispatcher.Prepare<LoadLocalPackagesAction>().Await().DispatchAsync();
+                await _statePulse.Dispatcher.Prepare<LoadLocalPackagesAction>().DispatchAsync();
         }
     }
+
 }

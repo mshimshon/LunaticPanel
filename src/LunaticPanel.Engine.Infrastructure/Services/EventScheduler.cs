@@ -17,6 +17,8 @@ internal class EventScheduler : IEventScheduler
     private CancellationTokenSource _cancelTokenSourceForAwaitedSchedule = new();
     private static readonly object _lock = new();
 
+    public PriorityQueue<EventScheduleTaskObject, DateTime> Queue => _queue;
+
     public EventScheduler(IEventScheduledBus eventScheduledBus, IServiceProvider serviceProvider, IEventScheduledBusExchange eventScheduledBusExchange)
     {
         _eventScheduledBus = eventScheduledBus;
