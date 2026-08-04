@@ -23,7 +23,6 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public bool HasRollbackAvailable { get; private set; }
     public bool HasRollbackScheduled { get; private set; }
     public bool CanScheduleRollback { get; private set; }
-
     public bool CanCancelScheduledRollback { get; private set; }
 
     public PackageInstalledCardViewModel(IStatePulse statePulse)

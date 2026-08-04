@@ -8,7 +8,7 @@
   {
     "name": "Local Server",
     "source": "http://localhost:5001/",
-    "sourceType": 0,
+    "sourceType": 1,
     "state": 1
   }
 ]

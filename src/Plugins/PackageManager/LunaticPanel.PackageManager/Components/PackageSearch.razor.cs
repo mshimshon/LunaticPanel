@@ -6,5 +6,4 @@ namespace LunaticPanel.PackageManager.Components;
 public partial class PackageSearch : WidgetComponentBase<PluginEntry, IPackageSearchViewModel>
 {
 
-
 }

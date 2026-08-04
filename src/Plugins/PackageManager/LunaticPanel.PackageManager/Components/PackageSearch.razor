@@ -5,7 +5,7 @@
         <MudTextField T="string" @bind-Value=ViewModel.Keywords  Label="Search" 
         Variant="Variant.Outlined" 
         Adornment="Adornment.End" 
-        AdornmentIcon="@Icons.Material.Filled.Search"  
+        AdornmentIcon=@Icons.Material.Filled.Search  
         AdornmentColor="Color.Secondary" />
     </MudForm>
     @if (ViewModel.SearchPackageState.IsLoading)
@@ -27,7 +27,7 @@
         @foreach (var package in ViewModel.SearchPackageState.Search.Result)
         {
             <MudItem xs=12>
-
+                <PackageSearchCard OnParentStateHasChanged=OnParentStateHasChanged Data=@package />
             </MudItem>
         }
     }

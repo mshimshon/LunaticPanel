@@ -38,6 +38,8 @@ public class PluginEntry : PluginBase, IPlugin
         services.AddTransient<IPackageInstalledCardViewModel, PackageInstalledCardViewModel>();
         services.AddScoped<IPackageInstalledViewModel, PackageInstalledViewModel>();
         services.AddScoped<IHomeViewModel, HomeViewModel>();
+        services.AddScoped<IPackageSearchViewModel, PackageSearchViewModel>();
+        services.AddScoped<IPackageSearchCardViewModel, PackageSearchCardViewModel>();
         services.AddInfrasctructureServices();
     }
     protected override void LoadConfiguration(IConfiguration configuration)

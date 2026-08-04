@@ -17,20 +17,30 @@ internal class SearchRemotePackageEffect : IEffect<SearchRemotePackageAction>
     private readonly string _regexValidation = @"/^[a-zA-Z0-9 .]*$/";
     public async Task EffectAsync(SearchRemotePackageAction action, IDispatcher dispatcher)
     {
-        var keywordsClean = action.Keywords.Where(p => Regex.IsMatch($"{p}", _regexValidation, RegexOptions.IgnoreCase));
-        var data = new SearchRepositoryQuery()
+        try
         {
-            Search = new()
+            var keywordsClean = action.Keywords.Where(p => Regex.IsMatch($"{p}", _regexValidation, RegexOptions.IgnoreCase));
+            var data = new SearchRepositoryQuery()
             {
-                Keywords = string.Join("", keywordsClean),
-            },
-            Sources = action.Sources
-        };
-        if (dispatcher.IsCancellationRequested) return;
-        var packages = await _medihater.Send(data, dispatcher.CancelToken);
-        if (dispatcher.IsCancellationRequested) return;
-        await dispatcher.Prepare<SearchRemotePackageDoneAction>()
-            .With(p => p.Result, packages)
-            .DispatchAsync(dispatcher.CancelToken);
+                Search = new()
+                {
+                    Keywords = string.Join("", keywordsClean),
+                },
+                Sources = action.Sources
+            };
+            if (dispatcher.IsCancellationRequested) return;
+            var packages = await _medihater.Send(data, dispatcher.CancelToken);
+            if (dispatcher.IsCancellationRequested) return;
+            await dispatcher.Prepare<SearchRemotePackageDoneAction>()
+                .With(p => p.Result, packages)
+                .DispatchAsync(dispatcher.CancelToken);
+        }
+        catch
+        {
+            await Task.Delay(1000);
+            await dispatcher.Prepare<SearchRemotePackageDoneAction>().DispatchAsync(dispatcher.CancelToken);
+            throw;
+        }
+
     }
 }

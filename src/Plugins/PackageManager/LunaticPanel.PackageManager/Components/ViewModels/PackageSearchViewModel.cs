@@ -28,10 +28,11 @@ internal class PackageSearchViewModel : WidgetViewModelBase, IPackageSearchViewM
     }
     public async Task OnSearchAsync()
     {
-
         await _statePulse.Dispatcher.Prepare<SearchRemotePackageAction>()
-            .With(p => p.Keywords, Keywords)
-            .DispatchAsync();
+             .With(p => p.Keywords, Keywords)
+             .Await()
+             .DispatchAsync();
+
     }
     public async Task SearchAsync() => await FailSafeExecutionAsync(OnSearchAsync);
 }

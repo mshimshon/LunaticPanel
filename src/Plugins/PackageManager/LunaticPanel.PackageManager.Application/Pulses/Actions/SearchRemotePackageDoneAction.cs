@@ -6,6 +6,6 @@ namespace LunaticPanel.PackageManager.Application.Pulses.Actions;
 
 public sealed record SearchRemotePackageDoneAction : IAction
 {
-    public SearchResponse<PackageInfoPayload> Result { get; set; } = new();
+    public SearchResponse<PackageInfoPayload>? Result { get; set; }
 
 }

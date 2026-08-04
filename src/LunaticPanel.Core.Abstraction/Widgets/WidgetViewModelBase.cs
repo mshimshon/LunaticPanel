@@ -116,29 +116,31 @@ public abstract class WidgetViewModelBase : IWidgetViewModel, IWidgetLifecycleVi
         }
         catch (HostCodedException ex)
         {
+            Console.Error.WriteLine($"Caught By {nameof(FailSafeExecution)} -> {ex.Message}");
             HostExceptionHandler.Throw(ex);
         }
         catch (Exception ex)
         {
+            Console.Error.WriteLine($"Caught By {nameof(FailSafeExecution)} -> {ex.Message}");
             HostExceptionHandler.Throw(ex);
         }
     }
 
-    protected Task FailSafeExecutionAsync(Func<Task> action)
+    protected async Task FailSafeExecutionAsync(Func<Task> action)
     {
         try
         {
-            return action.Invoke();
+            await action.Invoke();
         }
         catch (HostCodedException ex)
         {
-            HostExceptionHandler.Throw(ex);
-            return Task.CompletedTask;
+            Console.Error.WriteLine($"Caught By {nameof(FailSafeExecutionAsync)} -> {ex.Message}");
+            await HostExceptionHandler.ThrowAsync(ex);
         }
         catch (Exception ex)
         {
-            HostExceptionHandler.Throw(ex);
-            return Task.CompletedTask;
+            Console.Error.WriteLine($"Caught By {nameof(FailSafeExecutionAsync)} -> {ex.Message}");
+            await HostExceptionHandler.ThrowAsync(ex);
         }
     }
 
