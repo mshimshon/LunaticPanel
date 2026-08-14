@@ -4,7 +4,6 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Requests;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Application.Services;
-using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace LunaticPanel.PackageManager.Infrastructure.Services;
@@ -22,7 +21,8 @@ internal class RepositorySourceService : IRepositorySourceService
         PropertyNameCaseInsensitive = true,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    public RepositorySourceService(ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter, IExternalSourceService sourceService)
+    public RepositorySourceService(ICrazyReport<RepositorySourceService> crazyReport,
+        ISafeFileWriter safeFileWriter, IExternalSourceService sourceService)
     {
         _crazyReport = crazyReport;
         _safeFileWriter = safeFileWriter;
@@ -31,7 +31,7 @@ internal class RepositorySourceService : IRepositorySourceService
     }
     public async Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        await _sourceService.DownloadToCache(data.Info.PackageId, data.Version, source.ToInfrastructurePayload(), ct);
+        await _sourceService.DownloadToCache(data.Info.PackageId, data.Version, source, ct);
     }
 
     public async Task DownloadAsync(PackagePayload data, CancellationToken ct = default)
@@ -57,7 +57,10 @@ internal class RepositorySourceService : IRepositorySourceService
         return result.Select(p => $"{p.Major}.{p.Minor}.{p.Build}");
     }
 
-    public Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, CancellationToken ct = default)
-        => throw new NotImplementedException();
+    public async Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default)
+    => await _sourceService.SearchAsync(data, source, ct);
+
+    public async Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>> SearchAsync(SearchRequest data, CancellationToken ct = default)
+        => await _sourceService.SearchAllSourcesAsync(data, ct);
 
 }

@@ -2,8 +2,12 @@
 using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Payloads.Enums;
+using LunaticPanel.PackageManager.Application.Payloads.Requests;
+using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads;
+using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Enums;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
 using LunaticPanel.PackageManager.Infrastructure.Services.Payloads;
 using LunaticPanel.PackageManager.Keys;
@@ -82,23 +86,23 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         }
         File.Move(tempPath, Path.Combine(_sourceCached, $"{id}.{version}.lpkg"), overwrite: true);
     }
-    public async Task DownloadToCache(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    public async Task DownloadToCache(string id, string version, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            await DownloadFromRemoteAsync(id, version, source, ct);
+        if (source.SourceType == RepositorySourceTypePayload.Remote)
+            await DownloadFromRemoteAsync(id, version, source.ToInfrastructurePayload(), ct);
         else
-            await CopyFromLocalAsync(id, version, source, ct);
+            await CopyFromLocalAsync(id, version, source.ToInfrastructurePayload(), ct);
 
         string file = Path.Combine(_sourceCached, $"{id}.{version}.json");
         await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(source, _jsonSerializerOptions), ct);
 
     }
-    public async Task<PackagePayload?> GetPackageInfoForAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    public async Task<PackagePayload?> GetPackageInfoForAsync(string id, string version, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            return await GetRemotePackageInfoAsync(id, version, source, ct);
+        if (source.SourceType == RepositorySourceTypePayload.Remote)
+            return await GetRemotePackageInfoAsync(id, version, source.ToInfrastructurePayload(), ct);
         else
-            return await GetPackageInfoForFromLocalAsync(id, version, source, ct);
+            return await GetPackageInfoForFromLocalAsync(id, version, source.ToInfrastructurePayload(), ct);
     }
     public async Task<Version[]> FindAllVersionsForAsync(string id, CancellationToken ct = default)
     {
@@ -116,7 +120,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
             if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
                 continue;
 
-            var versions = await GetVersionsForAsync(id, item, ct);
+            var versions = await GetVersionsForAsync(id, item.ToApplicationPayload(), ct);
             foreach (var version in versions)
             {
                 if (result.Contains(version)) continue;
@@ -125,12 +129,12 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         }
         return result.ToArray();
     }
-    public async Task<Version[]> GetVersionsForAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    public async Task<Version[]> GetVersionsForAsync(string id, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        if (source.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
-            return await GetRemoteVersionsAsync(id, source, ct);
+        if (source.SourceType == RepositorySourceTypePayload.Remote)
+            return await GetRemoteVersionsAsync(id, source.ToInfrastructurePayload(), ct);
         else
-            return await GetVersionsForFromLocalAsync(id, source, ct);
+            return await GetVersionsForFromLocalAsync(id, source.ToInfrastructurePayload(), ct);
     }
     public Task ClearSourceCacheForAsync(string id, string packageVersion, CancellationToken ct = default)
     {
@@ -146,7 +150,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         Directory.CreateDirectory(_sourceCached);
         return Task.CompletedTask;
     }
-    public async Task<ExternalSourceRepositoryPayload?> GetPackageCacheSourceForAsync(string id, string packageVersion, CancellationToken ct = default)
+    public async Task<RepositorySourcePayload?> GetPackageCacheSourceForAsync(string id, string packageVersion, CancellationToken ct = default)
     {
         string file = Path.Combine(_sourceCached, $"{id}.{packageVersion}.json");
         if (File.Exists(file))
@@ -154,12 +158,12 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
             string json = File.ReadAllText(file);
             ExternalSourceRepositoryPayload? result = JsonSerializer.Deserialize<ExternalSourceRepositoryPayload>(json, _jsonSerializerOptions);
             if (result != default)
-                return result;
+                return result.ToApplicationPayload();
         }
         return await GetPackageSourceForAsync(id, packageVersion, ct);
     }
 
-    public async Task<ExternalSourceRepositoryPayload?> GetPackageSourceForAsync(string id, string version, CancellationToken ct = default)
+    public async Task<RepositorySourcePayload?> GetPackageSourceForAsync(string id, string version, CancellationToken ct = default)
     {
         string file = Path.Combine(_sourceCached, $"{id}.{version}.json");
         string sourceJson = File.ReadAllText(_sourceFile);
@@ -171,12 +175,12 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
 
         foreach (var item in configSources)
         {
-            if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
+            if (item.State != ExternalSourceRepositoryStatePayload.Enabled)
                 continue;
-            var package = await GetPackageInfoForAsync(id, version, item, ct);
+            var package = await GetPackageInfoForAsync(id, version, item.ToApplicationPayload(), ct);
             if (package == default) continue;
             await _safeFileWriter.WriteThenCopyFileAsync(file, JsonSerializer.Serialize(item, _jsonSerializerOptions), ct);
-            return item;
+            return item.ToApplicationPayload();
         }
         return default;
     }
@@ -322,7 +326,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         };
     }
     private string[] GetLocalFileNamesFor(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
-        => Directory.GetFiles(source.Source, "*.lpkg").Where(f => Path.GetFileName(f).StartsWith(id + ".", StringComparison.OrdinalIgnoreCase))
+        => Directory.GetFiles(source.Source, "*.lpkg", SearchOption.AllDirectories).Where(f => Path.GetFileName(f).StartsWith(id + ".", StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
     private async Task<PackagePayload?> GetPackageInfoForFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
@@ -332,7 +336,51 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
 
     private async Task<Version[]> GetVersionsForFromLocalAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
         => GetLocalFileNamesFor(id, source).Select(GetPackageInformation).Select(p => new Version(p.Version)).ToArray();
+    public async Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default)
+    {
+        if (source.SourceType == RepositorySourceTypePayload.Remote)
+            return await SearchRemoteSourceAsync(data, source.ToInfrastructurePayload(), ct);
+        else
+            return await SearchLocalSourceAsync(data, source.ToInfrastructurePayload(), ct);
+    }
 
+    private async Task<SearchResponse<PackageInfoPayload>> SearchRemoteSourceAsync(SearchRequest data, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    {
+        var relative = "lpkg/v1/package/search";
+        var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
+        var httpResponse = await _client.PostAsJsonAsync($"{apiEndpoint}", data);
+        if (!httpResponse.IsSuccessStatusCode)
+            httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
+        var result = await httpResponse.Content.ReadFromJsonAsync<SearchResponse<PackageInfoPayload>>(ct);
+        if (result == default)
+            throw new Exception(""); // TODO: THROW Deserialize Error
+        return result;
+    }
+
+    private async Task<SearchResponse<PackageInfoPayload>> SearchLocalSourceAsync(SearchRequest data, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    {
+        if (!Directory.Exists(source.Source))
+            throw new Exception(""); // TODO: THROW Deserialize Error
+        string[]? keywords = data.Keywords?.Split(' ') ?? [];
+        string[] files = Directory.GetFiles(source.Source, "*.lpkg", SearchOption.AllDirectories);
+        IEnumerable<PackagePayload> result = files.Select(GetPackageInformation);
+        if (keywords?.Length > 0)
+            result = result.Where(p =>
+             keywords.Any(k =>
+                 p.Info.PackageId.Contains(k, StringComparison.OrdinalIgnoreCase) ||
+                 k.Contains(p.Info.PackageId, StringComparison.OrdinalIgnoreCase)
+             )
+         );
+        var total = result.Count();
+        result = result.Skip(data.Position)
+            .Take(data.MaxResult);
+        return new()
+        {
+            Position = data.Position + result.Count(),
+            Total = total,
+            Result = result.Select(p => p.Info)
+        };
+    }
     protected virtual void Dispose(bool disposing)
     {
         if (!_disposedValue)
@@ -350,5 +398,28 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    public async Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>> SearchAllSourcesAsync(SearchRequest data, CancellationToken ct = default)
+    {
+        string sourceJson = File.ReadAllText(_sourceFile);
+        List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializerOptions);
+        if (configSources == default)
+            throw new SourceCorruptedException();
+        if (configSources.Count <= 0)
+            throw new SourceEmptyException();
+        Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>> result = new();
+        foreach (var source in configSources)
+        {
+            if (source.State != ExternalSourceRepositoryStatePayload.Enabled)
+                continue;
+
+            SearchResponse<PackageInfoPayload>? searchResult = default;
+            searchResult = await SearchAsync(data, source.ToApplicationPayload(), ct);
+
+            if (searchResult == default) continue;
+            result[source.ToApplicationPayload()] = searchResult;
+        }
+        return result;
     }
 }

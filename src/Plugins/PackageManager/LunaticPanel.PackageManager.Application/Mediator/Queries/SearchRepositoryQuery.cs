@@ -5,7 +5,7 @@ using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries;
 
-public sealed record SearchRepositoryQuery : IRequest<SearchResponse<PackageInfoPayload>>
+public sealed record SearchRepositoryQuery : IRequest<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>>
 {
     public List<RepositorySourcePayload> Sources { get; set; } = new();
     public SearchRequest Search { get; set; } = default!;

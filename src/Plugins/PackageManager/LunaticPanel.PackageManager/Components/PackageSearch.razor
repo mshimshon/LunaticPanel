@@ -24,7 +24,7 @@
     }
     else
     {
-        @foreach (var package in ViewModel.SearchPackageState.Search.Result)
+        @foreach (var package in ViewModel.SearchResult)
         {
             <MudItem xs=12>
                 <PackageSearchCard OnParentStateHasChanged=OnParentStateHasChanged Data=@package />

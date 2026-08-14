@@ -10,6 +10,6 @@ internal class SearchRemotePackageDoneReducer : IReducer<SearchPackageState, Sea
         => state with
         {
             IsLoading = false,
-            Search = action.Result
+            Search = action.Result.ToDictionary() // Clean Copy
         };
 }
