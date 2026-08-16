@@ -9,9 +9,9 @@ public static class SearchMappingExt
     public static ManifestQueryModel ToDomain(this ManifestSearchRequest data)
     => new ManifestQueryModel()
     {
-        Id = data.PackageId != default ? new(data.PackageId) : default,
-        PanelVersion = data.PanelVersion != default ? new(data.PanelVersion) : default,
-        Keywords = data.Keywords != default ? new(data.Keywords) : default,
+        Id = !string.IsNullOrWhiteSpace(data.PackageId) ? new(data.PackageId) : default,
+        PanelVersion = !string.IsNullOrWhiteSpace(data.PanelVersion) ? new(data.PanelVersion) : default,
+        Keywords = !string.IsNullOrWhiteSpace(data.Keywords) ? new(data.Keywords) : default,
         MaxResult = data.MaxResult,
         ShowEndOfLife = data.ShowEndOfLife,
         ShowHidden = data.ShowHidden,

@@ -8,5 +8,6 @@ plugins:
 
 
 post_processing:
-  - file: "./sources.dev.json"
+  - file: "../../sources.dev.json"
     file_to: /etc/lunaticpanel/plugins/lunaticpanel_packagemanager/config/packagemanager/sources.json
+  - command: "mkdir -p /var/lib/lunaticpanel/plugins/lunaticpanel_packagemanager/local_lpkgs"

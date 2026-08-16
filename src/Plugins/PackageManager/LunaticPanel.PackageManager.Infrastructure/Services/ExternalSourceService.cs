@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -348,19 +349,22 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
     {
         var relative = "lpkg/v1/package/search";
         var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
-        var httpResponse = await _client.PostAsJsonAsync($"{apiEndpoint}", data);
+        string payloadData = JsonSerializer.Serialize(data);
+        var payload = new StringContent(payloadData, Encoding.UTF8, "application/json");
+        _crazyReport.Report(payloadData);
+        var httpResponse = await _client.PostAsync($"{apiEndpoint}", payload);
         if (!httpResponse.IsSuccessStatusCode)
             httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
         var result = await httpResponse.Content.ReadFromJsonAsync<SearchResponse<PackageInfoPayload>>(ct);
         if (result == default)
-            throw new Exception(""); // TODO: THROW Deserialize Error
+            throw new Exception("NO RESULT DEFAULT"); // TODO: THROW Deserialize Error
         return result;
     }
 
     private async Task<SearchResponse<PackageInfoPayload>> SearchLocalSourceAsync(SearchRequest data, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
         if (!Directory.Exists(source.Source))
-            throw new Exception(""); // TODO: THROW Deserialize Error
+            throw new Exception($"{source.Source} FOLDER SOURCE DOESN'T EXIST."); // TODO: THROW Deserialize Error
         string[]? keywords = data.Keywords?.Split(' ') ?? [];
         string[] files = Directory.GetFiles(source.Source, "*.lpkg", SearchOption.AllDirectories);
         IEnumerable<PackagePayload> result = files.Select(GetPackageInformation);
@@ -415,7 +419,15 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
                 continue;
 
             SearchResponse<PackageInfoPayload>? searchResult = default;
-            searchResult = await SearchAsync(data, source.ToApplicationPayload(), ct);
+            // if source fails move on without crash the whole search.
+            try
+            {
+                searchResult = await SearchAsync(data, source.ToApplicationPayload(), ct);
+            }
+            catch (Exception ex)
+            {
+                _crazyReport.ReportErrorException(ex.Message, ex);
+            }
 
             if (searchResult == default) continue;
             result[source.ToApplicationPayload()] = searchResult;

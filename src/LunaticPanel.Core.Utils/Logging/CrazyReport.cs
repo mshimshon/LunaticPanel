@@ -154,13 +154,13 @@ internal class CrazyReport : ICrazyReport
     }
     private void HandleException(Exception ex, LogLevel logLevel, string line, Action<string> toReport)
     {
-        var lineprocess = string.Format("[{1}] {0}", line, ex.GetType());
+        var lineprocess = string.Format("[{1}] Message: {0}", line, ex.GetType());
         toReport(lineprocess);
         Log(ex, logLevel);
     }
     private void HandleException(Exception ex, LogLevel logLevel, string format, object[] arg, Action<string, object[]> toReport)
     {
-        var lineprocess = string.Format("[{1}] {0}", format, ex.GetType());
+        var lineprocess = string.Format("[{1}] Message: {0}", format, ex.GetType());
         toReport(lineprocess, arg);
         Log(ex, logLevel);
     }
