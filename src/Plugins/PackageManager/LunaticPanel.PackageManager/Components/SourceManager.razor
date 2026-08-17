@@ -1,0 +1,27 @@
+@using LunaticPanel.PackageManager.Components.ViewModels
+@inherits WidgetComponentBase<PluginEntry, ISourceManagerViewModel>
+<MudGrid>
+    @if (ViewModel.IsLoading)
+    {
+        <MudItem xs=12>
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+        </MudItem>
+    }
+    else
+    {
+        @foreach (var source in ViewModel.SourceState.Sources)
+        {
+            <MudItem xs=12>
+                <MudText>@source.Name</MudText>
+                <MudText>@source.Source</MudText>
+                @if (source.Failure != default)
+                {
+                    <MudAlert Severity=Severity.Error>
+                        @source.Failure
+                    </MudAlert>
+                }
+            </MudItem>
+        }
+    }
+
+</MudGrid>

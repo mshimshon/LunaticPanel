@@ -40,6 +40,12 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<SearchRemotePackageDoneReducer>();
         services.AddStatePulseService<SearchRemotePackageReducer>();
 
+        services.AddStatePulseService<LoadSourcesAction>();
+        services.AddStatePulseService<LoadSourcesDoneAction>();
+        services.AddStatePulseService<LoadSourcesEffect>();
+        services.AddStatePulseService<LoadSourcesReducer>();
+        services.AddStatePulseService<LoadSourcesDoneReducer>();
+
 
 
     }

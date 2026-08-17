@@ -3,12 +3,14 @@ using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Components.ViewModels;
 using LunaticPanel.PackageManager.Infrastructure;
 using LunaticPanel.PackageManager.Keys;
 using LunaticPanel.PackageManager.Pages;
 using LunaticPanel.PackageManager.Pages.ViewModels;
 using Microsoft.Extensions.Configuration;
+using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager;
 /*
@@ -36,16 +38,23 @@ public class PluginEntry : PluginBase, IPlugin
     protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)
     {
         services.AddTransient<IPackageInstalledCardViewModel, PackageInstalledCardViewModel>();
+        services.AddTransient<ISourceManagerViewModel, SourceManagerViewModel>();
         services.AddScoped<IPackageInstalledViewModel, PackageInstalledViewModel>();
         services.AddScoped<IHomeViewModel, HomeViewModel>();
         services.AddScoped<IPackageSearchViewModel, PackageSearchViewModel>();
         services.AddScoped<IPackageSearchCardViewModel, PackageSearchCardViewModel>();
+        services.AddScoped<ISourceViewModel, SourceViewModel>();
         services.AddInfrasctructureServices();
     }
     protected override void LoadConfiguration(IConfiguration configuration)
     {
 
     }
-
+    protected override async Task BeforeRuntimeStart(IPluginContextService pluginContext)
+    {
+        if (!pluginContext.IsMasterCircuit) return;
+        var dispatch = pluginContext.GetRequired<IDispatcher>();
+        await dispatch.Prepare<LoadSourcesAction>().Await().DispatchAsync();
+    }
 
 }
