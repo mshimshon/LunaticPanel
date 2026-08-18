@@ -92,8 +92,6 @@ public abstract class PluginBase : IPlugin
 
             }
         }
-
-
     }
 
     public IReadOnlyList<string> CheckDependencyGracefully(Func<string, bool> isBusAvailable)
@@ -101,6 +99,7 @@ public abstract class PluginBase : IPlugin
         CheckFeatureDegradation(isBusAvailable);
         return Keys;
     }
+
 
     public abstract void CheckFeatureDegradation(Func<string, bool> isBusAvailable);
 
@@ -124,10 +123,13 @@ public abstract class PluginBase : IPlugin
         var allServices = new PluginServiceCollection();
         RegisterCommonServices(allServices, circuit);
         RegisterPluginServices(allServices, circuit);
+
         bool requiresCrossCircuitProvider = _crossCircuitSingletonProvider == default;
         if (requiresCrossCircuitProvider)
         {
+
             ProcessSingletonRouting(allServices, _crossCircuitSingletonProviderCollection);
+            FilterStatePulse(allServices);
             PrintDebugServiceCollectionFor(_crossCircuitSingletonProviderCollection);
             _crossCircuitSingletonProvider = _crossCircuitSingletonProviderCollection.BuildServiceProvider().CreateScope().ServiceProvider;
         }
@@ -219,6 +221,24 @@ public abstract class PluginBase : IPlugin
         }
 
     }
+
+
+    private void FilterStatePulse(PluginServiceCollection services)
+    {
+        if (!services.HasStatePulseEnabled) return;
+        foreach (ServiceDescriptor item in services.Services)
+        {
+            Type t = item.ServiceType;
+            if (t.FullName == default) continue;
+            bool isStatePulseState = t.FullName.StartsWith("StatePulse.Net.IStateAccessor`1");
+            if (!isStatePulseState) continue;
+            if (item.Lifetime != ServiceLifetime.Singleton) continue;
+            Console.WriteLine($"{t.FullName} Singleton SP Detected.");
+            _crossCircuitSingletonProviderCollection.Add(item);
+        }
+
+    }
+
     private void DeleteBusRegistry(CircuitIdentity circuit)
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
@@ -413,7 +433,6 @@ public abstract class PluginBase : IPlugin
             Console.WriteLine($"{PluginId} adds to cross circuit service {d.ServiceType}");
             singletonCrossCircuit.Add(d);
         }
-
     }
 
     /// <summary>

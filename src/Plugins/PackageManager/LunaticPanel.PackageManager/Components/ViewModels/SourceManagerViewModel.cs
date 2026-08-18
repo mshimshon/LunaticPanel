@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using StatePulse.Net;
 
@@ -11,5 +12,9 @@ internal class SourceManagerViewModel : WidgetViewModelBase, ISourceManagerViewM
     public SourceManagerViewModel(IStatePulse statePulse)
     {
         _statePulse = statePulse;
+    }
+    public async Task LoadSources()
+    {
+        await _statePulse.Dispatcher.Prepare<LoadSourcesAction>().DispatchAsync();
     }
 }

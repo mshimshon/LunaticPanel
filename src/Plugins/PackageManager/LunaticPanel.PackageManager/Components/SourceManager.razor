@@ -9,6 +9,14 @@
     }
     else
     {
+            <MudItem xs=12>
+        <MudText>
+            @($"{ViewModel.SourceState.Sources.Count()} Sources.")
+            </MudText>
+            <MudButton OnClick=@ViewModel.LoadSources>
+                Load
+            </MudButton>
+        </MudItem>
         @foreach (var source in ViewModel.SourceState.Sources)
         {
             <MudItem xs=12>

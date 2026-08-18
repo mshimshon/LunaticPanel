@@ -4,6 +4,7 @@ namespace LunaticPanel.Core.Abstraction.DependencyInjection;
 
 public interface IPluginServiceCollection : IPluginCrossCircuitServiceCollection
 {
+    void EnableStatePulse();
     IServiceCollection Services { get; }
     IServiceCollection AddTransient(Type serviceType, Type implementationType);
     IServiceCollection AddTransient(Type serviceType, Func<IServiceProvider, object> implementationFactory);

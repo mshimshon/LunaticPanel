@@ -135,5 +135,7 @@ internal class PluginServiceCollection : IPluginServiceCollection, IPluginCrossC
     public IServiceCollection AddCrossCircuitSingleton<TService>(TService implementationInstance)
         where TService : class
         => CrossCircuitRedirected.AddSingleton(typeof(TService), implementationInstance);
+    internal bool HasStatePulseEnabled { get; private set; } = false;
+    public void EnableStatePulse() => HasStatePulseEnabled = true;
 }
 

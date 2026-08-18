@@ -6,4 +6,5 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 public interface ISourceManagerViewModel : IWidgetViewModel
 {
     RepositorySourceState SourceState { get; }
+    Task LoadSources();
 }

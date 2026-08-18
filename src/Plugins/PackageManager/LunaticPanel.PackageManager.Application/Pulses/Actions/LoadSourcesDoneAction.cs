@@ -5,5 +5,5 @@ namespace LunaticPanel.PackageManager.Application.Pulses.Actions;
 
 public sealed class LoadSourcesDoneAction : IAction
 {
-    public List<RepositorySourcePayload> Sources { get; set; } = default!;
+    public List<RepositorySourcePayload>? Sources { get; set; }
 }

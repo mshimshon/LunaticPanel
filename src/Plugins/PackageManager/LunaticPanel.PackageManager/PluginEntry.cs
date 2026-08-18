@@ -45,6 +45,8 @@ public class PluginEntry : PluginBase, IPlugin
         services.AddScoped<IPackageSearchCardViewModel, PackageSearchCardViewModel>();
         services.AddScoped<ISourceViewModel, SourceViewModel>();
         services.AddInfrasctructureServices();
+        services.EnableStatePulse();
+
     }
     protected override void LoadConfiguration(IConfiguration configuration)
     {
