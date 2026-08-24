@@ -219,7 +219,6 @@ public abstract class PluginBase : IPlugin
             Console.WriteLine($"{PluginId} redirects {d.ServiceType} to Cross Circuit Service");
             services.Collection.AddSingleton(d.ServiceType, sp => _crossCircuitSingletonProvider!.GetRequiredService(d.ServiceType));
         }
-
     }
 
 
@@ -236,7 +235,6 @@ public abstract class PluginBase : IPlugin
             Console.WriteLine($"{t.FullName} Singleton SP Detected.");
             _crossCircuitSingletonProviderCollection.Add(item);
         }
-
     }
 
     private void DeleteBusRegistry(CircuitIdentity circuit)

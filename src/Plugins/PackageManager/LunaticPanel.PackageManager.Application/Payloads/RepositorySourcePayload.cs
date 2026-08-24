@@ -4,10 +4,10 @@ namespace LunaticPanel.PackageManager.Application.Payloads;
 
 public sealed record RepositorySourcePayload
 {
-    public string Name { get; set; } = default!;
-    public string Source { get; set; } = default!;
-    public RepositorySourceTypePayload SourceType { get; set; }
+    public string Name { get; init; } = default!;
+    public string Source { get; init; } = default!;
+    public RepositorySourceTypePayload SourceType { get; init; }
 
-    public RepositorySourceStatePayload State { get; set; }
-    public string? Failure { get; set; }
+    public RepositorySourceStatePayload State { get; init; }
+    public string? Failure { get; init; }
 }

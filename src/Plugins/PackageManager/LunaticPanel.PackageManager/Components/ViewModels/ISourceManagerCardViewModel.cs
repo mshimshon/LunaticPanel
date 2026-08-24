@@ -1,0 +1,15 @@
+﻿using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Pulses.States;
+
+namespace LunaticPanel.PackageManager.Components.ViewModels;
+
+public interface ISourceManagerCardViewModel : IWidgetViewModel
+{
+    RepositorySourcePayload Item { get; set; }
+    RepositorySourceState SourceState { get; }
+    bool IsLast();
+    bool IsFirst();
+    Task MoveUp();
+    Task MoveDown();
+}

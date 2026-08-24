@@ -9,9 +9,9 @@
     }
     else
     {
-            <MudItem xs=12>
-        <MudText>
-            @($"{ViewModel.SourceState.Sources.Count()} Sources.")
+        <MudItem xs=12>
+            <MudText>
+                @($"{ViewModel.SourceState.Sources.Count()} Sources.")
             </MudText>
             <MudButton OnClick=@ViewModel.LoadSources>
                 Load
@@ -20,16 +20,8 @@
         @foreach (var source in ViewModel.SourceState.Sources)
         {
             <MudItem xs=12>
-                <MudText>@source.Name</MudText>
-                <MudText>@source.Source</MudText>
-                @if (source.Failure != default)
-                {
-                    <MudAlert Severity=Severity.Error>
-                        @source.Failure
-                    </MudAlert>
-                }
+                <SourceManagerCard OnParentStateHasChanged=OnParentStateHasChanged Item=source />
             </MudItem>
         }
     }
-
 </MudGrid>

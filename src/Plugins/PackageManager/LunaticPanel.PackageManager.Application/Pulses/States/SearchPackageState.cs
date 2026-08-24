@@ -9,5 +9,4 @@ public sealed record SearchPackageState : IStateFeature
     public bool IsLoading { get; init; }
     public IReadOnlyDictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>> Search { get; init; } = new Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>();
 
-
 }

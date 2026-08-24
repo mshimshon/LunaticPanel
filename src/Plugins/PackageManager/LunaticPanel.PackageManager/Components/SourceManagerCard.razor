@@ -1,0 +1,21 @@
+@using LunaticPanel.PackageManager.Components.ViewModels
+@inherits WidgetComponentBase<PluginEntry, ISourceManagerCardViewModel>
+<MudCard>
+    <MudCardContent>
+
+        <MudText Typo="Typo.subtitle1">@ViewModel.Item.Name</MudText>
+        <MudText Typo="Typo.subtitle2">@ViewModel.Item.Source</MudText>
+        @if (ViewModel.Item.Failure != default)
+        {
+            <MudAlert Severity=Severity.Error>
+                @ViewModel.Item.Failure
+            </MudAlert>
+        }
+    </MudCardContent>
+    <MudCardActions>
+        <MudButtonGroup>
+            <MudButton OnClick=@ViewModel.MoveUp Disabled=@(ViewModel.IsFirst() || ViewModel.IsLoading)>Up</MudButton>
+            <MudButton OnClick=@ViewModel.MoveDown Disabled=@(ViewModel.IsLast() || ViewModel.IsLoading)>Down</MudButton>
+        </MudButtonGroup>
+    </MudCardActions>
+</MudCard>
