@@ -12,4 +12,5 @@ public interface ISourceManagerCardViewModel : IWidgetViewModel
     bool IsFirst();
     Task MoveUp();
     Task MoveDown();
+    Task Delete();
 }

@@ -28,4 +28,11 @@ internal class SourceService : ISourceService
 
         return sources ?? Array.Empty<RepositorySourcePayload>().ToList();
     }
+
+    public async Task<ICollection<RepositorySourcePayload>> SaveSourcesAsync(List<RepositorySourcePayload> sourcePayloads, CancellationToken ct = default)
+    {
+        string sources = JsonSerializer.Serialize(sourcePayloads, _serializerOptions);
+        await File.WriteAllTextAsync(sourceFile, sources);
+        return await GetSourcesAsync(ct);
+    }
 }

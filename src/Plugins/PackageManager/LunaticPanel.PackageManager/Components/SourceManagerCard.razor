@@ -16,6 +16,7 @@
         <MudButtonGroup>
             <MudButton OnClick=@ViewModel.MoveUp Disabled=@(ViewModel.IsFirst() || ViewModel.IsLoading)>Up</MudButton>
             <MudButton OnClick=@ViewModel.MoveDown Disabled=@(ViewModel.IsLast() || ViewModel.IsLoading)>Down</MudButton>
+            <MudButton OnClick=@ViewModel.Delete Disabled=@(ViewModel.IsLoading)>Delete</MudButton>
         </MudButtonGroup>
     </MudCardActions>
 </MudCard>
