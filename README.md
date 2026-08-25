@@ -21,6 +21,9 @@ Messaging Event is the event driven layer to allow all plugins the ability to sh
 
 StatePulse built-in enable required support... each plugin has its own circuit isolation meaning that a singleton registered into regular container will be singleton only within that specific plugin /scope meaning blazor server singleton behavior is violated, a crosscircuit method is provided to curb that issue which register the service across all circuit... in the case of StatePulse when enabled, any ISingletonState will automatically become crosscircuit so all clients shares the same state at any point of time.
 
+# Debugging YML
+We have created a Dotnet Nuget CLI Tool to allow you ease of developping plugins and since you cannot run the panel directly in visual studio at least you go an easy cli command to start and auto install plugins and panel in a single action to test quickly with ability of skipping steps in YML we were heavily inspired by docker and CI/CD process and created a full supported YML process file call lpcli-compose.yml run the command at root folder and it will read that as starting point with the ability to cascadly import parts of other yaml in related folder.
+
 # Technical Shit
 Information:
 Project Application Layer /API/ = Bus Handlers/Request for Query/Events External Access
