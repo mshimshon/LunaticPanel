@@ -16,6 +16,12 @@
             <MudButton OnClick=@ViewModel.LoadSources>
                 Load
             </MudButton>
+            <MudButton OnClick=@ViewModel.TestSources>
+                Test All
+            </MudButton>
+            <MudButton OnClick=@ViewModel.AddSource>
+                Add
+            </MudButton>
         </MudItem>
         @foreach (var source in ViewModel.SourceState.Sources)
         {

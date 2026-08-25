@@ -7,4 +7,6 @@ public interface ISourceManagerViewModel : IWidgetViewModel
 {
     RepositorySourceState SourceState { get; }
     Task LoadSources();
+    Task TestSources();
+    Task AddSource();
 }

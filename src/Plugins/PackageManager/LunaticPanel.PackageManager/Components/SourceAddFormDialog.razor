@@ -1,8 +1,25 @@
 @using LunaticPanel.PackageManager.Components.ViewModels
 @inherits WidgetComponentBase<PluginEntry,ISourceAddFormViewModel>
+<MudGrid >
+    <MudItem xs="12">
+        <MudTextField @bind-Value="ViewModel.SourceName" Label="Display Name" Validation=@ViewModel.OnValidateSourceName Variant="Variant.Text">
 
-    <MudGrid>
-        <MudItem >
+        </MudTextField>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTextField @bind-Value="ViewModel.SourceLocation" Label="Target" 
+        Validation=@ViewModel.OnValidateSourceLocation Variant="Variant.Text">
+    </MudTextField>
+    </MudItem>
 
-        </MudItem>
-    </MudGrid>
+    <MudItem xs="12">
+        <MudButtonGroup>
+            <MudButton OnClick=@ViewModel.Create>
+                Create
+            </MudButton>
+            <MudButton OnClick=@ViewModel.MudDialog.Cancel>
+                Cancel
+            </MudButton>
+        </MudButtonGroup>
+    </MudItem>
+</MudGrid>

@@ -45,6 +45,7 @@ public class PluginEntry : PluginBase, IPlugin
         services.AddScoped<IPackageSearchCardViewModel, PackageSearchCardViewModel>();
         services.AddScoped<ISourceViewModel, SourceViewModel>();
         services.AddTransient<ISourceManagerCardViewModel, SourceManagerCardViewModel>();
+        services.AddTransient<ISourceAddFormViewModel, SourceAddFormViewModel>();
         services.AddInfrasctructureServices();
         services.EnableStatePulse();
 

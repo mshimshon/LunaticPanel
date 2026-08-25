@@ -2,7 +2,6 @@
 @inherits WidgetComponentBase<PluginEntry, ISourceManagerCardViewModel>
 <MudCard>
     <MudCardContent>
-
         <MudText Typo="Typo.subtitle1">@ViewModel.Item.Name</MudText>
         <MudText Typo="Typo.subtitle2">@ViewModel.Item.Source</MudText>
         @if (ViewModel.Item.Failure != default)
