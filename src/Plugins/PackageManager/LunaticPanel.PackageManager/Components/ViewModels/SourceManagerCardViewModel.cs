@@ -2,6 +2,7 @@
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
+using LunaticPanel.PackageManager.Infrastructure.Services;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;
@@ -11,7 +12,8 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
     public RepositorySourcePayload Item { get; set; } = default!;
     private readonly IStateAccessor<RepositorySourceState> _sourceStateAccess;
     private readonly IDispatcher _dispatcher;
-
+    private readonly IExternalSourceService _externalSourceService;
+    public string[] AvailableApiVersion { get; set; } = default!;
     public RepositorySourceState SourceState => _sourceStateAccess.State;
     public bool IsFirst()
     {
@@ -27,10 +29,11 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
         return last == Item;
     }
 
-    public SourceManagerCardViewModel(IStateAccessor<RepositorySourceState> sourceStateAccess, IDispatcher dispatcher)
+    public SourceManagerCardViewModel(IStateAccessor<RepositorySourceState> sourceStateAccess, IDispatcher dispatcher, IExternalSourceService externalSourceService)
     {
         _sourceStateAccess = sourceStateAccess;
         _dispatcher = dispatcher;
+        _externalSourceService = externalSourceService;
     }
 
     public async Task MoveUp()
@@ -71,6 +74,47 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
         var newList = SourceState.Sources.Where(p => p != Item).ToList();
         await _dispatcher.Prepare<SaveSourcesAction>()
             .With(p => p.Sources, newList)
+            .DispatchAsync();
+        IsLoading = false;
+    }
+    protected override async Task OnViewModelAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (Item.SourceType == Application.Payloads.Enums.RepositorySourceTypePayload.Remote)
+                AvailableApiVersion = await _externalSourceService.GetAPIVersionsAsync(Item);
+        }
+    }
+    public async Task Test()
+    {
+        if (Item.SourceType == Application.Payloads.Enums.RepositorySourceTypePayload.Remote)
+            await TestRemote();
+        else
+            await TestLocal();
+    }
+
+    private async Task TestRemote()
+    {
+        IsLoading = true;
+        var source = SourceState.Sources.ToList();
+        int index = source.IndexOf(Item);
+        AvailableApiVersion = await _externalSourceService.GetAPIVersionsAsync(Item);
+        await _dispatcher.Prepare<SaveSourcesAction>()
+            .With(p => p.Sources, source)
+            .DispatchAsync();
+        IsLoading = false;
+    }
+    private async Task TestLocal()
+    {
+        IsLoading = true;
+        var source = SourceState.Sources.ToList();
+        int index = source.IndexOf(Item);
+        if (!Directory.Exists(Item.Source))
+            source[index] = source[index] with { Failure = "Location not found on system." };
+        if (Directory.GetFiles(Item.Source, "*.lpkg", SearchOption.AllDirectories).Length <= 0)
+            source[index] = source[index] with { Failure = "Location doesn't contain any lpkgs" };
+        await _dispatcher.Prepare<SaveSourcesAction>()
+            .With(p => p.Sources, source)
             .DispatchAsync();
         IsLoading = false;
     }

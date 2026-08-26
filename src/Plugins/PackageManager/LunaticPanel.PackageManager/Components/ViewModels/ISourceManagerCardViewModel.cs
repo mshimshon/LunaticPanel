@@ -8,9 +8,11 @@ public interface ISourceManagerCardViewModel : IWidgetViewModel
 {
     RepositorySourcePayload Item { get; set; }
     RepositorySourceState SourceState { get; }
+    string[] AvailableApiVersion { get; }
     bool IsLast();
     bool IsFirst();
     Task MoveUp();
     Task MoveDown();
     Task Delete();
+    Task Test();
 }

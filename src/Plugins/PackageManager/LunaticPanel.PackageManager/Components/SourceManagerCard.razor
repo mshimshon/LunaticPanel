@@ -1,21 +1,33 @@
 @using LunaticPanel.PackageManager.Components.ViewModels
+@using MudBlazor
 @inherits WidgetComponentBase<PluginEntry, ISourceManagerCardViewModel>
-<MudCard>
-    <MudCardContent>
-        <MudText Typo="Typo.subtitle1">@ViewModel.Item.Name</MudText>
-        <MudText Typo="Typo.subtitle2">@ViewModel.Item.Source</MudText>
-        @if (ViewModel.Item.Failure != default)
-        {
-            <MudAlert Severity=Severity.Error>
-                @ViewModel.Item.Failure
-            </MudAlert>
-        }
-    </MudCardContent>
-    <MudCardActions>
-        <MudButtonGroup>
-            <MudButton OnClick=@ViewModel.MoveUp Disabled=@(ViewModel.IsFirst() || ViewModel.IsLoading)>Up</MudButton>
-            <MudButton OnClick=@ViewModel.MoveDown Disabled=@(ViewModel.IsLast() || ViewModel.IsLoading)>Down</MudButton>
-            <MudButton OnClick=@ViewModel.Delete Disabled=@(ViewModel.IsLoading)>Delete</MudButton>
-        </MudButtonGroup>
-    </MudCardActions>
-</MudCard>
+@if (!ViewModel.IsLoading)
+{
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.subtitle1">@ViewModel.Item.Name</MudText>
+            <MudText Typo="Typo.subtitle2">@ViewModel.Item.Source</MudText>
+            @if (ViewModel.Item.Failure != default)
+            {
+                <MudAlert Severity=Severity.Error>
+                    @ViewModel.Item.Failure
+                </MudAlert>
+            }
+            @if (!ViewModel.IsLoading && ViewModel.AvailableApiVersion != default)
+            {
+                @foreach (var item in ViewModel.AvailableApiVersion)
+                {
+                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary">@item</MudChip>
+                }
+            }
+        </MudCardContent>
+        <MudCardActions>
+            <MudButtonGroup>
+                <MudButton OnClick=@ViewModel.MoveUp Disabled=@(ViewModel.IsFirst() || ViewModel.IsLoading)>Up</MudButton>
+                <MudButton OnClick=@ViewModel.MoveDown Disabled=@(ViewModel.IsLast() || ViewModel.IsLoading)>Down</MudButton>
+                <MudButton OnClick=@ViewModel.Delete Disabled=@(ViewModel.IsLoading)>Delete</MudButton>
+                <MudButton OnClick=@ViewModel.Test Disabled=@(ViewModel.IsLoading)>Test</MudButton>
+            </MudButtonGroup>
+        </MudCardActions>
+    </MudCard>
+}

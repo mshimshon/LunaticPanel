@@ -434,4 +434,19 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         }
         return result;
     }
+
+    public async Task<string[]> GetAPIVersionsAsync(RepositorySourcePayload source, CancellationToken ct = default)
+    {
+
+        var relative = "lpkg/versions";
+        var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
+        var httpResponse = await _client.GetAsync($"{apiEndpoint}");
+        if (!httpResponse.IsSuccessStatusCode)
+            httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
+        var versions = await httpResponse.Content.ReadFromJsonAsync<string[]>(ct);
+        if (versions == default)
+            throw new Exception(""); // TODO: THROW Deserialize Error
+
+        return versions;
+    }
 }
