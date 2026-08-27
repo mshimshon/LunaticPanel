@@ -118,4 +118,29 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
             .DispatchAsync();
         IsLoading = false;
     }
+
+    public async Task Enable()
+    {
+        if (Item.State == Application.Payloads.Enums.RepositorySourceStatePayload.Enabled) return;
+        IsLoading = true;
+        var arr = SourceState.Sources.ToList();
+        int index = arr.IndexOf(Item);
+        arr[index] = Item with { State = Application.Payloads.Enums.RepositorySourceStatePayload.Enabled };
+        await _dispatcher.Prepare<SaveSourcesAction>()
+            .With(p => p.Sources, arr)
+            .DispatchAsync();
+        IsLoading = false;
+    }
+    public async Task Disable()
+    {
+        if (Item.State == Application.Payloads.Enums.RepositorySourceStatePayload.Disabled) return;
+        IsLoading = true;
+        var arr = SourceState.Sources.ToList();
+        int index = arr.IndexOf(Item);
+        arr[index] = Item with { State = Application.Payloads.Enums.RepositorySourceStatePayload.Disabled };
+        await _dispatcher.Prepare<SaveSourcesAction>()
+            .With(p => p.Sources, arr)
+            .DispatchAsync();
+        IsLoading = false;
+    }
 }

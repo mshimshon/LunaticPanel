@@ -338,7 +338,7 @@ internal static class ConfigurationExt
         bool isSnap = !string.IsNullOrWhiteSpace(p.Snap);
         if (isSnap) return;
 
-        bool isDotnet = !string.IsNullOrWhiteSpace(p.DotnetProject) || !string.IsNullOrWhiteSpace(p.BuildTo) || !string.IsNullOrWhiteSpace(p.PublishTo);
+        bool isDotnet = !string.IsNullOrWhiteSpace(p.DotnetProject) || !string.IsNullOrWhiteSpace(p.BuildTo) || !string.IsNullOrWhiteSpace(p.PublishTo) || !string.IsNullOrWhiteSpace(p.PluginPackTo);
         bool isCopyFolder = !string.IsNullOrWhiteSpace(p.Folder) || !string.IsNullOrWhiteSpace(p.FolderTo);
         bool isCommand = !string.IsNullOrWhiteSpace(p.Command);
         if (isCommand) return;
@@ -350,8 +350,8 @@ internal static class ConfigurationExt
             throw new Exception($"Dotnet project not spefcified {p}.");
         if (isDotnet && !File.Exists(p.DotnetProject))
             throw new Exception($"{p.DotnetProject} does not exist.");
-        if (!string.IsNullOrWhiteSpace(p.DotnetProject) && string.IsNullOrWhiteSpace(p.BuildTo) && string.IsNullOrWhiteSpace(p.PublishTo))
-            throw new Exception($"{p.DotnetProject} does not have a WSL build or publish or archive target. {p}");
+        if (!string.IsNullOrWhiteSpace(p.DotnetProject) && string.IsNullOrWhiteSpace(p.BuildTo) && string.IsNullOrWhiteSpace(p.PublishTo) && string.IsNullOrWhiteSpace(p.PluginPackTo))
+            throw new Exception($"{p.DotnetProject} does not have a WSL build or publish or PluginPackTo target. {p}");
 
         if (isCopyFolder && string.IsNullOrWhiteSpace(p.FolderTo))
             throw new Exception($"{p.Folder} Copy Content Where???.");

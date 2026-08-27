@@ -201,6 +201,29 @@ internal sealed class DeploymentService
                 targetTo = pp.BuildTo;
                 Configuration.PrintDebug($"[PostProcessing]::'{finalizeFrom}' -> '{targetTo}'.");
             }
+            else if (!string.IsNullOrWhiteSpace(pp.DotnetProject) && !string.IsNullOrWhiteSpace(pp.PluginPackTo))
+            {
+                Configuration.PrintDebug($"[PostProcessing]::Detected Dotnet Project to Pack as LPKG.");
+                await BuildProjectAsync(pp.DotnetProject!);
+                string filename = Path.GetFileNameWithoutExtension(pp.DotnetProject);
+                var cliPublishTmp = Path.Combine(_tempLocation, "build");
+                var buildLocation = Path.Combine(cliPublishTmp, filename);
+                var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
+                var item = await PackProjectAsync(pp.DotnetProject, ct);
+                var lpkgFileLocation = Path.Combine(cliLpkgTmp, $"{item.Id}.{item.Version}.lpkg");
+                finalizeFrom = lpkgFileLocation;
+                if (pp.PluginPackTo.EndsWith(".lpkg"))
+                    targetTo = pp.PluginPackTo;
+                if (pp.PluginPackTo.EndsWith('/'))
+                    targetTo = pp.PluginPackTo + $"{item.Id}.{item.Version}.lpkg";
+                else
+                    targetTo = pp.PluginPackTo + $"/{item.Id}.{item.Version}.lpkg";
+
+                await CopyFileAsync(_deployEnvironmentName, finalizeFrom, targetTo);
+
+                Configuration.PrintDebug($"[PostProcessing]::'{finalizeFrom}' -> '{targetTo}'.");
+                return;
+            }
             else if (!string.IsNullOrWhiteSpace(pp.File) && !string.IsNullOrWhiteSpace(pp.FileTo))
             {
                 Configuration.PrintDebug($"[PostProcessing]::Detected File to copy.");
@@ -293,6 +316,7 @@ internal sealed class DeploymentService
             {
                 await BuildProjectAsync(plugin.DotnetProject);
                 var manifestTmp = await PackProjectAsync(plugin, ct);
+                await UnpackPackageToLinuxLocation(manifestTmp, ct);
                 await InstallPluginInSubSystem(plugin, manifestTmp, ct);
 
 
@@ -352,9 +376,11 @@ internal sealed class DeploymentService
 
 
     }
-    private async Task<PackToolPluginManifestExternalPayload> PackProjectAsync(PluginComposePayload pluginComposePayload, CancellationToken ct = default)
+    private async Task<PackToolPluginManifestExternalPayload> PackProjectAsync(PluginComposePayload payload, CancellationToken ct = default)
+        => await PackProjectAsync(payload.DotnetProject!, ct);
+    private async Task<PackToolPluginManifestExternalPayload> PackProjectAsync(string dotnetProject, CancellationToken ct = default)
     {
-        string filename = Path.GetFileNameWithoutExtension(pluginComposePayload.DotnetProject!);
+        string filename = Path.GetFileNameWithoutExtension(dotnetProject!);
         var tmp = Path.GetTempPath();
         var cliPublishTmp = Path.Combine(_tempLocation, "build");
         var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
@@ -374,7 +400,7 @@ internal sealed class DeploymentService
         Console.Out.WriteLine("Extracting Payload");
         int startIndex = Array.LastIndexOf(lines, "<<<PAYLOAD_BEGIN>>>"), stopIndex = Array.LastIndexOf(lines, "<<<PAYLOAD_END>>>");
         if (startIndex < 0 || stopIndex < 0)
-            throw new Exception($"Failed to get manifest for {pluginComposePayload.DotnetProject}");
+            throw new Exception($"Failed to get manifest for {dotnetProject}");
         for (int i = startIndex + 1; i < stopIndex; i++)
         {
             jsonData.AppendLine(lines[i]);
@@ -383,31 +409,36 @@ internal sealed class DeploymentService
         finalData = string.IsNullOrWhiteSpace(tmpJsonResult) ? default : tmpJsonResult;
 
         Console.Out.WriteLine($"Payload Found ? {payloadFound} ({finalData != default})");
-
+        if (finalData == default)
+            throw new Exception($"Failed to get manifest for {dotnetProject}");
+        PackToolResultExternalPayload? resultReponse = JsonSerializer.Deserialize<PackToolResultExternalPayload>(finalData);
+        if (resultReponse == default || resultReponse.Data == default)
+            throw new Exception($"Failed to get manifest for {dotnetProject}");
+        return resultReponse.Data;
+    }
+    private async Task UnpackPackageToLinuxLocation(PackToolPluginManifestExternalPayload item, CancellationToken ct = default)
+    {
         try
         {
-            if (finalData == default)
-                throw new Exception($"Failed to get manifest for {pluginComposePayload.DotnetProject}");
-            PackToolResultExternalPayload? resultReponse = JsonSerializer.Deserialize<PackToolResultExternalPayload>(finalData);
-            if (resultReponse == default || resultReponse.Data == default)
-                throw new Exception($"Failed to read manifest for {finalData}");
-            Console.Out.WriteLine($"Plugin {resultReponse.Data.Id} is packed and ready to deploy.");
-            string linuxName = resultReponse.Data.Id.ToLower().Replace('.', '_');
+            var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
+            var cliLpkgUnpackTmp = Path.Combine(_tempLocation, "lpkgs_unpack");
+            string currentFolder = AppDomain.CurrentDomain.BaseDirectory;
+            var cliPackingTool = Path.Combine(currentFolder, "LunaticPanel.Package.Tool.exe");
+
+            Console.Out.WriteLine($"Plugin {item.Id} is packed and ready to deploy.");
+            string linuxName = item.Id.ToLower().Replace('.', '_');
             string unpackTo = Path.Combine(cliLpkgUnpackTmp, linuxName);
             if (Directory.Exists(unpackTo))
                 Directory.Delete(unpackTo, true);
             Directory.CreateDirectory(unpackTo);
-            var cmdUnpack = $"unpack --root --input \"{Path.Combine(cliLpkgTmp, $"{resultReponse.Data.Id}.{resultReponse.Data.Version}.lpkg")}\" --output \"{unpackTo}\"";
+            var cmdUnpack = $"unpack --root --input \"{Path.Combine(cliLpkgTmp, $"{item.Id}.{item.Version}.lpkg")}\" --output \"{unpackTo}\"";
             await ProcessExt.RunProcessAsync(cliPackingTool, cmdUnpack);
-            return resultReponse.Data;
         }
         catch
         {
-            Console.Error.WriteLine(finalData);
+            Console.Error.WriteLine(item);
             throw;
         }
-
-
     }
     private async Task BuildAndPublishBootstrap(List<JsonObject> defs, CancellationToken ct = default)
     {

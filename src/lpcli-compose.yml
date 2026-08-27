@@ -46,6 +46,7 @@ post_processing:
 #    - import_from: "../../Panel/src/lpcli-compose.yml"  will import all the post_processing from Panel Source firs  
      - dotnet_project: "./LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj"
        publish_to: "/opt/lpcli_tool"
+
 #     publish_to: "/etc/lunaticpanel/mockData/myPublish"
 #     archive: "tar.gz" Make tar.gz or .zip
   

@@ -15,9 +15,10 @@
             }
             @if (!ViewModel.IsLoading && ViewModel.AvailableApiVersion != default)
             {
+                <MudText Typo="Typo.subtitle2">@("API Versions")</MudText>
                 @foreach (var item in ViewModel.AvailableApiVersion)
                 {
-                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary">@item</MudChip>
+                    <MudChip T="string" @key="item.GetHashCode()" Variant="Variant.Outlined" Color="Color.Primary">@item</MudChip>
                 }
             }
         </MudCardContent>
@@ -27,6 +28,14 @@
                 <MudButton OnClick=@ViewModel.MoveDown Disabled=@(ViewModel.IsLast() || ViewModel.IsLoading)>Down</MudButton>
                 <MudButton OnClick=@ViewModel.Delete Disabled=@(ViewModel.IsLoading)>Delete</MudButton>
                 <MudButton OnClick=@ViewModel.Test Disabled=@(ViewModel.IsLoading)>Test</MudButton>
+                @if (ViewModel.Item.State == Application.Payloads.Enums.RepositorySourceStatePayload.Disabled)
+                {
+                    <MudButton OnClick=@ViewModel.Enable Disabled=@(ViewModel.IsLoading)>Enable</MudButton>
+                }
+                else if (ViewModel.Item.State == Application.Payloads.Enums.RepositorySourceStatePayload.Enabled)
+                {
+                    <MudButton OnClick=@ViewModel.Disable Disabled=@(ViewModel.IsLoading)>Disable</MudButton>
+                }
             </MudButtonGroup>
         </MudCardActions>
     </MudCard>

@@ -16,9 +16,7 @@
             <MudButton OnClick=@ViewModel.LoadSources>
                 Load
             </MudButton>
-            <MudButton OnClick=@ViewModel.TestSources>
-                Test All
-            </MudButton>
+
             <MudButton OnClick=@ViewModel.AddSource>
                 Add
             </MudButton>
@@ -26,7 +24,7 @@
         @foreach (var source in ViewModel.SourceState.Sources)
         {
             <MudItem xs=12>
-                <SourceManagerCard OnParentStateHasChanged=OnParentStateHasChanged Item=source />
+                <SourceManagerCard @key="source.GetHashCode()" OnParentStateHasChanged=OnParentStateHasChanged Item=source />
             </MudItem>
         }
     }

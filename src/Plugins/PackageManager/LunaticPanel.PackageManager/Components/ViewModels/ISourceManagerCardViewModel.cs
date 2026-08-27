@@ -15,4 +15,6 @@ public interface ISourceManagerCardViewModel : IWidgetViewModel
     Task MoveDown();
     Task Delete();
     Task Test();
+    Task Enable();
+    Task Disable();
 }

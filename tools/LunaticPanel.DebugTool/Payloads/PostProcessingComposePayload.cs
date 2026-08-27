@@ -7,6 +7,7 @@ public sealed record PostProcessingComposePayload
     public string? DotnetProject { get; set; }
     public string? BuildTo { get; set; }
     public string? PublishTo { get; set; }
+    public string? PluginPackTo { get; set; }
 
     public string? Folder { get; set; }
     public string? FolderTo { get; set; }

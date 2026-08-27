@@ -11,3 +11,5 @@ post_processing:
   - file: "../../sources.dev.json"
     file_to: /etc/lunaticpanel/plugins/lunaticpanel_packagemanager/config/packagemanager/sources.json
   - command: "mkdir -p /var/lib/lunaticpanel/plugins/lunaticpanel_packagemanager/local_lpkgs"
+  - dotnet_project: "./LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+    plugin_pack_to: "/var/lib/lunaticpanel/plugins/lunaticpanel_packagemanager/local_lpkgs"
