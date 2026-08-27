@@ -13,6 +13,10 @@
     <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager.Tests/LunaticPanel.PackageManager.Tests.csproj" Id="cf692e7a-3b50-45a2-82f7-6d26ce077a0a" />
     <Project Path="Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj" Id="485dc0e2-1e72-40ad-acd2-30cb1440f4b0" />
   </Folder>
+  <Folder Name="/Plugins/Test/">
+    <File Path="Plugins/_Test/lpcli-compose.yml" />
+    <Project Path="Plugins/_Test/LunaticPanel.Plugin.Test/LunaticPanel.Plugin.Test.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../README.md" />
     <File Path=".version" />
@@ -41,6 +45,5 @@
   <Project Path="LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj" Id="77efe45b-bcc3-470e-8120-d2edd02f93cb" />
   <Project Path="LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj" Id="8747fc7c-1a46-4c59-a72a-aa568f6855e7" />
   <Project Path="LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj" Id="5f35e089-266b-4c66-bad5-030e0ac27c97" />
-  <Project Path="LunaticPanel.Plugin.Test/LunaticPanel.Plugin.Test.csproj" Id="a427bd3f-1ce3-45f3-b7ad-3071354631f4" />
   <Project Path="LuncaticPanel.Package.Server/LuncaticPanel.Package.Server.csproj" Id="7f6d8ca4-1ab3-429f-899f-1a954fc90dd8" />
 </Solution>

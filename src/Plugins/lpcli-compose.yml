@@ -7,3 +7,4 @@ plugins:
 post_processing:
   - import_from: "../lpcli-compose.yml"  
   - import_from: "./PackageManager/lpcli-compose.yml"
+  - import_from: "./_Test/lpcli-compose.yml"  

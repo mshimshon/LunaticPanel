@@ -8,6 +8,7 @@
         AdornmentIcon=@Icons.Material.Filled.Search  
         AdornmentColor="Color.Secondary" />
     </MudForm>
+    <MudText>@($"{ViewModel.SearchResult.Count()} Results")</MudText>
     @if (ViewModel.SearchPackageState.IsLoading)
     {
         <MudItem xs=12>

@@ -37,10 +37,13 @@ internal class PackageSearchViewModel : WidgetViewModelBase, IPackageSearchViewM
         if (SearchPackageState.IsLoading) return;
         var finalResult = new List<PackageInfoPayload>();
         foreach (var sourceResult in SearchPackageState.Search)
+        {
+            Console.WriteLine(sourceResult.Value.Result.Count());
             if (sourceResult.Value.Total > 0 && sourceResult.Value.Position <= sourceResult.Value.Total)
                 foreach (var sourceSearch in sourceResult.Value.Result)
                     if (!finalResult.Any(p => p.PackageId == sourceSearch.PackageId))
                         finalResult.Add(sourceSearch);
+        }
         SearchResult = finalResult;
     }
     public async Task OnSearchAsync()

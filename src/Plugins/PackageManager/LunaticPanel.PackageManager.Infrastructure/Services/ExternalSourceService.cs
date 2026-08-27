@@ -367,6 +367,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
             throw new Exception($"{source.Source} FOLDER SOURCE DOESN'T EXIST."); // TODO: THROW Deserialize Error
         string[]? keywords = data.Keywords?.Split(' ') ?? [];
         string[] files = Directory.GetFiles(source.Source, "*.lpkg", SearchOption.AllDirectories);
+        Console.WriteLine($"{source.Source} ({files.Count()})");
         IEnumerable<PackagePayload> result = files.Select(GetPackageInformation);
         if (keywords?.Length > 0)
             result = result.Where(p =>
