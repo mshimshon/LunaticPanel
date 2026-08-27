@@ -100,8 +100,19 @@ internal static class ConfigurationExt
                 Apt = LoadAptCompose(),
             }
         };
+        foreach (var item in result.Compose.Services)
+        {
+            PrintDebug($"{item.ToString()}");
+        }
 
-
+        foreach (var item in result.Compose.Plugins)
+        {
+            PrintDebug($"{item.ToString()}");
+        }
+        foreach (var item in result.Compose.PostProcessing)
+        {
+            PrintDebug($"{item.ToString()}");
+        }
         return result;
     }
     private static List<PostProcessingComposePayload> LoadPostProcessingCompose(string composeLocation, string? chainFrom = default)

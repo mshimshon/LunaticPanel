@@ -7,6 +7,12 @@
 	<EnableRazorComponents>true</EnableRazorComponents>
 	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+	  <Title>$(AssemblyName)</Title>
+	  <Version>$(GlobalVersion)</Version>
+	  <Company>$(GlobalCompany)</Company>
+	  <Copyright>$(GlobalCopyright)</Copyright>
+	  <Authors>$(GlobalAuthors)</Authors>
+	  <Description>Official Test Plugin of Lunatic Panel</Description>
   </PropertyGroup>
 
 

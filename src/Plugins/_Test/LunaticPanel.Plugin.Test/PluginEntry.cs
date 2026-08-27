@@ -1,13 +1,14 @@
 ﻿using LunaticPanel.Core;
 using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys;
 using Newtonsoft.Json.Linq;
 
 namespace LunaticPanel.Plugin.Test;
 
-public partial class PluginEntry : PluginBase
+public partial class PluginEntry : PluginBase, IPlugin
 {
     public override void CheckFeatureDegradation(Func<string, bool> isBusAvailable)
     {

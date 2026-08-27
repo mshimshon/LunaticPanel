@@ -42,7 +42,7 @@ public class PluginEntry : PluginBase, IPlugin
         services.AddScoped<IPackageInstalledViewModel, PackageInstalledViewModel>();
         services.AddScoped<IHomeViewModel, HomeViewModel>();
         services.AddScoped<IPackageSearchViewModel, PackageSearchViewModel>();
-        services.AddScoped<IPackageSearchCardViewModel, PackageSearchCardViewModel>();
+        services.AddTransient<IPackageSearchCardViewModel, PackageSearchCardViewModel>();
         services.AddScoped<ISourceViewModel, SourceViewModel>();
         services.AddTransient<ISourceManagerCardViewModel, SourceManagerCardViewModel>();
         services.AddTransient<ISourceAddFormViewModel, SourceAddFormViewModel>();

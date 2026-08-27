@@ -222,7 +222,7 @@ internal sealed class DeploymentService
                 await CopyFileAsync(_deployEnvironmentName, finalizeFrom, targetTo);
 
                 Configuration.PrintDebug($"[PostProcessing]::'{finalizeFrom}' -> '{targetTo}'.");
-                return;
+                continue;
             }
             else if (!string.IsNullOrWhiteSpace(pp.File) && !string.IsNullOrWhiteSpace(pp.FileTo))
             {
