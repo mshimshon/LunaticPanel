@@ -19,12 +19,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
+app.UseRouting();            // REQUIRED
 app.UseAntiforgery();
 
+app.UseStatusCodePagesWithRedirects("/errors/{0}");
 app.MapRazorComponents<App>()
 .AddInteractiveServerRenderMode()
 .AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 
 
 

@@ -1,0 +1,32 @@
+﻿@page "/errors/{Code:int?}"
+
+@layout MainLayout
+
+<h3>Not Found (@Code)</h3>
+
+
+@if (Code == 404)
+    {
+        <p>The page you are looking for does not exist.</p>
+    }
+else if (Code == 500)
+    {
+        <p>An internal server error occurred.</p>
+    }
+else if (Code == 403)
+    {
+        <p>You do not have permission to access this resource.</p>
+    }
+else if (Code == null)
+    {
+        <p>An unknown error occurred.</p>
+    }
+    else
+    {
+    <p>Unexpected error (@Code).</p>
+    }
+
+@code {
+    [Parameter]
+    public int? Code { get; set; }
+}
