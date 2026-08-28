@@ -51,7 +51,7 @@ internal static class BootstrapPlugins
             string linuxPluginName = manifest.Id.ToLower().Replace('.', '_');
             string runtimeLocation = Path.Combine(Environment.CurrentDirectory, "plugins", linuxPluginName);
             if (Directory.Exists(runtimeLocation)) continue;
-            File.Copy(item, applyLocation);
+            File.Copy(item, Path.Combine(applyLocation, Path.GetFileName(item)));
         }
         DetectUpdates();
     }

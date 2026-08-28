@@ -39,7 +39,7 @@ public static class Bootstrap
         DetectRollbacks();
         DetectInstalled();
         DetectUpdates();
-
+        ProcessPreinstalledPlugins();
         // Order Matter for Flow
         DetectRuntimePlugins(); // Check What's in the runtime folder.
         ApplyUpdates(); // Add/Update plugins
@@ -210,7 +210,10 @@ public static class Bootstrap
 
         PluginDirectory = Path.Combine(LibraryLocation, ConfigNameKey, "plugins");
         ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey, "config");
-        EnsurePathCreated(PluginDirectory, ConfigDirectory);
+        string applyLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "apply");
+        string rollbacksLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "rollbacks");
+        string installedLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "installed");
+        EnsurePathCreated(PluginDirectory, ConfigDirectory, applyLocation, rollbacksLocation, installedLocation);
 
     }
 
