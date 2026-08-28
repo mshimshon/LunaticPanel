@@ -15,6 +15,7 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<SearchPackageState>();
         services.AddStatePulseService<RepositorySourceState>();
         services.AddStatePulseService<PackageManagerState>();
+        services.AddStatePulseService<PackageInstallState>();
         services.AddStatePulseService<PackageUpdateScheduleState>();
         services.AddStatePulseService<LoadPackageRollbackAction>();
         services.AddStatePulseService<LoadPackageRollbackDoneAction>();

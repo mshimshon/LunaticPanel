@@ -10,15 +10,19 @@
         <MudText Typo="Typo.subtitle2">@ViewModel.Data.Description</MudText>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Text" Color="Color.Primary" Disabled=@ViewModel.IsInstalled>
-            @if (ViewModel.IsInstalled)
-            {
+        @if (ViewModel.IsInstalled)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Disabled=@ViewModel.IsLoading>
                 @("Installed!")
-            }
-            else
-            {
+            </MudButton>
+        }
+        else
+        {
+            <MudButton OnClick=@ViewModel.InstallAsync Variant="Variant.Text" Color="Color.Primary" Disabled=@ViewModel.IsLoading>
                 @("Install Now")
-            }
-        </MudButton>
+            </MudButton>
+            
+        }
+
     </MudCardActions>
 </MudCard>

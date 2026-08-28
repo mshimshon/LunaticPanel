@@ -62,7 +62,7 @@ internal static class PluginUtilitiesExt
 
         var title = meta[ManifestMeta.Title];
         Console.Out.WriteLine($"title:{title}".Magenta());
-        var version = meta[ManifestMeta.Version]!.Split('+')[0];
+        var version = meta[ManifestMeta.Version]!.Split('-', '+')[0];
         Console.Out.WriteLine($"version:{version}".Magenta());
         if (version == default)
             throw new PluginVersionNotFoundException(pluginId);

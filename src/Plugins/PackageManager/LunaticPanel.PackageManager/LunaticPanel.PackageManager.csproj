@@ -39,6 +39,7 @@
 	<ItemGroup>
 	  <Folder Include="Hooks\Payloads\" />
 	  <Folder Include="Hooks\Queries\" />
+	  <Folder Include="Services\" />
 	</ItemGroup>
 
 </Project>

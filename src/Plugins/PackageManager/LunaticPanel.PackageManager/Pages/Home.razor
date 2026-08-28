@@ -4,10 +4,39 @@
 @inherits WidgetComponentBase<PluginEntry, IHomeViewModel>
 
 <MudGrid>
-    <MudItem xs=12 md=6>
-        <PackageInstalled OnParentStateHasChanged=OnParentStateHasChanged />
-    </MudItem>
-    <MudItem xs=12 md=6>
-        <PackageSearch OnParentStateHasChanged=OnParentStateHasChanged />
+    @if (ViewModel.IsLoading)
+    {
+        <MudItem xs=12>
+            <MudStack>
+                <MudText Align="Align.Center">@("Waiting")</MudText>
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+            </MudStack>
         </MudItem>
+    }
+    else if (ViewModel.InstallState.Installing != default)
+    {
+        <MudItem xs=12>
+            <MudStack>
+                <MudText Align="Align.Center">
+                    @($"Installing {ViewModel.InstallState.Installing.Info.Name}")</MudText>
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+            </MudStack>
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs=12 md=6>
+            @if (ViewModel.InstallState.RestartRequired)
+            {
+                <MudAlert Severity="Severity.Warning">
+                    Restart of the panel is required.
+                </MudAlert>
+            }
+            <PackageInstalled OnParentStateHasChanged=OnParentStateHasChanged />
+        </MudItem>
+        <MudItem xs=12 md=6>
+            <PackageSearch OnParentStateHasChanged=OnParentStateHasChanged />
+        </MudItem>
+    }
+
 </MudGrid>

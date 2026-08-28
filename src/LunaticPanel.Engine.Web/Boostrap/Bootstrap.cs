@@ -35,6 +35,15 @@ public static class Bootstrap
 
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
+
+        DetectRollbacks();
+        DetectInstalled();
+        DetectUpdates();
+
+        // Order Matter for Flow
+        DetectRuntimePlugins(); // Check What's in the runtime folder.
+        ApplyUpdates(); // Add/Update plugins
+        DetectRuntimePlugins(); // Reload what's in the runtime folder.
         DetectPlugins();
         LoadConfiguration();
 
@@ -46,7 +55,6 @@ public static class Bootstrap
 
 
     }
-
 
     private static async Task ConfigureActivePlugin(BootstrapPluginDescriptor plugin, WebApplication webApp, IServiceProvider masterSp, IConfiguration configuration, ICrazyReport crazyReport)
     {

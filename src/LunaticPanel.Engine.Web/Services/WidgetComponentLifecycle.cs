@@ -4,7 +4,7 @@ using LunaticPanel.Engine.Application.Pulses.States;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Infrastructure.Services;
+namespace LunaticPanel.Engine.Web.Services;
 
 internal class WidgetComponentLifecycle : IWidgetComponentLifecycle
 {
