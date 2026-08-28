@@ -190,7 +190,11 @@ internal static class BootstrapPlugins
             input.CopyTo(output);
         }
     }
-
+    private static string ConvertVersionToMajorMinorPatch(string version)
+    {
+        var v = new Version(version.Split('-', '+')[0]);
+        return $"{v.Major}.{v.Minor}.{v.Build}";
+    }
     public static void DetectRuntimePlugins()
     {
         var result = PluginScannerExt.ScanAndFindPlugins(PluginDirectory, [], DependencySettings.ScanSharedFrameworkNames());
@@ -262,22 +266,21 @@ internal static class BootstrapPlugins
                 Console.WriteLine($"Plugin description missing for '{dll}', skipping.");
                 continue;
             }
-
-            if (metadata[ManifestMeta.Version]!.Split('-', '+')[0] != manifest.Version)
+            if (ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.Version]!) != manifest.Version)
             {
-                Console.WriteLine($"Plugin Version corrupted for '{dll}', skipping.");
+                Console.WriteLine($"Plugin Version ({ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.Version]!)} != {manifest.Version}) corrupted for '{dll}', skipping.");
                 continue;
             }
 
-            if (metadata[ManifestMeta.FileVersion] != manifest.Version)
+            if (ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.FileVersion]!) != manifest.Version)
             {
-                Console.WriteLine($"Plugin FileVersion corrupted for '{dll}', skipping.");
+                Console.WriteLine($"Plugin FileVersion ({metadata[ManifestMeta.FileVersion]} != {manifest.Version}) corrupted for '{dll}', skipping.");
                 continue;
             }
 
-            if (metadata[ManifestMeta.AssemblyVersion] != manifest.Version)
+            if (ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.AssemblyVersion]!) != manifest.Version)
             {
-                Console.WriteLine($"Plugin AssemblyVersion corrupted for '{dll}', skipping.");
+                Console.WriteLine($"Plugin AssemblyVersion ({metadata[ManifestMeta.AssemblyVersion]} != {manifest.Version}) corrupted for '{dll}', skipping.");
                 continue;
             }
 
