@@ -35,10 +35,7 @@ public static class Bootstrap
 
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
-
-        DetectRollbacks();
-        DetectInstalled();
-        DetectUpdates();
+        ProcessDeletePlugins();
         ProcessPreinstalledPlugins();
         // Order Matter for Flow
         DetectRuntimePlugins(); // Check What's in the runtime folder.

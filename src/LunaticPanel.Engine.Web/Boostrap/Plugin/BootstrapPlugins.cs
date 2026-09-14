@@ -19,6 +19,7 @@ internal static class BootstrapPlugins
     private static Dictionary<string, BootstrapPluginManifest> Runtimes { get; set; } = new();
     private static Dictionary<string, BootstrapPluginManifest> ToApplyUpdates { get; set; } = new();
     private static Dictionary<string, BootstrapPluginManifest> Installed { get; set; } = new();
+    private static Dictionary<string, BootstrapPluginManifest> Delete { get; set; } = new();
     private static Dictionary<string, BootstrapPluginManifest> Rollbacks { get; set; } = new();
     public static BootstrapConfiguration Configuration => Bootstrap.Configuration;
     public static string PluginDirectory => Bootstrap.PluginDirectory;
@@ -56,6 +57,50 @@ internal static class BootstrapPlugins
         DetectUpdates();
     }
 
+    public static void ProcessDeletePlugins()
+    {
+        DetectUpdates();
+        DetectDelete();
+        DetectRollbacks();
+        DetectInstalled();
+        foreach (var item in Delete)
+        {
+            string linuxPluginName = item.Value.Id.ToLower().Replace('.', '_');
+            string runtimeLocation = Path.Combine(Environment.CurrentDirectory, "plugins", linuxPluginName);
+            if (Directory.Exists(runtimeLocation))
+                Directory.Delete(runtimeLocation, true);
+            var applyToRemove = ToApplyUpdates.FirstOrDefault(p => p.Value.Id == item.Value.Id);
+            if (applyToRemove.Key != default)
+                File.Delete(applyToRemove.Key);
+            var rollbackToRemove = Rollbacks.FirstOrDefault(p => p.Value.Id == item.Value.Id);
+            if (rollbackToRemove.Key != default)
+                File.Delete(rollbackToRemove.Key);
+
+            var installedToRemove = Installed.FirstOrDefault(p => p.Value.Id == item.Value.Id);
+            if (installedToRemove.Key != default)
+                File.Delete(installedToRemove.Key);
+            File.Delete(item.Key);
+        }
+        DetectUpdates();
+        DetectDelete();
+        DetectRollbacks();
+        DetectInstalled();
+    }
+    public static void DetectDelete()
+    {
+        Delete.Clear();
+        string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "delete");
+        if (!Directory.Exists(location))
+            Directory.CreateDirectory(location);
+        string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
+        foreach (var item in packages)
+        {
+            var manifest = ReadManifestFromPackage(item);
+            if (Delete.Values.Any(p => p.Id == manifest.Id))
+                continue;
+            Delete[item] = manifest;
+        }
+    }
     /// <summary>
     /// Read Folder Apply and unpack to plugins/ then move lpkg into rollback if in installed and move apply to installed.
     /// </summary>
@@ -63,6 +108,8 @@ internal static class BootstrapPlugins
     {
         ToApplyUpdates.Clear();
         string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "apply");
+        if (!Directory.Exists(location))
+            Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
         foreach (var item in packages)
         {
@@ -128,6 +175,8 @@ internal static class BootstrapPlugins
     {
         Rollbacks.Clear();
         string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "rollbacks");
+        if (!Directory.Exists(location))
+            Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
         foreach (var item in packages)
         {
@@ -142,6 +191,8 @@ internal static class BootstrapPlugins
     {
         Installed.Clear();
         string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "installed");
+        if (!Directory.Exists(location))
+            Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
         foreach (var item in packages)
         {

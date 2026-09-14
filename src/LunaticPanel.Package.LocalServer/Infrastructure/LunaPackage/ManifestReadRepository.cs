@@ -62,8 +62,7 @@ public class ManifestReadRepository : IManifestReadRepository
                 .Where(x => x.PackageId == p.PackageId)
                 .OrderByDescending(x => x.Version)
                 .Select(x => x.Version)
-                .FirstOrDefault()
-    );
+                .FirstOrDefault());
 
         if (!q.ShowEndOfLife)
             query = (IOrderedQueryable<EntityFramework.Models.PackageInfoModel>)query.Where(p => p.Package.EndOfLifeMessage == default);
@@ -85,8 +84,9 @@ public class ManifestReadRepository : IManifestReadRepository
             Position = q.Position,
             Total = query.Count()
         };
-        var searchResult = await query.Skip(q.Position).Take(q.MaxResult).ToListAsync(ct);
-
+        var searchResult = await query.Skip(q.Position).Take(q.MaxResult).Include(p => p.Package).ToListAsync(ct);
+        if (searchResult == default)
+            searchResult = new();
         result = result with
         {
             Result = searchResult.Select(p => p.ToDomain()).ToList()

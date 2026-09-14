@@ -17,6 +17,11 @@ namespace LunaticPanel.PackageManager.Infrastructure.Repositories;
 internal class PackageRepository : IPackageRepository
 {
     private const string BOOTSTRAP_LOCATION = "/var/lib/lunaticpanel/config/bootstrap.json";
+    private readonly string _pluginCacheLifecycle;
+    private readonly string _pluginCacheLifecycleRollbacks;
+    private readonly string _pluginCacheLifecycleUpdate;
+    private readonly string _pluginCacheLifecycleDelete;
+    private readonly string _pluginCacheLifecycleInstalled;
     private const string PLUGIN_LOCATION = "/srv/lunaticpanel/plugins/";
     private const string BOOTSTRAP_PLUGIN_LOCATION_FMT = PLUGIN_LOCATION + "{0}";
     private readonly ISafeFileWriter _safeFileWriter;
@@ -35,6 +40,11 @@ internal class PackageRepository : IPackageRepository
         _crazyReport.Report($"Checking if '{BOOTSTRAP_LOCATION}' exist");
         if (!File.Exists(BOOTSTRAP_LOCATION))
             throw new BootstrapNotFoundException();
+        _pluginCacheLifecycle = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins");
+        _pluginCacheLifecycleRollbacks = Path.Combine(_pluginCacheLifecycle, "rollbacks");
+        _pluginCacheLifecycleUpdate = Path.Combine(_pluginCacheLifecycle, "apply");
+        _pluginCacheLifecycleDelete = Path.Combine(_pluginCacheLifecycle, "delete");
+        _pluginCacheLifecycleInstalled = Path.Combine(_pluginCacheLifecycle, "installed");
     }
 
     private ExternalBootstrapPayload Loadbootstrap(string content)

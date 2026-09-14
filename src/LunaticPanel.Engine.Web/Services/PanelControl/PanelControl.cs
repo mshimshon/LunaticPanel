@@ -30,4 +30,10 @@ public class PanelControl : IPanelControl
         if (LayoutStateHasChanged != default)
             await LayoutStateHasChanged.Invoke();
     }
+
+    public Task Shutdown()
+    {
+        Environment.Exit(0);
+        return Task.CompletedTask;
+    }
 }
