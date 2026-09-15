@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
@@ -13,7 +14,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace LunaticPanel.PackageManager.Infrastructure.Repositories;
-
+// THIS IS LOCAL ACTIONS FOR LOCAL PACKAGES
 internal class PackageRepository : IPackageRepository
 {
     private const string BOOTSTRAP_LOCATION = "/var/lib/lunaticpanel/config/bootstrap.json";
@@ -22,6 +23,9 @@ internal class PackageRepository : IPackageRepository
     private readonly string _pluginCacheLifecycleUpdate;
     private readonly string _pluginCacheLifecycleDelete;
     private readonly string _pluginCacheLifecycleInstalled;
+    private readonly string _sourceCached;
+    private readonly string _sourceApiCached;
+
     private const string PLUGIN_LOCATION = "/srv/lunaticpanel/plugins/";
     private const string BOOTSTRAP_PLUGIN_LOCATION_FMT = PLUGIN_LOCATION + "{0}";
     private readonly ISafeFileWriter _safeFileWriter;
@@ -32,7 +36,7 @@ internal class PackageRepository : IPackageRepository
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
 
-    public PackageRepository(ISafeFileWriter safeFileWriter, ICrazyReport<PackageRepository> crazyReport)
+    public PackageRepository(IPluginLocation pluginLocation, ISafeFileWriter safeFileWriter, ICrazyReport<PackageRepository> crazyReport)
     {
         _safeFileWriter = safeFileWriter;
         _crazyReport = crazyReport;
@@ -45,6 +49,8 @@ internal class PackageRepository : IPackageRepository
         _pluginCacheLifecycleUpdate = Path.Combine(_pluginCacheLifecycle, "apply");
         _pluginCacheLifecycleDelete = Path.Combine(_pluginCacheLifecycle, "delete");
         _pluginCacheLifecycleInstalled = Path.Combine(_pluginCacheLifecycle, "installed");
+        _sourceCached = pluginLocation.GetAppDataBase(".pkg_source_cache");
+        _sourceApiCached = pluginLocation.GetAppDataBase(".pkg_api_cache");
     }
 
     private ExternalBootstrapPayload Loadbootstrap(string content)
@@ -156,6 +162,7 @@ internal class PackageRepository : IPackageRepository
                 return result;
             })
             .ToList();
+        // Create Local/Fake Source for PAckage as we don't save the source along the plugin.
         var mockRepos = new RepositorySourceInfo(new RepositorySourceLocal("local"), Domain.Entities.Enums.RepositorySourceType.Local);
         ICollection<PackageEntity> result = validPlugins?
             .Where(p => p != null)
@@ -166,8 +173,25 @@ internal class PackageRepository : IPackageRepository
             .ToList() ?? Array.Empty<PackageEntity>().ToList();
         return Task.FromResult(result);
     }
-    public Task<PackageEntity> GetByIdAsync(PackageId id, CancellationToken ct = default) => throw new NotImplementedException();
-    public Task InstallAsync(PackageEntity package, CancellationToken ct = default) => throw new NotImplementedException();
-    public Task<IQueryModelResult<PackageInfo>> QueryAsync(IPackageQueryModel queryModel, CancellationToken ct = default) => throw new NotImplementedException();
-    public Task UpdateAsync(PackageEntity target, CancellationToken ct = default) => throw new NotImplementedException();
+    public async Task<PackageEntity> GetByIdAsync(PackageId id, CancellationToken ct = default)
+    {
+        var all = await GetAll(ct);
+        return all.Single(p => p.Info.Id == id);
+    }
+    public Task InstallAsync(PackageEntity package, CancellationToken ct = default)
+    {
+        // We Have Downloaded Package REady to Install from Cache
+        string filename = $"{package.Info.Id.Value}.{package.Version.Value}.lpkg";
+        string file = Path.Combine(_sourceApiCached, filename);
+        if (!File.Exists(file))
+            throw new InstallNotFoundException(package.Info.Id.Value);
+        string output = Path.Combine(_pluginCacheLifecycleUpdate, filename);
+        File.Move(file, output);
+        return Task.CompletedTask;
+    }
+    public Task<IQueryModelResult<PackageInfo>> QueryAsync(IPackageQueryModel queryModel, CancellationToken ct = default)
+        => throw new NotImplementedException();
+
+    public Task UpdateAsync(PackageEntity target, CancellationToken ct = default)
+        => InstallAsync(target, ct);
 }

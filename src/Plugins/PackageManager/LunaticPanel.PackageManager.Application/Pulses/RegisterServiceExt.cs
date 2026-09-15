@@ -16,6 +16,8 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<RepositorySourceState>();
         services.AddStatePulseService<PackageManagerState>();
         services.AddStatePulseService<PackageInstallState>();
+        services.AddStatePulseService<PackageManagerDiskState>();
+
         services.AddStatePulseService<PackageUpdateScheduleState>();
         services.AddStatePulseService<LoadPackageRollbackAction>();
         services.AddStatePulseService<LoadPackageRollbackDoneAction>();
@@ -23,16 +25,23 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<LoadPackageRollbackReducer>();
         services.AddStatePulseService<LoadPackageRollbackDoneReducer>();
 
-        services.AddStatePulseService<InstallNextUpdateAction>();
-        services.AddStatePulseService<InstallNextUpdateDoneAction>();
-        services.AddStatePulseService<InstallNextUpdateEffect>();
-        services.AddStatePulseService<InstallNextUpdateReducer>();
-        services.AddStatePulseService<InstallNextUpdateDoneReducer>();
+        services.AddStatePulseService<InstallPackageAction>();
+        services.AddStatePulseService<InstallPackageDoneAction>();
+        services.AddStatePulseService<InstallPackageEffect>();
+        services.AddStatePulseService<InstallPackageReducer>();
+        services.AddStatePulseService<InstallPackageDoneReducer>();
 
         services.AddStatePulseService<LoadLocalPackagesDoneReducer>();
         services.AddStatePulseService<LoadLocalPackagesReducer>();
         services.AddStatePulseService<LoadLocalPackagesEffect>();
         services.AddStatePulseService<LoadLocalPackagesDoneAction>();
+        services.AddStatePulseService<LoadLocalPackagesAction>();
+
+
+        services.AddStatePulseService<LoadPackageDiskFoldersAction>();
+        services.AddStatePulseService<LoadPackageDiskFoldersDoneAction>();
+        services.AddStatePulseService<LoadPackageDiskFoldersEffect>();
+        services.AddStatePulseService<LoadPackageDiskFoldersReducer>();
         services.AddStatePulseService<LoadLocalPackagesAction>();
 
         services.AddStatePulseService<SearchRemotePackageAction>();

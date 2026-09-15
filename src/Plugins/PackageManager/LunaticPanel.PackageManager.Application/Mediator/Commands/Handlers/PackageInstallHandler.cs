@@ -30,7 +30,6 @@ internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
             var current = await _packageRepository.GetByIdAsync(package.Info.Id, ct);
             await _repositorySourceService.DownloadAsync(command.Data, command.Source, ct);
             await _packageRepository.InstallAsync(package, ct);
-            await _packageService.CreateRollbackAsync(current.ToApplicationPayload(), ct);
 
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

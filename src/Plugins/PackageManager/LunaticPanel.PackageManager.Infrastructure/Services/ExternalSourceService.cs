@@ -12,13 +12,12 @@ using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
 using LunaticPanel.PackageManager.Infrastructure.Services.Payloads;
 using LunaticPanel.PackageManager.Keys;
 using Microsoft.Extensions.DependencyInjection;
-using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-
+using static LunaticPanel.PackageManager.Infrastructure.Extensions.PackageFileExt;
 namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
 internal class ExternalSourceService : IExternalSourceService, IDisposable
@@ -85,7 +84,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         {
             await input.CopyToAsync(output);
         }
-        File.Move(tempPath, Path.Combine(_sourceCached, $"{id}.{version}.lpkg"), overwrite: true);
+        File.Move(tempPath, Path.Combine(_sourceApiCached, $"{id}.{version}.lpkg"), overwrite: true);
     }
     public async Task DownloadToCache(string id, string version, RepositorySourcePayload source, CancellationToken ct = default)
     {
@@ -259,36 +258,13 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
     }
     private async Task CopyFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
-        string outputPath = Path.Combine(_sourceApiCached, $"{id}.{version}.nupkg");
+        string outputPath = Path.Combine(_sourceApiCached, $"{id}.{version}.lpkg");
         if (!File.Exists(outputPath)) return;
-        string inputPath = Path.Combine(source.Source, $"{id}.{version}.nupkg");
+        string inputPath = Path.Combine(source.Source, $"{id}.{version}.lpkg");
         File.Copy(inputPath, outputPath, true);
     }
 
-    private PackagePayload GetPackageInformation(string file)
-    {
-        var manifest = ReadManifestFromArchive(file);
-        return new()
-        {
-            Version = manifest.Version,
-            Info = new()
-            {
-                Description = manifest.Description,
-                Name = manifest.Title,
-                PackageId = manifest.Id,
-                State = Application.Payloads.Enums.PackageStatePayload.Unknown
-            }
-        };
-    }
-    public static PluginManifestExtPayload ReadManifestFromArchive(string input)
-    {
-        using var zip = ZipFile.OpenRead(input);
-        var entry = zip.GetEntry("manifest.json");
-        if (entry == null)
-            throw new Exception("manifest.json not found in package");
-        using var stream = entry.Open();
-        return JsonSerializer.Deserialize<PluginManifestExtPayload>(stream, _jsonSerializerOptions)!;
-    }
+
 
     private async Task<Version[]> GetRemoteVersionsAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {

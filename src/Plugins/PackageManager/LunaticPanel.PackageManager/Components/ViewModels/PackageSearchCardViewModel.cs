@@ -33,5 +33,8 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
         This design allows to fix runtime lock on plugin folders and allows the host panel itself to apply updates, new install and the package manage must only cycle the files within those folders and the panel do the rest at startup.
 
      */
-    public Task InstallAsync() => throw new NotImplementedException();
+    public Task InstallAsync()
+    {
+        // TODO: Implement two stage Download, Then Install from Cache.
+    }
 }

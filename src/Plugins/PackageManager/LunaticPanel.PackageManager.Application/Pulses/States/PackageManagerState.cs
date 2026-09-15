@@ -3,7 +3,7 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.States;
 
-public record PackageManagerState : IStateFeatureSingleton
+public sealed record PackageManagerState : IStateFeatureSingleton
 {
     public IEnumerable<PackagePayload> InstalledPackages { get; init; } = Array.Empty<PackagePayload>();
     public bool IsPackageLoading { get; init; }

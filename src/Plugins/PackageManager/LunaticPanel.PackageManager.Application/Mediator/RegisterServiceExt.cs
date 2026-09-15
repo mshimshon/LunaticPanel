@@ -9,6 +9,7 @@ internal static class RegisterServiceExt
 {
     public static void AddApplicationMediator(this IServiceCollection services)
     {
+        services.AddMedihaterHandler<GetDiskPackagesHandler>();
         services.AddMedihaterHandler<RepositorySourceRemoveHandler>();
         services.AddMedihaterHandler<RepositorySourceEnableHandler>();
         services.AddMedihaterHandler<RepositorySourceDisableHandler>();
