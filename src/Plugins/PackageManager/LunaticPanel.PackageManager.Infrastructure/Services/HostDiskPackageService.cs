@@ -1,42 +1,44 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
-using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Infrastructure.Exceptions;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads;
+using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Enums;
 using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Mapping;
 using LunaticPanel.PackageManager.Infrastructure.Services.Payloads;
 using LunaticPanel.PackageManager.Keys;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static LunaticPanel.PackageManager.Infrastructure.Extensions.PackageFileExt;
+namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
-namespace LunaticPanel.PackageManager.Infrastructure.Repositories;
-// THIS IS LOCAL ACTIONS FOR LOCAL PACKAGES
-internal class PackageRepository : IPackageRepository
+internal class HostDiskPackageService : IHostDiskPackageService
 {
+    private readonly ICrazyReport<HostDiskPackageService> _crazyReport;
+    private readonly string _applyLocation;
+    private readonly string _installedLocation;
+    private readonly string _rollbackLocation;
+    private readonly string _deleteLocation;
+    private readonly string _preInstalledFolder;
+
     private const string BOOTSTRAP_LOCATION = "/var/lib/lunaticpanel/config/bootstrap.json";
-    private readonly string _pluginCacheLifecycle;
-    private readonly string _pluginCacheLifecycleRollbacks;
-    private readonly string _pluginCacheLifecycleUpdate;
-    private readonly string _pluginCacheLifecycleDelete;
-    private readonly string _pluginCacheLifecycleInstalled;
     private readonly string _sourceCached;
     private readonly string _sourceApiCached;
 
     private const string PLUGIN_LOCATION = "/srv/lunaticpanel/plugins/";
     private const string BOOTSTRAP_PLUGIN_LOCATION_FMT = PLUGIN_LOCATION + "{0}";
     private readonly ISafeFileWriter _safeFileWriter;
-    private readonly ICrazyReport<PackageRepository> _crazyReport;
     private JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-
-    public PackageRepository(IPluginLocation pluginLocation, ISafeFileWriter safeFileWriter, ICrazyReport<PackageRepository> crazyReport)
+    public HostDiskPackageService(IPluginLocation pluginLocation, ISafeFileWriter safeFileWriter, ICrazyReport<HostDiskPackageService> crazyReport)
     {
         _safeFileWriter = safeFileWriter;
         _crazyReport = crazyReport;
@@ -44,14 +46,62 @@ internal class PackageRepository : IPackageRepository
         _crazyReport.Report($"Checking if '{BOOTSTRAP_LOCATION}' exist");
         if (!File.Exists(BOOTSTRAP_LOCATION))
             throw new BootstrapNotFoundException();
-        _pluginCacheLifecycle = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins");
-        _pluginCacheLifecycleRollbacks = Path.Combine(_pluginCacheLifecycle, "rollbacks");
-        _pluginCacheLifecycleUpdate = Path.Combine(_pluginCacheLifecycle, "apply");
-        _pluginCacheLifecycleDelete = Path.Combine(_pluginCacheLifecycle, "delete");
-        _pluginCacheLifecycleInstalled = Path.Combine(_pluginCacheLifecycle, "installed");
+
+        var tempRoot = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins");
+        _applyLocation = Path.Combine(tempRoot, "apply");
+        _installedLocation = Path.Combine(tempRoot, "installed");
+        _rollbackLocation = Path.Combine(tempRoot, "rollbacks");
+        _deleteLocation = Path.Combine(tempRoot, "delete");
+        _preInstalledFolder = Path.Combine(Environment.CurrentDirectory, "plugins_preinstalled");
+
         _sourceCached = pluginLocation.GetAppDataBase(".pkg_source_cache");
         _sourceApiCached = pluginLocation.GetAppDataBase(".pkg_api_cache");
     }
+
+    public Task<ICollection<PackagePayload>> GetIntalled(CancellationToken ct = default)
+    {
+        ICollection<PackagePayload> result = FolderToPackagePayload(_installedLocation);
+        return Task.FromResult(result);
+    }
+    public Task<ICollection<PackagePayload>> GetPendingDelete(CancellationToken ct = default)
+    {
+        ICollection<PackagePayload> result = FolderToPackagePayload(_deleteLocation);
+        return Task.FromResult(result);
+    }
+    public Task<ICollection<PackagePayload>> GetPendingUpdates(CancellationToken ct = default)
+    {
+        ICollection<PackagePayload> result = FolderToPackagePayload(_applyLocation);
+        return Task.FromResult(result);
+    }
+    public Task<ICollection<PackagePayload>> GetRollbacks(CancellationToken ct = default)
+    {
+        ICollection<PackagePayload> result = FolderToPackagePayload(_rollbackLocation);
+        return Task.FromResult(result);
+    }
+
+    public Task<ICollection<PackagePayload>> GetPreInstalled(CancellationToken ct = default)
+    {
+        ICollection<PackagePayload> result = FolderToPackagePayload(_preInstalledFolder);
+        return Task.FromResult(result);
+    }
+
+    private List<PackagePayload> FolderToPackagePayload(string path)
+    {
+
+        if (!Directory.Exists(path)) return new();
+        string[] packages = Directory.GetFiles(path, "*.lpkg", SearchOption.TopDirectoryOnly);
+        var result = new List<PackagePayload>();
+        foreach (var item in packages)
+        {
+            var manifest = GetPackageInformation(item);
+            if (result.Any(p => p.Info.PackageId == manifest.Info.PackageId))
+                continue;
+            result.Add(manifest);
+
+        }
+        return result;
+    }
+
 
     private ExternalBootstrapPayload Loadbootstrap(string content)
     {
@@ -79,35 +129,34 @@ internal class PackageRepository : IPackageRepository
             var bootstrap = Loadbootstrap(content);
             var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
             if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
-            if (entry.Entity.Lifecycle.State == Payloads.Enums.ExternalPluginEntityLifecycleState.Active)
+            if (entry.Entity.Lifecycle.State == ExternalPluginEntityLifecycleState.Active)
                 throw new BootstrapPackageDeleteActiveException(id.Value);
             bootstrap.KnownPlugins.Remove(entry);
             Directory.Delete(pluginFolder);
             return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
         }, ct);
     }
-
     public async Task DisableAsync(PackageId id, CancellationToken ct = default)
     {
         await _safeFileWriter.WriteThenCopyFileAsync(BOOTSTRAP_LOCATION, (content) =>
-         {
-             var bootstrap = Loadbootstrap(content);
-             var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
-             if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
-             bootstrap.KnownPlugins.Remove(entry);
-             entry = entry with
-             {
-                 Entity = entry.Entity with
-                 {
-                     Lifecycle = entry.Entity.Lifecycle with
-                     {
-                         StartupState = Payloads.Enums.ExternalPluginEntityLifecycleStartupState.Disabled
-                     }
-                 }
-             };
-             bootstrap.KnownPlugins.Add(entry);
-             return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
-         }, ct);
+        {
+            var bootstrap = Loadbootstrap(content);
+            var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
+            if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
+            bootstrap.KnownPlugins.Remove(entry);
+            entry = entry with
+            {
+                Entity = entry.Entity with
+                {
+                    Lifecycle = entry.Entity.Lifecycle with
+                    {
+                        StartupState = ExternalPluginEntityLifecycleStartupState.Disabled
+                    }
+                }
+            };
+            bootstrap.KnownPlugins.Add(entry);
+            return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
+        }, ct);
     }
     public async Task EnableAsync(PackageId id, CancellationToken ct = default)
     {
@@ -123,7 +172,7 @@ internal class PackageRepository : IPackageRepository
                 {
                     Lifecycle = entry.Entity.Lifecycle with
                     {
-                        StartupState = Payloads.Enums.ExternalPluginEntityLifecycleStartupState.Disabled
+                        StartupState = ExternalPluginEntityLifecycleStartupState.Disabled
                     }
                 }
             };
@@ -185,7 +234,7 @@ internal class PackageRepository : IPackageRepository
         string file = Path.Combine(_sourceApiCached, filename);
         if (!File.Exists(file))
             throw new InstallNotFoundException(package.Info.Id.Value);
-        string output = Path.Combine(_pluginCacheLifecycleUpdate, filename);
+        string output = Path.Combine(_applyLocation, filename);
         File.Move(file, output);
         return Task.CompletedTask;
     }

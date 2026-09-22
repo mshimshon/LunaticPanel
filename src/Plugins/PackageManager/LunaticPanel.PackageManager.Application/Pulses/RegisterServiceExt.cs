@@ -14,16 +14,10 @@ internal static class RegisterServiceExt
 
         services.AddStatePulseService<SearchPackageState>();
         services.AddStatePulseService<RepositorySourceState>();
-        services.AddStatePulseService<PackageManagerState>();
         services.AddStatePulseService<PackageInstallState>();
         services.AddStatePulseService<PackageManagerDiskState>();
 
         services.AddStatePulseService<PackageUpdateScheduleState>();
-        services.AddStatePulseService<LoadPackageRollbackAction>();
-        services.AddStatePulseService<LoadPackageRollbackDoneAction>();
-        services.AddStatePulseService<LoadPackageRollbackEffect>();
-        services.AddStatePulseService<LoadPackageRollbackReducer>();
-        services.AddStatePulseService<LoadPackageRollbackDoneReducer>();
 
         services.AddStatePulseService<InstallPackageAction>();
         services.AddStatePulseService<InstallPackageDoneAction>();
@@ -31,18 +25,13 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<InstallPackageReducer>();
         services.AddStatePulseService<InstallPackageDoneReducer>();
 
-        services.AddStatePulseService<LoadLocalPackagesDoneReducer>();
-        services.AddStatePulseService<LoadLocalPackagesReducer>();
-        services.AddStatePulseService<LoadLocalPackagesEffect>();
-        services.AddStatePulseService<LoadLocalPackagesDoneAction>();
-        services.AddStatePulseService<LoadLocalPackagesAction>();
 
 
         services.AddStatePulseService<LoadPackageDiskFoldersAction>();
         services.AddStatePulseService<LoadPackageDiskFoldersDoneAction>();
         services.AddStatePulseService<LoadPackageDiskFoldersEffect>();
         services.AddStatePulseService<LoadPackageDiskFoldersReducer>();
-        services.AddStatePulseService<LoadLocalPackagesAction>();
+        services.AddStatePulseService<LoadPackageDiskFoldersDoneReducer>();
 
         services.AddStatePulseService<SearchRemotePackageAction>();
         services.AddStatePulseService<SearchRemotePackageDoneAction>();

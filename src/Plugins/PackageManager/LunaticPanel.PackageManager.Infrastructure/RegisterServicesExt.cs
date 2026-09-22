@@ -22,8 +22,9 @@ public static class RegisterServicesExt
         });
         services.AddTransient<IRepositorySourceService, RepositorySourceService>();
         services.AddTransient<IExternalSourceService, ExternalSourceService>();
-        services.AddTransient<IPackageRepository, PackageRepository>();
         services.AddTransient<ISourceRepository, SourceRepository>();
         services.AddTransient<ISourceService, SourceService>();
+        services.AddTransient<IHostDiskPackageService, HostDiskPackageService>();
+        services.AddTransient<IPackageRepository, HostDiskPackageService>();
     }
 }

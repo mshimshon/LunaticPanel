@@ -1,9 +1,0 @@
-﻿using LunaticPanel.PackageManager.Application.Payloads;
-using StatePulse.Net;
-
-namespace LunaticPanel.PackageManager.Application.Pulses.Actions;
-
-public sealed record LoadLocalPackagesDoneAction : IAction
-{
-    public IEnumerable<PackagePayload> Packages { get; set; } = default!;
-}

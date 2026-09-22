@@ -3,6 +3,6 @@ using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries;
 
-public sealed record GetRollbackPackagesQuery : IRequest<ICollection<PackagePayload>>
+public sealed record GetRepositorySourcesQuery : IRequest<ICollection<RepositorySourcePayload>>
 {
 }

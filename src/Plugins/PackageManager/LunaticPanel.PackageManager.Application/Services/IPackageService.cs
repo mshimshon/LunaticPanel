@@ -7,7 +7,7 @@ public interface IPackageService
 {
     /*
         Solution is the following
-        Infrastruicture Implement Application Service.
+        Infrastructure Implement Application Service.
         Application Service only return Application Payloads.
         Infrastructure Implements Infrastructure Services Contracts.
         Application Injecting Services for Infra IRemotePackageSourceService which wraps the external services and Domain Repositories.
@@ -18,16 +18,4 @@ public interface IPackageService
      */
 
     Task<ICollection<PackagePayload>> SearchAsync(SearchRequest data, CancellationToken ct = default);
-
-    /// <summary>
-    /// Get all the available rollback on disk.
-    /// </summary>
-    Task<ICollection<PackagePayload>> GetAvailableRollbackAsync(CancellationToken ct = default);
-
-    // TODO: THIS GOES INTO REPOSITORY
-    //Task InstallAsync(PackageId id, PackageVersion version, RepositorySourceInfo sourceInfo, CancellationToken ct = default);
-    //Task UpdateAsync(PackageId id,PackageVersion currentVersion, PackageVersion targetVersion, RepositorySourceInfo sourceInfo, CancellationToken ct = default);
-    //Task DeleteAsync(PackageId id, CancellationToken ct = default);
-    //Task EnableAsync(PackageId id, CancellationToken ct = default);
-    //Task DisableAsync(PackageId id, CancellationToken ct = default);
 }

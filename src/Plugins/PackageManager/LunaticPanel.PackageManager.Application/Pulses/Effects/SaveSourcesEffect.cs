@@ -1,18 +1,18 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using LunaticPanel.PackageManager.Application.Services;
+using MedihatR;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
 internal class SaveSourcesEffect : IEffect<SaveSourcesAction>
 {
-    private readonly ISourceService _sourceService;
+    private readonly IMedihater _medihater;
 
-    public SaveSourcesEffect(ISourceService sourceService)
+    public SaveSourcesEffect(IMedihater medihater)
     {
-        _sourceService = sourceService;
+        _medihater = medihater;
     }
     public async Task EffectAsync(SaveSourcesAction action, IDispatcher dispatcher)
     {

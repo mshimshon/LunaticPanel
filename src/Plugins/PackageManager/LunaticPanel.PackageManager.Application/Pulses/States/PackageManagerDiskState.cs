@@ -15,4 +15,6 @@ public sealed record PackageManagerDiskState : IStateFeatureSingleton
     /// Only LPKG contained into to installed folder not the actual decompiled package.
     /// </summary>
     public IEnumerable<PackagePayload> Installed { get; init; } = Array.Empty<PackagePayload>();
+    public IEnumerable<PackagePayload> RuntimePackages { get; init; } = Array.Empty<PackagePayload>();
+    public IEnumerable<PackagePayload> PreInstalled { get; init; } = Array.Empty<PackagePayload>();
 }

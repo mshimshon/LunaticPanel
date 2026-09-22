@@ -9,4 +9,6 @@ public sealed record LoadPackageDiskFoldersDoneAction : IAction
     public IEnumerable<PackagePayload> AvailableRollbacks { get; set; } = Array.Empty<PackagePayload>();
     public IEnumerable<PackagePayload> PendingDelete { get; set; } = Array.Empty<PackagePayload>();
     public IEnumerable<PackagePayload> Installed { get; set; } = Array.Empty<PackagePayload>();
+    public IEnumerable<PackagePayload> PreInstalled { get; set; } = Array.Empty<PackagePayload>();
+    public IEnumerable<PackagePayload> RuntimePackages { get; set; } = Array.Empty<PackagePayload>();
 }

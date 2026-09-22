@@ -13,6 +13,8 @@ internal class LoadPackageDiskFoldersDoneReducer : IReducer<PackageManagerDiskSt
               Installed = action.Installed,
               PendingDelete = action.PendingDelete,
               PendingUpdates = action.PendingUpdates,
+              PreInstalled = action.PreInstalled,
+              RuntimePackages = action.RuntimePackages,
               IsLoading = false
           };
 }
