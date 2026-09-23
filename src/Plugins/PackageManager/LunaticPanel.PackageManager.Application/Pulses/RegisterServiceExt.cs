@@ -25,7 +25,17 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<InstallPackageReducer>();
         services.AddStatePulseService<InstallPackageDoneReducer>();
 
+        services.AddStatePulseService<AddSourceAction>();
+        services.AddStatePulseService<AddSourceDoneAction>();
+        services.AddStatePulseService<AddSourceEffect>();
+        services.AddStatePulseService<AddSourceReducer>();
+        services.AddStatePulseService<AddSourceDoneReducer>();
 
+        services.AddStatePulseService<RemoveSourceAction>();
+        services.AddStatePulseService<RemoveSourceDoneAction>();
+        services.AddStatePulseService<RemoveSourceEffect>();
+        services.AddStatePulseService<RemoveSourceReducer>();
+        services.AddStatePulseService<RemoveSourceDoneReducer>();
 
         services.AddStatePulseService<LoadPackageDiskFoldersAction>();
         services.AddStatePulseService<LoadPackageDiskFoldersDoneAction>();
