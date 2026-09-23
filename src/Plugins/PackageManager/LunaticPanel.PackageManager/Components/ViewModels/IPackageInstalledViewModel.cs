@@ -5,6 +5,6 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 
 public interface IPackageInstalledViewModel : IWidgetViewModel
 {
-    PackageManagerState PackageManagerState { get; }
     int InstalledPackageCount { get; }
+    PackageManagerDiskState PackageManagerState { get; }
 }

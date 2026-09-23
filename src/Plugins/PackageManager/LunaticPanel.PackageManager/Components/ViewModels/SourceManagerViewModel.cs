@@ -39,11 +39,11 @@ internal class SourceManagerViewModel : WidgetViewModelBase, ISourceManagerViewM
         var result = await exitRef.GetReturnValueAsync<RepositorySourcePayload>();
         if (result == default) return;
         IsLoading = true;
-        var save = SourceState.Sources.ToList();
-        save.Add(result);
-        await _statePulse.Dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, save)
+        await _statePulse.Dispatcher.Prepare<AddSourceAction>()
+            .With(p => p.Source, result)
             .DispatchAsync();
         IsLoading = false;
     }
+
+
 }

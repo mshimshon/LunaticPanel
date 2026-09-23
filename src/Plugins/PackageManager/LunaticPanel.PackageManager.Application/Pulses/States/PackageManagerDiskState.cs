@@ -6,6 +6,7 @@ namespace LunaticPanel.PackageManager.Application.Pulses.States;
 public sealed record PackageManagerDiskState : IStateFeatureSingleton
 {
     public bool IsLoading { get; init; }
+    public bool IsInitialized { get; init; }
     public IEnumerable<PackagePayload> PendingUpdates { get; init; } = Array.Empty<PackagePayload>();
     public IEnumerable<PackagePayload> AvailableRollbacks { get; init; } = Array.Empty<PackagePayload>();
 

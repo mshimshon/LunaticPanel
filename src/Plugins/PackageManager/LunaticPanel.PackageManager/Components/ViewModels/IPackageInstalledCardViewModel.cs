@@ -7,7 +7,7 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 public interface IPackageInstalledCardViewModel : IWidgetViewModel
 {
     PackagePayload Data { get; set; }
-    PackageManagerState ManagerState { get; }
+    PackageUpdateState PackageUpdate { get; }
     PackageUpdateScheduleState UpdateScheduleState { get; }
     bool HasUpdateAvailable { get; }
     bool HasUpdateScheduled { get; }

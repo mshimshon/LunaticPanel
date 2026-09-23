@@ -10,7 +10,8 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     private readonly IStatePulse _statePulse;
 
     public PackagePayload Data { get; set; } = default!;
-    public PackageManagerState ManagerState => _statePulse.StateOf<PackageManagerState>(() => this, UpdateChanges);
+    public PackageUpdateState PackageUpdate => _statePulse.StateOf<PackageUpdateState>(() => this, UpdateChanges);
+    public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
     public PackageUpdateScheduleState UpdateScheduleState => _statePulse.StateOf<PackageUpdateScheduleState>(() => this, UpdateChanges);
     public bool HasUpdateAvailable { get; private set; }
     public bool HasUpdateScheduled { get; private set; }
@@ -38,14 +39,12 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     protected override void OnViewModelBeforeRender()
     {
         ScheduledUpdate = UpdateScheduleState.ToUpdate.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
-        AvailableUpdate = ManagerState.AvailableUpdatePackages.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
-        AvailableRollback = ManagerState.AvailableRollbackPackages.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
+        AvailableUpdate = PackageUpdate.FoundUpdates.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
+        AvailableRollback = ManagerState.AvailableRollbacks.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
         HasUpdateAvailable = AvailableUpdate != default && AvailableUpdate?.Version != Data.Version;
         HasRollbackAvailable = AvailableRollback != default && AvailableRollback?.Version != Data.Version;
-        HasUpdateScheduled = AvailableUpdate != default && UpdateScheduleState.CurrentlyUpdating != default && UpdateScheduleState.CurrentlyUpdating.Info.PackageId == AvailableUpdate.Info.PackageId ||
-            AvailableUpdate != default && ScheduledUpdate != default && AvailableUpdate.Info.PackageId == ScheduledUpdate.Info.PackageId;
 
-        CheckingForUpdate = ManagerState.IsUpdateLoading;
+        CheckingForUpdate = PackageUpdate.IsLoading;
         CanScheduleUpdate = !HasUpdateScheduled && HasUpdateAvailable;
         CanScheduleRollback = !HasUpdateScheduled && HasRollbackAvailable;
         CanCancelScheduledRollback = HasUpdateScheduled && ScheduledUpdate == AvailableRollback;

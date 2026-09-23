@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
-using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using MedihatR;
 using StatePulse.Net;
@@ -16,10 +16,10 @@ internal class SaveSourcesEffect : IEffect<SaveSourcesAction>
     }
     public async Task EffectAsync(SaveSourcesAction action, IDispatcher dispatcher)
     {
-        ICollection<RepositorySourcePayload>? result = default;
         try
         {
-            result = await _sourceService.SaveSourcesAsync(action.Sources, dispatcher.CancelToken);
+            await _medihater.Send(new SaveSourcesCommand(action.Sources), dispatcher.CancelToken);
+            await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
         }
         catch (HostCodedException)
         {
@@ -31,7 +31,7 @@ internal class SaveSourcesEffect : IEffect<SaveSourcesAction>
         }
         finally
         {
-            await dispatcher.Prepare<SaveSourcesDoneAction>().With(p => p.Sources, result).DispatchAsync();
+            await dispatcher.Prepare<SaveSourcesDoneAction>().DispatchAsync();
         }
     }
 }

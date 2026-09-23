@@ -1,6 +1,11 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.PackageManager.Application.Mediator.Queries;
 using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
+using LunaticPanel.PackageManager.Application.Services;
+using MedihatR;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;
@@ -8,20 +13,23 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchCardViewModel
 {
     private readonly IStatePulse _statePulse;
+    private readonly IMedihater _medihater;
+    private readonly IRepositorySourceService _repositorySourceService;
 
-    public PackageManagerState ManagerState => _statePulse.StateOf<PackageManagerState>(() => this, UpdateChanges);
+    public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
 
 
     public PackageInfoPayload Data { get; set; } = default!;
     public bool IsInstalled { get; set; }
-    public PackageSearchCardViewModel(IStatePulse statePulse)
+    public PackageSearchCardViewModel(IStatePulse statePulse, IMedihater medihater)
     {
         _statePulse = statePulse;
+        _medihater = medihater;
     }
 
     protected override void OnViewModelBeforeRender()
     {
-        IsInstalled = ManagerState.InstalledPackages.Any(p => p.Info.PackageId == Data.PackageId);
+        IsInstalled = ManagerState.Installed.Any(p => p.Info.PackageId == Data.PackageId);
     }
     /*
      BIN/lunaticpanel/plugins -> Folder of active plugins on panel.
@@ -33,8 +41,30 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
         This design allows to fix runtime lock on plugin folders and allows the host panel itself to apply updates, new install and the package manage must only cycle the files within those folders and the panel do the rest at startup.
 
      */
-    public Task InstallAsync()
+    public async Task InstallAsync()
     {
         // TODO: Implement two stage Download, Then Install from Cache.
+        try
+        {
+            IsLoading = true;
+            var result = await _medihater.Send(new GetPackagesLatestVersionQuery([Data.PackageId]));
+            if (result.Count <= 0)
+                throw new HostCodedException("NotFound", "Cannot find package.");
+            var target = result.First();
+            await _statePulse.Dispatcher.Prepare<InstallPackageAction>()
+                .With(p => p.Target, target)
+                .DispatchAsync();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        finally
+        {
+            IsLoading = false;
+
+        }
+
     }
 }

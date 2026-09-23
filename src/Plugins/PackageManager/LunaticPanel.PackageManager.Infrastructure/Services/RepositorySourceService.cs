@@ -10,6 +10,7 @@ internal class RepositorySourceService : IRepositorySourceService
 {
     private readonly ICrazyReport<RepositorySourceService> _crazyReport;
     private readonly IExternalSourceService _sourceService;
+
     public RepositorySourceService(ICrazyReport<RepositorySourceService> crazyReport,
         ISafeFileWriter safeFileWriter, IExternalSourceService sourceService)
     {

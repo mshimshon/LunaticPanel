@@ -23,7 +23,7 @@ internal static class RegisterServiceExt
         services.AddMedihaterHandler<SearchRepositoryHandler>();
         services.AddMedihaterHandler<GetPackagesLatestVersionHandler>();
         services.AddMedihaterHandler<GetPackageVersionsHandler>();
-        services.AddMedihaterHandler<GetRepositorySourcesHandler>();
+        services.AddMedihaterHandler<GetSourcesHandler>();
 
     }
 }

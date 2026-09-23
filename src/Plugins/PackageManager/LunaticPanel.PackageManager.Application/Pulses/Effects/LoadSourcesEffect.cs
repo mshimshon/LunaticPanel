@@ -19,7 +19,7 @@ internal class LoadSourcesEffect : IEffect<LoadSourcesAction>
         ICollection<Payloads.RepositorySourcePayload>? result = default;
         try
         {
-            result = await _medihater.Send(new GetRepositorySourcesQuery(), dispatcher.CancelToken);
+            result = await _medihater.Send(new GetSourcesQuery(), dispatcher.CancelToken);
         }
         catch (HostCodedException)
         { throw; }

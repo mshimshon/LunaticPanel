@@ -36,6 +36,8 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
         _externalSourceService = externalSourceService;
     }
 
+
+
     public async Task MoveUp()
     {
         if (IsFirst()) return;
@@ -71,12 +73,13 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
     public async Task Delete()
     {
         IsLoading = true;
-        var newList = SourceState.Sources.Where(p => p != Item).ToList();
-        await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, newList)
+        await _dispatcher.Prepare<AddSourceAction>()
+            .With(p => p.Source, Item)
             .DispatchAsync();
         IsLoading = false;
     }
+
+
     protected override async Task OnViewModelAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

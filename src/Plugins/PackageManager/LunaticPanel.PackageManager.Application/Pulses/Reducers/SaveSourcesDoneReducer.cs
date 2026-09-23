@@ -10,6 +10,5 @@ internal class SaveSourcesDoneReducer : IReducer<RepositorySourceState, SaveSour
         => state with
         {
             SourceSaving = false,
-            Sources = action.Sources ?? state.Sources
         };
 }

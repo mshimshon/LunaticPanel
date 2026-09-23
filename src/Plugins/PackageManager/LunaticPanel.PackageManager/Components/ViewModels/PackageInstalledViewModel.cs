@@ -8,7 +8,7 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalledViewModel
 {
     private readonly IStatePulse _statePulse;
-    public PackageManagerState PackageManagerState => _statePulse.StateOf<PackageManagerState>(() => this, UpdateChanges);
+    public PackageManagerDiskState PackageManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
 
     public int InstalledPackageCount { get; private set; }
 
@@ -16,17 +16,17 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
     {
         _statePulse = statePulse;
     }
-    protected override bool GetStateLoadingStatus() => PackageManagerState.IsPackageLoading;
+    protected override bool GetStateLoadingStatus() => PackageManagerState.IsLoading;
     protected override void OnViewModelBeforeRender()
     {
-        InstalledPackageCount = PackageManagerState.InstalledPackages.Count();
+        InstalledPackageCount = PackageManagerState.Installed.Count();
     }
     protected override async Task OnViewModelAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            if (!PackageManagerState.IsPackageInitialized)
-                await _statePulse.Dispatcher.Prepare<LoadLocalPackagesAction>().DispatchAsync();
+            if (!PackageManagerState.IsInitialized)
+                await _statePulse.Dispatcher.Prepare<LoadPackageDiskFoldersAction>().DispatchAsync();
         }
     }
 

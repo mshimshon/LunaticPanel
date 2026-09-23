@@ -17,9 +17,7 @@ internal class GetPackagesLatestVersionHandler : IRequestHandler<GetPackagesLate
     {
         try
         {
-            var repo = request.RepositorySources.ToList().AsReadOnly();
             var result = await _repositorySourceService.GetLatestVersionAsync(request.Packages, ct);
-
             return result.ToList();
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
