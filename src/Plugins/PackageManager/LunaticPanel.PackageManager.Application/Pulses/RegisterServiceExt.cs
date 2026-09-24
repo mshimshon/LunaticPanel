@@ -56,7 +56,13 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<LoadSourcesReducer>();
         services.AddStatePulseService<LoadSourcesDoneReducer>();
 
+        services.AddStatePulseService<DisableSourceAction>();
+        services.AddStatePulseService<DisableSourceDoneAction>();
+        services.AddStatePulseService<DisableSourceEffect>();
+        services.AddStatePulseService<DisableSourceReducer>();
+        services.AddStatePulseService<DisableSourceDoneReducer>();
 
+        // AI APPEND ABOVE
 
 
     }

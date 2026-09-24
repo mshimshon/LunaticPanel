@@ -17,11 +17,13 @@ internal class RepositorySourceRemoveHandler : IRequestHandler<RepositorySourceR
         _sourceRepository = sourceRepository;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
+        _crazyReport.Report("Initialized Class");
     }
     public async Task Handle(RepositorySourceRemoveCommand command, CancellationToken ct = default)
     {
         try
         {
+            _crazyReport.Report("Handler Called");
             _crazyReport.Report("Converting to Entity");
             var source = command.Source.ToDomainEntity();
             _crazyReport.Report("Converting to Entity");

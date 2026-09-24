@@ -24,6 +24,7 @@ internal static class RegisterServiceExt
         services.AddMedihaterHandler<GetPackagesLatestVersionHandler>();
         services.AddMedihaterHandler<GetPackageVersionsHandler>();
         services.AddMedihaterHandler<GetSourcesHandler>();
-
+        services.AddMedihaterHandler<DisableSourceCommandHandler>();
+        // AI APPEND ABOVE
     }
 }
