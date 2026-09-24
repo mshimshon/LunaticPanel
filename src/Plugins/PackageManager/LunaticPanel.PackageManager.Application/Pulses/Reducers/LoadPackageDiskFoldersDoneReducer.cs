@@ -15,6 +15,7 @@ internal class LoadPackageDiskFoldersDoneReducer : IReducer<PackageManagerDiskSt
               PendingUpdates = action.PendingUpdates,
               PreInstalled = action.PreInstalled,
               RuntimePackages = action.RuntimePackages,
-              IsLoading = false
+              IsLoading = false,
+              IsInitialized = true
           };
 }

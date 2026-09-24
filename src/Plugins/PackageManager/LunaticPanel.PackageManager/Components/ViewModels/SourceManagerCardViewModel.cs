@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
@@ -13,6 +14,8 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
     private readonly IStateAccessor<RepositorySourceState> _sourceStateAccess;
     private readonly IDispatcher _dispatcher;
     private readonly IExternalSourceService _externalSourceService;
+    private readonly ICrazyReport<SourceManagerCardViewModel> _crazyReport;
+
     public string[] AvailableApiVersion { get; set; } = default!;
     public RepositorySourceState SourceState => _sourceStateAccess.State;
     public bool IsFirst()
@@ -29,11 +32,14 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
         return last == Item;
     }
 
-    public SourceManagerCardViewModel(IStateAccessor<RepositorySourceState> sourceStateAccess, IDispatcher dispatcher, IExternalSourceService externalSourceService)
+    public SourceManagerCardViewModel(IStateAccessor<RepositorySourceState> sourceStateAccess,
+        IDispatcher dispatcher,
+        IExternalSourceService externalSourceService, ICrazyReport<SourceManagerCardViewModel> crazyReport)
     {
         _sourceStateAccess = sourceStateAccess;
         _dispatcher = dispatcher;
         _externalSourceService = externalSourceService;
+        _crazyReport = crazyReport;
     }
 
 
@@ -72,8 +78,10 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
 
     public async Task Delete()
     {
+        _crazyReport.Report("Delete Clicked");
         IsLoading = true;
-        await _dispatcher.Prepare<AddSourceAction>()
+        _crazyReport.Report("Delete Dispatching");
+        await _dispatcher.Prepare<RemoveSourceAction>()
             .With(p => p.Source, Item)
             .DispatchAsync();
         IsLoading = false;
@@ -142,7 +150,7 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
         int index = arr.IndexOf(Item);
         arr[index] = Item with { State = Application.Payloads.Enums.RepositorySourceStatePayload.Disabled };
         await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, arr)
+            .With(p => p.Source, arr)
             .DispatchAsync();
         IsLoading = false;
     }

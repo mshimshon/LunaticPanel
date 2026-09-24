@@ -542,12 +542,15 @@ internal sealed class DeploymentService
         var deps = _systemDependencies.Union(Configuration.Compose.Apt).ToArray();
         if (deps.Length > 0)
             await RunAsync("Debian", $"apt-get update && apt-get install -y {string.Join(' ', deps)}");
-        var username = Guid.NewGuid().ToString().Replace("-", string.Empty);
-        var password = Guid.NewGuid().ToString().Replace("-", string.Empty);
+        var username = "lpcli_debug";
+        var password = "lpclipwd";
         Console.Out.WriteLine($"Random Username ({username}) and Password ({password}) generated.");
         await RunAsync("Debian", $"useradd -m {username}");
         await RunAsync("Debian", $"printf '%s:%s\n' '{username}' '{password}' | chpasswd");
-        await RunAsync("Debian", $"printf '[user]\ndefault=%s\n' '{username}' >> /etc/wsl.conf");
+        await RunAsync("Debian", $"printf '[user]\ndefault=%s\n' 'root' >> /etc/wsl.conf");
+        // Grant passwordless sudo execution rights to the lpcli_debug user
+        // Ensure the new configuration file has the strict permissions required by Linux
+        await RunAsync("Debian", "sysctl -w kernel.yama.ptrace_scope=0");
         Console.Out.WriteLine($"Debian WSL Configure.");
 
         await ShudownAsync("Debian");

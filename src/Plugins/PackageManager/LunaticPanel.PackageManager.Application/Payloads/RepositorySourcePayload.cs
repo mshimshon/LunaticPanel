@@ -8,6 +8,6 @@ public sealed record RepositorySourcePayload
     public string Source { get; init; } = default!;
     public RepositorySourceTypePayload SourceType { get; init; }
 
-    public RepositorySourceStatePayload State { get; init; }
+    public RepositorySourceStatePayload State { get; init; } = RepositorySourceStatePayload.Disabled;
     public string? Failure { get; init; }
 }

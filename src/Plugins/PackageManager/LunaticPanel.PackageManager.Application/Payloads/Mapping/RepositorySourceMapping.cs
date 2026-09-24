@@ -12,7 +12,9 @@ public static class RepositorySourceMapping
         {
             Name = data.Name.Value,
             Source = data.Info.Source.Value,
-            SourceType = data.Info.SourceType.ToApplicationPayload()
+            SourceType = data.Info.SourceType.ToApplicationPayload(),
+            State = data.State.ToApplicationPayload(),
+            Failure = data.Failure?.Value
         };
 
 
@@ -51,18 +53,17 @@ public static class RepositorySourceMapping
     public static RepositorySourceState ToDomainEntity(this RepositorySourceStatePayload data)
         => data switch
         {
-            RepositorySourceStatePayload.Unknown => RepositorySourceState.Unknown,
             RepositorySourceStatePayload.Enabled => RepositorySourceState.Enabled,
             RepositorySourceStatePayload.Disabled => RepositorySourceState.Disabled,
-            _ => throw new ArgumentOutOfRangeException(nameof(data))
+            _ => RepositorySourceState.Unknown
         };
 
     public static RepositorySourceStatePayload ToApplicationPayload(this RepositorySourceState data)
         => data switch
         {
-            RepositorySourceState.Unknown => RepositorySourceStatePayload.Unknown,
             RepositorySourceState.Enabled => RepositorySourceStatePayload.Enabled,
             RepositorySourceState.Disabled => RepositorySourceStatePayload.Disabled,
-            _ => throw new ArgumentOutOfRangeException(nameof(data))
+            _ => RepositorySourceStatePayload.Unknown,
+
         };
 }
