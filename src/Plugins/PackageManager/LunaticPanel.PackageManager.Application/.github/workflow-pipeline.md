@@ -1,6 +1,7 @@
 
 
 # Instructions
+# THIS WORKFLOW IS ONLY FOR PROJECT LunaticPanel.PackageManager.Application
 # Replace [FeatureName] with the target action name.
 # Replace [KeyClass] with 'LPPackageManagerKeys'
 # Replace [RootNamespace] with 'LunaticPanel.PackageManager'
@@ -11,7 +12,8 @@
 # Replace [ReturnType] the specified return type.
 # Replace [BoundState] with the mentioned bound state , If the prompt does not mention STOP and ask for it.
 # Always Read as Instruction {AI_DO}{/AI_DO} and Remove from final output.
-
+# INGORE SYNTAX ERROR YOUR ONLY AND ONLY JOB IS TO FILL THE TEMPLATE LEAVE ERRORS AS IS
+# DO NOT BUILD
 
 ---
 
@@ -52,9 +54,13 @@ namespace [RootPulseNamespace].Effects;
 internal class [FeatureName]Effect : IEffect<[FeatureName]Action>
 {
     private readonly IMedihater _medihater;
+    private readonly ICrazyReport<[FeatureName]Effect> _crazyReport;
 
-    public AddSourceEffect(IMedihater medihater)
+    public [FeatureName]Effect(IMedihater medihater, ICrazyReport<[FeatureName]Effect> crazyReport)
     {
+        _crazyReport = crazyReport;
+        _crazyReport.SetModule([KeyClass].MODULE_NAME);
+        _crazyReport.Report("Initialized Class");
         _medihater = medihater;
     }
     public async Task EffectAsync([FeatureName]Action action, IDispatcher dispatcher)
@@ -62,6 +68,8 @@ internal class [FeatureName]Effect : IEffect<[FeatureName]Action>
 
         try
         {
+            _crazyReport.Report("Executing Effect");
+
             {AI_DO}
                 USE IF REQUESTED PROMPT DOES NOT SPECIFY A RETURN TYPE
             await _medihater.Send(new [FeatureName][MediatorRealm](), dispatcher.CancelToken);

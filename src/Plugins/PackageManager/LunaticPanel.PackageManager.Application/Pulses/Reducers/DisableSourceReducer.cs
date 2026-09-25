@@ -7,7 +7,8 @@ namespace LunaticPanel.PackageManager.Application.Pulses.Reducers;
 internal class DisableSourceReducer : IReducer<RepositorySourceState, DisableSourceAction>
 {
     public RepositorySourceState Reduce(RepositorySourceState state, DisableSourceAction action)
-        => state with { 
-
+        => state with
+        {
+            SourceSaving = true
         };
 }

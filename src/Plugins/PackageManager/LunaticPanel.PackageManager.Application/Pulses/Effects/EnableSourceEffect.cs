@@ -1,4 +1,3 @@
-
 using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using MedihatR;
@@ -6,28 +5,27 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
-internal class DisableSourceEffect : IEffect<DisableSourceAction>
+internal class EnableSourceEffect : IEffect<EnableSourceAction>
 {
     private readonly IMedihater _medihater;
 
-    public DisableSourceEffect(IMedihater medihater)
+    public EnableSourceEffect(IMedihater medihater)
     {
         _medihater = medihater;
     }
-    public async Task EffectAsync(DisableSourceAction action, IDispatcher dispatcher)
-    {
 
+    public async Task EffectAsync(EnableSourceAction action, IDispatcher dispatcher)
+    {
         try
         {
-            await _medihater.Send(new DisableSourceCommand(action.Source), dispatcher.CancelToken);
+            await _medihater.Send(new EnableSourceCommand(action.Source), dispatcher.CancelToken);
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
-            await dispatcher.Prepare<DisableSourceDoneAction>().DispatchAsync();
+            await dispatcher.Prepare<EnableSourceDoneAction>().DispatchAsync();
         }
         catch (Exception)
         {
-            await dispatcher.Prepare<DisableSourceDoneAction>().DispatchAsync();
+            await dispatcher.Prepare<EnableSourceDoneAction>().DispatchAsync();
             throw;
         }
-
     }
 }

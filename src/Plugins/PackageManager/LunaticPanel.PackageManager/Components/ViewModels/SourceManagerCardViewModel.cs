@@ -48,14 +48,9 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
     {
         if (IsFirst()) return;
         IsLoading = true;
-        var arr = SourceState.Sources.ToList();
-        int index = arr.IndexOf(Item);
-        int swapIndex = index - 1;
-        var swap = arr[swapIndex];
-        arr[swapIndex] = Item;
-        arr[index] = swap;
-        await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, arr)
+
+        await _dispatcher.Prepare<MoveUpSourceAction>()
+            .With(p => p.Source, Item)
             .DispatchAsync();
         IsLoading = false;
     }
@@ -64,14 +59,8 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
     {
         if (IsLast()) return;
         IsLoading = true;
-        var arr = SourceState.Sources.ToList();
-        int index = arr.IndexOf(Item);
-        int swapIndex = index + 1;
-        var swap = arr[swapIndex];
-        arr[swapIndex] = Item;
-        arr[index] = swap;
-        await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, arr)
+        await _dispatcher.Prepare<MoveDownSourceAction>()
+            .With(p => p.Source, Item)
             .DispatchAsync();
         IsLoading = false;
     }
@@ -110,9 +99,6 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
         var source = SourceState.Sources.ToList();
         int index = source.IndexOf(Item);
         AvailableApiVersion = await _externalSourceService.GetAPIVersionsAsync(Item);
-        await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, source)
-            .DispatchAsync();
         IsLoading = false;
     }
     private async Task TestLocal()
@@ -124,9 +110,7 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
             source[index] = source[index] with { Failure = "Location not found on system." };
         if (Directory.GetFiles(Item.Source, "*.lpkg", SearchOption.AllDirectories).Length <= 0)
             source[index] = source[index] with { Failure = "Location doesn't contain any lpkgs" };
-        await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, source)
-            .DispatchAsync();
+
         IsLoading = false;
     }
 
@@ -134,11 +118,8 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
     {
         if (Item.State == Application.Payloads.Enums.RepositorySourceStatePayload.Enabled) return;
         IsLoading = true;
-        var arr = SourceState.Sources.ToList();
-        int index = arr.IndexOf(Item);
-        arr[index] = Item with { State = Application.Payloads.Enums.RepositorySourceStatePayload.Enabled };
-        await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Sources, arr)
+        await _dispatcher.Prepare<EnableSourceAction>()
+            .With(p => p.Source, Item)
             .DispatchAsync();
         IsLoading = false;
     }
@@ -146,11 +127,8 @@ internal class SourceManagerCardViewModel : WidgetViewModelBase, ISourceManagerC
     {
         if (Item.State == Application.Payloads.Enums.RepositorySourceStatePayload.Disabled) return;
         IsLoading = true;
-        var arr = SourceState.Sources.ToList();
-        int index = arr.IndexOf(Item);
-        arr[index] = Item with { State = Application.Payloads.Enums.RepositorySourceStatePayload.Disabled };
-        await _dispatcher.Prepare<SaveSourcesAction>()
-            .With(p => p.Source, arr)
+        await _dispatcher.Prepare<DisableSourceAction>()
+            .With(p => p.Source, Item)
             .DispatchAsync();
         IsLoading = false;
     }

@@ -4,9 +4,9 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Reducers;
 
-internal class DisableSourceDoneReducer : IReducer<RepositorySourceState, DisableSourceDoneAction>
+internal class EnableSourceDoneReducer : IReducer<RepositorySourceState, EnableSourceDoneAction>
 {
-    public RepositorySourceState Reduce(RepositorySourceState state, DisableSourceDoneAction action)
+    public RepositorySourceState Reduce(RepositorySourceState state, EnableSourceDoneAction action)
         => state with
         {
             SourceSaving = false

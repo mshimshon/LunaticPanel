@@ -62,6 +62,25 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<DisableSourceReducer>();
         services.AddStatePulseService<DisableSourceDoneReducer>();
 
+        services.AddStatePulseService<EnableSourceAction>();
+        services.AddStatePulseService<EnableSourceDoneAction>();
+        services.AddStatePulseService<EnableSourceEffect>();
+        services.AddStatePulseService<EnableSourceReducer>();
+        services.AddStatePulseService<EnableSourceDoneReducer>();
+
+
+        services.AddStatePulseService<MoveDownSourceAction>();
+        services.AddStatePulseService<MoveDownSourceDoneAction>();
+        services.AddStatePulseService<MoveDownSourceEffect>();
+        services.AddStatePulseService<MoveDownSourceReducer>();
+        services.AddStatePulseService<MoveDownSourceDoneReducer>();
+
+        services.AddStatePulseService<MoveUpSourceAction>();
+        services.AddStatePulseService<MoveUpSourceDoneAction>();
+        services.AddStatePulseService<MoveUpSourceEffect>();
+        services.AddStatePulseService<MoveUpSourceReducer>();
+        services.AddStatePulseService<MoveUpSourceDoneReducer>();
+
         // AI APPEND ABOVE
 
 

@@ -37,6 +37,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Application\Pulses\Actions\" />
 	  <Folder Include="Hooks\Payloads\" />
 	  <Folder Include="Hooks\Queries\" />
 	  <Folder Include="Services\" />
