@@ -20,4 +20,10 @@
     <ProjectReference Include="..\LunaticPanel.PackageManager.Keys\LunaticPanel.PackageManager.Keys.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+	<None Include=".ai\**\*" CopyToOutputDirectory="Never" />
+	  <InternalsVisibleTo Include="LunaticPanel.PackageManager.Tests" />
+  </ItemGroup>
+
+
 </Project>
