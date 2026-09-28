@@ -7,7 +7,6 @@ namespace LunaticPanel.PackageManager.Application.Pulses.States;
 public sealed record PackageUpdateScheduleState : IStateFeatureSingleton
 {
     public PackageManagerConfigurationResponse Configuration { get; init; } = new();
-    public bool Updating { get; init; }
     public IEnumerable<PackagePayload> ToUpdate { get; init; } = new List<PackagePayload>();
-
+    public IEnumerable<PackagePayload> IgnoreUpdatesFrom { get; init; } = new List<PackagePayload>();
 }

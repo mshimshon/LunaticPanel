@@ -2,6 +2,7 @@
 
 public interface IPanelControl
 {
+    Version PanelVersion { get; }
     Task DashboardRender();
     Task MenuRender();
     Task Shutdown();

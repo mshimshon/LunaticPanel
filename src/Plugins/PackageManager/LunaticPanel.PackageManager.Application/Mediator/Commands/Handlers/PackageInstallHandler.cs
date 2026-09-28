@@ -26,9 +26,8 @@ internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
         try
         {
             PackageEntity package = command.Data.ToDomainEntity();
-            RepositorySourceEntity sourceEntity = command.Source.ToDomainEntity();
             var current = await _packageRepository.GetByIdAsync(package.Info.Id, ct);
-            await _repositorySourceService.DownloadAsync(command.Data, command.Source, ct);
+            await _repositorySourceService.DownloadAsync(command.Data, ct);
             await _packageRepository.InstallAsync(package, ct);
 
             //TODO: HANDLE DOMAIN EXCEPTIONS

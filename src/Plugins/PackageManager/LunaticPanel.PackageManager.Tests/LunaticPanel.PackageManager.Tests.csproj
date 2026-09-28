@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="Application\Mediator\" />
+    <Folder Include="Application\Pulses\" />
   </ItemGroup>
 
 </Project>

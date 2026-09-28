@@ -28,9 +28,9 @@ internal class RepositorySourceService : IRepositorySourceService
         await _sourceService.FindAndDownloadToCache(data.Info.PackageId, data.Version, ct);
     }
 
-    public async Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default)
+    public async Task<IEnumerable<PackageAndSourcePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default)
     {
-        List<PackagePayload> result = new();
+        List<PackageAndSourcePayload> result = new();
         foreach (var item in packageIds)
         {
             var package = await _sourceService.FindMostRecentPackage(item, ct);

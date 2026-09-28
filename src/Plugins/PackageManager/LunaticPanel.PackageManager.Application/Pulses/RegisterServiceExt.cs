@@ -81,6 +81,18 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<MoveUpSourceReducer>();
         services.AddStatePulseService<MoveUpSourceDoneReducer>();
 
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesAction>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesDoneAction>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesEffect>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesReducer>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesDoneReducer>();
+
+        services.AddStatePulseService<AutoUpdatePackagesAction>();
+        services.AddStatePulseService<AutoUpdatePackagesDoneAction>();
+        services.AddStatePulseService<AutoUpdatePackagesEffect>();
+        services.AddStatePulseService<AutoUpdatePackagesReducer>();
+        services.AddStatePulseService<AutoUpdatePackagesDoneReducer>();
+
         // AI APPEND ABOVE
 
 

@@ -1,5 +1,4 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
-using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entities;
@@ -23,15 +22,8 @@ internal class PackageUpdateHandler : IRequestHandler<PackageUpdateCommand>
     {
         try
         {
-            RepositorySourcePayload source = new()
-            {
-                SourceType = command.Package.RepositoryType,
-                Source = command.Package.RepositorySource,
-                Name = "Target",
-                State = Payloads.Enums.RepositorySourceStatePayload.Unknown,
-            };
             PackageEntity packageEntity = command.Package.ToDomainEntity();
-            await _repositorySourceService.DownloadAsync(command.Package, source, ct);
+            await _repositorySourceService.DownloadAsync(command.Package, ct);
             await _packageRepository.UpdateAsync(packageEntity, ct);
 
             //TODO: HANDLE DOMAIN EXCEPTIONS

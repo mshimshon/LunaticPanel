@@ -6,7 +6,6 @@ namespace LunaticPanel.PackageManager.Application.Services;
 
 public interface IRepositorySourceService
 {
-    Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default);
     Task DownloadAsync(PackagePayload data, CancellationToken ct = default);
     Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default);
     Task<IEnumerable<string>> GetVersionsAsync(string packageId, CancellationToken ct = default);

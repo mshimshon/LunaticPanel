@@ -18,6 +18,8 @@ public static class PackageMapping
             Failure = data.Failure?.Value
         };
 
+
+
     public static PackageInfoPayload ToApplicationPayload(this PackageInfo data)
     => new()
     {

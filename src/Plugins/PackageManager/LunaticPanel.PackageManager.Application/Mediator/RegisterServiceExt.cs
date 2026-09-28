@@ -28,6 +28,8 @@ internal static class RegisterServiceExt
         services.AddMedihaterHandler<EnableSourceCommandHandler>();
         services.AddMedihaterHandler<MoveDownSourceCommandHandler>();
         services.AddMedihaterHandler<MoveUpSourceCommandHandler>();
+        services.AddMedihaterHandler<PeriodicCheckPackageUpdatesQueryHandler>();
+        services.AddMedihaterHandler<AutoUpdatePackagesCommandHandler>();
         // AI APPEND ABOVE
     }
 }
