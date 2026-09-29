@@ -30,7 +30,6 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
     public EventScheduledBusMessageData DueToExecute(IEventScheduledBusMessage msg, CancellationToken ct = default)
     {
         var result = msg.ReplyWithAction(Exec);
-
         if (_packageUpdateState.State.IsLoading)
             result.SkipExecution().NextTiming(0, 0, _packageUpdateScheduleStateAccess.State.Configuration.UpdateRunnerActiveFrequencySeconds);
         else if (_packageUpdateScheduleStateAccess.State.ToUpdate.Count() > 0)
@@ -54,25 +53,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
             var updates = _packageUpdateState.State.FoundUpdates.ToList();
             _crazyReport.Report("Package Update Found {0}", updates.Count);
             if (updates.Count <= 0) return;
-            foreach (var item in collection)
-            {
-                _crazyReport.Report("Package Update Found {0}", updates.Count);
-
-            }
-            if (_packageUpdateScheduleStateAccess.State.ToUpdate.Count() <= 0) return;
-            var updatePkg = _packageUpdateScheduleStateAccess.State.ToUpdate.First();
-            bool isCancelled = _packageUpdateScheduleStateAccess.State.CancelledRequests
-                .Any(p => p.Info.PackageId == updatePkg.Info.PackageId);
-            if (isCancelled)
-                await _dispatcher.Prepare<InstallNextUpdateDoneAction>()
-                    .With(p => p.ToRemove, updatePkg)
-                    .Await()
-                    .DispatchAsync(ct);
-            else
-                await _dispatcher.Prepare<InstallNextUpdateAction>()
-                    .With(p => p.Package, updatePkg)
-                    .Await()
-                    .DispatchAsync(ct);
+            await _dispatcher.Prepare<AutoUpdatePackagesAction>().Await().DispatchAsync(ct);
         }
         catch (Exception ex)
         {

@@ -20,6 +20,8 @@
   <Folder Name="/Solution Items/">
     <File Path="../README.md" />
     <File Path=".version" />
+    <File Path="CODE OF CONDUCT.md" />
+    <File Path="CONTRIBUTE.md" />
     <File Path="Directory.Packages.props" />
     <File Path="lpcli-compose.yml" />
     <File Path="pack_debug.ps1" />

@@ -17,7 +17,7 @@ internal class InstallPackageEffect : IEffect<InstallPackageAction>
     {
         try
         {
-            await _medihater.Send(new PackageInstallCommand(action.Target, action.Source), dispatcher.CancelToken);
+            await _medihater.Send(new PackageInstallCommand(action.Target), dispatcher.CancelToken);
             await dispatcher.Prepare<LoadPackageDiskFoldersAction>().Await().DispatchAsync();
             await dispatcher.Prepare<InstallPackageDoneAction>().DispatchAsync();
         }

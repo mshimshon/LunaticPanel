@@ -10,4 +10,5 @@ public interface IHostDiskPackageService : IPackageRepository
     Task<ICollection<PackagePayload>> GetRollbacks(CancellationToken ct = default);
     Task<ICollection<PackagePayload>> GetPendingDelete(CancellationToken ct = default);
     Task<ICollection<PackagePayload>> GetPreInstalled(CancellationToken ct = default);
+    Task CancelPendingUpdate(PackagePayload package, CancellationToken ct = default);
 }
