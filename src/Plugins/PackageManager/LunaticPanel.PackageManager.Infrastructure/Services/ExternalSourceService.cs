@@ -195,7 +195,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         return versions.FirstOrDefault(p => new Version(p.Version) == lastVersion);
     }
 
-    public async Task<PackageAndSourcePayload?> FindMostRecentPackage(string id, CancellationToken ct = default)
+    public async Task<PackagePayload?> FindMostRecentPackage(string id, CancellationToken ct = default)
     {
         string sourceJson = File.ReadAllText(_sourceFile);
         List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializerOptions);
@@ -203,7 +203,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
             throw new SourceCorruptedException();
         if (configSources.Count <= 0)
             throw new SourceEmptyException();
-        PackageAndSourcePayload? result = default;
+        PackagePayload? result = default;
         foreach (var item in configSources)
         {
             if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
@@ -218,17 +218,13 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
             if (package == default) continue;
             if (result != default)
             {
-                var currentV = new Version(result.Package.Version);
+                var currentV = new Version(result.Version);
                 var nextV = new Version(package.Version);
                 if (currentV > nextV)
                     continue;
             }
 
-            result = new PackageAndSourcePayload()
-            {
-                Package = package,
-                Source = item.ToApplicationPayload()
-            };
+            result = package;
         }
         return result;
     }

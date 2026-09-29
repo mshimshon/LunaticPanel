@@ -60,32 +60,32 @@ internal class HostDiskPackageService : IHostDiskPackageService
 
     public Task<ICollection<PackagePayload>> GetIntalled(CancellationToken ct = default)
     {
-        ICollection<PackagePayload> result = FolderToPackagePayload(_installedLocation);
+        ICollection<PackagePayload> result = GetPackagePayloadFromFolder(_installedLocation);
         return Task.FromResult(result);
     }
     public Task<ICollection<PackagePayload>> GetPendingDelete(CancellationToken ct = default)
     {
-        ICollection<PackagePayload> result = FolderToPackagePayload(_deleteLocation);
+        ICollection<PackagePayload> result = GetPackagePayloadFromFolder(_deleteLocation);
         return Task.FromResult(result);
     }
     public Task<ICollection<PackagePayload>> GetPendingUpdates(CancellationToken ct = default)
     {
-        ICollection<PackagePayload> result = FolderToPackagePayload(_applyLocation);
+        ICollection<PackagePayload> result = GetPackagePayloadFromFolder(_applyLocation);
         return Task.FromResult(result);
     }
     public Task<ICollection<PackagePayload>> GetRollbacks(CancellationToken ct = default)
     {
-        ICollection<PackagePayload> result = FolderToPackagePayload(_rollbackLocation);
+        ICollection<PackagePayload> result = GetPackagePayloadFromFolder(_rollbackLocation);
         return Task.FromResult(result);
     }
 
     public Task<ICollection<PackagePayload>> GetPreInstalled(CancellationToken ct = default)
     {
-        ICollection<PackagePayload> result = FolderToPackagePayload(_preInstalledFolder);
+        ICollection<PackagePayload> result = GetPackagePayloadFromFolder(_preInstalledFolder);
         return Task.FromResult(result);
     }
 
-    private List<PackagePayload> FolderToPackagePayload(string path)
+    private List<PackagePayload> GetPackagePayloadFromFolder(string path)
     {
 
         if (!Directory.Exists(path)) return new();
@@ -121,20 +121,29 @@ internal class HostDiskPackageService : IHostDiskPackageService
         }
     }
 
-    public async Task DeleteAsync(PackageId id, CancellationToken ct = default)
+    public Task DeleteAsync(PackageId id, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(BOOTSTRAP_LOCATION, (content) =>
-        {
-            string pluginFolder = string.Format(BOOTSTRAP_PLUGIN_LOCATION_FMT, id.Value.Replace('.', '_').ToLower());
-            var bootstrap = Loadbootstrap(content);
-            var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
-            if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
-            if (entry.Entity.Lifecycle.State == ExternalPluginEntityLifecycleState.Active)
-                throw new BootstrapPackageDeleteActiveException(id.Value);
-            bootstrap.KnownPlugins.Remove(entry);
-            Directory.Delete(pluginFolder);
-            return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
-        }, ct);
+        var installed = GetPackagePayloadFromFolder(_installedLocation);
+        var plugin = installed.First(p => p.Info.PackageId.Equals(id.Value, StringComparison.OrdinalIgnoreCase)); // TODO: THROW ON DEFAULT INSTEAD OF GENERIC FIRST.
+        // We Have Downloaded Package REady to Install from Cache
+        string filename = $"{id.Value}.{plugin.Version}.lpkg";
+        string file = Path.Combine(_installedLocation, filename);
+        string output = Path.Combine(_deleteLocation, filename);
+        File.Move(file, output);
+        return Task.CompletedTask;
+        //TODO: CLEAR COMMENTED CODE.
+        //await _safeFileWriter.WriteThenCopyFileAsync(BOOTSTRAP_LOCATION, (content) =>
+        //{
+        //    string pluginFolder = string.Format(BOOTSTRAP_PLUGIN_LOCATION_FMT, id.Value.Replace('.', '_').ToLower());
+        //    var bootstrap = Loadbootstrap(content);
+        //    var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
+        //    if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
+        //    if (entry.Entity.Lifecycle.State == ExternalPluginEntityLifecycleState.Active)
+        //        throw new BootstrapPackageDeleteActiveException(id.Value);
+        //    bootstrap.KnownPlugins.Remove(entry);
+        //    Directory.Delete(pluginFolder);
+        //    return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
+        //}, ct);
     }
     public async Task DisableAsync(PackageId id, CancellationToken ct = default)
     {
@@ -243,4 +252,29 @@ internal class HostDiskPackageService : IHostDiskPackageService
 
     public Task UpdateAsync(PackageEntity target, CancellationToken ct = default)
         => InstallAsync(target, ct);
+    public Task CancelPendingUpdate(PackagePayload package, CancellationToken ct = default)
+    {
+        string filename = $"{package.Info.PackageId}.{package.Version}.lpkg";
+        string targetFile = Path.Combine(_applyLocation, filename);
+        File.Delete(targetFile);
+        return Task.CompletedTask;
+    }
+
+    public Task CancelPendingRollback(PackagePayload package, CancellationToken ct = default)
+    {
+        string filename = $"{package.Info.PackageId}.{package.Version}.lpkg";
+        string targetFile = Path.Combine(_applyLocation, filename);
+        string targetReollbackFile = Path.Combine(_rollbackLocation, filename);
+        File.Move(targetFile, targetReollbackFile);
+        return Task.CompletedTask;
+    }
+
+    public Task CancelPendingDelete(PackagePayload package, CancellationToken ct = default)
+    {
+        string filename = $"{package.Info.PackageId}.{package.Version}.lpkg";
+        string output = Path.Combine(_installedLocation, filename);
+        string file = Path.Combine(_deleteLocation, filename);
+        File.Move(file, output);
+        return Task.CompletedTask;
+    }
 }

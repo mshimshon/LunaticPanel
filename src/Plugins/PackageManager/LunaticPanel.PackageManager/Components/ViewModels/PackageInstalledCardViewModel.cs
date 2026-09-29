@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using StatePulse.Net;
 
@@ -55,9 +56,21 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
         CanDelete = !IsPreInstalled;
     }
 
-    public Task UpdateAsync() => throw new NotImplementedException();
+    public async Task UpdateAsync()
+    {
+        IsLoading = true;
+        await _statePulse.Dispatcher.Prepare<PackageRollbackAction>().With(p => p.Package, Data).DispatchAsync();
+        IsLoading = false;
+    }
     public async Task CancelUpdateAsync() => await CancelInstallAsync();
     public async Task CancelInstallAsync() => await CancelUpdateAsync();
-    public Task RollbackAsync() => throw new NotImplementedException();
+    public async Task RollbackAsync()
+    {
+        IsLoading = true;
+        await _statePulse.Dispatcher.Prepare<PackageRollbackAction>()
+            .With(p => p.Package, Data)
+            .DispatchAsync();
+        IsLoading = false;
+    }
     public Task CancelScheduledRollbackAsync() => throw new NotImplementedException();
 }

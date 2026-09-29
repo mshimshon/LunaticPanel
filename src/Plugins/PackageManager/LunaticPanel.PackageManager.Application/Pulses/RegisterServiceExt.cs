@@ -99,6 +99,18 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<PackageCancelInstallReducer>();
         services.AddStatePulseService<PackageCancelInstallDoneReducer>();
 
+        services.AddStatePulseService<PackageDeleteAction>();
+        services.AddStatePulseService<PackageDeleteDoneAction>();
+        services.AddStatePulseService<PackageDeleteEffect>();
+        services.AddStatePulseService<PackageDeleteReducer>();
+        services.AddStatePulseService<PackageDeleteDoneReducer>();
+
+        services.AddStatePulseService<PackageRollbackAction>();
+        services.AddStatePulseService<PackageRollbackDoneAction>();
+        services.AddStatePulseService<PackageRollbackEffect>();
+        services.AddStatePulseService<PackageRollbackReducer>();
+        services.AddStatePulseService<PackageRollbackDoneReducer>();
+
         // AI APPEND ABOVE
 
 

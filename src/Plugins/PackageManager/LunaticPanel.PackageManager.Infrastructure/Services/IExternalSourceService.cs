@@ -12,7 +12,7 @@ public interface IExternalSourceService
     Task ClearSourceCacheAsync(CancellationToken ct = default);
     Task<RepositorySourcePayload?> GetPackageCacheSourceForAsync(string id, string packageVersion, CancellationToken ct = default);
     Task<RepositorySourcePayload?> GetPackageSourceForAsync(string id, string packageVersion, CancellationToken ct = default);
-    Task<PackageAndSourcePayload?> FindMostRecentPackage(string id, CancellationToken ct = default);
+    Task<PackagePayload?> FindMostRecentPackage(string id, CancellationToken ct = default);
     Task<Version[]> FindAllVersionsForAsync(string id, CancellationToken ct = default);
     Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>> SearchAllSourcesAsync(SearchRequest data, CancellationToken ct = default);
     Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default);
