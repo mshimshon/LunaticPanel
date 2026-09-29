@@ -11,6 +11,9 @@ public partial class PackageInstalledCard
     private const string PACKAGE_UPDATE_SCHEDULED = "Update Scheduled for v{0}"; // TODO: LOCALIZE
     private const string PACKAGE_UPDATE_CANCEL = "Cancel Update to {0}"; // TODO: LOCALIZE
     private const string PACKAGE_UPDATE_ROLLBACK_CONFLICT = "Cannot Update (Rollback Scheduled)"; // TODO: LOCALIZE
+    private const string PACKAGE_DELETE_CANCEL = "Cancel Delete"; // TODO: LOCALIZE
+    private const string PACKAGE_DELETE_FORBIDDEN = "This package ships with the panel and cannot be removed unless manually removed."; // TODO: LOCALIZE
+    private const string PACKAGE_DELETE = "Schedule Delete for {0}"; // TODO: LOCALIZE
     private const string PACKAGE_ROLLBACK = "Schedule Rollback to {0}"; // TODO: LOCALIZE
     private const string PACKAGE_ROLLBACK_CANCEL = "Cancel Rollback to {0}"; // TODO: LOCALIZE
 

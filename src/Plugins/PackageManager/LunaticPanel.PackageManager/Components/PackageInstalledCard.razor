@@ -26,38 +26,41 @@
     <MudCardActions>
         @if (ViewModel.HasUpdateScheduled)
         {
-            <MudAlert Severity=Severity.Info>
-                @string.Format(PACKAGE_UPDATE_SCHEDULED, ViewModel.ScheduledUpdate!.Version)
-            </MudAlert>
-            <MudButton Variant="Variant.Text" Color="Color.Warning" Disabled>
-                @PACKAGE_UPDATE_ROLLBACK_CONFLICT
+            <MudButton Variant="Variant.Text" Color="Color.Warning">
+                @string.Format(PACKAGE_UPDATE_CANCEL, ViewModel.ScheduledUpdate!.Version)
             </MudButton>
         }
         
-        @if (!ViewModel.HasUpdateScheduled && ViewModel.CanScheduleUpdate)
+        @if (!ViewModel.HasUpdateScheduled && ViewModel.HasUpdateAvailable)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
                 @string.Format(PACKAGE_UPDATE, ViewModel.AvailableUpdate!.Version)
             </MudButton>
         }
-        else if (!ViewModel.HasUpdateScheduled && ViewModel.CanCancelScheduledUpdate)
-        {
-            <MudButton Variant="Variant.Text" Color="Color.Warning">
-                @string.Format(PACKAGE_UPDATE_CANCEL, ViewModel.AvailableUpdate!.Version)
-            </MudButton>
-        }
-
-        @if (!ViewModel.HasUpdateScheduled && ViewModel.CanScheduleRollback)
+        @if (!ViewModel.HasUpdateScheduled && ViewModel.HasAvailableRollback)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
                 @string.Format(PACKAGE_ROLLBACK, ViewModel.AvailableRollback!.Version)
             </MudButton>
         }
-        else if (!ViewModel.HasUpdateScheduled && ViewModel.CanCancelScheduledRollback)
+
+        @if (ViewModel.HasDeleteScheduled)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
-                @string.Format(PACKAGE_ROLLBACK_CANCEL, ViewModel.AvailableRollback!.Version)
+                @PACKAGE_DELETE_CANCEL
             </MudButton>
+        }else if (!ViewModel.HasDeleteScheduled && ViewModel.CanDelete)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Warning">
+                @string.Format(PACKAGE_ROLLBACK, ViewModel.Data.Info.PackageId)
+            </MudButton>
+        }else if (!ViewModel.CanDelete)
+        {
+            <MudAlert Severity=@Severity.Warning>
+                @PACKAGE_DELETE_FORBIDDEN
+            </MudAlert>
         }
+
+
     </MudCardActions>
 </MudCard>

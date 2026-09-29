@@ -6,23 +6,23 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 
 public interface IPackageInstalledCardViewModel : IWidgetViewModel
 {
-    PackagePayload Data { get; set; }
+    PackagePayload Data { get; internal set; }
     PackageUpdateState PackageUpdate { get; }
+    PackageManagerDiskState ManagerState { get; }
     PackageUpdateScheduleState UpdateScheduleState { get; }
-    bool HasUpdateAvailable { get; }
-    bool HasUpdateScheduled { get; }
-    bool CheckingForUpdate { get; }
-    bool CanScheduleUpdate { get; }
-    bool CanCancelScheduledUpdate { get; }
+    PackageManagerDiskEditorState ManagerEditorState { get; }
     PackagePayload? ScheduledUpdate { get; }
+    PackagePayload? ScheduledDelete { get; }
+    PackagePayload? ScheduledRollback { get; }
     PackagePayload? AvailableUpdate { get; }
     PackagePayload? AvailableRollback { get; }
-    bool HasRollbackAvailable { get; }
-    bool HasRollbackScheduled { get; }
+    bool CanScheduleUpdate { get; }
+    bool HasUpdateScheduled { get; }
+    bool HasDeleteScheduled { get; }
     bool CanScheduleRollback { get; }
-    bool CanCancelScheduledRollback { get; }
-    Task ScheduledUpdateAsync();
-    Task CancelScheduledUpdateAsync();
-    Task ScheduledRollbackAsync();
-    Task CancelScheduledRollbackAsync();
+    bool HasRollbackScheduled { get; }
+    bool CanDelete { get; }
+    bool HasUpdateAvailable { get; }
+    bool IsPreInstalled { get; }
+    bool HasAvailableRollback { get; }
 }

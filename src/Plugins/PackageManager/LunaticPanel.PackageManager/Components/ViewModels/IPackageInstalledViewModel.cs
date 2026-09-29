@@ -7,4 +7,6 @@ public interface IPackageInstalledViewModel : IWidgetViewModel
 {
     int InstalledPackageCount { get; }
     PackageManagerDiskState PackageManagerState { get; }
+    PackageUpdateState PackageUpdateState { get; }
+    Task CheckForUpdates();
 }

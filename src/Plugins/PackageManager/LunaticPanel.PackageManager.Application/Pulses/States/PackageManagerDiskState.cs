@@ -9,7 +9,6 @@ public sealed record PackageManagerDiskState : IStateFeatureSingleton
     public bool IsInitialized { get; init; }
     public IEnumerable<PackagePayload> PendingUpdates { get; init; } = Array.Empty<PackagePayload>();
     public IEnumerable<PackagePayload> AvailableRollbacks { get; init; } = Array.Empty<PackagePayload>();
-
     public IEnumerable<PackagePayload> PendingDelete { get; init; } = Array.Empty<PackagePayload>();
 
     /// <summary>

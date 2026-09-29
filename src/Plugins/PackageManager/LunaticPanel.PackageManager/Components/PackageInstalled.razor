@@ -18,6 +18,9 @@
     }
     else
     {
+        <MudItem xs="12">
+            <MudButton OnClick=ViewModel.CheckForUpdates  Disabled=@ViewModel.IsLoading>Check Updates</MudButton>
+        </MudItem>
         @foreach (var package in ViewModel.PackageManagerState.Installed)
         {
             <MudItem xs=12 >

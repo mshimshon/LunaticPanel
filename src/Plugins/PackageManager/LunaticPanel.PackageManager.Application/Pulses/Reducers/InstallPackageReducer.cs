@@ -9,6 +9,5 @@ internal class InstallPackageReducer : IReducer<PackageUpdateScheduleState, Inst
     public PackageUpdateScheduleState Reduce(PackageUpdateScheduleState state, InstallPackageDoneAction action)
         => state with
         {
-            Updating = true,
         };
 }

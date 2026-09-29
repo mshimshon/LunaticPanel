@@ -31,7 +31,7 @@ internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<Periodi
             _crazyReport.Report("Handler Called");
             var snap = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new Version(p.Version));
             var result = await _medihater.Send(new GetPackagesLatestVersionQuery(snap.Select(p => p.Key)), ct);
-            var updates = result.Where(p => new Version(p.Package.Version) > snap[p.Package.Info.PackageId]).ToList();
+            var updates = result.Where(p => new Version(p.Version) > snap[p.Info.PackageId]).ToList();
             return updates;
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

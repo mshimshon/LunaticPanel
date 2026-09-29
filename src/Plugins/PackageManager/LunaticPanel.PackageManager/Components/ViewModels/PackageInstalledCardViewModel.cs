@@ -13,18 +13,27 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public PackageUpdateState PackageUpdate => _statePulse.StateOf<PackageUpdateState>(() => this, UpdateChanges);
     public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
     public PackageUpdateScheduleState UpdateScheduleState => _statePulse.StateOf<PackageUpdateScheduleState>(() => this, UpdateChanges);
-    public bool HasUpdateAvailable { get; private set; }
-    public bool HasUpdateScheduled { get; private set; }
-    public bool CheckingForUpdate { get; private set; }
+    public PackageManagerDiskEditorState ManagerEditorState => _statePulse.StateOf<PackageManagerDiskEditorState>(() => this, UpdateChanges);
+
     public bool CanScheduleUpdate { get; private set; }
-    public bool CanCancelScheduledUpdate { get; private set; }
-    public PackagePayload? ScheduledUpdate { get; private set; }
-    public PackagePayload? AvailableUpdate { get; private set; }
-    public PackagePayload? AvailableRollback { get; private set; }
-    public bool HasRollbackAvailable { get; private set; }
-    public bool HasRollbackScheduled { get; private set; }
+    public bool HasUpdateScheduled => ScheduledUpdate != default;
+
+    public bool HasDeleteScheduled => ScheduledDelete != default;
+
     public bool CanScheduleRollback { get; private set; }
-    public bool CanCancelScheduledRollback { get; private set; }
+    public bool HasRollbackScheduled => ScheduledRollback != default;
+
+    public PackagePayload? ScheduledUpdate { get; private set; }
+    public PackagePayload? ScheduledDelete { get; private set; }
+    public PackagePayload? ScheduledRollback { get; private set; }
+    public bool CanDelete { get; private set; }
+    public PackagePayload? AvailableUpdate { get; private set; }
+    public bool HasUpdateAvailable => AvailableUpdate != default;
+
+    public PackagePayload? AvailableRollback { get; private set; }
+    public bool IsPreInstalled { get; private set; }
+    public bool HasAvailableRollback => AvailableRollback != default;
+
 
     public PackageInstalledCardViewModel(IStatePulse statePulse)
     {
@@ -33,26 +42,22 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
 
     protected override void OnViewModelParametersSet()
     {
-
+        IsPreInstalled = ManagerState.PreInstalled.Any(p => p.Info.PackageId == Data.Info.PackageId);
     }
 
     protected override void OnViewModelBeforeRender()
     {
-        ScheduledUpdate = UpdateScheduleState.ToUpdate.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
-        AvailableUpdate = PackageUpdate.FoundUpdates.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
-        AvailableRollback = ManagerState.AvailableRollbacks.SingleOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
-        HasUpdateAvailable = AvailableUpdate != default && AvailableUpdate?.Version != Data.Version;
-        HasRollbackAvailable = AvailableRollback != default && AvailableRollback?.Version != Data.Version;
-
-        CheckingForUpdate = PackageUpdate.IsLoading;
+        ScheduledUpdate = ManagerState.PendingUpdates.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
+        AvailableUpdate = PackageUpdate.FoundUpdates.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
+        AvailableRollback = ManagerState.AvailableRollbacks.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
         CanScheduleUpdate = !HasUpdateScheduled && HasUpdateAvailable;
-        CanScheduleRollback = !HasUpdateScheduled && HasRollbackAvailable;
-        CanCancelScheduledRollback = HasUpdateScheduled && ScheduledUpdate == AvailableRollback;
-        CanCancelScheduledUpdate = HasUpdateScheduled && ScheduledUpdate == AvailableUpdate;
+        CanScheduleRollback = !HasUpdateScheduled && HasAvailableRollback && ScheduledUpdate != AvailableRollback;
+        CanDelete = !IsPreInstalled;
     }
 
-    public Task ScheduledUpdateAsync() => throw new NotImplementedException();
-    public Task CancelScheduledUpdateAsync() => throw new NotImplementedException();
-    public Task ScheduledRollbackAsync() => throw new NotImplementedException();
+    public Task UpdateAsync() => throw new NotImplementedException();
+    public async Task CancelUpdateAsync() => await CancelInstallAsync();
+    public async Task CancelInstallAsync() => await CancelUpdateAsync();
+    public Task RollbackAsync() => throw new NotImplementedException();
     public Task CancelScheduledRollbackAsync() => throw new NotImplementedException();
 }

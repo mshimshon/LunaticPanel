@@ -11,4 +11,5 @@ public record PackagePayload
     public string PanelVersion { get; set; } = default!;
     public List<PackageDependencyPayload> Dependencies { get; set; } = new();
     public string? Failure { get; set; }
+    public bool AutoUpdate { get; set; } = true;
 }
