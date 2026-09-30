@@ -277,4 +277,6 @@ internal class HostDiskPackageService : IHostDiskPackageService
         File.Move(file, output);
         return Task.CompletedTask;
     }
+
+    public Task RollbackTo(PackagePayload package, CancellationToken ct = default) => throw new NotImplementedException();
 }

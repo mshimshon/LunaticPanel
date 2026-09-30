@@ -25,7 +25,7 @@ internal class PackageDeleteEffect : IEffect<PackageDeleteAction>
         try
         {
             _crazyReport.Report("Executing Effect");
-            await _medihater.Send(new PackageDeleteCommand(), dispatcher.CancelToken);
+            await _medihater.Send(new PackageRemoveCommand(action.Package.Info.PackageId), dispatcher.CancelToken);
             await dispatcher.Prepare<PackageDeleteDoneAction>().DispatchAsync();
         }
         catch (Exception)

@@ -11,6 +11,7 @@ public class MainMenuViewModel
     private readonly IDispatcher _dispatcher;
     private readonly PanelControl _panelControl;
     public Guid PanelId => _panelControl.Id;
+    public string PanelVersion { get; private set; }
     public Func<Task>? SpreadChanges { get; set; }
     private bool _loading = true;
     private bool _disposedValue;
@@ -34,6 +35,7 @@ public class MainMenuViewModel
         _dispatcher = dispatcher;
         _panelControl = panelControl;
         panelControl.MenuStateHasChanged += OnUpdate;
+        PanelVersion = panelControl.PanelVersion.ToString(3);
     }
 
     public async Task LoadAsync()

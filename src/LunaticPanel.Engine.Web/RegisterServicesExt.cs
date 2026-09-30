@@ -107,6 +107,7 @@ public static class RegisterServicesExt
         services.AddEngineInfrastructureRedirected();
         services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
         services.AddScoped<IPanelControl>((sp) => sp.GetRequiredService<PanelControl>());
+        services.AddScoped<IHostControl>((sp) => sp.GetRequiredService<PanelControl>());
         services.AddScoped<IHostExceptionHandler>((sp) => sp.GetRequiredService<HostExceptionHandler>());
 
         services.AddMudServices(config =>

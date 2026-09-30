@@ -12,6 +12,8 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
 
     public int InstalledPackageCount { get; private set; }
 
+    public PackageUpdateState PackageUpdateState => _statePulse.StateOf<PackageUpdateState>(() => this, UpdateChanges);
+
     public PackageInstalledViewModel(IStatePulse statePulse)
     {
         _statePulse = statePulse;
@@ -30,4 +32,5 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
         }
     }
 
+    public Task CheckForUpdates() => throw new NotImplementedException();
 }
