@@ -14,6 +14,7 @@ public static class PackageMapping
             RepositorySource = data.Source.Source.Value,
             RepositoryType = data.Source.SourceType.ToApplicationPayload(),
             Version = data.Version.Value,
+            PanelVersion = data.PanelVersion.Value,
             Dependencies = data.Dependencies.Select(p => p.ToApplicationPayload()).ToList(),
             Failure = data.Failure?.Value
         };
@@ -48,7 +49,7 @@ public static class PackageMapping
         var sourceInfo = new RepositorySourceInfo(source, data.RepositoryType.ToDomainEntity());
         var depList = data.Dependencies.Select(p => p.ToDomainEntity()).ToArray();
         var version = new PackageVersion(data.Version);
-        var panelVersion = new PackagePanelVersion(data.Version);
+        var panelVersion = new PackagePanelVersion(data.PanelVersion);
         return data.Failure == default ? new PackageEntity(info, sourceInfo, version, panelVersion, depList) :
             new PackageEntity(info, sourceInfo, version, panelVersion, depList, new(data.Failure));
     }

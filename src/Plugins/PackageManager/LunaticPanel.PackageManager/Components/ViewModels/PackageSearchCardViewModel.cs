@@ -55,7 +55,7 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
                 .With(p => p.Target, target)
                 .DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
 
             throw;

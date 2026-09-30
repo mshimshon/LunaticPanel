@@ -11,7 +11,11 @@
         <MudDivider />
 
         <MudChip Size=Size.Small T="string" Color="Color.Info">@($"Version: {ViewModel.Data.Version}")</MudChip>
-        <MudChip Size=Size.Small T="string" Color="Color.Info">@($"Panel: {ViewModel.Data.PanelVersion}+")</MudChip>
+        <MudChip Size=Size.Small T="string" Color="Color.Transparent">@($"Panel: {ViewModel.Data.PanelVersion}+")</MudChip>
+        @if (!ViewModel.CanDelete)
+        {
+            <MudChip Size=Size.Small T="string" Color="Color.Warning">@PACKAGE_DELETE_FORBIDDEN</MudChip>
+        }
         @if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
         {
             <MudChip Size=Size.Small T="string" Color="Color.Primary">
@@ -54,11 +58,6 @@
             <MudButton Variant="Variant.Text" Color="Color.Warning">
                 @string.Format(PACKAGE_ROLLBACK, ViewModel.Data.Info.PackageId)
             </MudButton>
-        }else if (!ViewModel.CanDelete)
-        {
-            <MudAlert Severity=@Severity.Warning>
-                @PACKAGE_DELETE_FORBIDDEN
-            </MudAlert>
         }
 
 

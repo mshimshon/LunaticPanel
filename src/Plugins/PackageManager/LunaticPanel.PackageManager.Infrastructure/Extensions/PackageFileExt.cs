@@ -22,6 +22,7 @@ internal static class PackageFileExt
         return new()
         {
             Version = manifest.Version,
+            PanelVersion = manifest.PanelVersion,
             Info = new()
             {
                 Description = manifest.Description,

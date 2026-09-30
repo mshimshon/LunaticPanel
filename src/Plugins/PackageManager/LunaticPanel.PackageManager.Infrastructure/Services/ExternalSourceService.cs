@@ -232,29 +232,38 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
 
     private async Task<PackagePayload?> GetRemoteLatestVersionFromAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct)
     {
-
-        var relative = "lpkg/v1/package/latest";
-        var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
-        var httpResponse = await _client.GetAsync($"{apiEndpoint}/{id}");
-        if (!httpResponse.IsSuccessStatusCode)
-            httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
-        var manifest = await httpResponse.Content.ReadFromJsonAsync<PluginManifestExtPayload>(ct);
-        if (manifest == default)
-            throw new Exception(""); // TODO: THROW Deserialize Error
-
-        return new()
+        try
         {
-            Version = manifest.Version,
-            Info = new()
+            var relative = "lpkg/v1/package/latest";
+            var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
+            var httpResponse = await _client.GetAsync($"{apiEndpoint}/{id}");
+            if (!httpResponse.IsSuccessStatusCode)
+                httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
+            var manifest = await httpResponse.Content.ReadFromJsonAsync<PluginManifestExtPayload>(ct);
+            if (manifest == default)
+                throw new Exception(""); // TODO: THROW Deserialize Error
+            return new()
             {
-                Description = manifest.Description,
-                Name = manifest.Title,
-                PackageId = manifest.Id,
-                State = Application.Payloads.Enums.PackageStatePayload.Unknown
-            },
-            RepositorySource = source.Source,
-            RepositoryType = source.SourceType.ToApplicationPayload()
-        };
+                Version = manifest.Version,
+                Info = new()
+                {
+                    Description = manifest.Description,
+                    Name = manifest.Title,
+                    PackageId = manifest.Id,
+                    State = Application.Payloads.Enums.PackageStatePayload.Unknown
+                },
+                RepositorySource = source.Source,
+                RepositoryType = source.SourceType.ToApplicationPayload()
+            };
+        }
+        catch (Exception ex)
+        {
+            _crazyReport.ReportErrorException(ex.Message, ex);
+            return default;
+        }
+
+
+
     }
     private async Task CopyFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {

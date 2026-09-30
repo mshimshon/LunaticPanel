@@ -59,6 +59,7 @@ public class PluginEntry : PluginBase, IPlugin
         if (!pluginContext.IsMasterCircuit) return;
         var dispatch = pluginContext.GetRequired<IDispatcher>();
         await dispatch.Prepare<LoadSourcesAction>().Await().DispatchAsync();
+        await dispatch.Prepare<LoadPackageDiskFoldersAction>().Await().DispatchAsync();
     }
 
 }

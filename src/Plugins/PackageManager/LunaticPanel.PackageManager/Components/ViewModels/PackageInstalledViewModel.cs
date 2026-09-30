@@ -32,5 +32,10 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
         }
     }
 
-    public Task CheckForUpdates() => throw new NotImplementedException();
+    public async Task CheckForUpdates()
+    {
+        IsLoading = true;
+        await _statePulse.Dispatcher.Prepare<PeriodicCheckPackageUpdatesAction>().DispatchAsync();
+        IsLoading = false;
+    }
 }
