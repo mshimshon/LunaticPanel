@@ -5,7 +5,7 @@ import styles from './styles.module.css';
 const FeatureList = [
   {
     title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    Svg: require('@site/static/img/LunaticPanel.svg').default,
     description: (
       <>
         Docusaurus was designed from the ground up to be easily installed and
@@ -53,6 +53,7 @@ export default function HomepageFeatures() {
   return (
     <section className={styles.features}>
       <div className="container">
+          <center><h1 >Supported By</h1></center>
         <div className="row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />
