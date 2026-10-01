@@ -6,7 +6,7 @@ apt:
   - "socat"
   - "screen"
 services:
-    - dotnet_project: "./src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
+    - dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
       service_name: "lunaticpanel"
       # https:// to the location of deb release file we want.
       # deb_url: "" 
@@ -19,7 +19,7 @@ services:
       depends_on:
           - lpkg_localserver
 
-    - dotnet_project: "./tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj"
+    - dotnet_project: "../tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj"
       service_name: "lpkg_localserver"
       # https:// to the location of deb release file we want.
       # deb_url: "" 
@@ -44,7 +44,7 @@ services:
 # You can choose to build, publish csproject and archive it than move it to WSL... same for folders and files.
 post_processing:
 #    - import_from: "../../Panel/src/lpcli-compose.yml"  will import all the post_processing from Panel Source firs  
-     - dotnet_project: "./tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj"
+     - dotnet_project: "../tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj"
        publish_to: "/opt/lpcli_tool"
 
 #     publish_to: "/etc/lunaticpanel/mockData/myPublish"

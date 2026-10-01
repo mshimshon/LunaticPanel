@@ -39,7 +39,7 @@
     <File Path="CODE OF CONDUCT.md" />
     <File Path="CONTRIBUTE.md" />
     <File Path="Directory.Packages.props" />
-    <File Path="lpcli-compose.yml" />
+    <File Path="src/lpcli-compose.yml" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="plugins/PackageManager/LunaticPanel.PackageManager.Tests/LunaticPanel.PackageManager.Tests.csproj" Id="cf692e7a-3b50-45a2-82f7-6d26ce077a0a" />
