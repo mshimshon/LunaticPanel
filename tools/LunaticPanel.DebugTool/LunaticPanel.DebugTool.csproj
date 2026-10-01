@@ -25,12 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\..\src\LunaticPanel.Package.Tool\LunaticPanel.Package.Tool.csproj">
-
-		  <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-		  <IncludeAssets>all</IncludeAssets>
-	  </ProjectReference>
-
+    <ProjectReference Include="..\LunaticPanel.Package.Tool\LunaticPanel.Package.Tool.csproj" />
   </ItemGroup>
 
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
