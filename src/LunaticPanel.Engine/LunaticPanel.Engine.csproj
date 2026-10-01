@@ -24,6 +24,7 @@
 
 <ItemGroup>
 	<PackageReference Include="CommandLineParser" />
+	<PackageReference Include="CoreMap" />
 	<PackageReference Include="DotNetCore.CAP" />
 	<PackageReference Include="DotNetCore.CAP.Dashboard" />
 	<PackageReference Include="DotNetCore.CAP.InMemoryStorage" />
@@ -36,11 +37,17 @@
 
 <ItemGroup>
   <ProjectReference Include="..\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+  <ProjectReference Include="..\LunaticPanel.Core.Extensions\LunaticPanel.Core.Extensions.csproj" />
   <ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
   <ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
-  <ProjectReference Include="..\LunaticPanel.Engine.Domain\LunaticPanel.Engine.Domain.csproj" />
-  <ProjectReference Include="..\LunaticPanel.Engine.Infrastructure\LunaticPanel.Engine.Infrastructure.csproj" />
+  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+  <ProjectReference Include="..\LunaticPanel.Engine.Keys\LunaticPanel.Engine.Keys.csproj" />
   <ProjectReference Include="..\LunaticPanel.Engine.Plugin\LunaticPanel.Engine.Plugin.csproj" />
+</ItemGroup>
+
+<ItemGroup>
+  <Folder Include="Domain\Messaging\Entities\" />
+  <Folder Include="Domain\Messaging\Enums\" />
 </ItemGroup>
 
 

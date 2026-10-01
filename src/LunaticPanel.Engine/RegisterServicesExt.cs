@@ -54,7 +54,6 @@ public static class RegisterServicesExt
 
             o.ScanAssemblies = [
                     typeof(RegisterServicesExt).Assembly,
-                    typeof(Application.RegisterServicesExt).Assembly,
                     typeof(Infrastructure.RegisterServicesExt).Assembly,
                 ];
         });
@@ -62,7 +61,6 @@ public static class RegisterServicesExt
         {
             o.ScanAssemblies = [
                 typeof(RegisterServicesExt).Assembly,
-                typeof(Application.RegisterServicesExt).Assembly,
                 typeof(Infrastructure.RegisterServicesExt).Assembly,
              ];
         });

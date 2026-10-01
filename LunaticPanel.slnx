@@ -1,0 +1,62 @@
+<Solution>
+  <Folder Name="/Plugins/">
+    <File Path="plugins/lpcli-compose.yml" />
+
+  </Folder>
+
+  <Folder Name="/Plugins/PackageManager/">
+    <File Path="plugins/PackageManager/lpcli-compose.yml" />
+    <File Path="plugins/PackageManager/sources.dev.json" />
+    <File Path="plugins/PackageManager/sources.json" />
+    <Project Path="plugins/PackageManager/LunaticPanel.PackageManager.Application/LunaticPanel.PackageManager.Application.csproj" Id="cf5fe086-ce80-4145-a983-98235ebbd5bf" />
+    <Project Path="plugins/PackageManager/LunaticPanel.PackageManager.Domain/LunaticPanel.PackageManager.Domain.csproj" Id="98a0a306-4ba4-45f0-9e6d-f2769d90e306" />
+    <Project Path="plugins/PackageManager/LunaticPanel.PackageManager.Infrastructure/LunaticPanel.PackageManager.Infrastructure.csproj" Id="c4cc6a32-014d-4a07-b764-06aeebca104d" />
+    <Project Path="plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj" Id="725e9a98-9373-4c75-b9de-97b51d72823d" />
+    <Project Path="plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj" Id="485dc0e2-1e72-40ad-acd2-30cb1440f4b0" />
+  </Folder>
+  <Folder Name="/Plugins/Test/">
+    <File Path="plugins/_Test/lpcli-compose.yml" />
+    <Project Path="plugins/_Test/LunaticPanel.Plugin.Test/LunaticPanel.Plugin.Test.csproj" />
+  </Folder>
+
+  <Folder Name="/Tools/">
+
+
+  </Folder>
+      <Folder Name="/Tools/PackageServing/">
+        <Project Path="tools/LuncaticPanel.Package.Server/LuncaticPanel.Package.Server.csproj" Id="7f6d8ca4-1ab3-429f-899f-1a954fc90dd8" />
+        <Project Path="tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj" Id="8747fc7c-1a46-4c59-a72a-aa568f6855e7" />
+    </Folder>
+  <Folder Name="/Tools/Packing/">
+    <Project Path="tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj" Id="5f35e089-266b-4c66-bad5-030e0ac27c97" />
+  </Folder>
+  <Folder Name="/Tools/PluginDev/">
+    <Project Path="tools/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+    <File Path=".version" />
+    <File Path="CODE OF CONDUCT.md" />
+    <File Path="CONTRIBUTE.md" />
+    <File Path="Directory.Packages.props" />
+    <File Path="lpcli-compose.yml" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="plugins/PackageManager/LunaticPanel.PackageManager.Tests/LunaticPanel.PackageManager.Tests.csproj" Id="cf692e7a-3b50-45a2-82f7-6d26ce077a0a" />
+    <Project Path="tests/LunaticPanel.Core.Tests/LunaticPanel.Core.Tests.csproj" Id="5b01a88a-6915-470d-be3d-48e586e4d2a7" />
+    <Project Path="tests/LuncaticPanel.Package.Server.Tests/LuncaticPanel.Package.Server.Tests.csproj" Id="aebc0d94-f668-4d4e-8765-bf786211755c" />
+  </Folder>
+
+  <Project Path="src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj" Id="7e195f8a-1e26-4614-9faa-e3227850601a" />
+  <Project Path="src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj" Id="e13603f4-70bc-4ed3-b15e-803aabf0385c" />
+  <Project Path="src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj" />
+  <Project Path="src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj" Id="c601a408-7fe7-4c21-8e08-f3d09fd5e1d6" />
+  <Project Path="src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj" Id="abbd2a68-c5e8-4492-917c-6b361d0a7716" />
+  <Project Path="src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj" Id="315587b7-2696-4daf-b022-6129f6facefa" />
+  <Project Path="src/LunaticPanel.Core/LunaticPanel.Core.csproj" />
+  <Project Path="src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj" />
+  <Project Path="src/LunaticPanel.Engine.Plugin/LunaticPanel.Engine.Plugin.csproj" Id="fe55f553-393c-40aa-b992-a186735b7367" />
+  <Project Path="src/LunaticPanel.Engine/LunaticPanel.Engine.csproj" />
+  <Project Path="src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj" Id="77efe45b-bcc3-470e-8120-d2edd02f93cb" />
+
+</Solution>

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\LunaticPanel.Engine.Web\LunaticPanel.Engine.Web.csproj" />
+    <ProjectReference Include="..\..\LunaticPanel.Engine\LunaticPanel.Engine.csproj" />
   </ItemGroup>
 
 </Project>
