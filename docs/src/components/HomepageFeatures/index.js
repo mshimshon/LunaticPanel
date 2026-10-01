@@ -53,7 +53,10 @@ export default function HomepageFeatures() {
   return (
     <section className={styles.features}>
       <div className="container">
-          <center><h1 >Supported By</h1></center>
+
+          <center>
+             <Svg v role="img" />
+             <h1 >Supported By</h1></center>
         <div className="row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />

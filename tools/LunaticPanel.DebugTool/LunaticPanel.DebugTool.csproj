@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\..\src\LunaticPanel.Package.Tool\LunaticPanel.Package.Tool.csproj" >
+	  <ProjectReference Include="..\..\src\LunaticPanel.Package.Tool\LunaticPanel.Package.Tool.csproj">
 
 		  <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
 		  <IncludeAssets>all</IncludeAssets>
