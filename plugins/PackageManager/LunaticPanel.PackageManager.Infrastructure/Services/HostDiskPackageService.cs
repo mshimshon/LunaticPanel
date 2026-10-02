@@ -244,7 +244,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
         if (!File.Exists(file))
             throw new InstallNotFoundException(package.Info.Id.Value);
         string output = Path.Combine(_applyLocation, filename);
-        File.Move(file, output);
+        File.Move(file, output, true);
         return Task.CompletedTask;
     }
     public Task<IQueryModelResult<PackageInfo>> QueryAsync(IPackageQueryModel queryModel, CancellationToken ct = default)

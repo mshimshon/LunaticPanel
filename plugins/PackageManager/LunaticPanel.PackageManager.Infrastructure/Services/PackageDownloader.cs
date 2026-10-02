@@ -6,12 +6,12 @@ using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Application.Services;
 namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
-internal class RepositorySourceService : IRepositorySourceService
+internal class PackageDownloader : IPackageDownloader
 {
-    private readonly ICrazyReport<RepositorySourceService> _crazyReport;
+    private readonly ICrazyReport<PackageDownloader> _crazyReport;
     private readonly IExternalSourceService _sourceService;
 
-    public RepositorySourceService(ICrazyReport<RepositorySourceService> crazyReport,
+    public PackageDownloader(ICrazyReport<PackageDownloader> crazyReport,
         ISafeFileWriter safeFileWriter, IExternalSourceService sourceService)
     {
         _crazyReport = crazyReport;
@@ -43,7 +43,7 @@ internal class RepositorySourceService : IRepositorySourceService
     public async Task<IEnumerable<string>> GetVersionsAsync(string packageId, CancellationToken ct = default)
     {
         var result = await _sourceService.FindAllVersionsForAsync(packageId);
-        return result.Select(p => $"{p.Major}.{p.Minor}.{p.Build}");
+        return result.Select(p => p.ToString(3));
     }
 
     public async Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default)

@@ -4,7 +4,7 @@ using LunaticPanel.PackageManager.Application.Payloads.Responses;
 
 namespace LunaticPanel.PackageManager.Application.Services;
 
-public interface IRepositorySourceService
+public interface IPackageDownloader
 {
     Task DownloadAsync(PackagePayload data, CancellationToken ct = default);
     Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default);

@@ -14,7 +14,7 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
 {
     private readonly IStatePulse _statePulse;
     private readonly IMedihater _medihater;
-    private readonly IRepositorySourceService _repositorySourceService;
+    private readonly IPackageDownloader _repositorySourceService;
 
     public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
 
@@ -41,7 +41,8 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
         This design allows to fix runtime lock on plugin folders and allows the host panel itself to apply updates, new install and the package manage must only cycle the files within those folders and the panel do the rest at startup.
 
      */
-    public async Task InstallAsync()
+    public async Task InstallAsync() => await FailSafeExecutionAsync(InstallProcessAsync);
+    public async Task InstallProcessAsync()
     {
         // TODO: Implement two stage Download, Then Install from Cache.
         try

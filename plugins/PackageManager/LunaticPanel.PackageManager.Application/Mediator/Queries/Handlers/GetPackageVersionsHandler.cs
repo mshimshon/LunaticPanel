@@ -6,9 +6,9 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
 internal class GetPackageVersionsHandler : IRequestHandler<GetPackageVersionsQuery, ICollection<string>>
 {
-    private readonly IRepositorySourceService _repositorySourceService;
+    private readonly IPackageDownloader _repositorySourceService;
 
-    public GetPackageVersionsHandler(IRepositorySourceService repositorySourceService)
+    public GetPackageVersionsHandler(IPackageDownloader repositorySourceService)
     {
         _repositorySourceService = repositorySourceService;
     }

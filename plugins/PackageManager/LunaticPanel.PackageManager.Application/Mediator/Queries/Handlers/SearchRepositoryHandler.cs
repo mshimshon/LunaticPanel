@@ -10,10 +10,10 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
 internal class SearchRepositoryHandler : IRequestHandler<SearchRepositoryQuery, Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>>
 {
-    private readonly IRepositorySourceService _repositorySource;
+    private readonly IPackageDownloader _repositorySource;
     private readonly ICrazyReport _crazyReport;
 
-    public SearchRepositoryHandler(IRepositorySourceService repositorySource, ICrazyReport<SearchRepositoryHandler> crazyReport)
+    public SearchRepositoryHandler(IPackageDownloader repositorySource, ICrazyReport<SearchRepositoryHandler> crazyReport)
     {
         _repositorySource = repositorySource;
         _crazyReport = crazyReport;

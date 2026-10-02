@@ -25,7 +25,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
     private readonly string _sourceFile;
     private readonly string _sourceCached;
     private readonly string _sourceApiCached;
-    private readonly ICrazyReport<RepositorySourceService> _crazyReport;
+    private readonly ICrazyReport<PackageDownloader> _crazyReport;
     private readonly ISafeFileWriter _safeFileWriter;
     private static JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -38,7 +38,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
     public HttpClient _client;
     private bool _disposedValue;
     private readonly IPluginSystemLocation _pluginSystemLocation;
-    public ExternalSourceService(IPluginLocation pluginLocation, ICrazyReport<RepositorySourceService> crazyReport, ISafeFileWriter safeFileWriter,
+    public ExternalSourceService(IPluginLocation pluginLocation, ICrazyReport<PackageDownloader> crazyReport, ISafeFileWriter safeFileWriter,
         IServiceProvider serviceProvider)
     {
         _crazyReport = crazyReport;
@@ -268,8 +268,8 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
     private async Task CopyFromLocalAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
         string outputPath = Path.Combine(_sourceApiCached, $"{id}.{version}.lpkg");
-        if (!File.Exists(outputPath)) return;
         string inputPath = Path.Combine(source.Source, $"{id}.{version}.lpkg");
+        if (!File.Exists(inputPath)) return;
         File.Copy(inputPath, outputPath, true);
     }
 

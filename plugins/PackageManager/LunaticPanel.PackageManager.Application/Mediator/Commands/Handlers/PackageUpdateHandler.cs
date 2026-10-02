@@ -9,10 +9,10 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
 internal class PackageUpdateHandler : IRequestHandler<PackageUpdateCommand>
 {
-    private readonly IRepositorySourceService _repositorySourceService;
+    private readonly IPackageDownloader _repositorySourceService;
     private readonly IPackageRepository _packageRepository;
 
-    public PackageUpdateHandler(IRepositorySourceService repositorySourceService, IPackageRepository packageRepository)
+    public PackageUpdateHandler(IPackageDownloader repositorySourceService, IPackageRepository packageRepository)
     {
         _repositorySourceService = repositorySourceService;
         _packageRepository = packageRepository;

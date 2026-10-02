@@ -20,7 +20,7 @@ public static class RegisterServicesExt
             p.PulseTrackingPerformance = StatePulse.Net.Configuration.PulseTrackingModel.BlazorServerSafe;
 
         });
-        services.AddTransient<IRepositorySourceService, RepositorySourceService>();
+        services.AddTransient<IPackageDownloader, PackageDownloader>();
         services.AddTransient<IExternalSourceService, ExternalSourceService>();
         services.AddTransient<ISourceRepository, SourceRepository>();
         services.AddTransient<ISourceFileService, SourceFileService>();

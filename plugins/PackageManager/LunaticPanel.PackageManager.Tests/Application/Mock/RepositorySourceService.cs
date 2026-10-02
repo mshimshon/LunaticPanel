@@ -5,7 +5,7 @@ using LunaticPanel.PackageManager.Application.Services;
 
 namespace LunaticPanel.PackageManager.Tests.Application.Mock;
 
-internal class RepositorySourceService : IRepositorySourceService
+internal class RepositorySourceService : IPackageDownloader
 {
     public static List<string> Downloaded { get; set; } = new();
     public Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default)
@@ -64,4 +64,5 @@ internal class RepositorySourceService : IRepositorySourceService
         };
         return Task.FromResult(result);
     }
+
 }

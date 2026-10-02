@@ -9,15 +9,13 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
 internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
 {
-    private readonly IRepositorySourceService _repositorySourceService;
-    private readonly IPackageService _packageService;
+    private readonly IPackageDownloader _repositorySourceService;
     private readonly IPackageRepository _packageRepository;
 
-    public PackageInstallHandler(IRepositorySourceService repositorySourceService, IPackageService packageService,
+    public PackageInstallHandler(IPackageDownloader repositorySourceService,
         IPackageRepository packageRepository)
     {
         _repositorySourceService = repositorySourceService;
-        _packageService = packageService;
         _packageRepository = packageRepository;
     }
     public async Task Handle(PackageInstallCommand command,
@@ -26,7 +24,7 @@ internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
         try
         {
             PackageEntity package = command.Data.ToDomainEntity();
-            var current = await _packageRepository.GetByIdAsync(package.Info.Id, ct);
+            //var current = await _repositorySourceService.GetLatestVersionAsync([package.Info.Id.Value], ct);
             await _repositorySourceService.DownloadAsync(command.Data, ct);
             await _packageRepository.InstallAsync(package, ct);
 

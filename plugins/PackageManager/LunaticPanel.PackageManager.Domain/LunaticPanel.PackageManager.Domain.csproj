@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+    <Configurations>Debug;Release;9</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
