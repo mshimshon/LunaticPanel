@@ -7,5 +7,7 @@ public interface IPackageSearchCardViewModel : IWidgetViewModel
 {
     PackageInfoPayload Data { get; set; }
     bool IsInstalled { get; set; }
+    bool IsPendingUpdate { get; }
+    bool IsDeleted { get; }
     Task InstallAsync();
 }

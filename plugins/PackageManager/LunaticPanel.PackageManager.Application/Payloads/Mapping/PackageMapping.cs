@@ -42,7 +42,7 @@ public static class PackageMapping
     {
         var info = data.Info.ToDomainEntity();
         RepositorySource source =
-            data.RepositoryType == Enums.RepositorySourceTypePayload.Local ?
+            data.RepositoryType == RepositorySourceTypePayload.Local ?
             new RepositorySourceLocal(data.RepositorySource) :
             new RepositorySourceRemote(data.RepositorySource);
 
@@ -70,20 +70,18 @@ public static class PackageMapping
 
 
     public static PackageState ToDomainEntity(this PackageStatePayload data)
-    => data switch
-    {
-        PackageStatePayload.Unknown => PackageState.Unknown,
-        PackageStatePayload.Enabled => PackageState.Enabled,
-        PackageStatePayload.Disabled => PackageState.Disabled,
-        _ => throw new ArgumentOutOfRangeException(nameof(data))
-    };
+        => data switch
+        {
+            PackageStatePayload.Enabled => PackageState.Enabled,
+            PackageStatePayload.Disabled => PackageState.Disabled,
+            _ => PackageState.Unknown
+        };
 
     public static PackageStatePayload ToApplicationPayload(this PackageState data)
-=> data switch
-{
-    PackageState.Unknown => PackageStatePayload.Unknown,
-    PackageState.Enabled => PackageStatePayload.Enabled,
-    PackageState.Disabled => PackageStatePayload.Disabled,
-    _ => throw new ArgumentOutOfRangeException(nameof(data))
-};
+        => data switch
+        {
+            PackageState.Enabled => PackageStatePayload.Enabled,
+            PackageState.Disabled => PackageStatePayload.Disabled,
+            _ => PackageStatePayload.Unknown
+        };
 }

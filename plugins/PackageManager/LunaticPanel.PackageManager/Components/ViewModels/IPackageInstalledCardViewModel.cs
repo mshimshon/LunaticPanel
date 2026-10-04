@@ -25,4 +25,6 @@ public interface IPackageInstalledCardViewModel : IWidgetViewModel
     bool HasUpdateAvailable { get; }
     bool IsPreInstalled { get; }
     bool HasAvailableRollback { get; }
+    bool IsAlreadyInstalled { get; }
+    Task Restart();
 }

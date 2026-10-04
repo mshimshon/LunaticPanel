@@ -29,9 +29,9 @@
         <MudItem xs="12">
             <MudButton OnClick=ViewModel.CheckForUpdates  Disabled=@ViewModel.IsLoading>Check Updates</MudButton>
         </MudItem>
-        @foreach (var package in ViewModel.PackageManagerState.Installed)
+        @foreach (var package in ViewModel.Result)
         {
-            <MudItem xs=12 >
+            <MudItem xs=12>
                 <PackageInstalledCard Data=@package />
             </MudItem>
         }

@@ -1,10 +1,11 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Abstraction.Widgets;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Mediator.Queries;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
-using LunaticPanel.PackageManager.Application.Services;
+using LunaticPanel.PackageManager.Keys;
 using MedihatR;
 using StatePulse.Net;
 
@@ -14,33 +15,29 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
 {
     private readonly IStatePulse _statePulse;
     private readonly IMedihater _medihater;
-    private readonly IPackageDownloader _repositorySourceService;
+    private readonly ICrazyReport<PackageSearchCardViewModel> _crazyReport;
 
     public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
 
 
     public PackageInfoPayload Data { get; set; } = default!;
     public bool IsInstalled { get; set; }
-    public PackageSearchCardViewModel(IStatePulse statePulse, IMedihater medihater)
+    public bool IsPendingUpdate { get; set; }
+    public bool IsDeleted { get; set; }
+    public PackageSearchCardViewModel(IStatePulse statePulse, IMedihater medihater, ICrazyReport<PackageSearchCardViewModel> crazyReport)
     {
         _statePulse = statePulse;
         _medihater = medihater;
+        _crazyReport = crazyReport;
+        _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
 
     protected override void OnViewModelBeforeRender()
     {
         IsInstalled = ManagerState.Installed.Any(p => p.Info.PackageId == Data.PackageId);
+        IsPendingUpdate = ManagerState.PendingUpdates.Any(p => p.Info.PackageId == Data.PackageId);
+        IsDeleted = ManagerState.PendingDelete.Any(p => p.Info.PackageId == Data.PackageId);
     }
-    /*
-     BIN/lunaticpanel/plugins -> Folder of active plugins on panel.
-        BIN/lunaticpanel/plugins_preinstalled -> Always install + enabled if not present in plugins
-        TMP/lunaticpanel/plugins/installed -> Save LPKG for the currently installed plugin, if LPKG missing or multiple version, do not load the plugin.
-        TMP/lunaticpanel/plugins/apply -> Any LPKG in the folder will be installed at startup time of the panel then move to install, if multiple version do not process.
-        TMP/lunaticpanel/plugins/rollbacks -> When apply occurs, if plugin was there and its a upgrade/downgrade the rollback is current lpkg
-
-        This design allows to fix runtime lock on plugin folders and allows the host panel itself to apply updates, new install and the package manage must only cycle the files within those folders and the panel do the rest at startup.
-
-     */
     public async Task InstallAsync() => await FailSafeExecutionAsync(InstallProcessAsync);
     public async Task InstallProcessAsync()
     {
@@ -58,7 +55,7 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
         }
         catch (Exception ex)
         {
-
+            _crazyReport.ReportErrorException(ex.Message, ex);
             throw;
         }
         finally

@@ -34,11 +34,13 @@
     <Project Path="tools/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path="install.sh" />
     <File Path="README.md" />
     <File Path=".version" />
     <File Path="CODE OF CONDUCT.md" />
     <File Path="CONTRIBUTE.md" />
     <File Path="Directory.Packages.props" />
+    <File Path="setup.sh" />
     <File Path="src/lpcli-compose.yml" />
   </Folder>
   <Folder Name="/Tests/">
