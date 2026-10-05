@@ -144,7 +144,7 @@ public class ValidatorTests
     [InlineData("Hello World 2.0")]
     public void AlphanumSpaceDot_ShouldValidate(string value)
     {
-        bool valid = Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN, RegexOptions.IgnoreCase);
+        bool valid = Regex.IsMatch(value, DomainValidationExt.ALPHANUM_SCPPUNCT_VALIDATION_PATTERN, RegexOptions.IgnoreCase);
         Assert.True(valid);
     }
 
@@ -153,7 +153,6 @@ public class ValidatorTests
     [InlineData("a_b")]       // underscore
     [InlineData("a!")]        // punctuation
     [InlineData("a?")]
-    [InlineData("a,")]
     [InlineData("a:")]
     [InlineData("a/")]
     [InlineData("a\\")]
@@ -161,15 +160,15 @@ public class ValidatorTests
     [InlineData("a#")]
     public void AlphanumSpaceDot_ShouldNOTValidate(string value)
     {
-        bool valid = Regex.IsMatch(value, DomainValidationExt.ALPHANUM_INCLSPACEDOT_VALIDATION_PATTERN, RegexOptions.IgnoreCase);
+        bool valid = Regex.IsMatch(value, DomainValidationExt.ALPHANUM_SCPPUNCT_VALIDATION_PATTERN, RegexOptions.IgnoreCase);
         Assert.False(valid);
     }
 
     [Theory]
-    [InlineData("10")]
-    [InlineData("6")]
-    [InlineData("8")]
-    [InlineData("1000")]
+    [InlineData("10.0.0")]
+    [InlineData("6.0.0")]
+    [InlineData("8.1.0")]
+    [InlineData("1000.0.1")]
     public void PackagePanelVersion_ShouldValidate(string version)
     {
         bool valid = Regex.IsMatch(version, DomainValidationExt.PANEL_VERSION_VALIDATION_PATTERN);
@@ -177,9 +176,8 @@ public class ValidatorTests
     }
 
     [Theory]
-    [InlineData("1001")]
-    [InlineData("10000")]
-    [InlineData("10.0.0")]
+    [InlineData("10.0.0.22")]
+    [InlineData("1")]
     [InlineData("3.1")]
     public void PackagePanelVersion_ShouldNOTValidate(string version)
     {
@@ -188,10 +186,10 @@ public class ValidatorTests
     }
 
     [Theory]
-    [InlineData("10")]
-    [InlineData("6")]
-    [InlineData("8")]
-    [InlineData("1000")]
+    [InlineData("10.0.0")]
+    [InlineData("6.0.0")]
+    [InlineData("8.1.0")]
+    [InlineData("1000.0.0")]
     public void PackageDotnetVersion_ShouldValidate(string version)
     {
         bool valid = Regex.IsMatch(version, DomainValidationExt.DOTNET_VERSION_VALIDATION_PATTERN);
@@ -200,9 +198,8 @@ public class ValidatorTests
 
     [Theory]
     [InlineData("1001")]
-    [InlineData("10000")]
-    [InlineData("10.0.0")]
-    [InlineData("3.1")]
+    [InlineData("10000.0")]
+    [InlineData("10.0.0.0")]
     public void PackageDotnetVersion_ShouldNOTValidate(string version)
     {
         bool valid = Regex.IsMatch(version, DomainValidationExt.DOTNET_VERSION_VALIDATION_PATTERN);

@@ -82,4 +82,6 @@ internal class PackageRepository : IPackageRepository
         });
         return Task.CompletedTask;
     }
+
+    public Task UpdateAsync(PackageEntity target, CancellationToken ct = default) => throw new NotImplementedException();
 }

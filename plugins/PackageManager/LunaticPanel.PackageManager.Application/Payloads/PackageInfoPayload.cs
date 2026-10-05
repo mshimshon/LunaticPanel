@@ -7,8 +7,8 @@ public sealed record PackageInfoPayload
     public string PackageId { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string Description { get; set; } = default!;
-    public int Rating { get; set; }
-    public int AutoUpdateScore { get; set; }
+    public int Rating { get; set; } = -1;
+    public int AutoUpdateScore { get; set; } = 100;
 
     public PackageStatePayload State { get; set; } = PackageStatePayload.Unknown;
 }

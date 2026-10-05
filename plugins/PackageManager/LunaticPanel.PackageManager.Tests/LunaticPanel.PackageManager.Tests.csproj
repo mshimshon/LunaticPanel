@@ -5,7 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-	  <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
 	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
   </PropertyGroup>
 

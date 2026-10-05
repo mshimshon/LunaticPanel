@@ -14,7 +14,7 @@ public class SearchMappingTests
         PackageId = "TEST.ID",
         Name = "TEST PACKAGE",
         Description = "DESC",
-        State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Disabled
+        State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Enabled
     };
 
     public static PackageInfo PackageMock { get; } =

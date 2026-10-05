@@ -1,9 +1,11 @@
-﻿using LunaticPanel.PackageManager.Application.Payloads;
+﻿using LunaticPanel.Core.Abstraction.Plugin;
+using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Enums;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.Enums;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
+using System.Reflection;
 
 namespace LunaticPanel.PackageManager.Tests.Application.Mapping;
 
@@ -27,9 +29,12 @@ public class PackageMappingTests
             : new RepositorySourceRemote(repoSource);
         var sourceInfo = new RepositorySourceInfo(source, domainSourceType);
         var pkgVersion = new PackageVersion(version);
+        Assembly assembly = typeof(IPlugin).Assembly;
+        Version assemblyVersion = assembly.GetName()!.Version!;
+        var panelVersion = new PackagePanelVersion(assemblyVersion.ToString(3));
         var dependencies = new[] { new PackageDependency(new(depName), new(depId), new(depVersion)) };
 
-        var entity = new PackageEntity(info, sourceInfo, pkgVersion, dependencies);
+        var entity = new PackageEntity(info, sourceInfo, pkgVersion, panelVersion, dependencies);
 
         var payload = entity.ToApplicationPayload();
 
@@ -77,16 +82,17 @@ public class PackageMappingTests
     }
 
     [Theory]
-    [InlineData(RepositorySourceTypePayload.Local, typeof(RepositorySourceLocal), "2.1.0", "C:\\local\\path", "id-999", "Payload Name", "Payload Desc", 90, 5, "d1", "Dep One", "1.0.0")]
-    [InlineData(RepositorySourceTypePayload.Remote, typeof(RepositorySourceRemote), "1.0.0", "https://github.com", "id-111", "Remote Name", "Remote Desc", 40, 2, "d2", "Dep Two", "2.0.0")]
+    [InlineData(RepositorySourceTypePayload.Local, typeof(RepositorySourceLocal), "2.1.0", "12.0.0", "C:\\local\\path", "id-999", "Payload Name", "Payload Desc", 90, 5, "d1", "Dep One", "1.0.0")]
+    [InlineData(RepositorySourceTypePayload.Remote, typeof(RepositorySourceRemote), "1.0.0", "12.0.0", "https://github.com", "id-111", "Remote Name", "Remote Desc", 40, 2, "d2", "Dep Two", "2.0.0")]
     public void PackagePayload_ToDomainEntity_ShouldMapCorrectly_ForDifferentRepositoryTypes(
-        RepositorySourceTypePayload payloadType, Type expectedSourceType, string version, string repoSource,
+        RepositorySourceTypePayload payloadType, Type expectedSourceType, string version, string panelVersion, string repoSource,
         string packageId, string name, string description, int score, int rating,
         string depId, string depName, string depVersion)
     {
         var payload = new PackagePayload
         {
             Version = version,
+            PanelVersion = panelVersion,
             RepositorySource = repoSource,
             RepositoryType = payloadType,
             Info = new PackageInfoPayload

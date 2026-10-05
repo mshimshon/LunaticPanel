@@ -65,4 +65,9 @@ internal class RepositorySourceService : IPackageDownloader
         return Task.FromResult(result);
     }
 
+    public Task DownloadAsync(PackagePayload data, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<IEnumerable<string>> GetVersionsAsync(string packageId, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>> SearchAsync(SearchRequest data, CancellationToken ct = default) => throw new NotImplementedException();
 }
