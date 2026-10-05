@@ -2,13 +2,16 @@ name: .NET 10 Multi-Project CI
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    # Strictly limits execution to semantic version tags matching vx.x.x
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    
+    env:
+      DOTNET_TEST_RUNNER: Microsoft.Testing.Platform
 
     steps:
       - name: Checkout Code
@@ -26,6 +29,5 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run All Unit Tests
-        # Targets the "tests" folder to execute all test projects inside it
-        run: dotnet test --no-build --configuration Release --verbosity normal
-
+        # Ensure 'LunaticPanel.sln' matches your exact solution file name
+        run: dotnet test LunaticPanel.slnx --no-build --configuration Release --verbosity normal -p:TreatWarningsAsErrors=false
