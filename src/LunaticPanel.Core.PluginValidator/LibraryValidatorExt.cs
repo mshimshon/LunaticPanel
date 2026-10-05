@@ -277,31 +277,29 @@ public static class LibraryValidatorExt
         var company = meta[ManifestMeta.Company];
         if (company == default)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.Company.ToString(), $"'{dll}' company not found.");
-        var version = meta[ManifestMeta.Version]?.Split('+')[0];
+        string? version = meta[ManifestMeta.Version]?.Split('+', '-')[0];
         if (version == default)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' version tag not found.");
         string[] versionSplit = version.Split('.');
         if (versionSplit.Length != 3)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' version tag '{version}' doesn't respect strict 'major.minor.patch' format.");
+        var tVersion = new Version(version);
 
-        var asmVersion = meta[ManifestMeta.AssemblyVersion]?.Split('+')[0];
+        var asmVersion = meta[ManifestMeta.AssemblyVersion]?.Split('+', '-')[0];
         if (asmVersion == default)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.AssemblyVersion.ToString(), $"'{dll}' AssemblyVersion tag not found.");
-        string[] asmVersionSplit = asmVersion.Split('.');
-        if (asmVersionSplit.Length != 4 || asmVersionSplit[3] != "0")
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.AssemblyVersion.ToString(), $"'{dll}' AssemblyVersion tag '{asmVersion}' doesn't respect strict 'major.minor.patch' format.");
+        var tAsmVersion = new Version(asmVersion);
+        if (tAsmVersion.ToString(3) != tVersion.ToString(3) && tAsmVersion.Revision <= 0)
+            throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' AssemblyFileVersion tag '{tAsmVersion.ToString(4)}' is not same as '{tVersion.ToString(4)}'.");
 
-        var fileVersion = meta[ManifestMeta.FileVersion]?.Split('+')[0];
+        var fileVersion = meta[ManifestMeta.FileVersion]?.Split('+', '-')[0];
         if (fileVersion == default)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' AssemblyFileVersion tag not found.");
-        string[] fileVersionSplit = fileVersion.Split('.');
-        if (fileVersionSplit.Length != 4 || fileVersionSplit[3] != "0")
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' AssemblyFileVersion tag '{fileVersion}' doesn't respect strict 'major.minor.patch' format.");
+        var tFileVersion = new Version(fileVersion);
+        if (tFileVersion.ToString(3) != tVersion.ToString(3) && tFileVersion.Revision <= 0)
+            throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' AssemblyFileVersion tag '{tFileVersion.ToString(4)}' is not same as '{tVersion.ToString(4)}'.");
 
-        if (versionSplit[0] != asmVersionSplit[0] || versionSplit[1] != asmVersionSplit[1] || versionSplit[2] != asmVersionSplit[2])
-            throw new PluginMetadataExtractionMalformedException("", $"'{dll}' {asmVersion} != {version} Assembly Version must equal Version (without +hash).");
-        if (versionSplit[0] != fileVersionSplit[0] || versionSplit[1] != fileVersionSplit[1] || versionSplit[2] != fileVersionSplit[2])
-            throw new PluginMetadataExtractionMalformedException("", $"'{dll}' {asmVersion} != {version} AssemblyFileVersion must equal Version (without +hash).");
+
         int pluginEntryImplementations = CountIPluginImplementations(dll);
         if (pluginEntryImplementations <= 0)
             throw new PluginEntryViolationException("No Plugin Entry Found.");

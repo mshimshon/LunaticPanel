@@ -63,37 +63,7 @@ jobs:
             -c Release -r linux-x64 --self-contained false -o /tmp/artifacts/server-lite /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
           tar -czf lpkg-server-lite.${VERSION}.tar.gz -C /tmp/artifacts/server-lite .
 
-      ###########################################################################
-      # PACKAGE PLUGINS USING TOOL
-      ###########################################################################
-      - name: Check if .csproj exists
-        run: |
-          TARGET_FILE="$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
-          
-          echo "Checking path: $TARGET_FILE"
-          
-          if [ -f "$TARGET_FILE" ]; then
-            echo "✅ SUCCESS: The file exists in the container environment!"
-          else
-            echo "❌ ERROR: File not found at this location."
-            echo "Current container directory listing:"
-            ls -la "$GITHUB_WORKSPACE"
-          fi
-      - name: Package plugins
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          PLUGINS=(
-            "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
-          )
-          mkdir -p /tmp/artifacts/plugins
-          for KEY in "${KEY_PROJECTS[@]}"; do
-            FILE_NAME=$(basename "$KEY")
-            PROJECT_NAME="${FILE_NAME%.csproj}"
-            TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
-            mkdir -p "$TARGET_BUILD_DIR"
-            dotnet build "$KEY" -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output "/tmp/artifacts/plugins" --version $VERSION
-          done
+
       ###########################################################################
       # PACK NUGET PACKAGES IN ORDER
       ###########################################################################
@@ -121,7 +91,26 @@ jobs:
           dotnet pack $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
           dotnet pack $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
 
+      ###########################################################################
+      # PACKAGE PLUGINS USING TOOL
+      ###########################################################################
+      - name: Package plugins
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PLUGINS=(
+            "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+          )
+          
+          mkdir -p /tmp/artifacts/plugins
 
+          for KEY in "${PLUGINS[@]}"; do
+            FILE_NAME=$(basename "$KEY")
+            PROJECT_NAME="${FILE_NAME%.csproj}"
+            TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
+            mkdir -p "$TARGET_BUILD_DIR"
+            dotnet build "$KEY" -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:AssemblyVersion=$VERSION
+            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output "/tmp/artifacts/plugins" --version $VERSION
+          done
       ###########################################################################
       # LIST ALL ARTIFACTS BEFORE RELEASE
       ###########################################################################
@@ -137,7 +126,3 @@ jobs:
           echo ""
           echo "=== NUGET PACKAGES (.nupkg) ==="
           ls -lh /tmp/artifacts/nuget/*.nupkg || true
-
-          echo ""
-          echo "=== FULL ARTIFACT TREE ==="
-          ls -R /tmp/artifacts 

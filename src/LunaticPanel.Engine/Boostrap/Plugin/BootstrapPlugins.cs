@@ -244,7 +244,7 @@ internal static class BootstrapPlugins
     private static string ConvertVersionToMajorMinorPatch(string version)
     {
         var v = new Version(version.Split('-', '+')[0]);
-        return $"{v.Major}.{v.Minor}.{v.Build}";
+        return v.ToString(3);
     }
     public static void DetectRuntimePlugins()
     {

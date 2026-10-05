@@ -13,6 +13,7 @@ public sealed class ConsoleApplicationBuilder
     {
         Services = new ServiceCollection();
         _args = args;
+        Console.WriteLine($"ARGS = {string.Join(' ', args)}");
         var sdkVersion = typeof(PluginManifestPayload).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion!.Split('+')[0];
         Console.Out.WriteLine($"sdkVersion:{sdkVersion}".Magenta());
         var sdkVersionObj = new Version(sdkVersion!);

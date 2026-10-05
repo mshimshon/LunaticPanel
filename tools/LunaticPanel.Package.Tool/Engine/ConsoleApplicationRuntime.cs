@@ -11,7 +11,7 @@ namespace LunaticPanel.Package.Tool.Engine;
 public sealed class ConsoleApplicationRuntime
 {
     public IServiceProvider ServiceProvider { get; init; } = default!;
-    private string[] _args { get; init; } = default!;
+    private string[] _args;
     public ConsoleApplicationRuntime(string[] args)
     {
         _args = args;
@@ -22,6 +22,8 @@ public sealed class ConsoleApplicationRuntime
     }
     internal static async Task RunStartupCommandAsync(CancellationToken ct, params string[] args)
     {
+        Console.WriteLine($"ARGS = {string.Join(' ', args)}");
+
         var rootCommand = new RootCommand("Game Server Installation CLI");
         rootCommand
             .WithPackCommands()
