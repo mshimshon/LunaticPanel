@@ -1,6 +1,6 @@
-﻿using LuncaticPanel.Package.Server.Domain.Entites;
-using LuncaticPanel.Package.Server.Domain.Entites.Enums;
-using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
+﻿using LunaticPanel.Package.Server.Domain.Entites;
+using LunaticPanel.Package.Server.Domain.Entites.Enums;
+using LunaticPanel.Package.Server.Domain.Entites.ValueObjects;
 
 namespace LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models.Mapping;
 

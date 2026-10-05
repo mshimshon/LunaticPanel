@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LuncaticPanel.Package.Server\LuncaticPanel.Package.Server.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Package.Server\LunaticPanel.Package.Server.csproj" />
   </ItemGroup>
 
 </Project>

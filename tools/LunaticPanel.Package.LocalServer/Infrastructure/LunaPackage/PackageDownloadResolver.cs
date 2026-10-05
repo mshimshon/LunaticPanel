@@ -1,8 +1,8 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.Extensions;
 using LunaticPanel.Package.LocalServer.Infrastructure.LunaPackage.Exceptions;
-using LuncaticPanel.Package.Server.Application.Payloads.Responses;
-using LuncaticPanel.Package.Server.Application.Services;
-using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
+using LunaticPanel.Package.Server.Application.Payloads.Responses;
+using LunaticPanel.Package.Server.Application.Services;
+using LunaticPanel.Package.Server.Domain.Entites.ValueObjects;
 
 namespace LunaticPanel.Package.LocalServer.Infrastructure.LunaPackage;
 

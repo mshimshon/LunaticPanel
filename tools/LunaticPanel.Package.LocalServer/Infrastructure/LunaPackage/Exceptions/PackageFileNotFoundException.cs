@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.Exceptions;
-using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
+using LunaticPanel.Package.Server.Domain.Entites.ValueObjects;
 
 namespace LunaticPanel.Package.LocalServer.Infrastructure.LunaPackage.Exceptions;
 

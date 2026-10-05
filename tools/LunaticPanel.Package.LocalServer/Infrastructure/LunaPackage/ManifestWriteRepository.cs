@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Exceptions;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models.Mapping;
-using LuncaticPanel.Package.Server.Domain.Entites;
-using LuncaticPanel.Package.Server.Domain.Entites.ValueObjects;
-using LuncaticPanel.Package.Server.Domain.Repositories;
+using LunaticPanel.Package.Server.Domain.Entites;
+using LunaticPanel.Package.Server.Domain.Entites.ValueObjects;
+using LunaticPanel.Package.Server.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace LunaticPanel.Package.LocalServer.Infrastructure.LunaPackage;

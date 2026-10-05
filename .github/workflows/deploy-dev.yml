@@ -1,0 +1,143 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: get_version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+          
+      ###########################################################################
+      # BUILD SOURCE ZIP
+      ###########################################################################
+
+      - name: Build source.zip
+        run: |
+          # 1. Create the artifacts directory in the system temp folder
+          mkdir -p /tmp/artifacts
+          
+          # 2. Zip the repository directly into the temp artifacts folder
+          zip -r /tmp/artifacts/source.zip . -x ".git/*"
+
+      ###########################################################################
+      # PUBLISH ARTIFACTS
+      ###########################################################################
+
+      - name: Publish LunaticPanel.Hybrid.Web (linux, not self-contained)
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          dotnet publish $GITHUB_WORKSPACE/src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj \
+            -c Release -r linux-x64 --self-contained false -o /tmp/artifacts/web /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
+          tar -czf lunaticpanel.${VERSION}.tar.gz -C /tmp/artifacts/web .
+
+      - name: Publish LunaticPanel.Package.Tool (self-contained)
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          dotnet publish $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj \
+            -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o /tmp/artifacts/tool /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
+          tar -czf lpkg_tool.${VERSION}.tar.gz -C /tmp/artifacts/tool .
+
+      - name: Publish LunaticPanel.Package.LocalServer (linux, not self-contained)
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          dotnet publish $GITHUB_WORKSPACE/tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj \
+            -c Release -r linux-x64 --self-contained false -o /tmp/artifacts/server-lite /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
+          tar -czf lpkg-server-lite.${VERSION}.tar.gz -C /tmp/artifacts/server-lite .
+
+      ###########################################################################
+      # PACKAGE PLUGINS USING TOOL
+      ###########################################################################
+      - name: Check if .csproj exists
+        run: |
+          TARGET_FILE="$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+          
+          echo "Checking path: $TARGET_FILE"
+          
+          if [ -f "$TARGET_FILE" ]; then
+            echo "✅ SUCCESS: The file exists in the container environment!"
+          else
+            echo "❌ ERROR: File not found at this location."
+            echo "Current container directory listing:"
+            ls -la "$GITHUB_WORKSPACE"
+          fi
+      - name: Package plugins
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PLUGINS=(
+            "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+          )
+          mkdir -p /tmp/artifacts/plugins
+          for KEY in "${KEY_PROJECTS[@]}"; do
+            FILE_NAME=$(basename "$KEY")
+            PROJECT_NAME="${FILE_NAME%.csproj}"
+            TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
+            mkdir -p "$TARGET_BUILD_DIR"
+            dotnet build "$KEY" -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
+            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output "/tmp/artifacts/plugins" --version $VERSION
+          done
+      ###########################################################################
+      # PACK NUGET PACKAGES IN ORDER
+      ###########################################################################
+
+      - name: Pack NuGet packages
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          mkdir -p "/tmp/artifacts/nuget"
+          KEY_PROJECTS=(
+            "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager.Tests/LunaticPanel.PackageManager.Tests.csproj"
+            "$GITHUB_WORKSPACE/src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
+            # add more Keys projects here
+          )
+
+          for KEY in "${KEY_PROJECTS[@]}"; do
+            dotnet pack "$KEY" -c Release -o "/tmp/artifacts/nuget" /p:Version=$VERSION
+          done
+          dotnet pack $GITHUB_WORKSPACE/src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/src/LunaticPanel.Core/LunaticPanel.Core.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+          dotnet pack $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj -c Release -o /tmp/artifacts/nuget /p:Version=$VERSION
+
+
+      ###########################################################################
+      # LIST ALL ARTIFACTS BEFORE RELEASE
+      ###########################################################################
+      - name: List all expected artifacts
+        run: |
+          echo "=== TAR.GZ ARTIFACTS ==="
+          ls -lh *.tar.gz || true
+          ls /tmp/artifacts
+          echo ""
+          echo "=== PLUGIN ARTIFACTS (.lpkg) ==="
+          ls -lh /tmp/artifacts/plugins/*.lpkg || true
+
+          echo ""
+          echo "=== NUGET PACKAGES (.nupkg) ==="
+          ls -lh /tmp/artifacts/nuget/*.nupkg || true
+
+          echo ""
+          echo "=== FULL ARTIFACT TREE ==="
+          ls -R /tmp/artifacts 

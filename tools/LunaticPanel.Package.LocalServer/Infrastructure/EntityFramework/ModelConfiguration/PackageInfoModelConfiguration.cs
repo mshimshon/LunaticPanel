@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
-using LuncaticPanel.Package.Server.Domain.Validators;
+using LunaticPanel.Package.Server.Domain.Validators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
