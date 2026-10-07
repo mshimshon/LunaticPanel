@@ -41,17 +41,7 @@ jobs:
         with:
           dotnet-version: '10.x'
           
-      ###########################################################################
-      # BUILD SOURCE ZIP
-      ###########################################################################
 
-      - name: Build source.zip
-        run: |
-          # 1. Create the artifacts directory in the system temp folder
-          mkdir -p /tmp/artifacts/output
-          
-          # 2. Zip the repository directly into the temp artifacts folder
-          zip -r /tmp/artifacts/output/source.${VERSION}.zip . -x ".git/*"
 
       ###########################################################################
       # PUBLISH ARTIFACTS
