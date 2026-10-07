@@ -184,7 +184,6 @@ jobs:
             "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj"
             "plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj"
             "src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
-            # add more Keys projects here
           )
 
           for KEY in "${KEY_PROJECTS[@]}"; do
@@ -192,7 +191,6 @@ jobs:
             dotnet pack "$ABSOLUTE_CSPROJ_PATH" -c Release -o "/tmp/artifacts/output" /p:Version=$VERSION
           done
 
-      # 1. LunaticPanel.Core.Analyzer
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login1
@@ -214,11 +212,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.core.analyzer"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 2. LunaticPanel.Core.Abstraction
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login2
@@ -240,11 +236,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.core.abstraction"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 3. LunaticPanel.Core.PluginValidator
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login3
@@ -266,11 +260,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.core.pluginvalidator"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 4. LunaticPanel.Core
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login4
@@ -292,11 +284,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.core"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 5. LunaticPanel.Core.Extensions
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login5
@@ -318,11 +308,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.core.extensions"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 6. LunaticPanel.Core.Utils.Abstraction
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login6
@@ -344,11 +332,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.core.utils.abstraction"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 7. LunaticPanel.Core.Utils
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login7
@@ -370,13 +356,12 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.core.utils"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
-      # 8. LunaticPanel.DebugTool
+
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
-        id: login8
+        id: LunaticPanel_DebugTool
         with:
           user: ${{ secrets.NUGET_USER }}
 
@@ -384,7 +369,7 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           PKG_ID="LunaticPanel.DebugTool"
-          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login8.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.LunaticPanel_DebugTool.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
       
       - name: Wait for LunaticPanel.DebugTool availability
         uses: nick-invision/retry@v2
@@ -395,11 +380,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="LunaticPanel.DebugTool"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 8. LunaticPanel.Package.Server
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login8
@@ -421,11 +404,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.package.server"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 9. LunaticPanel.PackageManager.Keys
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login9
@@ -447,11 +428,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.packagemanager.keys"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
-      # 10. LunaticPanel.Engine.Keys
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login10
@@ -473,6 +452,5 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="lunaticpanel.engine.keys"
-            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
