@@ -361,7 +361,7 @@ jobs:
 
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
-        id: LunaticPanel_DebugTool
+        id: lunaticpanel_debugtool
         with:
           user: ${{ secrets.NUGET_USER }}
 
@@ -369,7 +369,7 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           PKG_ID="LunaticPanel.DebugTool"
-          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.LunaticPanel_DebugTool.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.lunaticpanel_debugtool.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
       
       - name: Wait for LunaticPanel.DebugTool availability
         uses: nick-invision/retry@v2
@@ -379,7 +379,7 @@ jobs:
           max_attempts: 120
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
-            PKG_LOWER="LunaticPanel.DebugTool"
+            PKG_LOWER="lunaticpanel.debugTool"
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
 
