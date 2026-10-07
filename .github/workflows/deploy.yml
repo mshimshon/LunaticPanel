@@ -139,20 +139,26 @@ jobs:
       contents: read
 
     steps:
-     - name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Extract version
+        id: get_version
+        run: |
+          mkdir -p "/tmp/artifacts/output"
+          # Grabs the short tag name (e.g., v0.0.2)
+          TAG="${{ github.event.workflow_run.head_branch }}"
+          
+          # Strips the leading 'v' to get just the numbers (e.g., 0.0.2)
+          VERSION="${TAG#v}"
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.x'
 
-      - name: Extract version
-        id: get_version
-        run: |
-          TAG="${{ github.event.workflow_run.head_branch }}"
-          VERSION="${TAG#v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
@@ -175,6 +181,7 @@ jobs:
             ABSOLUTE_CSPROJ_PATH="${{ github.workspace }}/$KEY"
             dotnet pack "$ABSOLUTE_CSPROJ_PATH" -c Release -o "/tmp/artifacts/output" /p:Version=$VERSION
           done
+
       # 1. LunaticPanel.Core.Analyzer
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
