@@ -4,7 +4,7 @@ on:
     workflows: ["Build"]
     types:
       - completed
-
+  workflow_dispatch:
 
 concurrency:
   group: deploy-${{ github.sha }}
@@ -17,9 +17,12 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'v')
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && 
+       github.event.workflow_run.conclusion == 'success' && 
+       github.event.workflow_run.event == 'push' &&
+       startsWith(github.event.workflow_run.head_branch, 'refs/tags/v'))
 
     steps:
       - name: Checkout
