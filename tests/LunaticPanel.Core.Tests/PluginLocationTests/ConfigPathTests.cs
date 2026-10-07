@@ -8,7 +8,7 @@ public class ConfigPathTests
     private PluginLocation _pluginConfiguration = default!;
     public ConfigPathTests()
     {
-        _pluginConfiguration = new PluginLocation("Test.Assembly"); // should become test_assembly for linux folder
+        _pluginConfiguration = new PluginLocation("Test.Assembly", true); // should become test_assembly for linux folder
     }
 
     [Fact]

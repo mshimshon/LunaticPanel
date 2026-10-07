@@ -7,7 +7,7 @@ public class WebPathTests
     private PluginLocation _pluginConfiguration = default!;
     public WebPathTests()
     {
-        _pluginConfiguration = new PluginLocation("Test.Assembly"); // should become test_assembly for linux folder
+        _pluginConfiguration = new PluginLocation("Test.Assembly", true); // should become test_assembly for linux folder
     }
 
 
