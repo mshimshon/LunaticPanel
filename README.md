@@ -1,8 +1,8 @@
 ﻿﻿
+[![Discord](https://img.shields.io/badge/Discord-Join-6A0DAD?logo=discord&logoColor=white)](https://discord.gg/DMegAnGyJv)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mshimshon/LunaticPanel/blob/main/LICENSE)
 [![NuGet Version](https://img.shields.io/nuget/v/LunaticPanel.Core)](https://www.nuget.org/packages/LunaticPanel.Core)
 [![](https://img.shields.io/nuget/dt/LunaticPanel.Core?label=Downloads)](https://www.nuget.org/packages/LunaticPanel.Core)
-[![Discord](https://img.shields.io/badge/Discord-Join-6A0DAD?logo=discord&logoColor=white)](https://discord.gg/DMegAnGyJv)
 [![Build](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml)
 [![Deploy](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml)
 
