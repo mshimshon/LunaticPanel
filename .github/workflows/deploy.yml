@@ -9,6 +9,7 @@ on:
 concurrency:
   group: deploy-${{ github.sha }}
   cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
