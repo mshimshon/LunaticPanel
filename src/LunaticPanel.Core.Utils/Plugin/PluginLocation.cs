@@ -3,6 +3,8 @@ namespace LunaticPanel.Core.Utils.Plugin;
 
 internal partial class PluginLocation : IPluginLocation
 {
+    private readonly bool _disableTouchFeature;
+
     public string DotnetAssemblyName { get; }
 
     public string LinuxAssemblyName { get; }
@@ -17,16 +19,23 @@ internal partial class PluginLocation : IPluginLocation
         InitSystemLocation(assemblyName);
     }
 
+    public PluginLocation(string assemblyName, bool disableTouchFeature) : this(assemblyName)
+    {
+        _disableTouchFeature = disableTouchFeature;
+    }
+
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
     public string EnsureCreated(string path)
     {
+        if (_disableTouchFeature) return path;
         var dir = Path.GetDirectoryName(path);
         if (OperatingSystem.IsLinux())
         {
             if (!Directory.Exists(path))
             {
                 Console.Out.WriteLine($"Created (755): {dir}");
+
                 Directory.CreateDirectory(path,
                     UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                     UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
