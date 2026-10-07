@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 360
     permissions:
       id-token: write
-      contents: read
+      contents: write    
     if: |
        github.event.workflow_run.conclusion == 'success' && 
        startsWith(github.event.workflow_run.head_branch, 'v')
