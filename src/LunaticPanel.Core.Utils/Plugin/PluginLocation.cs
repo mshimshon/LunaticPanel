@@ -10,8 +10,9 @@ internal partial class PluginLocation : IPluginLocation
     public string LinuxAssemblyName { get; }
 
     private string PathSeparator { get; } = Path.DirectorySeparatorChar.ToString();
-    public PluginLocation(string assemblyName)
+    public PluginLocation(string assemblyName, bool disableTouchFeature = false)
     {
+        _disableTouchFeature = disableTouchFeature;
         DotnetAssemblyName = assemblyName;
         LinuxAssemblyName = assemblyName.Replace('.', '_').ToLower();
         InitUserLocation(assemblyName);
@@ -19,10 +20,6 @@ internal partial class PluginLocation : IPluginLocation
         InitSystemLocation(assemblyName);
     }
 
-    public PluginLocation(string assemblyName, bool disableTouchFeature) : this(assemblyName)
-    {
-        _disableTouchFeature = disableTouchFeature;
-    }
 
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
