@@ -162,8 +162,12 @@ jobs:
       - name: Extract version
         id: get_version
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
+          # Grabs the short tag name (e.g., v0.0.2)
+          TAG="${{ github.event.workflow_run.head_branch }}"
+          
+          # Strips the leading 'v' to get just the numbers (e.g., 0.0.2)
           VERSION="${TAG#v}"
+          
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Resolve Project Metadata
