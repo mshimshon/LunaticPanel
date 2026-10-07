@@ -128,7 +128,7 @@ jobs:
             
            done
 
-          ls /tmp/artifacts/output
+          ls -R /tmp/artifacts/output
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
