@@ -1,0 +1,46 @@
+<svg xmlns="http://w3.org" viewBox="0 0 700 250" width="100%" height="100%">
+  <defs>
+    <!-- Import Google Font: Poppins -->
+    <style>
+      @import url('https://googleapis.com');
+      
+      .logo-text {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 900;
+        font-style: italic;
+        font-size: 76px;
+        letter-spacing: -2px;
+      }
+    </style>
+
+    <!-- Gradient for "Panel" and the Underline Wave -->
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00AEEF" />
+      <stop offset="100%" stop-color="#0054A6" />
+    </linearGradient>
+
+    <!-- Drop Shadow Effect to mimic original logo styling -->
+    <filter id="subtleShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(20, 20)">
+    <!-- LOGO TEXT WITH POPPINS FONT -->
+    <text y="130" class="logo-text" filter="url(#subtleShadow)">
+      <!-- "Lunatic" with dark outline to remain visible on white backgrounds -->
+      <tspan fill="#FFFFFF" stroke="#1A2B4C" stroke-width="2.5" stroke-linejoin="round">Lunatic</tspan>
+      <!-- Closed the gap significantly using a negative dx offset shift -->
+      <tspan dx="-8" fill="url(#blueGradient)" stroke="#004080" stroke-width="0.5">Panel</tspan>
+    </text>
+
+    <!-- CALIBRATED UNDERLINE WAVE -->
+    <!-- Shifted the starting coordinate back to 20 to perfectly align with the left edge of the 'L' in Lunatic -->
+    <path d="M 20,152 
+             C 160,172  360,172  485,153 
+             C 360,165  160,165  20,152 
+             Z" 
+          fill="url(#blueGradient)" 
+          filter="url(#subtleShadow)" />
+  </g>
+</svg>

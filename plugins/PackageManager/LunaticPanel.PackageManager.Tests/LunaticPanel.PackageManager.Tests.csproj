@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="xUnit.v3.mtp-off" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\LunaticPanel.PackageManager.Application\LunaticPanel.PackageManager.Application.csproj" />
+	  <ProjectReference Include="..\LunaticPanel.PackageManager.Domain\LunaticPanel.PackageManager.Domain.csproj" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Application\Mediator\" />
+    <Folder Include="Application\Pulses\" />
+  </ItemGroup>
+
+</Project>

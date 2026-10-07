@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
+    <ProjectReference Include="..\LunaticPanel.PackageManager.Application\LunaticPanel.PackageManager.Application.csproj" />
+    <ProjectReference Include="..\LunaticPanel.PackageManager.Keys\LunaticPanel.PackageManager.Keys.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,29 @@
+﻿using LunaticPanel.PackageManager.Application.Payloads;
+using Microsoft.AspNetCore.Components;
+
+namespace LunaticPanel.PackageManager.Components;
+
+public partial class PackageInstalledCard
+{
+    private const string PACKAGE_ENABLED = "Enabled"; // TODO: LOCALIZE
+    private const string PACKAGE_DISABLED = "Disabled"; // TODO: LOCALIZE
+    private const string PACKAGE_STATUS_UNKNOWN = "Unable to get Plugin Status"; // TODO: LOCALIZE
+    private const string PACKAGE_UPDATE = "Schedule Update to {0}"; // TODO: LOCALIZE
+    private const string PACKAGE_UPDATE_SCHEDULED = "Update Scheduled for v{0}"; // TODO: LOCALIZE
+    private const string PACKAGE_UPDATE_CANCEL = "Cancel Update to {0}"; // TODO: LOCALIZE
+    private const string PACKAGE_CANCEL_INSTALL = "Cancel Install"; // TODO: LOCALIZE
+    private const string PANEL_RESTART = "Restart Panel"; // TODO: LOCALIZE
+    private const string PACKAGE_SCHEDULE_DELETE = "Schedule Delete"; // TODO: LOCALIZE
+    private const string PACKAGE_UPDATE_ROLLBACK_CONFLICT = "Cannot Update (Rollback Scheduled)"; // TODO: LOCALIZE
+    private const string PACKAGE_DELETE_CANCEL = "Cancel Delete"; // TODO: LOCALIZE
+    private const string PACKAGE_DELETE_FORBIDDEN = "Mandatory"; // TODO: LOCALIZE
+    private const string PACKAGE_DELETE = "Schedule Delete for {0}"; // TODO: LOCALIZE
+    private const string PACKAGE_ROLLBACK = "Schedule Rollback to {0}"; // TODO: LOCALIZE
+    private const string PACKAGE_ROLLBACK_CANCEL = "Cancel Rollback to {0}"; // TODO: LOCALIZE
+
+    [Parameter] public PackagePayload Data { get; set; } = default!;
+    protected override void OnWidgetParametersSet()
+    {
+        ViewModel.Data = Data;
+    }
+}

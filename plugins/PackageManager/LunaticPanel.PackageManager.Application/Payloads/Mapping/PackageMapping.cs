@@ -1,0 +1,87 @@
+﻿using LunaticPanel.PackageManager.Application.Payloads.Enums;
+using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Domain.Entities.Enums;
+using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
+
+namespace LunaticPanel.PackageManager.Application.Payloads.Mapping;
+
+public static class PackageMapping
+{
+    public static PackagePayload ToApplicationPayload(this PackageEntity data)
+        => new()
+        {
+            Info = data.Info.ToApplicationPayload(),
+            RepositorySource = data.Source.Source.Value,
+            RepositoryType = data.Source.SourceType.ToApplicationPayload(),
+            Version = data.Version.Value,
+            PanelVersion = data.PanelVersion.Value,
+            Dependencies = data.Dependencies.Select(p => p.ToApplicationPayload()).ToList(),
+            Failure = data.Failure?.Value
+        };
+
+
+
+    public static PackageInfoPayload ToApplicationPayload(this PackageInfo data)
+    => new()
+    {
+        AutoUpdateScore = data.AutoUpdateScore.Value,
+        Description = data.Description.Value,
+        Name = data.Name.Value,
+        PackageId = data.Id.Value,
+        Rating = data.Rating?.Value ?? -1,
+        State = data.State.ToApplicationPayload()
+    };
+    public static PackageDependencyPayload ToApplicationPayload(this PackageDependency data)
+    => new()
+    {
+        Id = data.Id.Value,
+        Name = data.Name.Value,
+        Version = data.Version.Value
+    };
+    public static PackageEntity ToDomainEntity(this PackagePayload data)
+    {
+        var info = data.Info.ToDomainEntity();
+        RepositorySource source =
+            data.RepositoryType == RepositorySourceTypePayload.Local ?
+            new RepositorySourceLocal(data.RepositorySource) :
+            new RepositorySourceRemote(data.RepositorySource);
+
+        var sourceInfo = new RepositorySourceInfo(source, data.RepositoryType.ToDomainEntity());
+        var depList = data.Dependencies.Select(p => p.ToDomainEntity()).ToArray();
+        var version = new PackageVersion(data.Version);
+        var panelVersion = new PackagePanelVersion(data.PanelVersion);
+        return data.Failure == default ? new PackageEntity(info, sourceInfo, version, panelVersion, depList) :
+            new PackageEntity(info, sourceInfo, version, panelVersion, depList, new(data.Failure));
+    }
+
+    public static PackageInfo ToDomainEntity(this PackageInfoPayload data)
+        => new(
+            new(data.PackageId),
+            new(data.Name),
+            new(data.Description),
+            data.State.ToDomainEntity())
+        {
+            AutoUpdateScore = new(data.AutoUpdateScore),
+            Rating = data.Rating <= 0 ? default : new(data.Rating),
+        };
+
+    public static PackageDependency ToDomainEntity(this PackageDependencyPayload data)
+        => new(new(data.Name), new(data.Id), new(data.Version));
+
+
+    public static PackageState ToDomainEntity(this PackageStatePayload data)
+        => data switch
+        {
+            PackageStatePayload.Enabled => PackageState.Enabled,
+            PackageStatePayload.Disabled => PackageState.Disabled,
+            _ => PackageState.Unknown
+        };
+
+    public static PackageStatePayload ToApplicationPayload(this PackageState data)
+        => data switch
+        {
+            PackageState.Enabled => PackageStatePayload.Enabled,
+            PackageState.Disabled => PackageStatePayload.Disabled,
+            _ => PackageStatePayload.Unknown
+        };
+}

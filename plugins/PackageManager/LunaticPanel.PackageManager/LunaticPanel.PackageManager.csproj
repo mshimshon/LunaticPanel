@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Title>$(AssemblyName)</Title>
+		<Version>$(GlobalVersion)</Version>
+		<Company>$(GlobalCompany)</Company>
+		<Copyright>$(GlobalCopyright)</Copyright>
+		<Authors>$(GlobalAuthors)</Authors>
+		<Description>Official Package Manager Plugin for Lunatic Panel</Description>
+		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" PrivateAssets="false" />
+		<PackageReference Include="MudBlazor" PrivateAssets="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+	  <ProjectReference Include="..\..\..\src\LunaticPanel.Core.Extensions\LunaticPanel.Core.Extensions.csproj" />
+	  <ProjectReference Include="..\..\..\src\LunaticPanel.Core.Utils.Abstraction\LunaticPanel.Core.Utils.Abstraction.csproj" />
+	  <ProjectReference Include="..\..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+	  <ProjectReference Include="..\..\..\src\LunaticPanel.Engine.Keys\LunaticPanel.Engine.Keys.csproj" />
+	  <ProjectReference Include="..\LunaticPanel.PackageManager.Infrastructure\LunaticPanel.PackageManager.Infrastructure.csproj" />
+	  <ProjectReference Include="..\LunaticPanel.PackageManager.Keys\LunaticPanel.PackageManager.Keys.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Hooks\Payloads\" />
+	  <Folder Include="Hooks\Queries\" />
+	  <Folder Include="Services\" />
+	</ItemGroup>
+
+</Project>

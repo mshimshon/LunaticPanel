@@ -1,0 +1,27 @@
+@using LunaticPanel.PackageManager.Components.ViewModels
+@inherits WidgetComponentBase<PluginEntry, IPackageSearchCardViewModel>
+
+
+<MudCard>
+    <MudCardContent>
+
+        <MudText Typo="Typo.subtitle1">@ViewModel.Data.Name</MudText>
+        <MudText Typo="Typo.subtitle2">@ViewModel.Data.PackageId</MudText>
+        <MudText Typo="Typo.subtitle2">@ViewModel.Data.Description</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        @if (ViewModel.IsInstalled || ViewModel.IsPendingUpdate || ViewModel.IsDeleted)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Primary" Disabled=@ViewModel.IsLoading>
+                @("Installed!")
+            </MudButton>
+        }
+        else
+        {
+            <MudButton OnClick=@ViewModel.InstallAsync Variant="Variant.Text" Color="Color.Primary" Disabled=@ViewModel.IsLoading>
+                @("Install Now")
+            </MudButton>
+        }
+
+    </MudCardActions>
+</MudCard>

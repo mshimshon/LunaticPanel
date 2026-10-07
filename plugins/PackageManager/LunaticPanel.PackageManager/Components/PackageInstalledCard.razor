@@ -1,0 +1,84 @@
+@using LunaticPanel.PackageManager.Components.ViewModels
+@inherits WidgetComponentBase<PluginEntry, IPackageInstalledCardViewModel>
+
+
+<MudCard>
+    <MudCardContent>
+
+        <MudText Typo="Typo.subtitle1">@ViewModel.Data.Info.Name</MudText>
+        <MudText Typo="Typo.subtitle2">@ViewModel.Data.Info.PackageId</MudText>
+        <MudText Typo="Typo.subtitle2">@ViewModel.Data.Info.Description</MudText>
+        <MudDivider />
+
+        <MudChip Size=Size.Small T="string" Color="Color.Info">@($"Version: {ViewModel.Data.Version}")</MudChip>
+        <MudChip Size=Size.Small T="string" Color="Color.Transparent">@($"Panel: {ViewModel.Data.PanelVersion}+")</MudChip>
+        @if (!ViewModel.CanDelete)
+        {
+            <MudChip Size=Size.Small T="string" Color="Color.Warning">@PACKAGE_DELETE_FORBIDDEN</MudChip>
+        }
+        @if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
+        {
+            <MudChip Size=Size.Small T="string" Color="Color.Primary">
+                @(PACKAGE_ENABLED)
+            </MudChip>
+        }
+        else if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Disabled)
+        {
+            <MudChip Size=Size.Small T="string" Color="Color.Default">@(PACKAGE_DISABLED)</MudChip>
+        }
+        else
+        {
+            <MudChip Size=Size.Small T="string" Color="Color.Error">@(PACKAGE_STATUS_UNKNOWN)</MudChip>
+        }
+    </MudCardContent>
+    <MudCardActions>
+        @if (ViewModel.HasUpdateScheduled && ViewModel.IsAlreadyInstalled)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Warning">
+                @string.Format(PACKAGE_UPDATE_CANCEL, ViewModel.ScheduledUpdate!.Version)
+            </MudButton>
+        }
+        else if (ViewModel.HasUpdateScheduled)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Error">
+                @PACKAGE_CANCEL_INSTALL
+            </MudButton>
+        }
+
+        @if (!ViewModel.IsAlreadyInstalled)
+        {
+            <MudButton OnClick=@ViewModel.Restart Variant="Variant.Text" Color="Color.Warning">
+                @PANEL_RESTART
+            </MudButton>
+        }
+        
+        @if (!ViewModel.HasUpdateScheduled && ViewModel.HasUpdateAvailable)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Warning">
+                @string.Format(PACKAGE_UPDATE, ViewModel.AvailableUpdate!.Version)
+            </MudButton>
+        }
+
+        @if (!ViewModel.HasUpdateScheduled && ViewModel.HasAvailableRollback)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Warning">
+                @string.Format(PACKAGE_ROLLBACK, ViewModel.AvailableRollback!.Version)
+            </MudButton>
+        }
+
+        @if (ViewModel.HasDeleteScheduled)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Warning">
+                @PACKAGE_DELETE_CANCEL
+            </MudButton>
+        }
+        else if (!ViewModel.HasDeleteScheduled && ViewModel.CanDelete && ViewModel.IsAlreadyInstalled)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Warning">
+                @string.Format(PACKAGE_SCHEDULE_DELETE)
+            </MudButton>
+        }
+
+
+    </MudCardActions>
+</MudCard>

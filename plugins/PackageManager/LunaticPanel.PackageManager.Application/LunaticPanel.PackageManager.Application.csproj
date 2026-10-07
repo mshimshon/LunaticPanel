@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediHater" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="StatePulse.Net" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+    <ProjectReference Include="..\..\..\src\LunaticPanel.Core.Utils.Abstraction\LunaticPanel.Core.Utils.Abstraction.csproj" />
+    <ProjectReference Include="..\LunaticPanel.PackageManager.Domain\LunaticPanel.PackageManager.Domain.csproj" />
+    <ProjectReference Include="..\LunaticPanel.PackageManager.Keys\LunaticPanel.PackageManager.Keys.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Include=".ai\**\*" CopyToOutputDirectory="Never" />
+	  <InternalsVisibleTo Include="LunaticPanel.PackageManager.Tests" />
+  </ItemGroup>
+
+
+</Project>

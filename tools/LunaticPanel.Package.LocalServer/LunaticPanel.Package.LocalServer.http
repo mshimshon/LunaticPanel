@@ -1,0 +1,6 @@
+@LunaticPanel.Package.LocalServer_HostAddress = http://localhost:5139
+
+GET {{LunaticPanel.Package.LocalServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

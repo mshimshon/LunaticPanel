@@ -1,0 +1,33 @@
+using LunaticPanel.Package.LocalServer.Infrastructure;
+using LunaticPanel.Package.LocalServer.Infrastructure.Exceptions;
+using LunaticPanel.Package.Server;
+using LunaticPanel.Package.Server.Web.Payloads.Enums;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.AddLunaPackage();
+
+builder.Services.AddLocalServerInfrastructure(builder.Configuration);
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
+var app = builder.Build();
+Console.WriteLine($"Development: {app.Environment.IsDevelopment()}");
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+
+}
+else
+    app.UseHttpsRedirection();
+app.UseLunaPackage();
+await app.UseLocalServerInfrastructure();
+app.EnableLunaPackageCodedError();
+app.UseLunaPackageCodedErrorFor<InfrastructureException>(p => new(p.Code, p.Message, ExceptionProvenencePayload.Infrastructure));
+
+app.Run();

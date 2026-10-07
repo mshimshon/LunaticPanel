@@ -16,7 +16,7 @@
 
 # Mono auto generated files
 mono_crash.*
-
+docs/node_modules/
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+*.db
+*.db-shm
+*.db-wal

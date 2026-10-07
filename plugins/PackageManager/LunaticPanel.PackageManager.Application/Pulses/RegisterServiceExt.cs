@@ -1,0 +1,118 @@
+﻿using LunaticPanel.PackageManager.Application.Pulses.Actions;
+using LunaticPanel.PackageManager.Application.Pulses.Effects;
+using LunaticPanel.PackageManager.Application.Pulses.Reducers;
+using LunaticPanel.PackageManager.Application.Pulses.States;
+using Microsoft.Extensions.DependencyInjection;
+using StatePulse.Net;
+
+namespace LunaticPanel.PackageManager.Application.Pulses;
+
+internal static class RegisterServiceExt
+{
+    public static void AddApplicationPulses(this IServiceCollection services)
+    {
+
+        services.AddStatePulseService<SearchPackageState>();
+        services.AddStatePulseService<RepositorySourceState>();
+        services.AddStatePulseService<PackageInstallState>();
+        services.AddStatePulseService<PackageManagerDiskState>();
+        services.AddStatePulseService<PackageManagerDiskEditorState>();
+        services.AddStatePulseService<PackageUpdateState>();
+        services.AddStatePulseService<PackageUpdateScheduleState>();
+
+        services.AddStatePulseService<InstallPackageAction>();
+        services.AddStatePulseService<InstallPackageDoneAction>();
+        services.AddStatePulseService<InstallPackageEffect>();
+        services.AddStatePulseService<InstallPackageReducer>();
+        services.AddStatePulseService<InstallPackageDoneReducer>();
+
+        services.AddStatePulseService<AddSourceAction>();
+        services.AddStatePulseService<AddSourceDoneAction>();
+        services.AddStatePulseService<AddSourceEffect>();
+        services.AddStatePulseService<AddSourceReducer>();
+        services.AddStatePulseService<AddSourceDoneReducer>();
+
+        services.AddStatePulseService<RemoveSourceAction>();
+        services.AddStatePulseService<RemoveSourceDoneAction>();
+        services.AddStatePulseService<RemoveSourceEffect>();
+        services.AddStatePulseService<RemoveSourceReducer>();
+        services.AddStatePulseService<RemoveSourceDoneReducer>();
+
+        services.AddStatePulseService<LoadPackageDiskFoldersAction>();
+        services.AddStatePulseService<LoadPackageDiskFoldersDoneAction>();
+        services.AddStatePulseService<LoadPackageDiskFoldersEffect>();
+        services.AddStatePulseService<LoadPackageDiskFoldersReducer>();
+        services.AddStatePulseService<LoadPackageDiskFoldersDoneReducer>();
+
+        services.AddStatePulseService<SearchRemotePackageAction>();
+        services.AddStatePulseService<SearchRemotePackageDoneAction>();
+        services.AddStatePulseService<SearchRemotePackageEffect>();
+        services.AddStatePulseService<SearchRemotePackageDoneReducer>();
+        services.AddStatePulseService<SearchRemotePackageReducer>();
+
+        services.AddStatePulseService<LoadSourcesAction>();
+        services.AddStatePulseService<LoadSourcesDoneAction>();
+        services.AddStatePulseService<LoadSourcesEffect>();
+        services.AddStatePulseService<LoadSourcesReducer>();
+        services.AddStatePulseService<LoadSourcesDoneReducer>();
+
+        services.AddStatePulseService<DisableSourceAction>();
+        services.AddStatePulseService<DisableSourceDoneAction>();
+        services.AddStatePulseService<DisableSourceEffect>();
+        services.AddStatePulseService<DisableSourceReducer>();
+        services.AddStatePulseService<DisableSourceDoneReducer>();
+
+        services.AddStatePulseService<EnableSourceAction>();
+        services.AddStatePulseService<EnableSourceDoneAction>();
+        services.AddStatePulseService<EnableSourceEffect>();
+        services.AddStatePulseService<EnableSourceReducer>();
+        services.AddStatePulseService<EnableSourceDoneReducer>();
+
+
+        services.AddStatePulseService<MoveDownSourceAction>();
+        services.AddStatePulseService<MoveDownSourceDoneAction>();
+        services.AddStatePulseService<MoveDownSourceEffect>();
+        services.AddStatePulseService<MoveDownSourceReducer>();
+        services.AddStatePulseService<MoveDownSourceDoneReducer>();
+
+        services.AddStatePulseService<MoveUpSourceAction>();
+        services.AddStatePulseService<MoveUpSourceDoneAction>();
+        services.AddStatePulseService<MoveUpSourceEffect>();
+        services.AddStatePulseService<MoveUpSourceReducer>();
+        services.AddStatePulseService<MoveUpSourceDoneReducer>();
+
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesAction>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesDoneAction>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesEffect>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesReducer>();
+        services.AddStatePulseService<PeriodicCheckPackageUpdatesDoneReducer>();
+
+        services.AddStatePulseService<AutoUpdatePackagesAction>();
+        services.AddStatePulseService<AutoUpdatePackagesDoneAction>();
+        services.AddStatePulseService<AutoUpdatePackagesEffect>();
+        services.AddStatePulseService<AutoUpdatePackagesReducer>();
+        services.AddStatePulseService<AutoUpdatePackagesDoneReducer>();
+
+        services.AddStatePulseService<PackageCancelInstallAction>();
+        services.AddStatePulseService<PackageCancelInstallDoneAction>();
+        services.AddStatePulseService<PackageCancelInstallEffect>();
+        services.AddStatePulseService<PackageCancelInstallReducer>();
+        services.AddStatePulseService<PackageCancelInstallDoneReducer>();
+
+        services.AddStatePulseService<PackageDeleteAction>();
+        services.AddStatePulseService<PackageDeleteDoneAction>();
+        services.AddStatePulseService<PackageDeleteEffect>();
+        services.AddStatePulseService<PackageDeleteReducer>();
+        services.AddStatePulseService<PackageDeleteDoneReducer>();
+
+        services.AddStatePulseService<PackageRollbackAction>();
+        services.AddStatePulseService<PackageRollbackDoneAction>();
+        services.AddStatePulseService<PackageRollbackEffect>();
+        services.AddStatePulseService<PackageRollbackReducer>();
+        services.AddStatePulseService<PackageRollbackDoneReducer>();
+
+        // AI APPEND ABOVE
+
+
+    }
+}

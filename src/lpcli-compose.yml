@@ -1,0 +1,60 @@
+apt:
+  - "openssh-server"
+  - "openssh-client" 
+  - "tmux" 
+  - "libicu-dev"
+  - "socat"
+  - "screen"
+services:
+    - dotnet_project: "./LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj"
+      service_name: "lunaticpanel"
+      # https:// to the location of deb release file we want.
+      # deb_url: "" 
+      exec_start: "./LunaticPanel.Hybrid.Web"
+      working_dir: "/srv/lunaticpanel"
+      description: "Lunatic Panel dashboard hosting."
+      environment:
+        - "ASPNETCORE_ENVIRONMENT=Development"
+      show: true
+      depends_on:
+          - lpkg_localserver
+
+    - dotnet_project: "../tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj"
+      service_name: "lpkg_localserver"
+      # https:// to the location of deb release file we want.
+      # deb_url: "" 
+      startup_parameters: "--urls \"http://localhost:5001;\""
+      exec_start: "./LunaticPanel.Package.LocalServer"
+      working_dir: "/srv/lunaticpanel_lpkg_localserver"
+      description: "Lunatic Panel Local Package Server"
+      environment:
+        - "ASPNETCORE_ENVIRONMENT=Development"
+      show: true
+# plugins:
+#   - import_from: "./Plugins/PackageManager/lpcli-compose.yml"  will import all the plugins from Panel Source firs  
+  #- local: "./Plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
+   # enabled: true
+  #- id: LunaticPanel.Auth
+  #  version: "1.2.0"
+  #  source: "https://domain/lpkg/v1/"
+
+    
+# Post processing is design to allow mocking data or extra information to be moved to WSL in a fast flexible way
+# You can build extra projects IE: Tools or plugin specific sub folders such as installers or optional feature underlaying softwares.
+# You can choose to build, publish csproject and archive it than move it to WSL... same for folders and files.
+post_processing:
+#    - import_from: "../../Panel/src/lpcli-compose.yml"  will import all the post_processing from Panel Source firs  
+     - dotnet_project: "../tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj"
+       publish_to: "/opt/lpcli_tool"
+
+#     publish_to: "/etc/lunaticpanel/mockData/myPublish"
+#     archive: "tar.gz" Make tar.gz or .zip
+  
+#   - folder: "./cc/ccc/ccc/"
+#     folder_to: "/etc/lunaticpanel/plugins/"
+#     archive: "tar.gz" Make tar.gz or .zip
+
+#   - file: ./assets/PluginA/file.json
+#     file_to: /etc/lunaticpanel/plugins/PluginA/settings.json
+#     archive: "tar.gz" Make tar.gz or .zip
+

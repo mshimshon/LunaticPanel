@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<Title>$(AssemblyName)</Title>
+	<Version>$(GlobalVersion)</Version>
+	<Company>$(GlobalCompany)</Company>
+	<Copyright>$(GlobalCopyright)</Copyright>
+	<Authors>$(GlobalAuthors)</Authors>
+	<Description>Core Package for Lunatic Panel's PLugin</Description>
+	<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="McMaster.NETCore.Plugins" />
+    <PackageReference Include="System.CommandLine" />
+	  <PackageReference Include="MudBlazor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Core.Extensions\LunaticPanel.Core.Extensions.csproj" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Core.Utils.Abstraction\LunaticPanel.Core.Utils.Abstraction.csproj" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Engine.Plugin\LunaticPanel.Engine.Plugin.csproj" />
+  </ItemGroup>
+
+</Project>

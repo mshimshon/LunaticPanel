@@ -1,0 +1,10 @@
+services:
+  - import_from: "../src/lpcli-compose.yml"  # will import all the services from Panel Source first
+
+plugins:
+  - import_from: "./PackageManager/lpcli-compose.yml"  
+  
+post_processing:
+  - import_from: "../src/lpcli-compose.yml"  
+  - import_from: "./PackageManager/lpcli-compose.yml"
+  - import_from: "./_Test/lpcli-compose.yml"  

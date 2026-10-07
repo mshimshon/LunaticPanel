@@ -1,0 +1,3 @@
+post_processing:
+  - dotnet_project: "./LunaticPanel.Plugin.Test/LunaticPanel.Plugin.Test.csproj"
+    plugin_pack_to: "/var/lib/lunaticpanel/plugins/lunaticpanel_packagemanager/local_lpkgs"
