@@ -1,14 +1,27 @@
 name: Release
-
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+  workflow_dispatch:
 
+concurrency:
+  group: deploy-${{ github.sha }}
+  cancel-in-progress: false
 jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    permissions:
+      id-token: write
+      contents: read
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && 
+       github.event.workflow_run.conclusion == 'success' && 
+       github.event.workflow_run.event == 'push' &&
+       startsWith(github.event.workflow_run.head_branch, 'refs/tags/v'))
 
     steps:
       - name: Checkout
@@ -25,6 +38,18 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.x'
+          
+      ###########################################################################
+      # BUILD SOURCE ZIP
+      ###########################################################################
+
+      - name: Build source.zip
+        run: |
+          # 1. Create the artifacts directory in the system temp folder
+          mkdir -p /tmp/artifacts/output
+          
+          # 2. Zip the repository directly into the temp artifacts folder
+          zip -r /tmp/artifacts/output/source.${VERSION}.zip . -x ".git/*"
 
       ###########################################################################
       # PUBLISH ARTIFACTS
@@ -33,38 +58,24 @@ jobs:
       - name: Publish LunaticPanel.Hybrid.Web (linux, not self-contained)
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          dotnet publish src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj \
-            -c Release -r linux-x64 --self-contained false -o artifacts/web /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-          tar -czf lunaticpanel.${VERSION}.tar.gz -C artifacts/web .
+          dotnet publish $GITHUB_WORKSPACE/src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj \
+            -c Release -r linux-x64 --self-contained false -o /tmp/artifacts/web /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
+          tar -czf /tmp/artifacts/output/lunaticpanel.${VERSION}.tar.gz -C /tmp/artifacts/web .
 
       - name: Publish LunaticPanel.Package.Tool (self-contained)
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          dotnet publish tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj \
-            -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o artifacts/tool /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-          tar -czf lpkg_tool.${VERSION}.tar.gz -C artifacts/tool .
+          dotnet publish $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj \
+            -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o /tmp/artifacts/tool /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
+          tar -czf /tmp/artifacts/output/lpkg_tool.${VERSION}.tar.gz -C /tmp/artifacts/tool .
 
       - name: Publish LunaticPanel.Package.LocalServer (linux, not self-contained)
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          dotnet publish tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj \
-            -c Release -r linux-x64 --self-contained false -o artifacts/server-lite /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-          tar -czf lpkg-server-lite.${VERSION}.tar.gz -C artifacts/server-lite .
+          dotnet publish $GITHUB_WORKSPACE/tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj \
+            -c Release -r linux-x64 --self-contained false -o /tmp/artifacts/server-lite /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
+          tar -czf /tmp/artifacts/output/lpkg-server-lite.${VERSION}.tar.gz -C /tmp/artifacts/server-lite .
 
-      ###########################################################################
-      # PACKAGE PLUGINS USING TOOL
-      ###########################################################################
-
-      - name: Package plugins
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          PLUGINS=(
-            "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
-          )
-          mkdir -p artifacts/plugins
-          for PLUGIN in "${PLUGINS[@]}"; do
-            artifacts/tool/LunaticPanel.Package.Tool --input "$PLUGIN" --output "artifacts/plugins"
-          done
 
       ###########################################################################
       # PACK NUGET PACKAGES IN ORDER
@@ -73,124 +84,144 @@ jobs:
       - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          mkdir -p "$GITHUB_WORKSPACE/artifacts/nuget"
+          mkdir -p "/tmp/artifacts/output"
           KEY_PROJECTS=(
-            "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager.Tests/LunaticPanel.PackageManager.Tests.csproj"
-            "$GITHUB_WORKSPACE/src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
+            "src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
+            "src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj"
+            "src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj"
+            "src/LunaticPanel.Core/LunaticPanel.Core.csproj"
+            "src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj"
+            "src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj"
+            "src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj"
+            "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj"
+            "plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj"
+            "src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
             # add more Keys projects here
           )
 
           for KEY in "${KEY_PROJECTS[@]}"; do
-            dotnet pack "$KEY" -c Release -o "$GITHUB_WORKSPACE/artifacts/nuget" /p:Version=$VERSION
+            ABSOLUTE_CSPROJ_PATH="${{ github.workspace }}/$KEY"
+            dotnet pack "$ABSOLUTE_CSPROJ_PATH" -c Release -o "/tmp/artifacts/output" /p:Version=$VERSION
           done
-          dotnet pack src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack src/LunaticPanel.Core/LunaticPanel.Core.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack src/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
-          dotnet pack tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj -c Release -o artifacts/nuget /p:Version=$VERSION
 
       ###########################################################################
-      # UPLOAD + WAIT LOOP USING YOUR EXACT COMMAND
+      # PACKAGE PLUGINS USING TOOL
       ###########################################################################
-
-      - name: Upload and wait for NuGet availability
+      - name: Package plugins
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-
-          PACKAGES=(
-            "PLUGIN_ASSEMBLY.Keys"
-            "LunaticPanel.Engine.Keys"
-            "LunaticPanel.Core.Analyzer"
-            "LunaticPanel.Core.Abstraction"
-            "LunaticPanel.Core.PluginValidator"
-            "LunaticPanel.Core"
-            "LunaticPanel.Core.Extensions"
-            "LunaticPanel.Core.Utils.Abstraction"
-            "LunaticPanel.Core.Utils"
-            "LunaticPanel.Package.Server"
-            "LunaticPanel.Package.Tool"
+          PLUGINS=(
+            "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
           )
+          
 
-          for PACKAGE in "${PACKAGES[@]}"; do
-            NUPKG="artifacts/nuget/${PACKAGE}.${VERSION}.nupkg"
-
-            echo "Uploading $PACKAGE version $VERSION"
-            dotnet nuget push "$NUPKG" \
-              --api-key ${{ secrets.NUGET_API_KEY }} \
-              --source https://api.nuget.org/v3/index.json
-
-            echo "Waiting for NuGet availability of $PACKAGE version $VERSION"
-
-            for i in {1..30}; do
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-                "https://api.nuget.org/v3/registration5-gz-semver2/${PACKAGE}/${VERSION}.json")
-
-              echo "STATUS=$STATUS"
-
-              if [ "$STATUS" -eq 200 ]; then
-                echo "$PACKAGE version $VERSION is available on NuGet"
-                break
-              fi
-
-              echo "Not available yet, retrying..."
-              sleep 10
-            done
+          for KEY in "${PLUGINS[@]}"; do
+            FILE_NAME=$(basename "$KEY")
+            FILE_NAME=$(basename "$KEY")
+            PROJECT_NAME="${FILE_NAME%.csproj}"
+            TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
+            mkdir -p "$TARGET_BUILD_DIR"
+            dotnet build "$KEY" -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:AssemblyVersion=$VERSION
+            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output " /tmp/artifacts/output" --version $VERSION
           done
 
-      ###########################################################################
-      # FINAL CONFIRM ALL PACKAGES EXIST
-      ###########################################################################
-
-      - name: Final confirm all packages exist
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-
-          PACKAGES=(
-            "PLUGIN_ASSEMBLY.Keys"
-            "LunaticPanel.Engine.Keys"
-            "LunaticPanel.Core.Analyzer"
-            "LunaticPanel.Core.Abstraction"
-            "LunaticPanel.Core.PluginValidator"
-            "LunaticPanel.Core"
-            "LunaticPanel.Core.Extensions"
-            "LunaticPanel.Core.Utils.Abstraction"
-            "LunaticPanel.Core.Utils"
-            "LunaticPanel.Package.Server"
-            "LunaticPanel.Package.Tool"
-          )
-
-          for PACKAGE in "${PACKAGES[@]}"; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-              "https://api.nuget.org/v3/registration5-gz-semver2/${PACKAGE}/${VERSION}.json")
-
-            echo "$PACKAGE => $STATUS"
-
-            [ "$STATUS" -eq 200 ] || exit 1
-          done
-
-      ###########################################################################
-      # BUILD SOURCE ZIP
-      ###########################################################################
-
-      - name: Build source.zip
-        run: |
-          zip -r source.zip .
-
-      ###########################################################################
-      # CREATE RELEASE
-      ###########################################################################
+          ls /tmp/artifacts/output/*.*
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
           files: |
-            lunaticpanel.${{ steps.get_version.outputs.version }}.tar.gz
-            lpkg_tool.${{ steps.get_version.outputs.version }}.tar.gz
-            lpkg-server-lite.${{ steps.get_version.outputs.version }}.tar.gz
-            artifacts/plugins/*.lpkg
-            source.zip
+            /tmp/artifacts/output/*.*
+
+  deploy_nuget:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Crucial for OIDC token request privileges
+      contents: read
+
+    strategy:
+      max-parallel: 1 # Guarantees execution down the array line in exact top-to-bottom sequence
+      fail-fast: true # <--- ADD THIS LINE to kill the rest on failure
+      matrix:
+        package: 
+           - "src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
+           - "src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj"
+           - "src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj"
+           - "src/LunaticPanel.Core/LunaticPanel.Core.csproj"
+           - "src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj"
+           - "src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj"
+           - "src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj"
+           - "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj"
+           - "plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj"
+           - "src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Extract version
+        id: get_version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Resolve Project Metadata
+        id: metadata
+        run: |
+          RELATIVE_PATH="${{ matrix.package }}"
+          FILENAME="${RELATIVE_PATH##*/}"
+          PACKAGE_ID="${FILENAME%.csproj}"
+          PACKAGE_ID_LOWER=$(echo "$PACKAGE_ID" | tr '[:upper:]' '[:lower:]')
+          ABSOLUTE_CSPROJ_PATH="${{ github.workspace }}/${{ matrix.package }}"
+          
+          echo "Using Package ID: $PACKAGE_ID"
+          echo "Absolute target: $ABSOLUTE_CSPROJ_PATH"
+          
+          echo "package_id=$PACKAGE_ID" >> $GITHUB_OUTPUT
+          echo "package_id_lower=$PACKAGE_ID_LOWER" >> $GITHUB_OUTPUT
+          echo "absolute_csproj_path=$ABSOLUTE_CSPROJ_PATH" >> $GITHUB_OUTPUT
+      
+          # Packs using the absolute path mapped directly from the workspace root
+      - name: Pack NuGet Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          echo "Absolute target: ${{ steps.metadata.outputs.absolute_csproj_path }}"
+          mkdir -p "/tmp/artifacts/output"
+          dotnet pack "${{ steps.metadata.outputs.absolute_csproj_path }}" -c Release -o "/tmp/artifacts/output" /p:Version="$VERSION"
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="${{ steps.metadata.outputs.package_id }}"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Wait for NuGet availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 10
+          max_attempts: 60
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="${{ steps.metadata.outputs.package_id_lower }}"
+            
+            echo "🔎 Polling index for: ${PKG_LOWER}@${VERSION}"
+
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              "https://nuget.org{PKG_LOWER}/${VERSION}.json")
+
+            [ "$STATUS" -eq 200 ] || exit 1
