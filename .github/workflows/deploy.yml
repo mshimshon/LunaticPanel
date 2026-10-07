@@ -133,28 +133,13 @@ jobs:
     environment: 
       name: production
     timeout-minutes: 360
+
     permissions:
       id-token: write  # Crucial for OIDC token request privileges
       contents: read
 
-    strategy:
-      max-parallel: 1 # Guarantees execution down the array line in exact top-to-bottom sequence
-      fail-fast: true # <--- ADD THIS LINE to kill the rest on failure
-      matrix:
-        package: 
-           - "src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
-           - "src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj"
-           - "src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj"
-           - "src/LunaticPanel.Core/LunaticPanel.Core.csproj"
-           - "src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj"
-           - "src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj"
-           - "src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj"
-           - "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj"
-           - "plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj"
-           - "src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
-    
     steps:
-      - name: Checkout
+     - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup .NET 10
@@ -165,51 +150,45 @@ jobs:
       - name: Extract version
         id: get_version
         run: |
-          # Grabs the short tag name (e.g., v0.0.2)
           TAG="${{ github.event.workflow_run.head_branch }}"
-          
-          # Strips the leading 'v' to get just the numbers (e.g., 0.0.2)
           VERSION="${TAG#v}"
-          
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Resolve Project Metadata
-        id: metadata
-        run: |
-          RELATIVE_PATH="${{ matrix.package }}"
-          FILENAME="${RELATIVE_PATH##*/}"
-          PACKAGE_ID="${FILENAME%.csproj}"
-          PACKAGE_ID_LOWER=$(echo "$PACKAGE_ID" | tr '[:upper:]' '[:lower:]')
-          ABSOLUTE_CSPROJ_PATH="${{ github.workspace }}/${{ matrix.package }}"
-          
-          echo "Using Package ID: $PACKAGE_ID"
-          echo "Absolute target: $ABSOLUTE_CSPROJ_PATH"
-          
-          echo "package_id=$PACKAGE_ID" >> $GITHUB_OUTPUT
-          echo "package_id_lower=$PACKAGE_ID_LOWER" >> $GITHUB_OUTPUT
-          echo "absolute_csproj_path=$ABSOLUTE_CSPROJ_PATH" >> $GITHUB_OUTPUT
-      
-          # Packs using the absolute path mapped directly from the workspace root
-      - name: Pack NuGet Package
+      - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          echo "Absolute target: ${{ steps.metadata.outputs.absolute_csproj_path }}"
-          mkdir -p "/tmp/artifacts/output"
-          dotnet pack "${{ steps.metadata.outputs.absolute_csproj_path }}" -c Release -o "/tmp/artifacts/output" /p:Version="$VERSION"
+          
+          KEY_PROJECTS=(
+            "src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
+            "src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj"
+            "src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj"
+            "src/LunaticPanel.Core/LunaticPanel.Core.csproj"
+            "src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj"
+            "src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj"
+            "src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj"
+            "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj"
+            "plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj"
+            "src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
+            # add more Keys projects here
+          )
 
+          for KEY in "${KEY_PROJECTS[@]}"; do
+            ABSOLUTE_CSPROJ_PATH="${{ github.workspace }}/$KEY"
+            dotnet pack "$ABSOLUTE_CSPROJ_PATH" -c Release -o "/tmp/artifacts/output" /p:Version=$VERSION
+          done
+      # 1. LunaticPanel.Core.Analyzer
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
-        id: login
+        id: login1
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      - name: Push Package
+      - name: Push LunaticPanel.Core.Analyzer Package
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          PKG_ID="${{ steps.metadata.outputs.package_id }}"
-          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
-
-      - name: Wait for NuGet availability
+          PKG_ID="LunaticPanel.Core.Analyzer"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login1.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Core.Analyzer availability
         uses: nick-invision/retry@v2
         with:
           timeout_minutes: 30
@@ -217,10 +196,241 @@ jobs:
           max_attempts: 120
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
-            PKG_LOWER="${{ steps.metadata.outputs.package_id_lower }}"
-            
+            PKG_LOWER="lunaticpanel.core.analyzer"
             echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
-
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
-            
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 2. LunaticPanel.Core.Abstraction
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login2
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Core.Abstraction Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Core.Abstraction"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login2.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Core.Abstraction availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.core.abstraction"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 3. LunaticPanel.Core.PluginValidator
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login3
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Core.PluginValidator Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Core.PluginValidator"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login3.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Core.PluginValidator availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.core.pluginvalidator"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 4. LunaticPanel.Core
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login4
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Core Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Core"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login4.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Core availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.core"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 5. LunaticPanel.Core.Extensions
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login5
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Core.Extensions Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Core.Extensions"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login5.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Core.Extensions availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.core.extensions"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 6. LunaticPanel.Core.Utils.Abstraction
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login6
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Core.Utils.Abstraction Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Core.Utils.Abstraction"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login6.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Core.Utils.Abstraction availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.core.utils.abstraction"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 7. LunaticPanel.Core.Utils
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login7
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Core.Utils Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Core.Utils"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login7.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Core.Utils availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.core.utils"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 8. LunaticPanel.Package.Server
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login8
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Package.Server Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Package.Server"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login8.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Package.Server availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.package.server"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 9. LunaticPanel.PackageManager.Keys
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login9
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.PackageManager.Keys Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.PackageManager.Keys"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login9.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.PackageManager.Keys availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.packagemanager.keys"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            [ "$STATUS" -eq 200 ] || exit 1
+
+      # 10. LunaticPanel.Engine.Keys
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login10
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push LunaticPanel.Engine.Keys Package
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          PKG_ID="LunaticPanel.Engine.Keys"
+          dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login10.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      
+      - name: Wait for LunaticPanel.Engine.Keys availability
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
+          command: |
+            VERSION="${{ steps.get_version.outputs.version }}"
+            PKG_LOWER="lunaticpanel.engine.keys"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             [ "$STATUS" -eq 200 ] || exit 1
