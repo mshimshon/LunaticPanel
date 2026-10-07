@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Core.Extensions;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Extensions;
 using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Exceptions.PackExceptions;
 using LunaticPanel.Package.Tool.Exceptions.UnpackExceptions;
@@ -190,6 +191,8 @@ internal static class PackingCommandExt
         }
 
         await zip.CreateEntryFromFileAsync(manifestFileTmp, "manifest.json", CompressionLevel.NoCompression);
+        if (!File.Exists(outputPackage))
+            throw new HostUnkownException();
         Console.Out.WriteLine($"Package Created at {outputPackage}".Green());
         return JsonSerializer.Deserialize<PluginManifestPayload>(File.ReadAllText(manifestFileTmp), _jsonSerializerOptions)!;
     }
