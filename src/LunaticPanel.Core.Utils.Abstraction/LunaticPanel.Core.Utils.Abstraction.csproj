@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 		<Title>$(AssemblyName)</Title>
 		<Version>$(GlobalVersion)</Version>
 		<Company>$(GlobalCompany)</Company>
 		<Copyright>$(GlobalCopyright)</Copyright>
 		<Authors>$(GlobalAuthors)</Authors>
-		<Description>Core Package for Lunatic Panel's PLugin</Description>
+		<Description>Lunatic Panel Core Plugin Utility Abstraction Services.</Description>
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-		<Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+		<Configurations>Debug;Release;</Configurations>
+		<PackageIcon>../../icon.png</PackageIcon>
+		<PackageReadmeFile>../../README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
 		<MakeDir Directories="..\..\..\..\nupkgs" />

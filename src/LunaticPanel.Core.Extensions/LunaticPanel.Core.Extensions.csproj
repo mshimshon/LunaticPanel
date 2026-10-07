@@ -1,18 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	  <TargetFramework>net10.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
 	  <Title>$(AssemblyName)</Title>
 	  <Version>$(GlobalVersion)</Version>
 	  <Company>$(GlobalCompany)</Company>
 	  <Copyright>$(GlobalCopyright)</Copyright>
 	  <Authors>$(GlobalAuthors)</Authors>
-	  <Description>Core Package for Lunatic Panel's PLugin</Description>
+	  <Description>Extension Package for the Lunatic Plugin Core</Description>
 	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
 	  <Configurations>Debug;Release;</Configurations>
+	  <PackageIcon>../../icon.png</PackageIcon>
+	  <PackageReadmeFile>../../README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>

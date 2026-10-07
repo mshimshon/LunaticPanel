@@ -5,6 +5,7 @@
   </Folder>
 
   <Folder Name="/Plugins/PackageManager/">
+    <File Path="plugins/PackageManager/keys.md" />
     <File Path="plugins/PackageManager/lpcli-compose.yml" />
     <File Path="plugins/PackageManager/sources.dev.json" />
     <File Path="plugins/PackageManager/sources.json" />
