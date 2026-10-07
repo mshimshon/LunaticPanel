@@ -212,14 +212,14 @@ jobs:
       - name: Wait for NuGet availability
         uses: nick-invision/retry@v2
         with:
-          timeout_minutes: 10
-          retry_wait_seconds: 10
-          max_attempts: 60
+          timeout_minutes: 30
+          retry_wait_seconds: 15
+          max_attempts: 120
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             PKG_LOWER="${{ steps.metadata.outputs.package_id_lower }}"
             
-            echo "🔎 Polling index for: ${PKG_LOWER}@${VERSION}"
+            echo "🔎 Polling index for: https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json"
 
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
             
