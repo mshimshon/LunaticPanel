@@ -221,7 +221,6 @@ jobs:
             
             echo "🔎 Polling index for: ${PKG_LOWER}@${VERSION}"
 
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-              "https://nuget.org{PKG_LOWER}/${VERSION}.json")
-
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_LOWER}/${VERSION}.json")
+            
             [ "$STATUS" -eq 200 ] || exit 1
