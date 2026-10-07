@@ -115,7 +115,7 @@ jobs:
             TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
             mkdir -p "$TARGET_BUILD_DIR"
             dotnet build "$KEY" -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:AssemblyVersion=$VERSION
-            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output " /tmp/artifacts/output" --version $VERSION
+            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output "/tmp/artifacts/output" --version $VERSION
             # 🔎 Dynamic extension check based on your project name and version
             EXPECTED_PKG=$(find "$OUTPUT_DIR" -type f -name "${PROJECT_NAME}.${VERSION}.*" | head -n 1)
             

@@ -82,5 +82,12 @@ jobs:
             TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
             mkdir -p "$TARGET_BUILD_DIR"
             dotnet build "$KEY" -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:AssemblyVersion=$VERSION
-            /tmp/artifacts/tool/LunaticPanel.Package.Tool validate --input "$TARGET_BUILD_DIR" 
+            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output "/tmp/artifacts/output" --version $VERSION
+            if [ -z "$EXPECTED_PKG" ] || [ ! -s "$EXPECTED_PKG" ]; then
+               ls -R /tmp/artifacts/output
+              echo "❌ Error: Packed file for ${PROJECT_NAME} version ${VERSION} was not generated or is empty!"
+              exit 1
+            else
+              echo "✅ Verified: $(basename "$EXPECTED_PKG") exists and is valid."
+            fi
           done
