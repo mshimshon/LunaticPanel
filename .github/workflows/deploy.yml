@@ -28,6 +28,7 @@ jobs:
       - name: Extract version
         id: get_version
         run: |
+          mkdir -p "/tmp/artifacts/output"
           # Grabs the short tag name (e.g., v0.0.2)
           TAG="${{ github.event.workflow_run.head_branch }}"
           
@@ -52,21 +53,21 @@ jobs:
           VERSION="${{ steps.get_version.outputs.version }}"
           dotnet publish $GITHUB_WORKSPACE/src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj \
             -c Release -r linux-x64 --self-contained false -o /tmp/artifacts/web /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-          tar -czf /tmp/artifacts/output/lunaticpanel.${VERSION}.tar.gz -C /tmp/artifacts/web .
+          tar -czf "/tmp/artifacts/output/lunaticpanel.${VERSION}.tar.gz" -C /tmp/artifacts/web .
 
       - name: Publish LunaticPanel.Package.Tool (self-contained)
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           dotnet publish $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj \
             -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o /tmp/artifacts/tool /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-          tar -czf /tmp/artifacts/output/lpkg_tool.${VERSION}.tar.gz -C /tmp/artifacts/tool .
+          tar -czf "/tmp/artifacts/output/lpkg_tool.${VERSION}.tar.gz" -C /tmp/artifacts/tool .
 
       - name: Publish LunaticPanel.Package.LocalServer (linux, not self-contained)
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           dotnet publish $GITHUB_WORKSPACE/tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj \
             -c Release -r linux-x64 --self-contained false -o /tmp/artifacts/server-lite /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-          tar -czf /tmp/artifacts/output/lpkg-server-lite.${VERSION}.tar.gz -C /tmp/artifacts/server-lite .
+          tar -czf "/tmp/artifacts/output/lpkg-server-lite.${VERSION}.tar.gz" -C /tmp/artifacts/server-lite .
 
 
       ###########################################################################
@@ -76,7 +77,7 @@ jobs:
       - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          mkdir -p "/tmp/artifacts/output"
+          
           KEY_PROJECTS=(
             "src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
             "src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj"
