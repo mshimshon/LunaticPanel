@@ -43,7 +43,6 @@
     <File Path="setup.sh" />
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/deploy.yml" />
-    <File Path=".github/workflows/deploy-dev.yml" />
     <File Path="src/lpcli-compose.yml" />
   </Folder>
   <Folder Name="/Tests/">
