@@ -130,6 +130,8 @@ jobs:
   deploy_nuget:
     needs: release
     runs-on: ubuntu-latest
+    environment: 
+      name: production
     timeout-minutes: 360
     permissions:
       id-token: write  # Crucial for OIDC token request privileges
