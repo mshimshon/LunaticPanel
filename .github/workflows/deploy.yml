@@ -218,9 +218,13 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             for PKG in /tmp/artifacts/output/*.nupkg; do
+              # 1. Get just the filename (e.g., "my.package.name.1.0.0.nupkg")
               FILENAME=$(basename "$PKG")
-              PKG_NAME="${FILENAME%.*}"        # remove .nupkg
-              PKG_NAME="${PKG_NAME%.*}"        # remove .VERSION
+  
+              # 2. Safely strip the version and extension from the end of the string
+              PKG_NAME=$(echo "$FILENAME" | sed "s/\.${VERSION}\.nupkg$//")
+  
+              # 3. Convert to lowercase
               PKG_NAME_LOWER=$(echo "$PKG_NAME" | tr '[:upper:]' '[:lower:]')
               STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_NAME_LOWER}/${VERSION}.json")
               [ "$STATUS" -eq 200 ] || exit 1
