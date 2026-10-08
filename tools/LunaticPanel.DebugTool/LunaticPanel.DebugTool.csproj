@@ -2,21 +2,23 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-	  <TargetFramework>net10.0</TargetFramework>
+	<TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<PackAsTool>true</PackAsTool>
 	<ToolCommandName>lpcli</ToolCommandName>
-	  <Title>$(AssemblyName)</Title>
-	  <Version>0.0.18</Version>
-	  <Company>Maksim Shimshon</Company>
-	  <Copyright>Maksim Shimshon © 2026</Copyright>
-	  <Authors>Maksim Shimshon</Authors>
-	  <Description>Core Package for Lunatic Panel's PLugin</Description>
-	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-	  <Configurations>Debug;Release;</Configurations>
-	  <ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
+	<Title>$(AssemblyName)</Title>
+	<Version>$(GlobalVersion)</Version>
+	<Company>Maksim Shimshon</Company>
+	<Copyright>Maksim Shimshon © 2026</Copyright>
+	<Authors>Maksim Shimshon</Authors>
+	<Description>Lunatic Panel Development Tool for Plugins</Description>
+	<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+	<Configurations>Debug;Release;</Configurations>
+	<ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
+	<PackageIcon>icon.png</PackageIcon>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
