@@ -41,6 +41,7 @@
     <File Path="CODE OF CONDUCT.md" />
     <File Path="CONTRIBUTE.md" />
     <File Path="Directory.Packages.props" />
+    <File Path="serve_packages.sh" />
     <File Path="setup.sh" />
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/deploy.yml" />

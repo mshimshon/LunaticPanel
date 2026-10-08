@@ -1,59 +1,31 @@
-﻿using LunaticPanel.Package.Server.Application.Mediator.Commands;
-using LunaticPanel.Package.Server.Application.Mediator.Queries;
-using LunaticPanel.Package.Server.Application.Exceptions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Package.Server.Application.Mediator.Engine;
 
 internal class Mediator : IMediator
 {
+    internal static Dictionary<Type, Type> _requestCache = new();
+    private readonly IServiceProvider _serviceProvider;
+
     public Mediator(IServiceProvider serviceProvider)
     {
-        ServiceProvider = serviceProvider;
+        _serviceProvider = serviceProvider;
     }
 
-    public IServiceProvider ServiceProvider { get; }
 
     public async Task ExecuteAsync(IRequest request, CancellationToken ct = default)
     {
-        Console.WriteLine($"Mediator Pipeline (No Result) Request {request.GetType()}");
-        switch (request)
-        {
-
-            case HideManifestVersionCommand c:
-                await ServiceProvider.GetRequiredService<IRequestHandler<HideManifestVersionCommand>>().HandleAsync(c, ct);
-                return;
-            case EndManifestLifeCommand c:
-                await ServiceProvider.GetRequiredService<IRequestHandler<EndManifestLifeCommand>>().HandleAsync(c, ct);
-                return;
-            default:
-                throw new MediatorCommandNotFoundException();
-        }
+        var handlerType = _requestCache[request.GetType()];
+        dynamic handler = _serviceProvider.GetRequiredService(handlerType);
+        await handler.HandleAsync((dynamic)request, ct);
     }
 
 
 
     public async Task<TResult> ExecuteAsync<TResult>(IRequest<TResult> request, CancellationToken ct = default)
     {
-        Console.WriteLine($"Mediator Pipline Request {request.GetType()}");
-        switch (request)
-        {
-            case CreateManifestCommand c:
-                return await ServiceProvider.GetRequiredService<IRequestHandler<CreateManifestCommand, TResult>>().HandleAsync(c, ct);
-            case GetAllPackageVersionsQuery q:
-                return await ServiceProvider.GetRequiredService<IRequestHandler<GetAllPackageVersionsQuery, TResult>>().HandleAsync(q, ct);
-            case GetSpecificPackageVersionQuery q:
-                return await ServiceProvider.GetRequiredService<IRequestHandler<GetSpecificPackageVersionQuery, TResult>>().HandleAsync(q, ct);
-            case GetLatestPackageQuery q:
-                return await ServiceProvider.GetRequiredService<IRequestHandler<GetLatestPackageQuery, TResult>>().HandleAsync(q, ct);
-            case SearchManifestQuery q:
-                return await ServiceProvider.GetRequiredService<IRequestHandler<SearchManifestQuery, TResult>>().HandleAsync(q, ct);
-            case PackageValidationCommand q:
-                return await ServiceProvider.GetRequiredService<IRequestHandler<PackageValidationCommand, TResult>>().HandleAsync(q, ct);
-            case GetPackageDownloadTargetQuery q:
-                return await ServiceProvider.GetRequiredService<IRequestHandler<GetPackageDownloadTargetQuery, TResult>>().HandleAsync(q, ct);
-            default:
-                throw new MediatorCommandNotFoundException();
-        }
+        var handlerType = _requestCache[request.GetType()];
+        dynamic handler = _serviceProvider.GetRequiredService(handlerType);
+        return await handler.HandleAsync((dynamic)request, ct);
     }
 }

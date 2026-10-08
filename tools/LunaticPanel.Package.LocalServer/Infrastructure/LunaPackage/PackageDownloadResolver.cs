@@ -36,7 +36,7 @@ internal sealed class PackageDownloadResolver : IPackageDownloadResolver
             throw new PackageFileNotFoundException(packageId, packageVersion);
         var result = new PackageDownloadTargetResponse()
         {
-            Target = $"{baseUrl}/{append}"
+            Target = $"{baseUrl}/assets/{append}"
         };
         return Task.FromResult(result);
     }

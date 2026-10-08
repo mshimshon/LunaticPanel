@@ -1,27 +1,88 @@
-﻿using LunaticPanel.Package.Server.Application.Mediator.Commands;
-using LunaticPanel.Package.Server.Application.Mediator.Commands.Handlers;
-using LunaticPanel.Package.Server.Application.Mediator.Queries;
-using LunaticPanel.Package.Server.Application.Mediator.Queries.Handlers;
-using LunaticPanel.Package.Server.Application.Payloads;
-using LunaticPanel.Package.Server.Application.Payloads.Responses;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Package.Server.Application.Mediator.Engine;
 
-internal static class ServiceExt
+public static class ServiceExt
 {
-    public static void AddMediatorServices(this IServiceCollection services)
+    private static IServiceCollection? _allServices;
+    internal static bool Processed { get; private set; }
+    public static void AddMediatorService(this IServiceCollection services)
     {
+        _allServices = services;
         services.AddScoped<IMediator, Mediator>();
-        services.AddTransient<IRequestHandler<SearchManifestQuery, ManifestSearchResponse>, SearchManifestHandler>();
-        services.AddTransient<IRequestHandler<GetAllPackageVersionsQuery, ICollection<ManifestPayload>>, GetAllPackageVersionsHandler>();
-        services.AddTransient<IRequestHandler<GetLatestPackageQuery, ManifestPayload>, GetLatestPackageHandler>();
-        services.AddTransient<IRequestHandler<GetSpecificPackageVersionQuery, ManifestPayload>, GetSpecificPackageVersionHandler>();
-        services.AddTransient<IRequestHandler<CreateManifestCommand, ManifestPayload>, CreateManifestHandler>();
-        services.AddTransient<IRequestHandler<HideManifestVersionCommand>, HideManifestVersionHandler>();
-        services.AddTransient<IRequestHandler<EndManifestLifeCommand>, EndManifestLifeHandler>();
-        services.AddTransient<IRequestHandler<PackageValidationCommand, PackageValidationResponse>, PackageValidationHandler>();
-        services.AddTransient<IRequestHandler<SearchManifestQuery, ManifestSearchResponse>, SearchManifestHandler>();
-        services.AddTransient<IRequestHandler<GetPackageDownloadTargetQuery, PackageDownloadTargetResponse>, GetPackageDownloadTargetHandler>();
+
     }
+    public static void UseMediator(this WebApplication app, IServiceCollection services)
+    {
+        _allServices = services;
+        app.UseMediator();
+    }
+
+
+    public static void UseMediator(this WebApplication app)
+    {
+        if (_allServices == default)
+            throw new ArgumentException("You must call AddMediatorServices before.");
+        foreach (var sd in _allServices)
+        {
+            var implType = sd.ImplementationType
+                          ?? sd.ImplementationInstance?.GetType()
+                          ?? sd.ServiceType;
+
+            if (implType == null)
+                continue;
+
+            if (!typeof(IRequestHandler).IsAssignableFrom(implType))
+                continue;
+            Console.WriteLine($"Found Mediator Handler: {implType.Name}");
+            CacheMediatorService(implType);
+        }
+    }
+
+
+    private static void CacheMediatorService(Type handlerType)
+    {
+
+        // Find IRequestHandler<TRequest, TResult>
+        var genericIface = handlerType.GetInterfaces()
+            .FirstOrDefault(i =>
+                i.IsGenericType &&
+                i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>));
+
+        // Find IRequestHandler<TRequest>
+        var nonGenericIface = handlerType.GetInterfaces()
+            .FirstOrDefault(i =>
+                i.IsGenericType &&
+                i.GetGenericTypeDefinition() == typeof(IRequestHandler<>));
+
+        if (genericIface == null && nonGenericIface == null)
+            throw new InvalidOperationException($"{handlerType} does not implement IRequestHandler<> or IRequestHandler<,>");
+
+        Type requestType;
+        Type closedHandlerType;
+
+        if (genericIface != null)
+        {
+            // IRequestHandler<TRequest, TResult>
+            var args = genericIface.GetGenericArguments();
+            requestType = args[0];
+            var resultType = args[1];
+
+            closedHandlerType = typeof(IRequestHandler<,>)
+                .MakeGenericType(requestType, resultType);
+        }
+        else
+        {
+            // IRequestHandler<TRequest>
+            var args = nonGenericIface!.GetGenericArguments();
+            requestType = args[0];
+
+            closedHandlerType = typeof(IRequestHandler<>)
+                .MakeGenericType(requestType);
+        }
+        Mediator._requestCache[requestType] = closedHandlerType;
+    }
+
+
 }

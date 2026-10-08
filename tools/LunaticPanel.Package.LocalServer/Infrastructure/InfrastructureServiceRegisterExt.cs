@@ -90,7 +90,7 @@ public static class InfrastructureServiceRegisterExt
                 FileProvider = new PhysicalFileProvider(location.Value),
                 ContentTypeProvider = strictZipProvider,
                 // The URL path that clients will use to access the assets via HTTP/HTTPS
-                RequestPath = $"/{location.Value.ToBase32()}"
+                RequestPath = $"/assets/{location.Value.ToBase32()}"
             });
         // Scan awaiting folders to trigger startup validation.
         foreach (var toValidate in PackageStorageUpload)
