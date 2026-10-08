@@ -207,7 +207,7 @@ jobs:
             VERSION="${{ steps.get_version.outputs.version }}"
             for PKG in /tmp/artifacts/output/*.nupkg; do
               echo "Pushing $PKG"
-              dotnet nuget push "/tmp/artifacts/output/${PKG}.${VERSION}.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+              dotnet nuget push $PKG --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate  || exit 1
             done
       - name: Wait for Package availability
         uses: nick-invision/retry@v2
