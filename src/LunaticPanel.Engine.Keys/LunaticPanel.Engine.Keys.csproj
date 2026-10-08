@@ -13,10 +13,24 @@
 	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
 	  <Configurations>Debug;Release;</Configurations>
-	  <PackageIcon>./icon.png</PackageIcon>
-	  <PackageReadmeFile>./keys.md</PackageReadmeFile>
+	  <PackageIcon>icon.png</PackageIcon>
+	  <PackageReadmeFile>keys.md</PackageReadmeFile>
+	  <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
-
+  <ItemGroup>
+	  <None Include="..\..\LICENSE.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="keys.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\..\icon.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </None>
+  </ItemGroup>
   <ItemGroup>
 	  <ProjectReference Include="..\LunaticPanel.Core\LunaticPanel.Core.csproj">
 		  <PrivateAssets>false</PrivateAssets>
