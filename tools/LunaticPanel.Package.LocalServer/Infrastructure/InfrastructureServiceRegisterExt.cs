@@ -75,8 +75,8 @@ public static class InfrastructureServiceRegisterExt
         var db = scope.ServiceProvider.GetRequiredService<PackageDatabaseContext>();
         await db.Database.EnsureCreatedAsync();
         scope.Dispose();
-        await app.UseLocalServerStaticServe();
-        app.Services.StartLocationWatchers();
+        //await app.UseLocalServerStaticServe();
+        //app.Services.StartLocationWatchers();
 
     }
     private static async Task UseLocalServerStaticServe(this WebApplication app)

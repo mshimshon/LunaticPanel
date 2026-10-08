@@ -9,10 +9,10 @@ namespace LunaticPanel.Package.Server.Application.Mediator.Queries.Handlers;
 
 internal class GetUploadAccessHandler : IRequestHandler<GetUploadAccessQuery, PackageUploadAccessResponse>
 {
-    private readonly IPackageUpload _packageUpload;
+    private readonly IPackageUploader _packageUpload;
     private readonly IManifestReadRepository _manifestReadRepository;
 
-    public GetUploadAccessHandler(IPackageUpload packageUpload, IManifestReadRepository manifestReadRepository)
+    public GetUploadAccessHandler(IPackageUploader packageUpload, IManifestReadRepository manifestReadRepository)
     {
         _packageUpload = packageUpload;
         _manifestReadRepository = manifestReadRepository;
@@ -35,7 +35,7 @@ internal class GetUploadAccessHandler : IRequestHandler<GetUploadAccessQuery, Pa
             throw new PackageAlreadyAvailableException();
 
         await _packageUpload.ConfirmNotInQueueAsync(data.Manifest, ct);
-        return await _packageUpload.RequestUploadRouteAsync(ct);
+        return await _packageUpload.RequestUploadRouteAsync(data.Manifest, ct);
     }
 
 }

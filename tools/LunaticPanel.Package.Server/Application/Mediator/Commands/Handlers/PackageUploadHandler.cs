@@ -8,17 +8,19 @@ namespace LunaticPanel.Package.Server.Application.Mediator.Commands.Handlers;
 
 internal class PackageUploadHandler : IRequestHandler<PackageUploadCommand>
 {
-    private readonly IPackageUpload _packageUpload;
+    private readonly IPackageUploader _packageUpload;
     private readonly IManifestReadRepository _manifestReadRepository;
 
-    public PackageUploadHandler(IPackageUpload packageUpload, IManifestReadRepository manifestReadRepository)
+    public PackageUploadHandler(IPackageUploader packageUpload, IManifestReadRepository manifestReadRepository)
     {
         _packageUpload = packageUpload;
         _manifestReadRepository = manifestReadRepository;
     }
     public async Task HandleAsync(PackageUploadCommand data, CancellationToken ct = default)
     {
-        var entity = data.Data.Manifest.ToDomain();
+        var manifest = await _packageUpload.GetManifestFromUploadIdAsync(data.UploadId, ct);
+        var entity = manifest.ToDomain();
+
         bool packageMissing = false;
         // Throw if not found
         try
@@ -33,7 +35,7 @@ internal class PackageUploadHandler : IRequestHandler<PackageUploadCommand>
         if (!packageMissing)
             throw new PackageAlreadyAvailableException();
 
-        await _packageUpload.ConfirmNotInQueueAsync(data.Data.Manifest, ct);
-        await _packageUpload.QueuePackageForValidationAsync(data.Data, ct);
+        await _packageUpload.ConfirmNotInQueueAsync(manifest, ct);
+        await _packageUpload.QueuePackageForValidationAsync(data.UploadId, ct);
     }
 }

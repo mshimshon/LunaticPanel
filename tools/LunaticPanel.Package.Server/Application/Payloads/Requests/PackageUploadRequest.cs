@@ -2,9 +2,5 @@
 
 public record PackageUploadRequest
 {
-    public string Provider { get; set; } = default!;
-    public string ConfirmationToken { get; set; } = default!;
-    public string AssetName { get; set; } = default!;
-    public string AssetLocation { get; set; } = default!;
-    public ManifestPayload Manifest { get; set; } = default!;
+    public Guid UploadId { get; set; } = default!;
 }

@@ -3,6 +3,7 @@ using LunaticPanel.Package.Server.Application.Mediator.Commands;
 using LunaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
 using LunaticPanel.Package.Server.Application.Mediator.Engine;
 using LunaticPanel.Package.Server.Application.Mediator.Queries;
+using LunaticPanel.Package.Server.Application.Payloads;
 using LunaticPanel.Package.Server.Application.Payloads.Requests;
 using LunaticPanel.Package.Server.Domain.Exceptions;
 using LunaticPanel.Package.Server.Infrastructure;
@@ -34,7 +35,13 @@ public static class ServiceRegistrationExt
         if (APIs.Contains(version)) return;
         APIs.Add(version);
         var v1Group = app.MapGroup($"/lpkg/{version}");
-        v1Group.MapPost("/package/push", (PackageValidationRequest data, IMediator mediator)
+        v1Group.MapGet("/package/push", (ManifestPayload data, IMediator mediator)
+            => mediator.ExecuteAsync(new GetUploadAccessQuery(data)));
+
+        v1Group.MapPost("/package/push/{uploadId}", (string uploadId, PackageUploadRequest data, IMediator mediator)
+            => mediator.ExecuteAsync(new PackageUploadCommand(uploadId)));
+
+        v1Group.MapPost("/package/create", (PackageValidationRequest data, IMediator mediator)
             => mediator.ExecuteAsync(new CreateManifestCommand(data)));
         v1Group.MapPost("/package/validate", (PackageValidationRequest data, IMediator mediator)
             => mediator.ExecuteAsync(new PackageValidationCommand(data)));
