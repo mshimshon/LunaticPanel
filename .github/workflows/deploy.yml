@@ -207,7 +207,7 @@ jobs:
             VERSION="${{ steps.get_version.outputs.version }}"
             for PKG in /tmp/artifacts/output/*.nupkg; do
               echo "Pushing $PKG"
-              dotnet nuget push "/tmp/artifacts/output/${PKG_ID}.${VERSION}.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+              dotnet nuget push "/tmp/artifacts/output/${PKG}.${VERSION}.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
             done
       - name: Wait for Package availability
         uses: nick-invision/retry@v2
@@ -218,13 +218,9 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             for PKG in /tmp/artifacts/output/*.nupkg; do
-              # 1. Get just the filename (e.g., "my.package.name.1.0.0.nupkg")
               FILENAME=$(basename "$PKG")
-  
-              # 2. Safely strip the version and extension from the end of the string
-              PKG_NAME=$(echo "$FILENAME" | sed "s/\.${VERSION}\.nupkg$//")
-  
-              # 3. Convert to lowercase
+              PKG_NAME="${FILENAME%.nupkg}"
+              PKG_NAME="${PKG_NAME%.$VERSION}"
               PKG_NAME_LOWER=$(echo "$PKG_NAME" | tr '[:upper:]' '[:lower:]')
               STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.nuget.org/v3/registration5-gz-semver2/${PKG_NAME_LOWER}/${VERSION}.json")
               [ "$STATUS" -eq 200 ] || exit 1
