@@ -218,6 +218,7 @@ jobs:
           command: |
             VERSION="${{ steps.get_version.outputs.version }}"
             for PKG in /tmp/artifacts/output/*.nupkg; do
+              FILENAME=$(basename "$PKG")
               PKG_NAME="${FILENAME%.*}"        # remove .nupkg
               PKG_NAME="${PKG_NAME%.*}"        # remove .VERSION
               PKG_NAME_LOWER=$(echo "$PKG_NAME" | tr '[:upper:]' '[:lower:]')
