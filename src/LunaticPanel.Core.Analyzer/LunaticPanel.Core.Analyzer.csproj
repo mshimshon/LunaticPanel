@@ -18,8 +18,6 @@
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
 		<Configurations>Debug;Release;</Configurations>
-		<PackageIcon>icon.png</PackageIcon>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<!-- 2. Ensure symbols packaging doesn't break a library-less pack -->
 		<IncludeSymbols>false</IncludeSymbols>
 		<!-- FIX RS1036: Enforce modern analyzer rule validations -->
@@ -36,10 +34,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<!-- 3. Explicitly bundle the analyzer DLL into the correct NuGet path -->
-		<None Include="$(OutputPath)\$(AssemblyName).dll"
-			  Pack="true"
-			  PackagePath="analyzers/dotnet/cs"
-			  Visible="false" />
+		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 	
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
