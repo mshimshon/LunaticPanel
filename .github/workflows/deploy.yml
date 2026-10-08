@@ -200,6 +200,7 @@ jobs:
       - name: Push all NuGet packages with retry
         uses: nick-invision/retry@v2
         with:
+          timeout_minutes: 30
           max_attempts: 10
           retry_wait_seconds: 10
           command: |
@@ -211,7 +212,7 @@ jobs:
       - name: Wait for Package availability
         uses: nick-invision/retry@v2
         with:
-          timeout_seconds: 18000
+          timeout_minutes: 300
           retry_wait_seconds: 15
           max_attempts: 1200
           command: |
