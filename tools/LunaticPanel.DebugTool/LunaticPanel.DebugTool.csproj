@@ -17,8 +17,8 @@
 	<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
 	<Configurations>Debug;Release;</Configurations>
 	<ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
-	<PackageIcon>icon.png</PackageIcon>
-	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageIcon>./icon.png</PackageIcon>
+	<PackageReadmeFile>./README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
