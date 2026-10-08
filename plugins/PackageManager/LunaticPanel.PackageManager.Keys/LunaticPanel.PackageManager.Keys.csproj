@@ -18,7 +18,7 @@
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 	</PropertyGroup>
 	<ItemGroup>
-		<None Include="..\..\LICENSE.md">
+		<None Include="..\..\..\LICENSE.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
@@ -26,7 +26,7 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="..\..\icon.png">
+		<None Include="..\..\..\icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
