@@ -1,10 +1,8 @@
-﻿using LunaticPanel.Package.Server.Application.Mediator.Engine;
-using LunaticPanel.Package.Server.Application.Mediator.Queries;
-using LunaticPanel.Package.Server.Application.Payloads;
+﻿using LunaticPanel.Package.Server.Application.Payloads;
 using LunaticPanel.Package.Server.Application.Payloads.Responses;
 using LunaticPanel.Package.Server.Application.Services;
-using LunaticPanel.Package.Server.Application.Mediator.Queries;
 using LunaticPanel.Package.Server.Domain.Entites.ValueObjects;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.Package.Server.Application.Mediator.Queries.Handlers;
 

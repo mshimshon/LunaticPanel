@@ -1,7 +1,6 @@
 using LunaticPanel.Package.LocalServer.Infrastructure;
 using LunaticPanel.Package.LocalServer.Infrastructure.Exceptions;
 using LunaticPanel.Package.Server;
-using LunaticPanel.Package.Server.Application.Mediator;
 using LunaticPanel.Package.Server.Web.Payloads.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +13,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 var app = builder.Build();
-app.UseMediator();
 Console.WriteLine($"Development: {app.Environment.IsDevelopment()}");
 if (app.Environment.IsDevelopment())
 {

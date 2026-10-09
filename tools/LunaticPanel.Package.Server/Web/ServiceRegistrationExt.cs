@@ -1,7 +1,6 @@
 ﻿using LunaticPanel.Package.Server.Application.Exceptions;
 using LunaticPanel.Package.Server.Application.Mediator.Commands;
 using LunaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
 using LunaticPanel.Package.Server.Application.Mediator.Queries;
 using LunaticPanel.Package.Server.Application.Payloads;
 using LunaticPanel.Package.Server.Application.Payloads.Requests;
@@ -10,6 +9,7 @@ using LunaticPanel.Package.Server.Infrastructure;
 using LunaticPanel.Package.Server.Infrastructure.Exceptions;
 using LunaticPanel.Package.Server.Web.Payloads;
 using LunaticPanel.Package.Server.Web.Payloads.Enums;
+using MaksimShimshon.Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;

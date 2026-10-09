@@ -18,7 +18,7 @@ public class PackageUploaderService : IPackageUploader
 
     public async Task ConfirmNotInQueueAsync(ManifestPayload manifest, CancellationToken ct = default)
     {
-        bool alreadyInQueue = await _validationQueueHandlerService.HasExistingQueueAsync(manifest, ct);
+        bool alreadyInQueue = await _validationQueueHandlerService.HasExistingPendingUploadAsync(manifest, ct);
         if (alreadyInQueue)
             throw new InfrastructureException("AlreadyInQueue", "The package is already in queue for validation.");
     }

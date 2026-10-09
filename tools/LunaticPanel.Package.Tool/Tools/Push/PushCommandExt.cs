@@ -45,11 +45,9 @@ public static class PushCommandExt
         {
             if (headers != default)
                 requestHeaders = headers.Split(';').Select(p => p.Split(':')).ToDictionary(p => p[0], p => p[1]);
-
         }
         catch (Exception)
         {
-
             throw new PushHeadersIncorrectException();
         }
 
@@ -57,6 +55,7 @@ public static class PushCommandExt
         PackagePushAccessPayload uploadPermissionAccess = await RequestUploadPermission(manifest, source!, requestHeaders);
         await UploadFile(input, uploadPermissionAccess.Provider, uploadPermissionAccess.Headers);
         await CompleteUpload(uploadPermissionAccess.UploadId, source!, requestHeaders);
+        return manifest;
     }
 
     private static async Task<PackagePushAccessPayload> RequestUploadPermission(PluginManifestPayload manifest, string source, Dictionary<string, string> headers)
@@ -94,8 +93,10 @@ public static class PushCommandExt
         using var client = new HttpClient();
         client.BaseAddress = new Uri(source);
         await using var fileStream = File.OpenRead(input);
-        var content = new MultipartFormDataContent();
-        content.Add(new StreamContent(fileStream), "file", Path.GetFileName(input));
+        var content = new MultipartFormDataContent
+        {
+            { new StreamContent(fileStream), "file", Path.GetFileName(input) }
+        };
         var response = await client.PostAsync("/v1/upload", content);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadAsStringAsync();
