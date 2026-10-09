@@ -7,7 +7,7 @@
     <GlobalCopyright>Maksim Shimshon © 2026</GlobalCopyright>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-	  <UseMicrosoftTestingPlatformRunner>false</UseMicrosoftTestingPlatformRunner>
+    <UseMicrosoftTestingPlatformRunner>false</UseMicrosoftTestingPlatformRunner>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
@@ -17,6 +17,7 @@
     <PackageVersion Include="DotNetCore.CAP.OpenTelemetry" Version="10.0.2" />
     <PackageVersion Include="LunaticPanel.Core" Version="0.1.836" />
     <PackageVersion Include="LunaticPanel.Engine.Keys" Version="0.1.836" />
+    <PackageVersion Include="MaksimShimshon.Mediator" Version="0.2.4" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.11" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.3.11" />

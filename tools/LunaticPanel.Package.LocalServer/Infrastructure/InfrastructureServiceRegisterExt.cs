@@ -6,11 +6,11 @@ using LunaticPanel.Package.LocalServer.Infrastructure.Extensions;
 using LunaticPanel.Package.LocalServer.Infrastructure.LunaPackage;
 using LunaticPanel.Package.LocalServer.Infrastructure.Services.FileWatcher;
 using LunaticPanel.Package.Server.Application.Mediator.Commands;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
 using LunaticPanel.Package.Server.Application.Payloads.Enums;
 using LunaticPanel.Package.Server.Application.Payloads.Requests;
 using LunaticPanel.Package.Server.Application.Services;
 using LunaticPanel.Package.Server.Domain.Repositories;
+using MaksimShimshon.Mediator;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -56,6 +56,7 @@ public static class InfrastructureServiceRegisterExt
                 PackageStorageServe[watch] = serveLocation;
             }
         }
+
         services.AddHttpContextAccessor();
         services.AddFileWatcherFactoryUtilityService();
         services.AddTransient<IManifestReadRepository, ManifestReadRepository>();
@@ -66,6 +67,7 @@ public static class InfrastructureServiceRegisterExt
             options.UseSqlite($"Data Source={PackageDatabaseLocation}");
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         });
+        services.AddMediatorService();
     }
 
     public static async Task UseLocalServerInfrastructure(this WebApplication app)
@@ -75,6 +77,7 @@ public static class InfrastructureServiceRegisterExt
         var db = scope.ServiceProvider.GetRequiredService<PackageDatabaseContext>();
         await db.Database.EnsureCreatedAsync();
         scope.Dispose();
+        app.UseMediator();
         //await app.UseLocalServerStaticServe();
         //app.Services.StartLocationWatchers();
 

@@ -1,7 +1,7 @@
 using LunaticPanel.Package.LocalServer.Infrastructure;
 using LunaticPanel.Package.LocalServer.Infrastructure.Exceptions;
 using LunaticPanel.Package.Server;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
+using LunaticPanel.Package.Server.Application.Mediator;
 using LunaticPanel.Package.Server.Web.Payloads.Enums;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="MaksimShimshon.Mediator" />
 	  <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
