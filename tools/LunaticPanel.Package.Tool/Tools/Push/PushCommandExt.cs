@@ -19,7 +19,7 @@ public static class PushCommandExt
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
         PropertyNameCaseInsensitive = true,
     };
-    public static RootCommand WithPackCommands(this RootCommand root)
+    public static RootCommand WithPushCommands(this RootCommand root)
     {
         var command = new Command("push", "pack plugin folder to .lpkg")
             .AddOption<string>("input", "in", "lpkg file.")

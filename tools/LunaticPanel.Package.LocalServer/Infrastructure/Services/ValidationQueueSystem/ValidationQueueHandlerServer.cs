@@ -1,11 +1,11 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.Exceptions;
 using LunaticPanel.Package.LocalServer.Infrastructure.Services.ValidationQueueSystem.Structs;
 using LunaticPanel.Package.Server.Application.Mediator.Commands;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
 using LunaticPanel.Package.Server.Application.Payloads;
 using LunaticPanel.Package.Server.Application.Payloads.Enums;
 using LunaticPanel.Package.Server.Application.Payloads.Requests;
 using LunaticPanel.Package.Server.Application.Payloads.Responses;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.Package.LocalServer.Infrastructure.Services.ValidationQueueSystem;
 

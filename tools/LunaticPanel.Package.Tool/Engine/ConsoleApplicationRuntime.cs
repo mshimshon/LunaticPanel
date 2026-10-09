@@ -3,6 +3,7 @@ using LunaticPanel.Package.Tool.Extensions;
 using LunaticPanel.Package.Tool.Payloads;
 using LunaticPanel.Package.Tool.Tools.Info;
 using LunaticPanel.Package.Tool.Tools.Packing;
+using LunaticPanel.Package.Tool.Tools.Push;
 using LunaticPanel.Package.Tool.Tools.Validation;
 using System.CommandLine;
 
@@ -29,7 +30,7 @@ public sealed class ConsoleApplicationRuntime
             .WithPackCommands()
             .WithUnPackCommands()
             .WithValidateCommands()
-            .WithInfoCommands();
+            .WithInfoCommands().WithPushCommands();
 
 
         var cmdParsed = rootCommand.Parse(args);
