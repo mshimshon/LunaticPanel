@@ -1,4 +1,4 @@
-sda#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -e
 
 # 1. Enforce root privileges

@@ -3,10 +3,11 @@ using LunaticPanel.Package.Server.Application.Payloads;
 using LunaticPanel.Package.Server.Application.Payloads.Enums;
 using LunaticPanel.Package.Server.Application.Payloads.Responses;
 using LunaticPanel.Package.Server.Application.Services;
+using LunaticPanel.Package.Server.Infrastructure.Exceptions;
 using LunaticPanel.Package.Server.Infrastructure.Payloads;
 using LunaticPanel.Package.Server.Infrastructure.Payloads.Responses;
-using LunaticPanel.Package.Server.Infrastructure.Exceptions;
 using Octokit;
+using System.Formats.Tar;
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -48,12 +49,12 @@ internal sealed class PackageValidationService : IPackageValidatorService
         Console.WriteLine($"Reading Local Package Manifest {target}");
         var manifest = ReadManifestFromArchive(target);
         Console.WriteLine($"Package Compiled Using Tool v{manifest.PanelVersion}");
-        string tool = Path.Combine("/opt/lpcli_tool", "LunaticPanel.Package.Tool");
-        if (!File.Exists(tool))
-            tool = await FetchValidatorToolAsync(manifest.PanelVersion);
-        else Console.WriteLine($"Use Master Override {tool} (SHOULD NOT BE USED IN PRODUCTION)");
-        Console.WriteLine($"Package Compiled Tool Available at {tool}");
-        return await RunValidationAsync(tool, target, target, ct);
+        string? toolOverride = Environment.GetEnvironmentVariable("LPCLI_TOOL_DEV_OVERRIDE");
+        if (toolOverride == default || !File.Exists(toolOverride))
+            toolOverride = await FetchValidatorToolAsync(manifest.PanelVersion);
+        else Console.WriteLine($"Use Development 'LPCLI_TOOL_DEV_OVERRIDE' Override {toolOverride} (SHOULD NOT BE USED IN PRODUCTION)");
+        Console.WriteLine($"Package Compiled Tool Available at {toolOverride}");
+        return await RunValidationAsync(toolOverride, target, target, ct);
     }
     public async Task<PackageValidationResponse> ValidateRemoteAsync(string target, CancellationToken ct = default)
     {
@@ -168,45 +169,33 @@ internal sealed class PackageValidationService : IPackageValidatorService
         string tmpSub = Path.Combine(tmpRoot, "lunapkg_tools");
         if (!Directory.Exists(tmpSub))
             Directory.CreateDirectory(tmpSub);
-        string cacheToolPath = Path.Combine(tmpSub, $".lpkg_{panelVersion}.cache");
-        bool useLocalTool = false;
-        bool hasLocalTool = File.Exists(cacheToolPath);
-        if (hasLocalTool)
-            useLocalTool = DateTime.UtcNow.Date == DateTime.Parse(File.ReadAllText(cacheToolPath)).Date;
-        bool fallback = useLocalTool;
-        Console.WriteLine($"Tool Fallback ({fallback}) On ({hasLocalTool}) ? {cacheToolPath}");
-        if (!fallback)
+        string toolExpectedLocation = Path.Combine(tmpRoot, "lunapkg_tools", panelVersion);
+        string toolExpectedLocationBin = Path.Combine(toolExpectedLocation, "LunaticPanel.Package.Tool");
+
+        bool isAlreadyCached = File.Exists(toolExpectedLocationBin);
+        Console.WriteLine($"Tool Cached ({isAlreadyCached}) On ({toolExpectedLocationBin})");
+        if (!isAlreadyCached)
         {
             try
             {
                 var releaseAsset = await GetLatestMajorToolUrlAsync(panelVersion, ct);
                 if (releaseAsset.Value == default || releaseAsset.Key == default)
                     throw new PackageToolNotFoundException(panelVersion);
-
                 await DownloadAndInstallTool(releaseAsset.Value, releaseAsset.Key, ct);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"{ex.Message}");
-                Console.WriteLine($"Local Fallback? ({hasLocalTool})-> {cacheToolPath}");
-                if (!hasLocalTool)
-                    throw;
+                throw;
             }
         }
 
         Console.WriteLine($"Tool Fetch Completed");
-        string tmpTargetDir = Path.Combine(tmpSub, panelVersion);
-        string? selectedTool = Directory.GetDirectories(tmpTargetDir, "", SearchOption.TopDirectoryOnly)
-            .Where(p => p.StartsWith($"{panelVersion}."))
-            .OrderByDescending(x => x)
-            .FirstOrDefault();
-        if (selectedTool == default)
+
+        if (!File.Exists(toolExpectedLocationBin))
             throw new FailedToLocateRequiredValidatorException(panelVersion);
 
-        string pathToExe = Path.Combine(selectedTool, "LunaticPanel.Package.Tool");
-        if (!File.Exists(pathToExe))
-            throw new FailedToLocateRequiredValidatorException(panelVersion);
-        return pathToExe;
+        return toolExpectedLocationBin;
     }
     private readonly string _versionRegexPattern = @"^[vV](?<version>\d+\.\d+\.\d+)$";
     private async Task<KeyValuePair<string, string>> GetLatestMajorToolUrlAsync(string panelMajor, CancellationToken ct = default)
@@ -219,6 +208,9 @@ internal sealed class PackageValidationService : IPackageValidatorService
         releases = await clientResult;
         Console.WriteLine($"Github Release Status {clientResult.Status}");
         Console.WriteLine($"Latest Release Result ? {releases.Count}");
+        foreach (var item in releases)
+            Console.WriteLine($"[Github] {item.Id} => {item.Name} => {item.TagName}");
+
         if (releases == default || releases.Count <= 0)
             throw new PackageToolNotFoundException(panelMajor);
         var parsed = releases
@@ -233,8 +225,9 @@ internal sealed class PackageValidationService : IPackageValidatorService
             .ToList();
         if (parsed.Count <= 0)
             throw new PackageToolNotFoundException(panelMajor);
+        Version panelVersion = new Version(panelMajor);
         var matchingMajor = parsed
-            .Where(x => x!.Version.Major.ToString() == panelMajor)
+            .Where(x => x!.Version == panelVersion)
             .OrderByDescending(x => x!.Version)
             .FirstOrDefault();
 
@@ -255,25 +248,22 @@ internal sealed class PackageValidationService : IPackageValidatorService
         string tmpSub = Path.Combine(tmpRoot, "lunapkg_tools");
         if (!Directory.Exists(tmpSub))
             Directory.CreateDirectory(tmpSub);
-        string major = toolVersion.Split('.')[0];
-        string cacheToolPath = Path.Combine(tmpSub, $".lpkg_{major}.cache");
-        string cacheToolPathWrite = Path.Combine(tmpSub, $".lpkg_{major}.write");
-
         string tmpDownloads = Path.Combine(tmpSub, "downloads");
-
+        if (!Directory.Exists(tmpDownloads))
+            Directory.CreateDirectory(tmpDownloads);
         using var response = await _http.GetAsync(target, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
         string filename = Path.GetRandomFileName();
         string fullDownloadPath = Path.Combine(tmpDownloads, $"{filename}.dl");
-        string fullTargetPath = Path.Combine(tmpDownloads, $"{filename}.zip");
+        string fullTargetPath = Path.Combine(tmpDownloads, $"{filename}.tar.gz");
         await using var input = await response.Content.ReadAsStreamAsync();
         await using var output = File.Create(fullDownloadPath);
         await input.CopyToAsync(output);
+        input.Close();
+        output.Close();
         File.Move(fullDownloadPath, fullTargetPath);
         string targetRoot = Path.Combine(tmpSub, toolVersion);
-        await ExtractZipToRoot(fullTargetPath, targetRoot, ct);
-        File.WriteAllText(cacheToolPathWrite, DateTime.UtcNow.ToString());
-        File.Move(cacheToolPath, cacheToolPathWrite);
+        await ExtractTarGzAsync(fullTargetPath, targetRoot, ct);
     }
     private async Task ExtractZipToRoot(string zipPath, string targetRoot, CancellationToken ct = default)
     {
@@ -292,5 +282,20 @@ internal sealed class PackageValidationService : IPackageValidatorService
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
             await entry.ExtractToFileAsync(outputPath);
         }
+    }
+    public static async Task ExtractTarGzAsync(string tarGzPath, string targetRoot, CancellationToken ct = default)
+    {
+        if (Directory.Exists(targetRoot))
+            Directory.Delete(targetRoot, true);
+        Directory.CreateDirectory(targetRoot);
+
+        await using FileStream fileStream = File.OpenRead(tarGzPath);
+        await using GZipStream gzipStream =
+            new(fileStream, CompressionMode.Decompress);
+
+        TarFile.ExtractToDirectory(
+            gzipStream,
+            targetRoot,
+            overwriteFiles: true);
     }
 }
