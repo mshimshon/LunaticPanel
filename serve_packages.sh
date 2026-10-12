@@ -28,6 +28,7 @@ ENVIRONMENT=()
 rm -rf "$SETUP_DIR"
 mkdir -p "$SETUP_DIR"
 
+apt install libicu78
 
 echo "Checking the latest LunaticPanel release..."
 LATEST_TAG=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" \

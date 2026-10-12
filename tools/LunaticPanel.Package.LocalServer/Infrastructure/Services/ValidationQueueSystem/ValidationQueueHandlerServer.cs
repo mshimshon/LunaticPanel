@@ -165,6 +165,7 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
             _manifestToUploadIdCache.Remove(id.Key);
             _timeoutControl.Remove(uploadId);
             _uploadRouteToUploadIdCache.Remove(uploadId);
+            _uploadIdToFile.Remove(uploadId);
 
         }
     }
@@ -206,6 +207,19 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
             {
                 return; // loop reset
             }
+        }
+    }
+
+    public Task<bool> HasPendingValidationAsync(ManifestPayload manifestPayload, CancellationToken ct = default)
+    {
+        lock (_lock)
+        {
+            var packageKey = new PackageKey(manifestPayload.Id, manifestPayload.Version);
+            if (!_manifestToUploadIdCache.ContainsKey(packageKey))
+                return Task.FromResult(false);
+
+            var result = _validationQueue.Contains(_manifestToUploadIdCache[packageKey]);
+            return Task.FromResult(result);
         }
     }
 }
