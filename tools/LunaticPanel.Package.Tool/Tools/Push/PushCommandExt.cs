@@ -53,7 +53,7 @@ public static class PushCommandExt
 
         PluginManifestPayload manifest = await PluginValidatorCommandExt.ValidatePackageAsync(input);
         PackagePushAccessPayload uploadPermissionAccess = await RequestUploadPermission(manifest, source!, requestHeaders);
-        await UploadFile(input, uploadPermissionAccess.Provider, uploadPermissionAccess.Headers);
+        await UploadFile(input, source!, uploadPermissionAccess, uploadPermissionAccess.Headers);
         await CompleteUpload(uploadPermissionAccess.UploadId, source!, requestHeaders);
         return manifest;
     }
@@ -61,10 +61,11 @@ public static class PushCommandExt
     private static async Task<PackagePushAccessPayload> RequestUploadPermission(PluginManifestPayload manifest, string source, Dictionary<string, string> headers)
     {
         using HttpClient? client = new HttpClient();
+        Console.WriteLine($"Requesting Access '{source}'");
         client.BaseAddress = new Uri(source);
         var json = JsonSerializer.Serialize(manifest, _jsonSerializerOptions);
         var body = new StringContent(json, Encoding.UTF8, "application/json");
-        var request = new HttpRequestMessage(HttpMethod.Get, "/lpkg/v1/push")
+        var request = new HttpRequestMessage(HttpMethod.Get, "/lpkg/v1/package/push")
         {
             Content = body
         };
@@ -79,25 +80,36 @@ public static class PushCommandExt
         }
         var response = await client.SendAsync(request);
         response.EnsureSuccessStatusCode();
+        Console.WriteLine($"Access Granted for '{source}'");
 
         var result = await response.Content.ReadAsStringAsync();
         var returnValue = JsonSerializer.Deserialize<PackagePushAccessPayload>(result, _jsonSerializerOptions);
         if (returnValue == default!)
             throw new PushAccessResponseInvalidException(result);
+        Console.WriteLine($"Upload must be done at '{returnValue.Provider}'");
+
         return returnValue;
 
     }
 
-    private static async Task UploadFile(string input, string source, Dictionary<string, string> headers)
+    private static async Task UploadFile(string input, string source, PackagePushAccessPayload access, Dictionary<string, string> headers)
     {
         using var client = new HttpClient();
-        client.BaseAddress = new Uri(source);
+        string endpoint = access.Provider;
+        if (access.Provider.StartsWith("http"))
+            endpoint = access.Provider;
+        else
+            endpoint = $"{source}{access.Provider}";
+
+        Console.WriteLine($"Upload file to '{endpoint}'");
+
+
         await using var fileStream = File.OpenRead(input);
         var content = new MultipartFormDataContent
         {
             { new StreamContent(fileStream), "file", Path.GetFileName(input) }
         };
-        var response = await client.PostAsync("/v1/upload", content);
+        var response = await client.PostAsync(endpoint, content);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadAsStringAsync();
         Console.WriteLine(result);
@@ -107,7 +119,7 @@ public static class PushCommandExt
     {
         using var client = new HttpClient();
         client.BaseAddress = new Uri(source);
-        var request = new HttpRequestMessage(HttpMethod.Post, $"/lpkg/v1/push/{uploadId}");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/lpkg/v1/package/push/{uploadId}");
         foreach (var kv in headers)
         {
             if (request.Headers.Contains(kv.Key))

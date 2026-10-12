@@ -143,13 +143,13 @@ for ((i=1; i<=MAX_ATTEMPTS; i++)); do
     break
   fi
   
-  echo "Server port is open but payload is empty (.NET is still initializing). Retrying in 1s ($i/$MAX_ATTEMPTS)..."
+  echo "Retrying in 1s ($i/$MAX_ATTEMPTS)..."
   sleep 1
 done
 
 # 2. Strict validation check on the final piped result
 if [ -z "$RESPONSE" ]; then
-  echo "Error: Server connected but consistently returned an empty payload after $MAX_ATTEMPTS seconds." >&2
+  echo "Error: Server failed after $MAX_ATTEMPTS seconds." >&2
   echo "--- Fetching Systemd Application Logs ---"
   journalctl -u "${SERVICE_NAME}" -n 25
   exit 1

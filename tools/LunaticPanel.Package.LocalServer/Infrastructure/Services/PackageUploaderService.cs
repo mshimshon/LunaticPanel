@@ -25,13 +25,16 @@ public class PackageUploaderService : IPackageUploader
 
     public async Task<ManifestPayload> GetManifestFromUploadIdAsync(string uploadId, CancellationToken ct = default)
         => await _validationQueueHandlerService.GetManifestFromIdAsync(uploadId, ct);
-    public Task QueuePackageForValidationAsync(string uploadId, CancellationToken ct = default)
-        => throw new NotImplementedException();
+    public async Task QueuePackageForValidationAsync(string uploadId, CancellationToken ct = default)
+    {
+        await _validationQueueHandlerService.ValidateUploadIdAsync(uploadId, ct);
+        await _validationQueueHandlerService.QueueUpAsync(uploadId, ct);
+    }
 
     public async Task<PackageUploadAccessResponse> RequestUploadRouteAsync(ManifestPayload manifest, CancellationToken ct = default)
     {
         var uploadId = await _validationQueueHandlerService.GenerateUploadIdAsync(manifest, ct);
-        var result = new PackageUploadAccessResponse(uploadId, $"/v1/upload", new());
+        var result = new PackageUploadAccessResponse(uploadId, $"/v1/upload/{uploadId}", new());
         await _validationQueueHandlerService.CacheUploadRouteAsync(result, ct);
         return result;
     }

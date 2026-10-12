@@ -7,7 +7,7 @@ public interface IValidationQueueHandlerService
 {
     Task ValidateUploadIdAsync(string uploadId, CancellationToken ct = default);
     Task<bool> HasExistingPendingUploadAsync(ManifestPayload manifestPayload, CancellationToken ct = default);
-    Task QueueUpAsync(ManifestPayload manifestPayload, CancellationToken ct = default);
+    Task QueueUpAsync(string uploadId, CancellationToken ct = default);
     Task<string> GenerateUploadIdAsync(ManifestPayload manifest, CancellationToken ct = default);
     Task<ManifestPayload> GetManifestFromIdAsync(string uploadId, CancellationToken ct = default);
     Task CacheUploadRouteAsync(PackageUploadAccessResponse uploadRoute, CancellationToken ct = default);

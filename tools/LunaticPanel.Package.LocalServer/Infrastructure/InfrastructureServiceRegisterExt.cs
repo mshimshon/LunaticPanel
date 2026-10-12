@@ -4,10 +4,9 @@ using LunaticPanel.Core.Utils.Abstraction.FileWatcher.Enums;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework;
 using LunaticPanel.Package.LocalServer.Infrastructure.Extensions;
 using LunaticPanel.Package.LocalServer.Infrastructure.LunaPackage;
+using LunaticPanel.Package.LocalServer.Infrastructure.Services;
 using LunaticPanel.Package.LocalServer.Infrastructure.Services.FileWatcher;
-using LunaticPanel.Package.Server.Application.Mediator.Commands;
-using LunaticPanel.Package.Server.Application.Payloads.Enums;
-using LunaticPanel.Package.Server.Application.Payloads.Requests;
+using LunaticPanel.Package.LocalServer.Infrastructure.Services.ValidationQueueSystem;
 using LunaticPanel.Package.Server.Application.Services;
 using LunaticPanel.Package.Server.Domain.Repositories;
 using MaksimShimshon.Mediator;
@@ -19,7 +18,8 @@ namespace LunaticPanel.Package.LocalServer.Infrastructure;
 
 public static class InfrastructureServiceRegisterExt
 {
-    internal static string PackageDatabaseLocation { get; set; } = OperatingSystem.IsLinux() ? "/var/lib/lunaticpanel_lpkg_localserver/db/local.db" : "local.db";
+    internal static string PackageDatabaseLocation { get; set; } =
+        OperatingSystem.IsLinux() ? "/var/lib/lunaticpanel_lpkg_localserver/db/local.db" : "local.db";
     internal static HashSet<string> PackageStorageBase { get; set; } = new(StringComparer.OrdinalIgnoreCase) {
         "/var/lib/lunaticpanel_lpkg_localserver/lpkgs"
     };
@@ -28,6 +28,7 @@ public static class InfrastructureServiceRegisterExt
     internal static Dictionary<string, string> PackageStorageServe { get; set; } = [];
     public static void AddLocalServerInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+
         if (!OperatingSystem.IsLinux())
             PackageDatabaseLocation = "local.db";
         else
@@ -59,6 +60,8 @@ public static class InfrastructureServiceRegisterExt
 
         services.AddHttpContextAccessor();
         services.AddFileWatcherFactoryUtilityService();
+        services.AddScoped<IPackageUploader, PackageUploaderService>();
+        services.AddSingleton<IValidationQueueHandlerService, ValidationQueueHandlerServer>();
         services.AddTransient<IManifestReadRepository, ManifestReadRepository>();
         services.AddTransient<IManifestWriteRepository, ManifestWriteRepository>();
         services.AddTransient<IPackageDownloadResolver, PackageDownloadResolver>();
@@ -140,23 +143,23 @@ public static class InfrastructureServiceRegisterExt
     }
     private static async Task AutoCreateNewlyAddedPackageFiles(this IServiceProvider sp, string file, CancellationToken ct = default)
     {
-        Console.WriteLine($"{file} newly added.");
-        var mediator = sp.GetRequiredService<IMediator>();
+        //Console.WriteLine($"{file} newly added.");
+        //var mediator = sp.GetRequiredService<IMediator>();
 
-        var validationRequest = new PackageValidationRequest()
-        {
-            LocationType = PackageValidationLocation.Local,
-            Target = file
-        };
-        Console.WriteLine($"Sending request for '{file}'.");
-        var manifest = await mediator.ExecuteAsync(new CreateManifestCommand(validationRequest));
-        Console.WriteLine($"{manifest.Id} {manifest.Version} was created ('{file}').");
-        var baseDir = Path.GetDirectoryName(file);
-        var serveLocation = Path.GetFullPath(Path.Combine(baseDir!, "../available"));
-        var filename = $"{manifest.Id}.{manifest.Version}";
-        var moveTo = Path.Combine(serveLocation, $"{filename.ToBase32()}.lpkg");
-        Console.WriteLine($"'{file}' -> '{moveTo}'.");
-        File.Move(file, moveTo);
-        Console.WriteLine($"{file} moved and available '{moveTo}'.");
+        //var validationRequest = new PackageValidationRequest()
+        //{
+        //    LocationType = PackageValidationLocation.Local,
+        //    Target = file
+        //};
+        //Console.WriteLine($"Sending request for '{file}'.");
+        //var manifest = await mediator.ExecuteAsync(new CreateManifestCommand(validationRequest));
+        //Console.WriteLine($"{manifest.Id} {manifest.Version} was created ('{file}').");
+        //var baseDir = Path.GetDirectoryName(file);
+        //var serveLocation = Path.GetFullPath(Path.Combine(baseDir!, "../available"));
+        //var filename = $"{manifest.Id}.{manifest.Version}";
+        //var moveTo = Path.Combine(serveLocation, $"{filename.ToBase32()}.lpkg");
+        //Console.WriteLine($"'{file}' -> '{moveTo}'.");
+        //File.Move(file, moveTo);
+        //Console.WriteLine($"{file} moved and available '{moveTo}'.");
     }
 }

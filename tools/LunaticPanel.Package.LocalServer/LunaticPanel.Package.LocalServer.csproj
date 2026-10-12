@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LunaticPanel.Package.Server\LunaticPanel.Package.Server.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Package.Server\LunaticPanel.Package.Server.csproj" PrivateAssets="false"  />
   </ItemGroup>
 
 </Project>

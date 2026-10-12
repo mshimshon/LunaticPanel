@@ -25,7 +25,7 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
 
     public ValidationQueueHandlerServer(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider;
+        _serviceProvider = serviceProvider.CreateScope().ServiceProvider;
     }
     public Task CacheUploadRouteAsync(PackageUploadAccessResponse uploadRoute, CancellationToken ct = default)
     {
@@ -102,21 +102,32 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
             if (string.IsNullOrWhiteSpace(file))
                 continue;
 
-            IMediator mediator = _serviceProvider.GetRequiredService<IMediator>();
-            var validationRequest = new PackageValidationRequest()
-            {
-                Target = file,
-                LocationType = PackageValidationLocation.Local
-            };
             try
             {
+
+                IMediator mediator = _serviceProvider.GetRequiredService<IMediator>();
+                var validationRequest = new PackageValidationRequest()
+                {
+                    Target = file,
+                    LocationType = PackageValidationLocation.Local
+                };
                 var validationResult = await mediator.ExecuteAsync(new PackageValidationCommand(validationRequest));
+                await mediator.ExecuteAsync(new CreateManifestCommand(validationResult.Manifest));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.Error.WriteLine(ex.Message);
+                await ClearExpiredUpload(uploadId);
                 continue;
             }
         } while (_validationQueue.Count > 0);
+
+        lock (_lock)
+        {
+            if (!_isRunning)
+                return;
+            _isRunning = false;
+        }
     }
 
     public Task ValidateUploadIdAsync(string uploadId, CancellationToken ct = default)
@@ -128,7 +139,6 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
             return Task.CompletedTask;
         }
     }
-    public Task QueueUpAsync(ManifestPayload manifestPayload, CancellationToken ct = default) => throw new NotImplementedException();
 
     public Task AssociateUploadIdToFileAsync(string uploadId, string path, CancellationToken ct = default)
     {
