@@ -18,9 +18,17 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-	  <PackageReference Include="xUnit.v3.mtp-off" />
   </ItemGroup>
 
+	<!-- Fuck you Microsoft global.json wtf is wrong with you people stop letting AI code your shit -->
+	<ItemGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+		<PackageReference Include="xunit.v3" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(BuildingInsideVisualStudio)' != 'true'">
+		<PackageReference Include="xunit.v3.mtp-off" />
+	</ItemGroup>
+	
   <ItemGroup>
     <ProjectReference Include="..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
     <ProjectReference Include="..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />

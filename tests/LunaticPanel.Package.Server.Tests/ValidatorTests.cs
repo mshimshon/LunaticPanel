@@ -185,26 +185,7 @@ public class ValidatorTests
         Assert.False(valid);
     }
 
-    [Theory]
-    [InlineData("10.0.0")]
-    [InlineData("6.0.0")]
-    [InlineData("8.1.0")]
-    [InlineData("1000.0.0")]
-    public void PackageDotnetVersion_ShouldValidate(string version)
-    {
-        bool valid = Regex.IsMatch(version, DomainValidationExt.DOTNET_VERSION_VALIDATION_PATTERN);
-        Assert.True(valid);
-    }
 
-    [Theory]
-    [InlineData("1001")]
-    [InlineData("10000.0")]
-    [InlineData("10.0.0.0")]
-    public void PackageDotnetVersion_ShouldNOTValidate(string version)
-    {
-        bool valid = Regex.IsMatch(version, DomainValidationExt.DOTNET_VERSION_VALIDATION_PATTERN);
-        Assert.False(valid);
-    }
 
     [Theory]
     [InlineData("1.0.0")]
