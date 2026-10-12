@@ -1,23 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	<Title>$(AssemblyName)</Title>
-	<Version>$(GlobalVersion)</Version>
-	<Company>$(GlobalCompany)</Company>
-	<Copyright>$(GlobalCopyright)</Copyright>
-	<Authors>$(GlobalAuthors)</Authors>
-	<Description>Core Package for Lunatic Panel's PLugin</Description>
-	<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
-	<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
-
-  </PropertyGroup>
-
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>lpkg-cli</ToolCommandName>
+		<Title>$(AssemblyName)</Title>
+		<Version>$(GlobalVersion)</Version>
+		<Company>Maksim Shimshon</Company>
+		<Copyright>Maksim Shimshon © 2026</Copyright>
+		<Authors>Maksim Shimshon</Authors>
+		<Description>Lunatic Panel Development Tool for Plugins</Description>
+		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
+		<Configurations>Debug;Release;</Configurations>
+		<ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<IsPackable>true</IsPackable>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="McMaster.NETCore.Plugins" />
     <PackageReference Include="System.CommandLine" />
@@ -33,5 +51,13 @@
     <ProjectReference Include="..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />
     <ProjectReference Include="..\..\src\LunaticPanel.Engine.Plugin\LunaticPanel.Engine.Plugin.csproj" />
   </ItemGroup>
+
+	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
+		<MakeDir Directories="..\..\..\..\nupkgs" />
+		<ItemGroup>
+			<PackageFiles Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PackageFiles)" DestinationFolder="..\..\..\..\nupkgs" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" Condition="'$(BuildingInsideVisualStudio)' == 'true'" />
+	</Target>
 
 </Project>

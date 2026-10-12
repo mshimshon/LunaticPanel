@@ -7,7 +7,6 @@ public static class DomainValidationExt
     public const string ASCI_PRINTABLE_VALIDATION_PATTERN = @"^[\x20-\x7E]+$";
     public const string ALPHANUM_VALIDATION_PATTERN = @"^[a-zA-Z0-9]+$";
     public const string ALPHANUM_SCPPUNCT_VALIDATION_PATTERN = @"^[a-zA-Z0-9 .,]+$";
-    public const string DOTNET_VERSION_VALIDATION_PATTERN = @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$";
     public const string PANEL_VERSION_VALIDATION_PATTERN = PKG_VERSION_VALIDATION_PATTERN;
     public const string PKG_VERSION_VALIDATION_PATTERN = @"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$";
     public const string PKG_ENTRYFILE_VALIDATION_PATTERN = @"^[^\\/:*?""<>|]+\.dll$";

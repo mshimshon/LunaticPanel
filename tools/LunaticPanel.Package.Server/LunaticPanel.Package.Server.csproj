@@ -35,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MaksimShimshon.Mediator" />
     <PackageReference Include="Octokit.Reactive" />
   </ItemGroup>
 

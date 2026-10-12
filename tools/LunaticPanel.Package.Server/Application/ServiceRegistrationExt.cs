@@ -1,5 +1,4 @@
 ﻿using LunaticPanel.Package.Server.Application.Mediator.Commands.Handlers;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
 using LunaticPanel.Package.Server.Application.Mediator.Queries.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,7 +8,6 @@ public static class ServiceRegistrationExt
 {
     internal static void AddApplicationLayerServices(this IServiceCollection services)
     {
-        services.AddMediatorService();
         services.AddTransient<SearchManifestHandler>();
         services.AddTransient<GetAllPackageVersionsHandler>();
         services.AddTransient<GetLatestPackageHandler>();

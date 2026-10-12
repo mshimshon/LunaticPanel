@@ -1,9 +1,8 @@
-﻿using LunaticPanel.Package.Server.Application.Mediator.Commands;
-using LunaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
+﻿using LunaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
 using LunaticPanel.Package.Server.Application.Payloads.Enums;
 using LunaticPanel.Package.Server.Application.Payloads.Responses;
 using LunaticPanel.Package.Server.Application.Services;
+using MaksimShimshon.Mediator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.Package.Server.Application.Mediator.Commands.Handlers;

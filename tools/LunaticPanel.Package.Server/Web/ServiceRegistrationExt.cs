@@ -1,7 +1,6 @@
 ﻿using LunaticPanel.Package.Server.Application.Exceptions;
 using LunaticPanel.Package.Server.Application.Mediator.Commands;
 using LunaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
 using LunaticPanel.Package.Server.Application.Mediator.Queries;
 using LunaticPanel.Package.Server.Application.Payloads;
 using LunaticPanel.Package.Server.Application.Payloads.Requests;
@@ -10,9 +9,11 @@ using LunaticPanel.Package.Server.Infrastructure;
 using LunaticPanel.Package.Server.Infrastructure.Exceptions;
 using LunaticPanel.Package.Server.Web.Payloads;
 using LunaticPanel.Package.Server.Web.Payloads.Enums;
+using MaksimShimshon.Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System.Net;
 
@@ -35,29 +36,29 @@ public static class ServiceRegistrationExt
         if (APIs.Contains(version)) return;
         APIs.Add(version);
         var v1Group = app.MapGroup($"/lpkg/{version}");
-        v1Group.MapGet("/package/push", (ManifestPayload data, IMediator mediator)
+        v1Group.MapGet("/package/push", ([FromBody] ManifestPayload data, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new GetUploadAccessQuery(data)));
 
-        v1Group.MapPost("/package/push/{uploadId}", (string uploadId, PackageUploadRequest data, IMediator mediator)
+        v1Group.MapPost("/package/push/{uploadId:regex(^[a-zA-Z0-9-]+$)}", ([FromRoute] string uploadId, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new PackageUploadCommand(uploadId)));
 
-        v1Group.MapPost("/package/create", (PackageValidationRequest data, IMediator mediator)
+        v1Group.MapPost("/package/create", ([FromBody] ManifestPayload data, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new CreateManifestCommand(data)));
-        v1Group.MapPost("/package/validate", (PackageValidationRequest data, IMediator mediator)
+        v1Group.MapPost("/package/validate", ([FromBody] PackageValidationRequest data, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new PackageValidationCommand(data)));
-        v1Group.MapPost("/package/hide/{id}/{version}", (string id, string version, IMediator mediator)
+        v1Group.MapPost("/package/hide/{id}/{version}", ([FromRoute] string id, [FromRoute] string version, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new HideManifestVersionCommand(id, version)));
-        v1Group.MapPost("/package/endlife", (EndOfLifeRequest data, IMediator mediator)
+        v1Group.MapPost("/package/endlife", ([FromBody] EndOfLifeRequest data, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new EndManifestLifeCommand(data)));
-        v1Group.MapPost("/package/search", (ManifestSearchRequest data, IMediator mediator)
+        v1Group.MapPost("/package/search", ([FromBody] ManifestSearchRequest data, IMediator mediator)
             => mediator.ExecuteAsync(new SearchManifestQuery(data)));
-        v1Group.MapGet("/package/info/{id}", (string id, IMediator mediator) =>
+        v1Group.MapGet("/package/info/{id}", ([FromRoute] string id, [FromServices] IMediator mediator) =>
             mediator.ExecuteAsync(new GetAllPackageVersionsQuery(id)));
-        v1Group.MapGet("/package/info/{id}/{version}", (string id, string version, IMediator mediator)
+        v1Group.MapGet("/package/info/{id}/{version}", ([FromRoute] string id, [FromRoute] string version, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new GetSpecificPackageVersionQuery(id, version)));
-        v1Group.MapGet("/package/latest/{id}", (string id, IMediator mediator)
+        v1Group.MapGet("/package/latest/{id}", ([FromRoute] string id, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new GetLatestPackageQuery(id)));
-        v1Group.MapGet("/package/download/{id}/{version}", (string id, string version, IMediator mediator)
+        v1Group.MapGet("/package/download/{id}/{version}", ([FromRoute] string id, [FromRoute] string version, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new GetPackageDownloadTargetQuery(id, version)));
     }
     internal static void AddEndpoints(this WebApplication app)

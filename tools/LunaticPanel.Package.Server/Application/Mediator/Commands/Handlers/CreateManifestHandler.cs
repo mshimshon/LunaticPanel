@@ -1,10 +1,8 @@
-﻿using LunaticPanel.Package.Server.Application.Mediator.Engine;
+﻿using LunaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
 using LunaticPanel.Package.Server.Application.Payloads;
 using LunaticPanel.Package.Server.Application.Payloads.Mapping;
-using LunaticPanel.Package.Server.Application.Payloads.Responses;
 using LunaticPanel.Package.Server.Domain.Repositories;
-using LunaticPanel.Package.Server.Application.Mediator.Commands.Exceptions;
-using LunaticPanel.Package.Server.Application.Payloads.Mapping;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.Package.Server.Application.Mediator.Commands.Handlers;
 
@@ -23,13 +21,10 @@ internal sealed class CreateManifestHandler : IRequestHandler<CreateManifestComm
     public async Task<ManifestPayload> HandleAsync(CreateManifestCommand data, CancellationToken ct = default)
     {
         Console.WriteLine("Creating Manifest Request Received");
-        var validationCmd = new PackageValidationCommand(data.Data);
-        PackageValidationResponse validation = await _mediator.ExecuteAsync(validationCmd, ct);
-        Console.WriteLine($"Validated Package {validation.Manifest.Id}");
-        bool exist = await _manifestReadRepository.ExistAsync(new(validation.Manifest.Id), new(validation.Manifest.Version), ct);
+        bool exist = await _manifestReadRepository.ExistAsync(new(data.Data.Id), new(data.Data.Version), ct);
         if (exist)
-            throw new PackageVersionExistException(validation.Manifest.Id, validation.Manifest.Version);
-        var manifest = validation.Manifest.ToDomain();
+            throw new PackageVersionExistException(data.Data.Id, data.Data.Version);
+        var manifest = data.Data.ToDomain();
         await _manifestWriteRepository.CreateAsync(manifest, ct);
         return manifest.ToApplication();
     }

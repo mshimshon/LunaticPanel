@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Package.Server.Application.Exceptions;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
 using LunaticPanel.Package.Server.Application.Payloads.Mapping;
 using LunaticPanel.Package.Server.Application.Payloads.Responses;
 using LunaticPanel.Package.Server.Application.Services;
 using LunaticPanel.Package.Server.Domain.Repositories;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.Package.Server.Application.Mediator.Queries.Handlers;
 

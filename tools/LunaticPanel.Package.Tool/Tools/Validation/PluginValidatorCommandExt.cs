@@ -126,6 +126,7 @@ internal static class PluginValidatorCommandExt
                 {
                     Console.Error.WriteLine($"Failed to Remove {outputPackageTmp}".Red());
                     Console.Error.WriteLine(ex.Message.Red());
+                    Console.Error.WriteLine($"Continuing".Yellow());
 
                 }
             }

@@ -1,20 +1,15 @@
-using LunaticPanel.Package.LocalServer.Infrastructure;
-using LunaticPanel.Package.LocalServer.Infrastructure.Exceptions;
+using LunaticPanel.Package.LocalServer.Web;
 using LunaticPanel.Package.Server;
-using LunaticPanel.Package.Server.Application.Mediator.Engine;
-using LunaticPanel.Package.Server.Web.Payloads.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 builder.AddLunaPackage();
 
-builder.Services.AddLocalServerInfrastructure(builder.Configuration);
+// Add services to the container.
+builder.Services.AddLocalServerServices(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
 var app = builder.Build();
-app.UseMediator();
 Console.WriteLine($"Development: {app.Environment.IsDevelopment()}");
 if (app.Environment.IsDevelopment())
 {
@@ -27,9 +22,5 @@ if (app.Environment.IsDevelopment())
 }
 else
     app.UseHttpsRedirection();
-app.UseLunaPackage();
-await app.UseLocalServerInfrastructure();
-app.EnableLunaPackageCodedError();
-app.UseLunaPackageCodedErrorFor<InfrastructureException>(p => new(p.Code, p.Message, ExceptionProvenencePayload.Infrastructure));
-
+await app.UseLocalServerAPIEndpoints();
 app.Run();

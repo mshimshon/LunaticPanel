@@ -13,6 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="MaksimShimshon.Mediator" />
 	  <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
@@ -21,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LunaticPanel.Package.Server\LunaticPanel.Package.Server.csproj" />
+    <ProjectReference Include="..\LunaticPanel.Package.Server\LunaticPanel.Package.Server.csproj" PrivateAssets="false"  />
   </ItemGroup>
 
 </Project>
