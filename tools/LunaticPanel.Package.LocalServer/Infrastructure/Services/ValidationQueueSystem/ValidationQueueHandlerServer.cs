@@ -11,7 +11,6 @@ namespace LunaticPanel.Package.LocalServer.Infrastructure.Services.ValidationQue
 
 public class ValidationQueueHandlerServer : IValidationQueueHandlerService
 {
-    private Dictionary<PackageKey, ManifestPayload> _idManifestCache = new();
     private Dictionary<string, DateTime> _timeoutControl = new();
     private Dictionary<string, ManifestPayload> _idToManifestCache = new();
     private Dictionary<PackageKey, string> _manifestToUploadIdCache = new();
@@ -40,9 +39,16 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
     {
         lock (_lock)
         {
+            var packageKey = new PackageKey(manifest.Id, manifest.Version);
+            if (_manifestToUploadIdCache.ContainsKey(packageKey))
+            {
+                DateTime expiry = _timeoutControl[_manifestToUploadIdCache[packageKey]];
+                TimeSpan remaining = expiry - DateTime.UtcNow;
+                throw new InfrastructureException($"AlreadyGrantedPackageUploadAccess", $"This package already has granted access. Wait {remaining.TotalMinutes:F0} minutes for expiry or use the granted upload key.");
+            }
             string uploadId = Guid.NewGuid().ToString();
             _idToManifestCache[uploadId] = manifest;
-            _manifestToUploadIdCache[new(manifest.Id, manifest.Version)] = uploadId;
+            _manifestToUploadIdCache[packageKey] = uploadId;
             _timeoutControl[uploadId] = DateTime.UtcNow.AddMinutes(30);
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
@@ -68,7 +74,7 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
     {
         lock (_lock)
         {
-            var result = _idManifestCache.ContainsKey(new PackageKey(manifestPayload.Id, manifestPayload.Version));
+            var result = _manifestToUploadIdCache.ContainsKey(new PackageKey(manifestPayload.Id, manifestPayload.Version));
             return Task.FromResult(result);
         }
     }
