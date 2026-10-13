@@ -28,7 +28,15 @@ ENVIRONMENT=()
 rm -rf "$SETUP_DIR"
 mkdir -p "$SETUP_DIR"
 
-apt install libicu78
+apt update -y
+
+# Check and install libicu-dev
+if ! dpkg -s libicu-dev &> /dev/null; then
+    echo "libicu-dev is not installed. Installing now..."
+    apt install -y libicu-dev
+else
+    echo "libicu-dev is already installed. Skipping."
+fi
 
 echo "Checking the latest LunaticPanel release..."
 LATEST_TAG=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" \
@@ -68,8 +76,6 @@ if command -v dotnet &> /dev/null && dotnet --list-runtimes | grep -q "Microsoft
 else
     echo ".NET ${TARGET_DOTNET_VERSION} runtime missing or not detected. Running official Microsoft installer..."
     
-    # 1. Install standard extraction tools if missing
-    apt-get update -y
     apt-get install -y wget tar ca-certificates
 
     # 2. Download official Microsoft .NET installation script
@@ -125,6 +131,7 @@ EOF
     systemctl daemon-reload
 fi
 
+systemctl enable "${SERVICE_NAME}" || true
 systemctl start "${SERVICE_NAME}" || true
 systemctl status "${SERVICE_NAME}" || true
 
