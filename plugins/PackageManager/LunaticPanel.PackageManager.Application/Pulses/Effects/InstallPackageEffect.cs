@@ -21,7 +21,7 @@ internal class InstallPackageEffect : IEffect<InstallPackageAction>
             await dispatcher.Prepare<LoadPackageDiskFoldersAction>().Await().DispatchAsync();
             await dispatcher.Prepare<InstallPackageDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<InstallPackageDoneAction>().DispatchAsync();
             throw;

@@ -27,8 +27,9 @@ internal class GetSourcesHandler : IRequestHandler<GetSourcesQuery, ICollection<
             return sources.Select(p => p.ToApplicationPayload()).ToList();
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _crazyReport.ReportErrorException(ex.Message, ex);
             throw new HostUnkownException();
         }
     }

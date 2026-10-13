@@ -19,7 +19,7 @@ internal class PackageDisableHandler : IRequestHandler<PackageDisableCommand>
             await _packageRepository.DisableAsync(new(command.Id), ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
 
             throw new HostUnkownException();

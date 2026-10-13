@@ -42,7 +42,7 @@ internal class GetDiskPackagesHandler : IRequestHandler<GetDiskPackagesQuery, Di
             };
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

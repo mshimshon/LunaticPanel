@@ -29,16 +29,12 @@ internal class SourceRepository : ISourceRepository
         _safeFileWriter = safeFileWriter;
         _sourceFileProvider = sourceFileProvider;
         _sourceFile = _sourceFile = pluginLocation.GetConfigFor(LPPackageManagerKeys.MODULE_NAME, "sources.json");
-        if (!File.Exists(_sourceFile))
-            File.Create(_sourceFile);
     }
 
     public async Task AddAsync(RepositorySourceEntity repositorySource, CancellationToken ct = default)
     {
         await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, content =>
         {
-
-
             var registryTask = _sourceFileProvider.GetSourcesAsync(ct);
             var registry = registryTask.Result.ToList();
             var entry = registry.SingleOrDefault(p => p.Source == repositorySource.Info.Source.Value);
@@ -92,7 +88,6 @@ internal class SourceRepository : ISourceRepository
 
     public async Task<IEnumerable<RepositorySourceEntity>> GetAllAsync(CancellationToken ct = default)
     {
-        var content = File.ReadAllText(_sourceFile);
         var registry = await _sourceFileProvider.GetSourcesAsync(ct);
         var result = registry.Select(p => p.ToDomainEntity());
         return result;

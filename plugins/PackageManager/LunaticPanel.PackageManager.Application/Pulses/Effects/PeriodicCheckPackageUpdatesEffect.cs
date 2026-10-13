@@ -33,7 +33,7 @@ internal class PeriodicCheckPackageUpdatesEffect : IEffect<PeriodicCheckPackageU
                 .With(p => p.AvailableUpdates, result)
                 .DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<PeriodicCheckPackageUpdatesDoneAction>().DispatchAsync();
             throw;

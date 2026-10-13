@@ -26,7 +26,7 @@ internal class GetUploadAccessHandler : IRequestHandler<GetUploadAccessQuery, Pa
         {
             await _manifestReadRepository.GetAsync(entity.Id, entity.Version, ct);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             packageMissing = true;
         }

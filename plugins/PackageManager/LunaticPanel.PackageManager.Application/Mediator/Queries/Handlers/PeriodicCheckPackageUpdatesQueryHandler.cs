@@ -35,8 +35,9 @@ internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<Periodi
             return updates;
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _crazyReport.ReportErrorException(ex.Message, ex);
             throw new HostUnkownException();
         }
     }

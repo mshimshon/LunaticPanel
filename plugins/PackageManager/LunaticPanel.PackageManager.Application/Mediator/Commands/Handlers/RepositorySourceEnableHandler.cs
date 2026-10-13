@@ -22,7 +22,7 @@ internal class RepositorySourceEnableHandler : IRequestHandler<RepositorySourceE
 
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

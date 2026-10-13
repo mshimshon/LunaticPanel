@@ -31,7 +31,7 @@ internal class SearchPackagesHandler : IRequestHandler<SearchPackageQuery, Searc
             return result.ToApplicationSearchResponse(p => p.ToApplicationPayload());
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
 
             throw new HostUnkownException();

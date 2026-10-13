@@ -20,7 +20,7 @@ internal class PackageEnableHandler : IRequestHandler<PackageEnableCommand>
 
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
 
             throw new HostUnkownException();

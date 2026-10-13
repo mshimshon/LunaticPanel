@@ -23,7 +23,7 @@ internal class DisableSourceEffect : IEffect<DisableSourceAction>
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<DisableSourceDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<DisableSourceDoneAction>().DispatchAsync();
             throw;

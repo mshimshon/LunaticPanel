@@ -46,7 +46,7 @@ public static class PushCommandExt
             if (headers != default)
                 requestHeaders = headers.Split(';').Select(p => p.Split(':')).ToDictionary(p => p[0], p => p[1]);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new PushHeadersIncorrectException();
         }

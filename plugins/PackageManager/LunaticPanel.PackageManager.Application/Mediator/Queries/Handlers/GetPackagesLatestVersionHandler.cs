@@ -21,7 +21,7 @@ internal class GetPackagesLatestVersionHandler : IRequestHandler<GetPackagesLate
             return result.ToList();
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
 
             throw new HostUnkownException();

@@ -29,7 +29,7 @@ internal class AutoUpdatePackagesEffect : IEffect<AutoUpdatePackagesAction>
             await _medihater.Send(new AutoUpdatePackagesCommand(), dispatcher.CancelToken);
             await dispatcher.Prepare<AutoUpdatePackagesDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<AutoUpdatePackagesDoneAction>().DispatchAsync();
             throw;

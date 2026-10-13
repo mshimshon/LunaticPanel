@@ -29,7 +29,7 @@ internal class EnableSourceCommandHandler : IRequestHandler<EnableSourceCommand>
             await _sourceRepository.EnableAsync(entity, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

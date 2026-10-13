@@ -28,7 +28,7 @@ internal class PackageCancelInstallEffect : IEffect<PackageCancelInstallAction>
             await _medihater.Send(new PackageCancelInstallCommand(action.Package), dispatcher.CancelToken);
             await dispatcher.Prepare<LoadPackageDiskFoldersAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<PackageCancelInstallDoneAction>().DispatchAsync();
             throw;

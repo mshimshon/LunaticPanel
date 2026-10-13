@@ -48,7 +48,7 @@ internal static class PackSettings
             DotNetVersion = int.Parse(Path.GetFileName(runtimeDir).Split('.')[0]); // "10.0.9"
 
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new DotnetSDKNotFoundException($"{runtimeDir} does not have version as last folder.");
 

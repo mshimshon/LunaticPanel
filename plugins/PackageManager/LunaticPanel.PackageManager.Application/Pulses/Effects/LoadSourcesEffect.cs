@@ -23,7 +23,7 @@ internal class LoadSourcesEffect : IEffect<LoadSourcesAction>
         }
         catch (HostCodedException)
         { throw; }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

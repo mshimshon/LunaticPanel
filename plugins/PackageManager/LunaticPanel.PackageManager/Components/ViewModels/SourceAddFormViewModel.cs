@@ -42,7 +42,7 @@ internal class SourceAddFormViewModel : WidgetViewModelBase, ISourceAddFormViewM
         {
             new RepositorySourceName(value);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return "Unknown Exception.";
         }
@@ -64,7 +64,7 @@ internal class SourceAddFormViewModel : WidgetViewModelBase, ISourceAddFormViewM
                 return "Location is not a valid URL nor a valid path.";
             SourceType = RepositorySourceType.Local;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return "Unknown Exception.";
         }

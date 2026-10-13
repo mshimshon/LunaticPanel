@@ -27,7 +27,7 @@ internal class MoveDownSourceCommandHandler : IRequestHandler<MoveDownSourceComm
             await _sourceOrderingService.MoveDownAsync(request.Source, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

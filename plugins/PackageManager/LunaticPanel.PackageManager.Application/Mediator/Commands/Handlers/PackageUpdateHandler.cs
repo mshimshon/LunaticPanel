@@ -28,7 +28,7 @@ internal class PackageUpdateHandler : IRequestHandler<PackageUpdateCommand>
 
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

@@ -21,7 +21,7 @@ internal class AddSourceEffect : IEffect<AddSourceAction>
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<AddSourceDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<AddSourceDoneAction>().DispatchAsync();
             throw;

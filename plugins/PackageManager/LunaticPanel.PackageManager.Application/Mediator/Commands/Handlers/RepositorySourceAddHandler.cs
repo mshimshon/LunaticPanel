@@ -21,7 +21,7 @@ internal class RepositorySourceAddHandler : IRequestHandler<RepositorySourceAddC
             await _sourceRepository.AddAsync(source, ct);
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

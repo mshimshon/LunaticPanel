@@ -31,7 +31,7 @@ internal class MoveUpSourceEffect : IEffect<MoveUpSourceAction>
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<MoveUpSourceDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<MoveUpSourceDoneAction>().DispatchAsync();
             throw;

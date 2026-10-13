@@ -22,7 +22,7 @@ internal class EnableSourceEffect : IEffect<EnableSourceAction>
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<EnableSourceDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<EnableSourceDoneAction>().DispatchAsync();
             throw;

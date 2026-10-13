@@ -28,7 +28,7 @@ internal class RemoveSourceEffect : IEffect<RemoveSourceAction>
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<RemoveSourceDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<RemoveSourceDoneAction>().DispatchAsync();
             throw;

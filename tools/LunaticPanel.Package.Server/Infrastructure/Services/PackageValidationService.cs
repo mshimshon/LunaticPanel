@@ -135,7 +135,7 @@ internal sealed class PackageValidationService : IPackageValidatorService
         {
             throw new PackageDownloadDiskErrorException();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw;
         }
@@ -156,7 +156,7 @@ internal sealed class PackageValidationService : IPackageValidatorService
         {
             throw new PackageManifestNotFoundException();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new PackageManifestFailedReadingException();
         }

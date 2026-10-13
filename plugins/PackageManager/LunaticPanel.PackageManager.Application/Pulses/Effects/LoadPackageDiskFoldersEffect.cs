@@ -33,7 +33,7 @@ internal class LoadPackageDiskFoldersEffect : IEffect<LoadPackageDiskFoldersActi
                 .With(p => p.RuntimePackages, result.RuntimePackages)
                 .DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<LoadPackageDiskFoldersDoneAction>().DispatchAsync();
             throw;

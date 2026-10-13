@@ -30,7 +30,7 @@ internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
 
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

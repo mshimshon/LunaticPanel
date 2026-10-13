@@ -35,7 +35,7 @@ internal class PackageRollbackEffect : IEffect<PackageRollbackAction>
                 .With(p => p.Packages, newPendingRollbacks)
                 .DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<PackageRollbackDoneAction>().DispatchAsync();
             throw;

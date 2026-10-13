@@ -27,7 +27,7 @@ internal class PackageRollbackCommandHandler : IRequestHandler<PackageRollbackCo
             await _hostDiskPackageService.RollbackTo(request.Package, ct);
             // TODO: HANDLE DOMAIN EXCEPTIONS
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw new HostUnkownException();
         }

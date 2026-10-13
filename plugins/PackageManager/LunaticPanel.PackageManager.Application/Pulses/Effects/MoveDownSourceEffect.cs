@@ -28,7 +28,7 @@ internal class MoveDownSourceEffect : IEffect<MoveDownSourceAction>
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<MoveDownSourceDoneAction>().DispatchAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await dispatcher.Prepare<MoveDownSourceDoneAction>().DispatchAsync();
             throw;

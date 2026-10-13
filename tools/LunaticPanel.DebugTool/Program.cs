@@ -16,7 +16,7 @@ try
         FileShare.None // Blocks any other process or thread from touching it
     );
 }
-catch (Exception)
+catch (Exception ex)
 {
     Console.Error.WriteLine($"Antoher cli is running (lock: {lockFile})");
     Environment.Exit(1);
