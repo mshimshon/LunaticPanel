@@ -400,7 +400,7 @@ internal sealed class DeploymentService
             useDotnetCli = true;
         }
 
-        cmd = cmd + $"{cliPackingTool} pack --input \"{cliLpkgDir}\" --output \"{cliLpkgTmp}\"";
+        cmd = cmd + $"pack --input \"{cliLpkgDir}\" --output \"{cliLpkgTmp}\"";
 
         var result = await ProcessExt.RunProcessAsync(useDotnetCli ? "dotnet" : cliPackingTool, cmd);
         Console.Out.WriteLine("Finished Packing");

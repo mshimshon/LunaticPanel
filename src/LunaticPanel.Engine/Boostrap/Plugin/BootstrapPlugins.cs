@@ -43,6 +43,7 @@ internal static class BootstrapPlugins
         string[] packages = Directory.GetFiles(preinstall, "*.lpkg", SearchOption.TopDirectoryOnly);
         foreach (var item in packages)
         {
+            Console.WriteLine($"Installing Pre-Installed Plugin {item}");
             var manifest = ReadManifestFromPackage(item);
             if (PreInstalled.Values.Any(p => p.Id == manifest.Id))
                 continue;
@@ -51,7 +52,11 @@ internal static class BootstrapPlugins
                 continue;
             string linuxPluginName = manifest.Id.ToLower().Replace('.', '_');
             string runtimeLocation = Path.Combine(Environment.CurrentDirectory, "plugins", linuxPluginName);
-            if (Directory.Exists(runtimeLocation)) continue;
+            if (Directory.Exists(runtimeLocation))
+            {
+                Console.WriteLine($"{manifest.Id} Already Installed");
+                continue;
+            }
             File.Copy(item, Path.Combine(applyLocation, Path.GetFileName(item)));
         }
         DetectUpdates();
