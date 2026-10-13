@@ -17,7 +17,7 @@ TARGET_DOTNET_VERSION="10.0"
 
 SERVICE_NAME="lunaticpanel"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
-TARGET_DIR="/srv/LunaticPanel"
+TARGET_DIR="/srv/lunaticpanel"
 DESCRIPTION="LunaticPanel Lightweight package serving."
 WORKING_DIR="${TARGET_DIR}"
 EXEC_START="/usr/bin/dotnet"

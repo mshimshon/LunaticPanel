@@ -17,7 +17,7 @@ TARGET_DOTNET_VERSION="10.0"
 
 SERVICE_NAME="lunaticpanel"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
-TARGET_DIR="/srv/LunaticPanel"
+TARGET_DIR="/srv/lunaticpanel"
 DESCRIPTION="LunaticPanel Lightweight package serving."
 WORKING_DIR="${TARGET_DIR}"
 EXEC_START="/usr/bin/dotnet"
@@ -45,9 +45,14 @@ if [ ! -f "${SETUP_DIR}/bin.tar.gz"  ]; then
     exit 1
 fi
 
+    echo "Panel Extracting"
 tar -xzf "${SETUP_DIR}/bin.tar.gz" -C "$SETUP_DIR/extracted" || exit 1
+ls  "$SETUP_DIR/extracted"
 rm -rf "$WORKING_DIR"/{*,.[!.]*,..?*} 2>/dev/null || true
 cp -r "$SETUP_DIR/extracted"/. "$WORKING_DIR"/ || exit 1
+    echo "Panel Installed => $WORKING_DIR"
+ls  "$WORKING_DIR"
+
 lpkg_files=("${SETUP_DIR}/preinstalled"/*.lpkg)
 mkdir -p "$WORKING_DIR/plugins_preinstalled"
 
@@ -59,7 +64,7 @@ else
 fi
 
 rm -rf "$SETUP_DIR"/{*,.[!.]*,..?*} 2>/dev/null || true
-systemctl enable "${SERVICE_NAME}" || true
-systemctl start "${SERVICE_NAME}" || true
+#systemctl enable "${SERVICE_NAME}" || true
+#systemctl start "${SERVICE_NAME}" || true
 echo "📋 Printing recent application logs from systemd journal..."
-journalctl -u "${SERVICE_NAME}" -n 50 --no-pager || true
+#journalctl -u "${SERVICE_NAME}" -n 50 --no-pager || true

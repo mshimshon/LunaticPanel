@@ -15,7 +15,7 @@ SETUP_DIR="/tmp/lunaticpanel_setup"
 TARGET_DOTNET_VERSION="10.0"
 
 SERVICE_NAME="lunaticpanel"
-TARGET_DIR="/srv/LunaticPanel"
+TARGET_DIR="/srv/lunaticpanel"
 WORKING_DIR="${TARGET_DIR}"
 
 # Parse optional arguments
