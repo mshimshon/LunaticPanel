@@ -20,8 +20,8 @@ WORKING_DIR="${TARGET_DIR}"
 
 # Parse optional arguments
 # Usage: ./deploy.sh [version] [plugin_id;plugin_id;plugin_id]
-SPECIFIED_VERSION="$1"
-PLUGINS_ARG="$2"
+SPECIFIED_VERSION="$2"
+PLUGINS_ARG="$1"
 
 # 2. Clear and recreate the setup directory hierarchy
 rm -rf "$SETUP_DIR"
@@ -33,7 +33,7 @@ mkdir -p "$SETUP_DIR/extracted"
 # GITHUB RELEASE RESOLUTION & VALIDATION
 # ==========================================
 if [ -n "$SPECIFIED_VERSION" ]; then
-  # Ensure the tag has a leading 'v' for the GitHub API route if it was omitted
+  # Normalize to ensure the API call uses the proper 'v' tag syntax
   if [[ "$SPECIFIED_VERSION" == v* ]]; then
     LATEST_TAG="$SPECIFIED_VERSION"
   else
@@ -41,22 +41,32 @@ if [ -n "$SPECIFIED_VERSION" ]; then
   fi
   
   echo "Validating specified version tag on GitHub: $LATEST_TAG..."
-  RELEASE_JSON=$(curl -s "https://github.com{REPO}/releases/tags/${LATEST_TAG}")
+  RELEASE_JSON=$(curl -sSL "https://api.github.com/repos/${REPO}/releases/tags/${LATEST_TAG}")
   
-  if echo "$RELEASE_JSON" | grep -q '"message": "Not Found"'; then
+  # Check for 404 response safely without letting a grep exit code crash set -e
+  if echo "$RELEASE_JSON" | grep -q '"message":[[:space:]]*"Not Found"'; then
     echo "Error: Specified version '$SPECIFIED_VERSION' does not exist as a release on GitHub." >&2
     exit 1
   fi
+  
+  # Crucial: Extract the pure version number for file downloads (removes 'v')
+  VERSION="${LATEST_TAG#v}"
 else
   echo "Checking the latest LunaticPanel release..."
-  RELEASE_JSON=$(curl -s "https://github.com{REPO}/releases/latest")
-  LATEST_TAG=$(echo "$RELEASE_JSON" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
-  
+  RELEASE_JSON=$(curl -sSL "https://api.github.com/repos/${REPO}/releases/latest")
+
+  # Extract the tag safely without a grep pipeline crash
+  LATEST_TAG=$(echo "$RELEASE_JSON" | sed -nE 's/.*"tag_name": *"[vV]?([^"]+)".*/v\1/p')
+
   if [ -z "$LATEST_TAG" ]; then 
     echo "Error: Could not fetch latest release tag from GitHub." >&2
     exit 1
   fi
+  
+  # Extract the pure version number for file downloads (removes 'v')
+  VERSION="${LATEST_TAG#v}"
 fi
+
 
 # Extract pure version string (removes leading 'v' if present, e.g., v1.2.3 -> 1.2.3)
 VERSION="${LATEST_TAG#v}"
@@ -98,10 +108,11 @@ fi
 
 echo "🚀 All assets verified on GitHub. Proceeding to downloads..."
 
-# Download main payload
-DOWNLOAD_TARGET="https://github.com{REPO}/releases/download/${LATEST_TAG}/${MAIN_ARCHIVE}" 
-echo "📥 Downloading main payload..."
-curl -sL "$DOWNLOAD_TARGET" -o "${SETUP_DIR}/bin.tar.gz"
+
+# Fixed URL string: added '$' and missing '/'
+DOWNLOAD_TARGET="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${MAIN_ARCHIVE}" 
+echo "📥 Downloading main payload from: ${DOWNLOAD_TARGET}"
+curl -sSL "$DOWNLOAD_TARGET" -o "${SETUP_DIR}/bin.tar.gz"
 
 if [ ! -s "${SETUP_DIR}/bin.tar.gz" ]; then
   echo "Error: Downloaded core archive is empty or failed." >&2
@@ -115,15 +126,19 @@ if [ -n "$PLUGINS_ARG" ]; then
     [ -z "$PLUGIN_ID" ] && continue
     
     EXPECTED_LPKG="${PLUGIN_ID}.${VERSION}.lpkg"
-    PLUGIN_DOWNLOAD_URL="https://github.com{REPO}/releases/download/${LATEST_TAG}/${EXPECTED_LPKG}"
+    
+    # Fixed URL string here as well: added '$' and missing '/'
+    PLUGIN_DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${EXPECTED_LPKG}"
     
     echo "📥 Downloading plugin: ${EXPECTED_LPKG}..."
-    curl -sL "$PLUGIN_DOWNLOAD_URL" -o "${SETUP_DIR}/pre_installed/${EXPECTED_LPKG}"
-    
-    if [ ! -s "${SETUP_DIR}/pre_installed/${EXPECTED_LPKG}" ]; then
-      echo "Error: Downloaded plugin archive ${EXPECTED_LPKG} failed." >&2
+        wget --quiet --tries=3 "$PLUGIN_DOWNLOAD_URL" -O "${SETUP_DIR}/preinstalled/${EXPECTED_LPKG}"
+
+    if [ ! -s "${SETUP_DIR}/preinstalled/${EXPECTED_LPKG}" ]; then
+      echo "Error: Downloaded plugin archive ${EXPECTED_LPKG} failed or is empty." >&2
+      exit 1
     fi
   done
 fi
+
 
 echo "🎉 Download successful"

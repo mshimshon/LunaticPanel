@@ -6,8 +6,7 @@ if [ "$EUID" -ne 0 ]; then
   echo "Error: This script must be run as root." >&2
   exit 1
 fi
-SPECIFIED_VERSION="$1"
-PLUGINS_ARG="$2"
+
 
 # ==========================================
 # CONFIGURATION
@@ -79,6 +78,8 @@ fi
 
 if systemctl list-unit-files | grep -q "^${SERVICE_NAME}.service"; then
     echo "${SERVICE_NAME} Exist.............. OK!"
+    systemctl stop "${SERVICE_NAME}" || true
+
 else
     echo "Service ${SERVICE_NAME} not found. Constructing service file..."
     cat <<EOF > "$SERVICE_FILE"
