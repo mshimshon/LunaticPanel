@@ -37,8 +37,8 @@ internal static class BootstrapPlugins
     {
         DetectUpdates();
         string preinstall = Path.Combine(Environment.CurrentDirectory, "plugins_preinstalled");
+        Console.WriteLine($"Checking for Pre-Installed Plugins {preinstall}");
         if (!Directory.Exists(preinstall)) return;
-
         string applyLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "apply");
         string[] packages = Directory.GetFiles(preinstall, "*.lpkg", SearchOption.TopDirectoryOnly);
         foreach (var item in packages)
@@ -148,7 +148,7 @@ internal static class BootstrapPlugins
             Version pluginPanelVersion = new Version(toApply.Value.PanelVersion);
             if (pluginPanelVersion > currentPanelVersion)
             {
-                Console.Error.WriteLine("The plugin was compiled using more recent panel version therefore not compatible. (Removing)");
+                Console.Error.WriteLine($"The {toApply.Value.Id} v{toApply.Value.Version} was compiled using panel version {pluginPanelVersion} therefore it's not compatible with {currentPanelVersion}. (Removing)");
                 File.Delete(toApply.Key);
                 continue;
             }
@@ -365,10 +365,10 @@ internal static class BootstrapPlugins
             {
                 IPlugin plugin = item.CreateEntryPoint();
                 // Auto Enable Plugin if PreInstalled.
-                PluginStartupState dectectionState = PreInstalled.Any(p => p.Value.Id == item.PluginId) ?
+                PluginStartupState detectionState = PreInstalled.Any(p => p.Value.Id == item.PluginId) ?
                     PluginStartupState.Enabled :
                     PluginStartupState.Disabled;
-                var lifecycle = new PluginLifecycle(PluginState.Loaded, dectectionState, default, DateTimeOffset.UtcNow);
+                var lifecycle = new PluginLifecycle(PluginState.Loaded, detectionState, default, DateTimeOffset.UtcNow);
                 var entity = new PluginEntity(identity, lifecycle);
 
                 DiscoveredPlugins.Add(new BootstrapPluginDescriptor()
@@ -406,15 +406,17 @@ internal static class BootstrapPlugins
         foreach (var plugin in DiscoveredPlugins)
         {
             if (plugin.EntryPoint == default) continue;
-            var discovered = knownCopy.SingleOrDefault(p => p.Entity.Identity.PackageId == plugin.Entity.Identity.PackageId);
-
-            if (ShouldDisable(discovered))
+            var knownEnity = knownCopy.SingleOrDefault(p => p.Entity.Identity.PackageId == plugin.Entity.Identity.PackageId);
+            bool doNotDisablePreInstalled = PreInstalled.Any(p => p.Value.Id == plugin.Entity.Identity.PackageId);
+            if (doNotDisablePreInstalled)
+                knownEnity = plugin;
+            if (ShouldDisable(knownEnity))
             {
                 AddDisabledPlugin(plugin);
                 continue;
             }
 
-            if (HasPriorFailure(discovered!, plugin))
+            if (HasPriorFailure(knownEnity!, plugin))
                 AddFailedPlugin(plugin, plugin.Entity.Lifecycle.Failure!);
 
             TryActivatePlugin(plugin, configuration.GetSection(plugin.Entity.Identity.PackageId));

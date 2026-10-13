@@ -2,19 +2,16 @@ using LunaticPanel.Engine.Web.Boostrap;
 using System.Diagnostics;
 using App = LunaticPanel.Hybrid.Web.App;
 var builder = WebApplication.CreateBuilder(args);
+
+Console.WriteLine("WHAT THE FUCK OK");
 if (args.Contains("--debugger", StringComparer.OrdinalIgnoreCase))
 {
-    // Only run this logic if a debugger isn't already there
     if (!Debugger.IsAttached)
     {
         Console.WriteLine($"Waiting for debugger to attach... Process ID: {Environment.ProcessId}");
         while (!Debugger.IsAttached)
-        {
             Thread.Sleep(100); // Check every 100ms
-        }
     }
-
-    // Optional: Immediately break execution as soon as the debugger connects
     Debugger.Break();
 
 }

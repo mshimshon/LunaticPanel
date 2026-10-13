@@ -6,8 +6,9 @@
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <BlazorDisableThrowNavigationException>false</BlazorDisableThrowNavigationException>
 	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
-  </PropertyGroup>
+	  <CopyOutputSymbolsToPublishDirectory>true</CopyOutputSymbolsToPublishDirectory>
 
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LunaticPanel.Engine\LunaticPanel.Engine.csproj" />
   </ItemGroup>
