@@ -391,8 +391,18 @@ internal sealed class DeploymentService
         var cliLpkgDir = Path.Combine(cliPublishTmp, filename);
         string currentFolder = AppDomain.CurrentDomain.BaseDirectory;
         var cliPackingTool = Path.Combine(currentFolder, "LunaticPanel.Package.Tool.exe");
-        var cmd = $"pack --input \"{cliLpkgDir}\" --output \"{cliLpkgTmp}\"";
-        var result = await ProcessExt.RunProcessAsync(cliPackingTool, cmd);
+        bool useDotnetCli = false;
+        var cmd = string.Empty;
+        if (!File.Exists(cliPackingTool))
+        {
+            cliPackingTool = Path.Combine(currentFolder, "LunaticPanel.Package.Tool.dll");
+            cmd = $"{cliPackingTool} ";
+            useDotnetCli = true;
+        }
+
+        cmd = cmd + $"{cliPackingTool} pack --input \"{cliLpkgDir}\" --output \"{cliLpkgTmp}\"";
+
+        var result = await ProcessExt.RunProcessAsync(useDotnetCli ? "dotnet" : cliPackingTool, cmd);
         Console.Out.WriteLine("Finished Packing");
         string[] lines = result.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
         bool payloadFound = false;
@@ -425,15 +435,24 @@ internal sealed class DeploymentService
             var cliLpkgUnpackTmp = Path.Combine(_tempLocation, "lpkgs_unpack");
             string currentFolder = AppDomain.CurrentDomain.BaseDirectory;
             var cliPackingTool = Path.Combine(currentFolder, "LunaticPanel.Package.Tool.exe");
+            bool useDotnetCli = false;
+            var cmdUnpack = string.Empty;
+            if (!File.Exists(cliPackingTool))
+            {
+                cliPackingTool = Path.Combine(currentFolder, "LunaticPanel.Package.Tool.dll");
+                cmdUnpack = $"{cliPackingTool} ";
+                useDotnetCli = true;
+            }
 
             Console.Out.WriteLine($"Plugin {item.Id} is packed and ready to deploy.");
             string linuxName = item.Id.ToLower().Replace('.', '_');
             string unpackTo = Path.Combine(cliLpkgUnpackTmp, linuxName);
             if (Directory.Exists(unpackTo))
                 Directory.Delete(unpackTo, true);
+
             Directory.CreateDirectory(unpackTo);
-            var cmdUnpack = $"unpack --root --input \"{Path.Combine(cliLpkgTmp, $"{item.Id}.{item.Version}.lpkg")}\" --output \"{unpackTo}\"";
-            await ProcessExt.RunProcessAsync(cliPackingTool, cmdUnpack);
+            cmdUnpack = cmdUnpack + $"unpack --root --input \"{Path.Combine(cliLpkgTmp, $"{item.Id}.{item.Version}.lpkg")}\" --output \"{unpackTo}\"";
+            await ProcessExt.RunProcessAsync(useDotnetCli ? "dotnet" : cliPackingTool, cmdUnpack);
         }
         catch
         {
