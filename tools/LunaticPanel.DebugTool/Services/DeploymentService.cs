@@ -184,7 +184,7 @@ internal sealed class DeploymentService
             else if (!string.IsNullOrWhiteSpace(pp.DotnetProject) && !string.IsNullOrWhiteSpace(pp.PublishTo))
             {
                 Configuration.PrintDebug($"[PostProcessing]::Detected Dotnet Project to publish.");
-                await PublishProjectAsync(pp.DotnetProject!);
+                await PublishProjectAsync(pp.DotnetProject!, true);
                 string filename = Path.GetFileNameWithoutExtension(pp.DotnetProject);
                 var cliPublishTmp = Path.Combine(_tempLocation, "publish");
                 finalizeFrom = Path.Combine(cliPublishTmp, filename);
@@ -204,9 +204,9 @@ internal sealed class DeploymentService
             else if (!string.IsNullOrWhiteSpace(pp.DotnetProject) && !string.IsNullOrWhiteSpace(pp.PluginPackTo))
             {
                 Configuration.PrintDebug($"[PostProcessing]::Detected Dotnet Project to Pack as LPKG.");
-                await BuildProjectAsync(pp.DotnetProject!);
+                await PublishProjectAsync(pp.DotnetProject!, false);
                 string filename = Path.GetFileNameWithoutExtension(pp.DotnetProject);
-                var cliPublishTmp = Path.Combine(_tempLocation, "build");
+                var cliPublishTmp = Path.Combine(_tempLocation, "publish");
                 var buildLocation = Path.Combine(cliPublishTmp, filename);
                 var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
                 var item = await PackProjectAsync(pp.DotnetProject, ct);
@@ -314,9 +314,8 @@ internal sealed class DeploymentService
             }
             else if (!string.IsNullOrWhiteSpace(plugin.DotnetProject))
             {
-                await BuildProjectAsync(plugin.DotnetProject);
+                await PublishProjectAsync(plugin.DotnetProject, false);
                 var manifestTmp = await PackProjectAsync(plugin, ct);
-                await UnpackPackageToLinuxLocation(manifestTmp, ct);
                 await InstallPluginInSubSystem(plugin, manifestTmp, ct);
 
 
@@ -383,7 +382,7 @@ internal sealed class DeploymentService
     {
         string filename = Path.GetFileNameWithoutExtension(dotnetProject!);
         var tmp = Path.GetTempPath();
-        var cliPublishTmp = Path.Combine(_tempLocation, "build");
+        var cliPublishTmp = Path.Combine(_tempLocation, "publish");
         var cliLpkgTmp = Path.Combine(_tempLocation, "lpkgs");
         var cliLpkgUnpackTmp = Path.Combine(_tempLocation, "lpkgs_unpack");
         if (!Directory.Exists(cliLpkgUnpackTmp))
@@ -395,14 +394,17 @@ internal sealed class DeploymentService
         var cmd = string.Empty;
         if (!File.Exists(cliPackingTool))
         {
+            Console.WriteLine($"{cliPackingTool} not found falling back to dotnet LunaticPanel.Package.Tool.dll");
+
             cliPackingTool = Path.Combine(currentFolder, "LunaticPanel.Package.Tool.dll");
             cmd = $"{cliPackingTool} ";
             useDotnetCli = true;
         }
-
+        var runtime = useDotnetCli ? "dotnet" : cliPackingTool;
         cmd = cmd + $"pack --input \"{cliLpkgDir}\" --output \"{cliLpkgTmp}\"";
+        Console.WriteLine($"{runtime} {cmd}");
 
-        var result = await ProcessExt.RunProcessAsync(useDotnetCli ? "dotnet" : cliPackingTool, cmd);
+        var result = await ProcessExt.RunProcessAsync(runtime, cmd);
         Console.Out.WriteLine("Finished Packing");
         string[] lines = result.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
         bool payloadFound = false;
@@ -645,7 +647,7 @@ internal sealed class DeploymentService
 
     private async Task PublishDotnetService(ServiceComposePayload serviceComposePayload)
     {
-        await PublishProjectAsync(serviceComposePayload.DotnetProject!);
+        await PublishProjectAsync(serviceComposePayload.DotnetProject!, true);
     }
 
     private async Task CopyDotnetServices(ServiceComposePayload serviceComposePayload)

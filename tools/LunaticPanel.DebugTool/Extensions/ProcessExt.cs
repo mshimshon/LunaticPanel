@@ -7,6 +7,7 @@ internal static class ProcessExt
 {
     public static async Task<string> RunProcessAsync(string fileName, string arguments)
     {
+        Console.WriteLine($"Running Process {fileName} {arguments}");
         var psi = new ProcessStartInfo
         {
             FileName = fileName,

@@ -50,7 +50,7 @@ public static class RegisterServicesExt
 
         services.AddSingleton<IPluginRegistry, PluginRegistry>();
         //TODO: Get Rid of CoreMap
-        services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Transient; }, [
+        services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Singleton; }, [
             typeof(RegisterServicesExt)
             ]);
 

@@ -2,8 +2,9 @@
 
 internal static class MSBuildExt
 {
-    public static async Task PublishProjectAsync(string project)
+    public static async Task PublishProjectAsync(string project, bool selfContained)
     {
+        Console.Out.WriteLine($"PublishProjectAsync ");
         Console.Out.WriteLine($"Publishing '{project}'");
         string filename = Path.GetFileNameWithoutExtension(project);
         var tmp = Path.GetTempPath();
@@ -16,7 +17,7 @@ internal static class MSBuildExt
         Console.Out.WriteLine($"Temp Publish Target At '{cliProjectOutput}'");
         if (Directory.Exists(cliProjectOutput))
             Directory.Delete(cliProjectOutput, true);
-        string cmd = $"publish \"{project}\" -c Debug -r linux-x64 --self-contained true -o \"{cliProjectOutput}\"";
+        string cmd = $"publish \"{project}\" -c Debug -r linux-x64 {(selfContained ? "--self-contained true" : "")} -o \"{cliProjectOutput}\"";
         Console.Out.WriteLine($"dotnet {cmd}");
 
         await ProcessExt.RunProcessAsync("dotnet", cmd);
@@ -24,16 +25,17 @@ internal static class MSBuildExt
 
     public static async Task BuildProjectAsync(string project)
     {
-        Console.Out.WriteLine($"Publishing '{project}'");
+        Console.Out.WriteLine($"BuildProjectAsync ");
+        Console.Out.WriteLine($"Building '{project}'");
         string filename = Path.GetFileNameWithoutExtension(project);
         var tmp = Path.GetTempPath();
         var cliTmp = Path.Combine(tmp, "lpcli", "temp");
         var cliPublishTmp = Path.Combine(cliTmp, "build");
-        Console.Out.WriteLine($"Temp Publish At '{cliPublishTmp}'");
+        Console.Out.WriteLine($"Temp Build At '{cliPublishTmp}'");
         if (!Directory.Exists(cliPublishTmp))
             Directory.CreateDirectory(cliPublishTmp);
         var cliProjectOutput = Path.Combine(cliPublishTmp, filename);
-        Console.Out.WriteLine($"Temp Publish Target At '{cliProjectOutput}'");
+        Console.Out.WriteLine($"Temp Build Target At '{cliProjectOutput}'");
         if (Directory.Exists(cliProjectOutput))
             Directory.Delete(cliProjectOutput, true);
         string cmd = $"build \"{project}\" -c Debug -o \"{cliProjectOutput}\" /p:RuntimeIdentifier=linux-x64 /p:CopyLocalLockFileAssemblies=true ";
