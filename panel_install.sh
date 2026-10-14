@@ -64,8 +64,12 @@ else
 fi
 
 rm -rf "$SETUP_DIR"/{*,.[!.]*,..?*} 2>/dev/null || true
+echo "📋 Starting Services..."
 systemctl enable "${SERVICE_NAME}" || true
 systemctl start "${SERVICE_NAME}" || true
+
+sleep 10
 systemctl status "${SERVICE_NAME}" || true
+
 echo "📋 Printing recent application logs from systemd journal..."
 journalctl -u "${SERVICE_NAME}" -n 50 --no-pager || true
