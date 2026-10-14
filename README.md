@@ -35,13 +35,13 @@ For developers, it provides a clean, decoupled ecosystem to build and distribute
 | **Storage** | **5 GB** | **20 GB** |
 | **Runtime**| .NET 10.0 LTS | .NET 10.0 LTS |
 
-* Note: do not take those at face value, highly dependent on which plugin you run into the system, those are based on estimated expectation, few plugins.
+* **Note:** Do not take these values at face value; they are highly dependent on which plugins you run in the system. These recommendations are based on an estimated expectation of running only a few plugins.
 
-You can adjust the optimization after the install by editing the service (`/etc/systemd/system/lunaticpanel.service`) directly, the script will never override the service if the service exist.
+You can adjust the optimization after installation by editing the service file (`/etc/systemd/system/lunaticpanel.service`) directly. The script will never override the service if it already exists.
 
-change the value to match your desired optimization, see [Documentation](https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector) for more details on dotnet GC optimization itself depending what you do.
+Change the values to match your desired optimization. See the [.NET GC Documentation](https://microsoft.com) for more details on tuning the garbage collector for your specific use case.
 
-Our goal policy is this, the panel must always remain accessible no matter what other service is running side from it... the panel itself is lightweight but who knows what purpose it will serve for you.
+Our core policy is that the panel must always remain accessible, no matter what other services are running alongside it. The panel itself is lightweight, but its eventual footprint depends entirely on the purpose it serves for you.
 
 ```text
 [Service]
@@ -51,6 +51,7 @@ CPUQuota=100%
 MemoryMin=514M
 MemoryHigh=4G
 ```
+
 
 ## Panel Installation (Debian / Ubuntu)
 
