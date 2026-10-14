@@ -73,3 +73,14 @@ systemctl status "${SERVICE_NAME}" || true
 
 echo "📋 Printing recent application logs from systemd journal..."
 journalctl -u "${SERVICE_NAME}" -n 50 --no-pager || true
+
+if systemctl is-active --quiet "${SERVICE_NAME}"; then
+    # Get the local IPv4 address
+    LOCAL_IP=$(hostname -I | awk '{print $1}')
+
+    # Print the access panel information
+    echo "########################"
+    echo "# Access Panel"
+    echo "# http://${LOCAL_IP:-YOUR_IP}:10001/"
+    echo "########################"
+fi
