@@ -25,7 +25,7 @@ For developers, it provides a clean, decoupled ecosystem to build and distribute
 * **Decoupled Communications:** Built-in UI, Query, and Event messaging frameworks allow marketplace tools to securely communicate, exchange UI fragments, and broadcast events across the entire panel ecosystem.
 
 ---
-# Blazor Server System Requirements
+# System Requirements
 
 | Resource | Minimum | Recommended |
 | :--- | :--- | :--- |
