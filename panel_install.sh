@@ -72,7 +72,7 @@ sleep 10
 systemctl status "${SERVICE_NAME}" || true
 
 echo "📋 Printing recent application logs from systemd journal..."
-journalctl -u "${SERVICE_NAME}" -n 50 --no-pager || true
+journalctl --no-pager -u "${SERVICE_NAME}" -n 50 || true
 
 if systemctl is-active --quiet "${SERVICE_NAME}"; then
     # Get the local IPv4 address
