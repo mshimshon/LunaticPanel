@@ -83,7 +83,7 @@ jobs:
             PROJECT_NAME="${FILE_NAME%.csproj}"
             TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
             mkdir -p "$TARGET_BUILD_DIR"
-            dotnet publish "$KEY" r linux-x6 -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:AssemblyVersion=$VERSION
+            dotnet publish "$KEY" -r linux-x6 -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:AssemblyVersion=$VERSION
             /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output "/tmp/artifacts/output" --version $VERSION
             EXPECTED_PKG="/tmp/artifacts/output/${PROJECT_NAME}.${VERSION}.lpkg"
             if [ -z "$EXPECTED_PKG" ] || [ ! -s "$EXPECTED_PKG" ]; then
