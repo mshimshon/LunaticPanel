@@ -88,7 +88,7 @@ dotnet tool install --global LunaticPanel.Packages.Tool
 Execute these commands using ROOT or sudo, this will setup the whole server API:
 
 ```bash
-wget -qO /tmp/panel_setup.sh https://raw.githubusercontent.com/mshimshon/LunaticPanel/refs/heads/main/serve_packages.sh && /bin/bash /tmp/serve_packages.sh
+wget -qO /tmp/panel_setup.sh https://raw.githubusercontent.com/mshimshon/LunaticPanel/main/serve_packages.sh && /bin/bash /tmp/serve_packages.sh
 ```
 
 ### 2. What the Script Does
