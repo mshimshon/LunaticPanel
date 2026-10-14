@@ -20,7 +20,7 @@ DESCRIPTION="LunaticPanel Lightweight package serving."
 WORKING_DIR="${TARGET_DIR}"
 
 EXEC_START="/usr/bin/dotnet"
-STARTUP_PARAMETERS="${TARGET_DIR}/LunaticPanel.Package.LocalServer.dll --urls \"http://localhost:5002;\""
+STARTUP_PARAMETERS="${TARGET_DIR}/LunaticPanel.Package.LocalServer.dll --urls \"http://localhost:10002;\""
 
 DEPENDS_ON=() 
 ENVIRONMENT=()
@@ -145,7 +145,7 @@ MAX_ATTEMPTS=10
 for ((i=1; i<=MAX_ATTEMPTS; i++)); do
   # We pipe curl directly into a variable check. 
   # If curl returns nothing, the loop yields and retries.
-  RESPONSE=$(curl -s http://localhost:5002/lpkg/versions | cat)
+  RESPONSE=$(curl -s http://localhost:10002/lpkg/versions | cat)
   
   if [ -n "$RESPONSE" ]; then
     break
