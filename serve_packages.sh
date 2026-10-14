@@ -118,6 +118,7 @@ $( [ ${#DEPENDS_ON[@]} -gt 0 ] && echo "Requires=${DEPENDS_ON[*]}" )
 [Service]
 Type=simple
 WorkingDirectory=${WORKING_DIR}
+
 ExecStart=${EXEC_START} ${STARTUP_PARAMETERS}
 Restart=no
 $(for item in "${ENVIRONMENT[@]}"; do echo "Environment=${item}"; done)

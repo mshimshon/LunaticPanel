@@ -95,6 +95,12 @@ Type=simple
 WorkingDirectory=${WORKING_DIR}
 ExecStart=${EXEC_START} ${STARTUP_PARAMETERS}
 Restart=no
+OOMScoreAdjust=-900
+CPUWeight=1000
+CPUQuota=100%
+MemoryMin=514M
+MemoryHigh=4G
+
 $(for item in "${ENVIRONMENT[@]}"; do echo "Environment=${item}"; done)
 LogsDirectory=${SERVICE_NAME}
 

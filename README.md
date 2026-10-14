@@ -25,6 +25,32 @@ For developers, it provides a clean, decoupled ecosystem to build and distribute
 * **Decoupled Communications:** Built-in UI, Query, and Event messaging frameworks allow marketplace tools to securely communicate, exchange UI fragments, and broadcast events across the entire panel ecosystem.
 
 ---
+# Blazor Server System Requirements
+
+| Resource | Minimum | Recommended |
+| :--- | :--- | :--- |
+| **Operating System** | Debian 12+ | Debian 12+ |
+| **Processor (CPU)** | **2 vCPU** / Core | **4 vCPUs** / Cores |
+| **Memory (RAM)** | **1 GB RAM** | **4 GB RAM** |
+| **Storage** | **5 GB** | **20 GB** |
+| **Runtime**| .NET 10.0 LTS | .NET 10.0 LTS |
+
+* Note: do not take those at face value, highly dependent on which plugin you run into the system, those are based on estimated expectation, few plugins.
+
+You can adjust the optimization after the install by editing the service (`/etc/systemd/system/lunaticpanel.service`) directly, the script will never override the service if the service exist.
+
+change the value to match your desired optimization, see [Documentation](https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector) for more details on dotnet GC optimization itself depending what you do.
+
+Our goal policy is this, the panel must always remain accessible no matter what other service is running side from it... the panel itself is lightweight but who knows what purpose it will serve for you.
+
+```text
+[Service]
+OOMScoreAdjust=-900
+CPUWeight=1000
+CPUQuota=100%
+MemoryMin=514M
+MemoryHigh=4G
+```
 
 ## Panel Installation (Debian / Ubuntu)
 
@@ -40,7 +66,7 @@ wget -qO /tmp/panel_setup.sh https://raw.githubusercontent.com/mshimshon/Lunatic
 ### 2. What the Script Does
 * Installs required native system prerequisites and the official Microsoft .NET Runtime dependencies.
 * Downloads the latest production binary release of the Lunatic Panel, you can specify a specific version using `/bin/bash /tmp/panel_setup.sh "LunaticPanel.PackageManager" 1.0.1`.
-* Configures and registers a background system daemon (`lunaticpanel.service`) so your panel remains active and boots automatically on system startup.
+* Configures and registers a background system service (`lunaticpanel.service`) so your panel remains active and boots automatically on system startup.
 
 ### 3. Access the Dashboard
 Once the setup script finishes, the core application is live. Open your browser and navigate to:
