@@ -10,7 +10,7 @@
 
 # Lunatic Panel
 
-**Lunatic Panel** is an open-source, modular control panel template built on **Blazor Server** and **.NET LTS**. The core panel is entirely barebones—it contains zero built-in configuration tools. Instead, all features are discovered, downloaded, and managed directly through an integrated **Marketplace** system.
+**Lunatic Panel** is an open-source, modular control panel template built on **Blazor Server** and **.NET LTS**. The core panel is entirely barebones, it contains zero built-in configuration tools. Instead, all features are discovered, downloaded, and managed directly through an integrated **Marketplace** system.
 
 For developers, it provides a clean, decoupled ecosystem to build and distribute server management utilities without library version conflicts or dependency clashing.
 
