@@ -132,7 +132,9 @@ Full Documentation will be live soon for the rest of this process.
 
 
 ## Licensing
-MIT Free it will always be period! the core is 100% free any monetization will come from plugin policies but rest assure that our official marketplace will feature strict ecosystem licensing and billing to make it as easy as using Apple store or Google store.
+MIT Free it will always be period! the core is 100% free including official plugins shipped with it in this repository. 
+
+Any monetization will come from paid plugins specialities but rest assure that our official marketplace will feature strict ecosystem with licensing and billing to make it as easy as managing application on Apple store or Google store.
 
 ## Community and Contribution
 The job is massive and never ending! there will never be enough good folks to contribute feel free to connect with us on discord, the project is young fresh and we need anyone able to improve, clean up and develop stability features.
