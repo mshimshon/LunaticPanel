@@ -61,7 +61,7 @@ You can deploy the orchestrator and configure its background environment using t
 Execute these commands using ROOT or sudo, this will setup the whole panel including all official basic plugins (mostly required features):
 
 ```bash
-wget -qO /tmp/panel_setup.sh https://raw.githubusercontent.com/mshimshon/LunaticPanel/refs/heads/main/panel_setup.sh && /bin/bash /tmp/panel_setup.sh "LunaticPanel.PackageManager"
+wget -qO /tmp/panel_setup.sh https://raw.githubusercontent.com/mshimshon/LunaticPanel/main/panel_setup.sh && /bin/bash /tmp/panel_setup.sh "LunaticPanel.PackageManager"
 ```
 
 ### 2. What the Script Does
