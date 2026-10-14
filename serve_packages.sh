@@ -39,9 +39,10 @@ else
 fi
 
 echo "Checking the latest LunaticPanel release..."
-LATEST_TAG=$(curl -s "https://api.github.com/repos/${REPO}/releases/latest" \
+LATEST_TAG=$(wget -qO- "https://api.github.com/repos/${REPO}/releases/latest" \
   | grep '"tag_name"' \
   | sed -E 's/.*"([^"]+)".*/\1/')
+
 echo "LATEST_TAG = $LATEST_TAG"
 if [ -z "$LATEST_TAG" ]; then 
   echo "Error: Could not fetch latest release tag from GitHub." >&2
@@ -58,7 +59,8 @@ echo "Extracted Version: $VERSION"
 MAIN_ARCHIVE="lpkg-server-lite.${VERSION}.tar.gz"
 DOWNLOAD_TARGET="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${MAIN_ARCHIVE}" 
 echo "Downloading main payload: ${DOWNLOAD_TARGET}..."
-curl -sL $DOWNLOAD_TARGET -o "${SETUP_DIR}/${MAIN_ARCHIVE}"
+wget -qO "${SETUP_DIR}/${MAIN_ARCHIVE}" $DOWNLOAD_TARGET
+
 ls $SETUP_DIR
 if [ -d "$WORKING_DIR" ]; then
     rm -rf "$WORKING_DIR"/*
@@ -146,8 +148,8 @@ MAX_ATTEMPTS=10
 for ((i=1; i<=MAX_ATTEMPTS; i++)); do
   # We pipe curl directly into a variable check. 
   # If curl returns nothing, the loop yields and retries.
-  RESPONSE=$(curl -s http://localhost:10002/lpkg/versions | cat)
-  
+  RESPONSE=$(wget -qO- http://localhost:10002/lpkg/versions | cat)
+
   if [ -n "$RESPONSE" ]; then
     break
   fi

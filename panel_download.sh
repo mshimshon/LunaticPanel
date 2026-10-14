@@ -41,8 +41,8 @@ if [ -n "$SPECIFIED_VERSION" ]; then
   fi
   
   echo "Validating specified version tag on GitHub: $LATEST_TAG..."
-  RELEASE_JSON=$(curl -sSL "https://api.github.com/repos/${REPO}/releases/tags/${LATEST_TAG}")
-  
+  RELEASE_JSON=$(wget -qO- "https://api.github.com/repos/${REPO}/releases/tags/${LATEST_TAG}")
+
   # Check for 404 response safely without letting a grep exit code crash set -e
   if echo "$RELEASE_JSON" | grep -q '"message":[[:space:]]*"Not Found"'; then
     echo "Error: Specified version '$SPECIFIED_VERSION' does not exist as a release on GitHub." >&2
@@ -53,7 +53,7 @@ if [ -n "$SPECIFIED_VERSION" ]; then
   VERSION="${LATEST_TAG#v}"
 else
   echo "Checking the latest LunaticPanel release..."
-  RELEASE_JSON=$(curl -sSL "https://api.github.com/repos/${REPO}/releases/latest")
+  RELEASE_JSON=$(wget -qO- "https://api.github.com/repos/${REPO}/releases/latest")
 
   # Extract the tag safely without a grep pipeline crash
   LATEST_TAG=$(echo "$RELEASE_JSON" | sed -nE 's/.*"tag_name": *"[vV]?([^"]+)".*/v\1/p')
@@ -112,7 +112,7 @@ echo "🚀 All assets verified on GitHub. Proceeding to downloads..."
 # Fixed URL string: added '$' and missing '/'
 DOWNLOAD_TARGET="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${MAIN_ARCHIVE}" 
 echo "📥 Downloading main payload from: ${DOWNLOAD_TARGET}"
-curl -sSL "$DOWNLOAD_TARGET" -o "${SETUP_DIR}/bin.tar.gz"
+wget -qO "${SETUP_DIR}/bin.tar.gz" "$DOWNLOAD_TARGET"
 
 if [ ! -s "${SETUP_DIR}/bin.tar.gz" ]; then
   echo "Error: Downloaded core archive is empty or failed." >&2
