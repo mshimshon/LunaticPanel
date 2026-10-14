@@ -47,7 +47,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
         if (!File.Exists(BOOTSTRAP_LOCATION))
             throw new BootstrapNotFoundException();
 
-        var tempRoot = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins");
+        var tempRoot = Path.Combine("var", "lib", "lunaticpanel", ".plugins");
         _applyLocation = Path.Combine(tempRoot, "apply");
         _installedLocation = Path.Combine(tempRoot, "installed");
         _rollbackLocation = Path.Combine(tempRoot, "rollbacks");

@@ -207,9 +207,9 @@ public static class Bootstrap
 
         PluginDirectory = Path.Combine(LibraryLocation, ConfigNameKey, "plugins");
         ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey, "config");
-        string applyLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "apply");
-        string rollbacksLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "rollbacks");
-        string installedLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "installed");
+        string applyLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
+        string rollbacksLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
+        string installedLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
         EnsurePathCreated(PluginDirectory, ConfigDirectory, applyLocation, rollbacksLocation, installedLocation);
 
     }

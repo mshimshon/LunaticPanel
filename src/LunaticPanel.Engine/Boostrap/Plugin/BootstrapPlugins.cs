@@ -39,7 +39,7 @@ internal static class BootstrapPlugins
         string preinstall = Path.Combine(Environment.CurrentDirectory, "plugins_preinstalled");
         Console.WriteLine($"Checking for Pre-Installed Plugins {preinstall}");
         if (!Directory.Exists(preinstall)) return;
-        string applyLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "apply");
+        string applyLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
         string[] packages = Directory.GetFiles(preinstall, "*.lpkg", SearchOption.TopDirectoryOnly);
         foreach (var item in packages)
         {
@@ -94,7 +94,7 @@ internal static class BootstrapPlugins
     public static void DetectDelete()
     {
         Delete.Clear();
-        string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "delete");
+        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "delete");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -112,7 +112,7 @@ internal static class BootstrapPlugins
     public static void DetectUpdates()
     {
         ToApplyUpdates.Clear();
-        string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "apply");
+        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -127,9 +127,9 @@ internal static class BootstrapPlugins
 
     public static void ApplyUpdates()
     {
-        string applyLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "apply");
-        string rollbacksLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "rollbacks");
-        string installedLocation = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "installed");
+        string applyLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
+        string rollbacksLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
+        string installedLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
         var asm = typeof(IPlugin).Assembly;
         var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion.Split('-', '+')[0];
         Version currentPanelVersion = new(info);
@@ -179,7 +179,7 @@ internal static class BootstrapPlugins
     public static void DetectRollbacks()
     {
         Rollbacks.Clear();
-        string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "rollbacks");
+        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -195,7 +195,7 @@ internal static class BootstrapPlugins
     public static void DetectInstalled()
     {
         Installed.Clear();
-        string location = Path.Combine(Path.GetTempPath(), "lunaticpanel", ".plugins", "installed");
+        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
