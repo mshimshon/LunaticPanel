@@ -91,6 +91,8 @@ After=network.target ${DEPENDS_ON[*]}
 $( [ ${#DEPENDS_ON[@]} -gt 0 ] && echo "Requires=${DEPENDS_ON[*]}" )
 
 [Service]
+User=root
+Group=root
 Type=simple
 WorkingDirectory=${WORKING_DIR}
 ExecStart=${EXEC_START} ${STARTUP_PARAMETERS}
