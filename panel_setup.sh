@@ -23,7 +23,7 @@ TARGET_DIR="/srv/lunaticpanel"
 DESCRIPTION="LunaticPanel Lightweight package serving."
 WORKING_DIR="${TARGET_DIR}"
 EXEC_START="/usr/bin/dotnet"
-STARTUP_PARAMETERS="${TARGET_DIR}/LunaticPanel.Hybrid.Web.dll --urls \"http://localhost:10001;\""
+STARTUP_PARAMETERS="${TARGET_DIR}/LunaticPanel.Hybrid.Web.dll --urls \"http://*:10001;\""
 DEPENDS_ON=() 
 ENVIRONMENT=()
 
