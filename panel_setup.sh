@@ -122,7 +122,7 @@ if [ ! -f "./${SCRIPT_DOWNLOAD}" ]; then
   echo "⚠️ Local execution script ./${SCRIPT_DOWNLOAD} is missing!"
   echo "📥 Downloading fresh script from the main branch of ${REPO}..."
   
-  wget -qO "./${SCRIPT_DOWNLOAD}" "https://githubusercontent.com{REPO}/main/${SCRIPT_DOWNLOAD}"
+  wget -qO "./${SCRIPT_DOWNLOAD}" "https://githubusercontent.com/{REPO}/main/${SCRIPT_DOWNLOAD}"
 
   if [ ! -s "./${SCRIPT_DOWNLOAD}" ] || grep -q "404: Not Found" "./${SCRIPT_DOWNLOAD}"; then
     echo "Error: Failed to fetch ${SCRIPT_DOWNLOAD} from GitHub main branch." >&2
@@ -144,7 +144,7 @@ if [ ! -f "./${SCRIPT_INSTALL}" ]; then
   echo "⚠️ Local execution script ./${SCRIPT_INSTALL} is missing!"
   echo "📥 Downloading fresh script from the main branch of ${REPO}..."
   
-  wget -qO "./${SCRIPT_INSTALL}" "https://githubusercontent.com{REPO}/main/${SCRIPT_INSTALL}"
+  wget -qO "./${SCRIPT_INSTALL}" "https://githubusercontent.com/{REPO}/main/${SCRIPT_INSTALL}"
 
   if [ ! -s "./${SCRIPT_INSTALL}" ] || grep -q "404: Not Found" "./${SCRIPT_INSTALL}"; then
     echo "Error: Failed to fetch ${SCRIPT_INSTALL} from GitHub main branch." >&2
