@@ -19,6 +19,25 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<PackageManagerDiskEditorState>();
         services.AddStatePulseService<PackageUpdateState>();
         services.AddStatePulseService<PackageUpdateScheduleState>();
+        services.AddStatePulseService<BootstrapState>();
+
+        services.AddStatePulseService<LoadBootstrapAction>();
+        services.AddStatePulseService<LoadBootstrapDoneAction>();
+        services.AddStatePulseService<LoadBootstrapEffect>();
+        services.AddStatePulseService<LoadBootstrapReducer>();
+        services.AddStatePulseService<LoadBootstrapDoneReducer>();
+
+        services.AddStatePulseService<EnablePluginAction>();
+        services.AddStatePulseService<EnablePluginDoneAction>();
+        services.AddStatePulseService<EnablePluginEffect>();
+        services.AddStatePulseService<EnablePluginReducer>();
+        services.AddStatePulseService<EnablePluginDoneReducer>();
+
+        services.AddStatePulseService<DisablePluginAction>();
+        services.AddStatePulseService<DisablePluginDoneAction>();
+        services.AddStatePulseService<DisablePluginEffect>();
+        services.AddStatePulseService<DisablePluginReducer>();
+        services.AddStatePulseService<DisablePluginDoneReducer>();
 
         services.AddStatePulseService<InstallPackageAction>();
         services.AddStatePulseService<InstallPackageDoneAction>();

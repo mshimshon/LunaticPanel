@@ -16,13 +16,13 @@
         {
             <MudChip Size=Size.Small T="string" Color="Color.Warning">@PACKAGE_DELETE_FORBIDDEN</MudChip>
         }
-        @if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
+        @if (ViewModel.State == Application.Payloads.Enums.PackageStatePayload.Enabled)
         {
             <MudChip Size=Size.Small T="string" Color="Color.Primary">
                 @(PACKAGE_ENABLED)
             </MudChip>
         }
-        else if (ViewModel.Data.Info.State == Application.Payloads.Enums.PackageStatePayload.Disabled)
+        else if (ViewModel.State == Application.Payloads.Enums.PackageStatePayload.Disabled)
         {
             <MudChip Size=Size.Small T="string" Color="Color.Default">@(PACKAGE_DISABLED)</MudChip>
         }
@@ -32,7 +32,7 @@
         }
     </MudCardContent>
     <MudCardActions>
-        @if (ViewModel.HasUpdateScheduled && ViewModel.IsAlreadyInstalled)
+        @if (ViewModel.HasUpdateScheduled && ViewModel.Data.Version != ViewModel.ScheduledUpdate!.Version)
         {
             <MudButton Variant="Variant.Text" Color="Color.Warning">
                 @string.Format(PACKAGE_UPDATE_CANCEL, ViewModel.ScheduledUpdate!.Version)
@@ -45,7 +45,7 @@
             </MudButton>
         }
 
-        @if (!ViewModel.IsAlreadyInstalled)
+        @if (ViewModel.RestartIsRequired)
         {
             <MudButton OnClick=@ViewModel.Restart Variant="Variant.Text" Color="Color.Warning">
                 @PANEL_RESTART
@@ -79,6 +79,26 @@
             </MudButton>
         }
 
+        @if (!ViewModel.HasDeleteScheduled)
+        {
+            @if (ViewModel.PendingStateRestart != default)
+            {
+                @if (ViewModel.CanEnable)
+                {
+                    <MudButton Variant="Variant.Text" OnClick=@ViewModel.Enable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
+                        @PACKAGE_SWITCH_ENABLE
+                    </MudButton>
+                }
+                else if (ViewModel.CanDisable)
+                {
+                    <MudButton Variant="Variant.Text" OnClick=@ViewModel.Disable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
+                        @PACKAGE_SWITCH_DISABLE
+                    </MudButton>
+                }
 
+
+            }
+
+        }
     </MudCardActions>
 </MudCard>

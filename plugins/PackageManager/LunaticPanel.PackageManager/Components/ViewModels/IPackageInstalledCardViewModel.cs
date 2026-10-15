@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Payloads.Enums;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;
@@ -24,7 +25,14 @@ public interface IPackageInstalledCardViewModel : IWidgetViewModel
     bool CanDelete { get; }
     bool HasUpdateAvailable { get; }
     bool IsPreInstalled { get; }
-    bool HasAvailableRollback { get; }
     bool IsAlreadyInstalled { get; }
+    bool HasAvailableRollback { get; }
+    bool RestartIsRequired { get; }
+    bool CanEnable { get; }
+    bool CanDisable { get; }
+    PackageStatePayload State { get; }
+    PackageStatePayload? PendingStateRestart { get; }
     Task Restart();
+    Task Enable();
+    Task Disable();
 }

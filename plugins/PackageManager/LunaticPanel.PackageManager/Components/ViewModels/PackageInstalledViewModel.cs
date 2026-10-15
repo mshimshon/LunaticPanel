@@ -30,6 +30,8 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
         foreach (var item in PackageManagerState.PendingUpdates)
             if (!_result.Any(p => p.Info.PackageId == item.Info.PackageId))
                 _result.Add(item);
+
+
     }
 
     protected override async Task OnViewModelAfterRenderAsync(bool firstRender)

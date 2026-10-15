@@ -39,11 +39,12 @@ public static class RegisterServicesExt
         services.AddCrazyReportUtilityService();
         services.AddLinuxCommandUtilityService();
         services.AddPluginLocationUtilityService("lunaticpanel");
+        services.AddSafeFileWriterUtilityService();
         services.AddScoped<HostExceptionHandler>();
         services.AddScoped<MainMenuViewModel>();
         services.AddScoped<MainLayoutViewModel>();
         services.AddScoped<DashboardViewModel>();
-
+        services.AddScoped<IBootstrapFileController, BootstrapFileController>();
         services.AddScoped<IWidgetComponentLifecycle, WidgetComponentLifecycle>();
         services.AddScoped<CircuitRegistry>();
         services.AddScoped<PanelControl>();
@@ -74,10 +75,12 @@ public static class RegisterServicesExt
         {
             if (busInfo.BusLifetime == EBusLifetime.Scoped)
                 services.AddScoped(busInfo.HandlerType);
-            else
+            else if (busInfo.BusLifetime == EBusLifetime.Transient)
                 services.AddTransient(busInfo.HandlerType);
+            else
+                services.AddSingleton(busInfo.HandlerType);
 
-            services.AddSingleton(busInfo.HandlerType);
+
 
             if (busInfo.BusType == EBusType.EventBus)
                 _eventBusRegistry.Register(busInfo.Key, busInfo);

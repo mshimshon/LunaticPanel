@@ -5,6 +5,8 @@ namespace LunaticPanel.PackageManager.Components;
 
 public partial class PackageInstalledCard
 {
+    private const string PACKAGE_SWITCH_ENABLE = "Enable"; // TODO: LOCALIZE
+    private const string PACKAGE_SWITCH_DISABLE = "Disable"; // TODO: LOCALIZE
     private const string PACKAGE_ENABLED = "Enabled"; // TODO: LOCALIZE
     private const string PACKAGE_DISABLED = "Disabled"; // TODO: LOCALIZE
     private const string PACKAGE_STATUS_UNKNOWN = "Unable to get Plugin Status"; // TODO: LOCALIZE

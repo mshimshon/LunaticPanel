@@ -48,6 +48,7 @@
 <ItemGroup>
   <Folder Include="Domain\Messaging\Entities\" />
   <Folder Include="Domain\Messaging\Enums\" />
+  <Folder Include="Hooks\Queries\" />
 </ItemGroup>
 
 
