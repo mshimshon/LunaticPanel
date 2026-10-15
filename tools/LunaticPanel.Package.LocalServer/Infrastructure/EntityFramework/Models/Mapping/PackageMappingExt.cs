@@ -34,7 +34,7 @@ internal static class PackageMappingExt
             EndOfLifeMessage = data.EndOfLifeMessage == default ? default : data.EndOfLifeMessage.Value
         };
     }
-
+    //
     public static PackageInfoModel ToPackageInfoModel(this ManifestEntity data)
     {
         return new()
