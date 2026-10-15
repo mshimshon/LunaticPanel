@@ -7,56 +7,62 @@ namespace LunaticPanel.PackageManager.Tests.Application.Mock;
 
 internal class RepositorySourceService : IPackageDownloader
 {
-    public static List<string> Downloaded { get; set; } = new();
-    public Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default)
-    {
-        string filename = $"{data.Info.PackageId}.{data.Version}.nupkg";
-        if (!Downloaded.Contains(filename))
-            Downloaded.Add(filename);
-        return Task.CompletedTask;
-    }
-
-    List<PackagePayload> _cache = new()
+    List<PackageManifestPayload> _cache = new()
     {
 
-        new PackagePayload(){ Info = new()
-        {
-            Name = "Package Test",
+        new PackageManifestPayload(){
+            Title = "Package Test",
             Description = "No Descriptions",
-            PackageId = "Package.Test",
-            State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Unknown,
+            Id = "Package.Test",
+            Version = "0.1.1",
+            Author = "Maksim Shimshon", Company = "Maksim Shimshon",
+            Copyright = "Maksim Shimshon (c) 2023", PanelVersion = "0.1.22", PluginEntryFile="xxx.dll", DotnetVersion="0"
         },
-            RepositorySource = "/myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
-            Version = "0.1.1"
-        },
-        new PackagePayload(){ Info = new()
-        {
-            Name = "Package Test 2",
+        new PackageManifestPayload(){
+            Title = "Package Test 2",
             Description = "No Descriptions",
-            PackageId = "Package.Test.Two",
-            State = PackageManager.Application.Payloads.Enums.PackageStatePayload.Unknown,
-        },
-            RepositorySource = "/myfolder/", RepositoryType = PackageManager.Application.Payloads.Enums.RepositorySourceTypePayload.Local,
-            Version = "0.2.1"
+            Id = "Package.Test",
+            Version = "0.1.1",
+            Author = "Maksim Shimshon", Company = "Maksim Shimshon",
+            Copyright = "Maksim Shimshon (c) 2023", PanelVersion = "0.1.22", PluginEntryFile="xxx.dll", DotnetVersion="0"
         }
     };
-
-    public Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default)
+    public static List<string> Downloaded { get; set; } = new();
+    public async Task<string> DownloadAsync(PackageManifestPayload data, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        IEnumerable<PackagePayload> result = _cache;
+        string filename = $"{data.Id}.{data.Version}.nupkg";
+        if (!Downloaded.Contains(filename))
+            Downloaded.Add(filename);
+        return await DownloadAsync(data, ct);
+    }
+
+    public Task<string> DownloadAsync(PackageManifestPayload data, CancellationToken ct = default)
+    {
+        string filename = $"{data.Id}.{data.Version}.nupkg";
+        if (!Downloaded.Contains(filename))
+            Downloaded.Add(filename);
+        return Task.FromResult(filename);
+    }
+
+
+
+    public Task<IEnumerable<PackageManifestPayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default)
+    {
+        IEnumerable<PackageManifestPayload> result = _cache;
         return Task.FromResult(result);
     }
+    public Task<IEnumerable<PackageManifestPayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default) => throw new NotImplementedException();
 
     public Task<IEnumerable<string>> GetVersionsAsync(string packageId, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default)
     {
-        IEnumerable<string> result = _cache.Where(p => p.Info.PackageId == packageId).Select(p => p.Version);
+        IEnumerable<string> result = _cache.Where(p => p.Id == packageId).Select(p => p.Version);
         return Task.FromResult(result);
     }
 
-    public Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default)
+    public Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, IReadOnlyCollection<RepositorySourcePayload> searchIn, CancellationToken ct = default)
     {
-        ICollection<PackageInfoPayload> list = _cache.Select(p => p.Info).ToList();
-        SearchResponse<PackageInfoPayload> result = new()
+        ICollection<PackageManifestPayload> list = _cache.ToList();
+        SearchResponse<PackageManifestPayload> result = new()
         {
             Result = list,
             Position = data.Position,
@@ -65,9 +71,7 @@ internal class RepositorySourceService : IPackageDownloader
         return Task.FromResult(result);
     }
 
-    public Task DownloadAsync(PackagePayload data, CancellationToken ct = default) => throw new NotImplementedException();
-    public Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default) => throw new NotImplementedException();
     public Task<IEnumerable<string>> GetVersionsAsync(string packageId, CancellationToken ct = default) => throw new NotImplementedException();
-    public Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default) => throw new NotImplementedException();
-    public Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>> SearchAsync(SearchRequest data, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageManifestPayload>>> SearchAsync(SearchRequest data, CancellationToken ct = default) => throw new NotImplementedException();
 }
