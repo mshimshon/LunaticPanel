@@ -623,7 +623,8 @@ internal sealed class DeploymentService
         commandBuilder.AppendLine("Type=simple");
         commandBuilder.AppendLine($"WorkingDirectory={serviceComposePayload.WorkingDir}");
         commandBuilder.AppendLine($"ExecStart={serviceComposePayload.ExecStart} {serviceComposePayload.StartupParameters ?? ""}");
-        commandBuilder.AppendLine("Restart=no");
+        commandBuilder.AppendLine("Restart=always");
+        commandBuilder.AppendLine("RestartSec=5s");
         foreach (var item in serviceComposePayload.Environment)
         {
             commandBuilder.AppendLine($"Environment={item}");
