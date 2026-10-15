@@ -122,7 +122,8 @@ Type=simple
 WorkingDirectory=${WORKING_DIR}
 
 ExecStart=${EXEC_START} ${STARTUP_PARAMETERS}
-Restart=no
+Restart=always
+RestartSec=5s
 $(for item in "${ENVIRONMENT[@]}"; do echo "Environment=${item}"; done)
 LogsDirectory=${SERVICE_NAME}
 
