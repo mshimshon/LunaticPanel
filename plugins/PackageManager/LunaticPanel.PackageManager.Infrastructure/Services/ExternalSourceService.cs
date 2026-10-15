@@ -68,9 +68,9 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         var relative = "lpkg/v1/package/download";
         var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
         var httpResponse = await _client.GetAsync($"{apiEndpoint}/{id}/{version}");
+        string content = await httpResponse.Content.ReadAsStringAsync(ct);
         if (!httpResponse.IsSuccessStatusCode)
             httpResponse.EnsureSuccessStatusCode(); // TODO: THROW Deserialize Error
-        string content = await httpResponse.Content.ReadAsStringAsync(ct);
         var target = JsonSerializer.Deserialize<PluginDownloadExtTargetPayload>(content, _jsonSerializerOptions);
         if (target == default)
             throw new Exception(""); // TODO: THROW Deserialize Error

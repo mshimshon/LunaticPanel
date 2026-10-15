@@ -18,17 +18,16 @@ internal sealed class PackageDownloadResolver : IPackageDownloadResolver
 
     public Task<PackageDownloadTargetResponse> GetDownloadLocationAsync(PackageId packageId, PackageVersion packageVersion, CancellationToken ct = default)
     {
-        var filename = $"{packageId.Value}.{packageVersion.Value}";
-        var encodedFilename = $"{filename.ToBase32()}.lpkg";
+        var filename = $"{packageId.Value}.{packageVersion.Value}.lpkg";
         var req = HttpContextAccessor.HttpContext!.Request;
         string baseUrl = $"{req.Scheme}://{req.Host}{req.PathBase}";
         string? append = default;
-        foreach (var item in InfrastructureServiceRegisterExt.PackageStorageUpload)
+        foreach (var item in InfrastructureServiceRegisterExt.PackageStorageServe)
         {
-            var file = Path.Combine(item.Value, encodedFilename);
+            var file = Path.Combine(item.Value, filename);
             if (File.Exists(file))
             {
-                append = $"{item.Value.ToBase32()}/{encodedFilename}";
+                append = $"{item.Value.ToBase32()}/{filename}";
                 break;
             }
         }

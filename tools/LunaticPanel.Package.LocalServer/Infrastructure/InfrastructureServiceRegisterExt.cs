@@ -81,10 +81,11 @@ public static class InfrastructureServiceRegisterExt
         await db.Database.EnsureCreatedAsync();
         scope.Dispose();
         app.UseMediator();
-        //await app.UseLocalServerStaticServe();
+        await app.UseLocalServerStaticServe();
         //app.Services.StartLocationWatchers();
 
     }
+
     private static async Task UseLocalServerStaticServe(this WebApplication app)
     {
         var strictZipProvider = new FileExtensionContentTypeProvider();
@@ -98,32 +99,32 @@ public static class InfrastructureServiceRegisterExt
                 // The URL path that clients will use to access the assets via HTTP/HTTPS
                 RequestPath = $"/assets/{location.Value.ToBase32()}"
             });
-        // Scan awaiting folders to trigger startup validation.
-        foreach (var toValidate in PackageStorageUpload)
-        {
-            Console.WriteLine($"Scanning: {toValidate.Value}");
-            foreach (var file in Directory.GetFiles(toValidate.Value, "*.lpkg"))
-            {
-                Console.WriteLine($"Processing: {file}");
+        //// Scan awaiting folders to trigger startup validation.
+        //foreach (var toValidate in PackageStorageUpload)
+        //{
+        //    Console.WriteLine($"Scanning: {toValidate.Value}");
+        //    foreach (var file in Directory.GetFiles(toValidate.Value, "*.lpkg"))
+        //    {
+        //        Console.WriteLine($"Processing: {file}");
 
-                using var scope = app.Services.CreateScope();
-                try
-                {
-                    await scope.ServiceProvider.AutoCreateNewlyAddedPackageFiles(file);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine($"Deleting '{file}'");
-                    File.Delete(file);
-                    Console.WriteLine($"Deleted '{file}'");
-                }
-                finally
-                {
-                    scope.Dispose();
-                }
-            }
-        }
+        //        using var scope = app.Services.CreateScope();
+        //        try
+        //        {
+        //            await scope.ServiceProvider.AutoCreateNewlyAddedPackageFiles(file);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine(ex.Message);
+        //            Console.WriteLine($"Deleting '{file}'");
+        //            File.Delete(file);
+        //            Console.WriteLine($"Deleted '{file}'");
+        //        }
+        //        finally
+        //        {
+        //            scope.Dispose();
+        //        }
+        //    }
+        //}
     }
     private static void StartLocationWatchers(this IServiceProvider sp)
     {

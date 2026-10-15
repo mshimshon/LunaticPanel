@@ -118,6 +118,11 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
                     LocationType = PackageValidationLocation.Local
                 };
                 var validationResult = await mediator.ExecuteAsync(new PackageValidationCommand(validationRequest));
+                string pathBase = "/var/lib/lunaticpanel_lpkg_localserver/lpkgs";
+
+                string servingDest = Path.Combine(pathBase, "available", $"{validationResult.Manifest.Id}.{validationResult.Manifest.Version}.lpkg");
+                File.Move(file, servingDest);
+
                 await mediator.ExecuteAsync(new CreateManifestCommand(validationResult.Manifest));
             }
             catch (Exception ex)
