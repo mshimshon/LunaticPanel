@@ -7,7 +7,7 @@ namespace LunaticPanel.PackageManager.Components;
 
 public partial class PackageSearchCard : WidgetComponentBase<PluginEntry, IPackageSearchCardViewModel>
 {
-    [Parameter] public PackageInfoPayload Data { get; set; } = default!;
+    [Parameter] public PackageManifestPayload Data { get; set; } = default!;
     protected override void OnWidgetParametersSet()
     {
         ViewModel.Data = Data;

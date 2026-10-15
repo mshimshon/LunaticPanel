@@ -28,6 +28,11 @@ public static class RegisterServiceExt
             string pathBase = "/var/lib/lunaticpanel_lpkg_localserver/lpkgs";
             var serveLocation = Path.Combine(pathBase, "available");
             var uploadLocation = Path.Combine(pathBase, "awaiting");
+            if (!Directory.Exists(serveLocation))
+                Directory.CreateDirectory(serveLocation);
+            if (!Directory.Exists(uploadLocation))
+                Directory.CreateDirectory(uploadLocation);
+
             if (!request.HasFormContentType)
                 return Results.BadRequest("Form content expected");
 

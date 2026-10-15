@@ -27,5 +27,6 @@ public static class RegisterServicesExt
         services.AddTransient<IHostDiskPackageService, HostDiskPackageService>();
         services.AddTransient<IPackageRepository, HostDiskPackageService>();
         services.AddTransient<ISourceOrderingService, SourceOrderingService>();
+        services.AddSingleton<IPackageFileReader, PackageFileReader>();
     }
 }

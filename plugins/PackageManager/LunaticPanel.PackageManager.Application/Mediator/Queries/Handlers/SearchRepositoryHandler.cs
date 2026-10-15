@@ -8,7 +8,7 @@ using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
-internal class SearchRepositoryHandler : IRequestHandler<SearchRepositoryQuery, Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>>
+internal class SearchRepositoryHandler : IRequestHandler<SearchRepositoryQuery, Dictionary<RepositorySourcePayload, SearchResponse<PackageManifestPayload>>>
 {
     private readonly IPackageDownloader _repositorySource;
     private readonly ICrazyReport _crazyReport;
@@ -19,7 +19,7 @@ internal class SearchRepositoryHandler : IRequestHandler<SearchRepositoryQuery, 
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
-    public async Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>> Handle(SearchRepositoryQuery data, CancellationToken ct = default)
+    public async Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageManifestPayload>>> Handle(SearchRepositoryQuery data, CancellationToken ct = default)
     {
         try
         {

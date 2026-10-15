@@ -60,7 +60,7 @@ internal class RepositorySourceService : IPackageDownloader
         {
             Result = list,
             Position = data.Position,
-            Total = list.Count
+            TotalResults = list.Count
         };
         return Task.FromResult(result);
     }

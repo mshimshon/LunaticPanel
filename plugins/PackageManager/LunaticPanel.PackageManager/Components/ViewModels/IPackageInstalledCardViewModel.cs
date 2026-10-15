@@ -14,7 +14,7 @@ public interface IPackageInstalledCardViewModel : IWidgetViewModel
     PackagePayload? ScheduledUpdate { get; }
     PackagePayload? ScheduledDelete { get; }
     PackagePayload? ScheduledRollback { get; }
-    PackagePayload? AvailableUpdate { get; }
+    PackageManifestPayload? AvailableUpdate { get; }
     PackagePayload? AvailableRollback { get; }
     bool CanScheduleUpdate { get; }
     bool HasUpdateScheduled { get; }

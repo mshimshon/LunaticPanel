@@ -12,7 +12,7 @@ internal class PackageSearchViewModel : WidgetViewModelBase, IPackageSearchViewM
     private string _keywords = string.Empty;
 
     public SearchPackageState SearchPackageState => _statePulse.StateOf<SearchPackageState>(() => this, UpdateChanges);
-    public IEnumerable<PackageInfoPayload> SearchResult { get; private set; } = new List<PackageInfoPayload>();
+    public IEnumerable<PackageManifestPayload> SearchResult { get; private set; } = new List<PackageManifestPayload>();
     public string Keywords
     {
         get => _keywords;
@@ -35,13 +35,13 @@ internal class PackageSearchViewModel : WidgetViewModelBase, IPackageSearchViewM
     private void FilterResult()
     {
         if (SearchPackageState.IsLoading) return;
-        var finalResult = new List<PackageInfoPayload>();
+        var finalResult = new List<PackageManifestPayload>();
         foreach (var sourceResult in SearchPackageState.Search)
         {
             Console.WriteLine(sourceResult.Value.Result.Count());
-            if (sourceResult.Value.Total > 0 && sourceResult.Value.Position <= sourceResult.Value.Total)
+            if (sourceResult.Value.TotalResults > 0 && sourceResult.Value.Position <= sourceResult.Value.TotalResults)
                 foreach (var sourceSearch in sourceResult.Value.Result)
-                    if (!finalResult.Any(p => p.PackageId == sourceSearch.PackageId))
+                    if (!finalResult.Any(p => p.Id == sourceSearch.Id))
                         finalResult.Add(sourceSearch);
         }
         SearchResult = finalResult;

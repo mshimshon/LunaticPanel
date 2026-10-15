@@ -28,7 +28,7 @@ internal class PeriodicCheckPackageUpdatesEffect : IEffect<PeriodicCheckPackageU
         {
             _crazyReport.Report("Executing Effect");
 
-            ICollection<PackagePayload> result = await _medihater.Send(new PeriodicCheckPackageUpdatesQuery(), dispatcher.CancelToken);
+            ICollection<PackageManifestPayload> result = await _medihater.Send(new PeriodicCheckPackageUpdatesQuery(), dispatcher.CancelToken);
             await dispatcher.Prepare<PeriodicCheckPackageUpdatesDoneAction>()
                 .With(p => p.AvailableUpdates, result)
                 .DispatchAsync();

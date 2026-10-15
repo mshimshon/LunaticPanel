@@ -5,7 +5,7 @@ using MedihatR;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
-internal class GetPackagesLatestVersionHandler : IRequestHandler<GetPackagesLatestVersionQuery, ICollection<PackagePayload>>
+internal class GetPackagesLatestVersionHandler : IRequestHandler<GetPackagesLatestVersionQuery, ICollection<PackageManifestPayload>>
 {
     private readonly IPackageDownloader _repositorySourceService;
 
@@ -13,7 +13,7 @@ internal class GetPackagesLatestVersionHandler : IRequestHandler<GetPackagesLate
     {
         _repositorySourceService = repositorySourceService;
     }
-    public async Task<ICollection<PackagePayload>> Handle(GetPackagesLatestVersionQuery request, CancellationToken ct = default)
+    public async Task<ICollection<PackageManifestPayload>> Handle(GetPackagesLatestVersionQuery request, CancellationToken ct = default)
     {
         try
         {

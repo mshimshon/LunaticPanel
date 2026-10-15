@@ -15,14 +15,14 @@ internal static class PackageMappingExt
         PackagePanelVersion panelVersion = new(data.PanelVersion);
         PackageDotnetVersion dotnetVersion = new(data.DotnetVersion);
         PackagePluginEntryFile pluginEntryFile = new(data.PluginEntryFile);
-        bool isEoL = data.Package != default && data.Package.EndOfLifeMessage == default;
+        bool isEoL = data.Package != default && data.Package.EndOfLifeMessage != default;
         ManifestStatus status = data.Hidden ? ManifestStatus.Hidden : ManifestStatus.Visible;
         if (isEoL)
             status = ManifestStatus.EndOfLife;
         return new ManifestEntity(id, description, author, version, panelVersion, dotnetVersion, pluginEntryFile)
         {
             Copyright = data.Copyright == default ? default : new(data.Copyright),
-            EndOfLifeMessage = isEoL ? default : new(data.Package!.EndOfLifeMessage!)
+            EndOfLifeMessage = !isEoL ? default : new(data.Package!.EndOfLifeMessage!)
         };
     }
 

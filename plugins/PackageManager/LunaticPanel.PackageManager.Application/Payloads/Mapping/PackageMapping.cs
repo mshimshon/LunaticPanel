@@ -20,7 +20,6 @@ public static class PackageMapping
         };
 
 
-
     public static PackageInfoPayload ToApplicationPayload(this PackageInfo data)
     => new()
     {
@@ -53,6 +52,7 @@ public static class PackageMapping
         return data.Failure == default ? new PackageEntity(info, sourceInfo, version, panelVersion, depList) :
             new PackageEntity(info, sourceInfo, version, panelVersion, depList, new(data.Failure));
     }
+
 
     public static PackageInfo ToDomainEntity(this PackageInfoPayload data)
         => new(

@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Requests;
@@ -10,27 +11,36 @@ internal class PackageDownloader : IPackageDownloader
 {
     private readonly ICrazyReport<PackageDownloader> _crazyReport;
     private readonly IExternalSourceService _sourceService;
-
-    public PackageDownloader(ICrazyReport<PackageDownloader> crazyReport,
+    private readonly string _packageCache;
+    public PackageDownloader(IPluginLocation pluginLocation, ICrazyReport<PackageDownloader> crazyReport,
         ISafeFileWriter safeFileWriter, IExternalSourceService sourceService)
     {
         _crazyReport = crazyReport;
         _sourceService = sourceService;
         _crazyReport.SetModule("PackageManager");
+        _packageCache = pluginLocation.GetAppDataBase(".pkg_api_cache");
     }
-    public async Task DownloadAsync(PackagePayload data, RepositorySourcePayload source, CancellationToken ct = default)
+    public async Task<string> DownloadAsync(PackageManifestPayload data, RepositorySourcePayload source, CancellationToken ct = default)
     {
-        await _sourceService.DownloadToCache(data.Info.PackageId, data.Version, source, ct);
+        await _sourceService.DownloadToCache(data.Id, data.Version, source, ct);
+        string path = Path.Combine(_packageCache, $"{data.Id}.{data.Version}.lpkg");
+        if (!File.Exists(path))
+            Console.WriteLine(path); // TODO: Throw Download Failed Exception
+        return path;
     }
 
-    public async Task DownloadAsync(PackagePayload data, CancellationToken ct = default)
+    public async Task<string> DownloadAsync(PackageManifestPayload data, CancellationToken ct = default)
     {
-        await _sourceService.FindAndDownloadToCache(data.Info.PackageId, data.Version, ct);
+        await _sourceService.FindAndDownloadToCache(data.Id, data.Version, ct);
+        string path = Path.Combine(_packageCache, $"{data.Id}.{data.Version}.lpkg");
+        if (!File.Exists(path))
+            Console.WriteLine(path); // TODO: Throw Download Failed Exception
+        return path;
     }
 
-    public async Task<IEnumerable<PackagePayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default)
+    public async Task<IEnumerable<PackageManifestPayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default)
     {
-        List<PackagePayload> result = new();
+        List<PackageManifestPayload> result = new();
         foreach (var item in packageIds)
         {
             var package = await _sourceService.FindMostRecentPackage(item, ct);
@@ -46,10 +56,9 @@ internal class PackageDownloader : IPackageDownloader
         return result.Select(p => p.ToString(3));
     }
 
-    public async Task<SearchResponse<PackageInfoPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default)
+    public async Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default)
     => await _sourceService.SearchAsync(data, source, ct);
 
-    public async Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageInfoPayload>>> SearchAsync(SearchRequest data, CancellationToken ct = default)
+    public async Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageManifestPayload>>> SearchAsync(SearchRequest data, CancellationToken ct = default)
         => await _sourceService.SearchAllSourcesAsync(data, ct);
-
 }

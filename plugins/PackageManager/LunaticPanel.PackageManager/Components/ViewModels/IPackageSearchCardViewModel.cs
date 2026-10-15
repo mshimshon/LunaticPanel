@@ -5,7 +5,7 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 
 public interface IPackageSearchCardViewModel : IWidgetViewModel
 {
-    PackageInfoPayload Data { get; set; }
+    PackageManifestPayload Data { get; set; }
     bool IsInstalled { get; set; }
     bool IsPendingUpdate { get; }
     bool IsDeleted { get; }

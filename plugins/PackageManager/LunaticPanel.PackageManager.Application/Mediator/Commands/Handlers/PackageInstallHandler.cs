@@ -11,21 +11,24 @@ internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
 {
     private readonly IPackageDownloader _repositorySourceService;
     private readonly IPackageRepository _packageRepository;
+    private readonly IPackageFileReader _packageFileReader;
 
     public PackageInstallHandler(IPackageDownloader repositorySourceService,
-        IPackageRepository packageRepository)
+        IPackageRepository packageRepository, IPackageFileReader packageFileReader)
     {
         _repositorySourceService = repositorySourceService;
         _packageRepository = packageRepository;
+        _packageFileReader = packageFileReader;
     }
     public async Task Handle(PackageInstallCommand command,
         CancellationToken ct = default)
     {
         try
         {
-            PackageEntity package = command.Data.ToDomainEntity();
             //var current = await _repositorySourceService.GetLatestVersionAsync([package.Info.Id.Value], ct);
-            await _repositorySourceService.DownloadAsync(command.Data, ct);
+            var file = await _repositorySourceService.DownloadAsync(command.Data, ct);
+            var payload = _packageFileReader.GetPackageInformation(file);
+            PackageEntity package = payload.ToDomainEntity();
             await _packageRepository.InstallAsync(package, ct);
 
             //TODO: HANDLE DOMAIN EXCEPTIONS

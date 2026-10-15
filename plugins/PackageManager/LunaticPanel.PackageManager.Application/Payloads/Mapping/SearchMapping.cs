@@ -12,7 +12,7 @@ public static class SearchMapping
         => new QueryModelResult<TEntity>()
         {
             Result = data.Result.Select(forEach).ToList(),
-            Total = data.Total,
+            Total = data.TotalResults,
             Position = data.Position
         };
 
@@ -22,7 +22,7 @@ public static class SearchMapping
     => new SearchResponse<TPayload>()
     {
         Result = data.Result.Select(forEach).ToList(),
-        Total = data.Total,
+        TotalResults = data.Total,
         Position = data.Position
     };
 }

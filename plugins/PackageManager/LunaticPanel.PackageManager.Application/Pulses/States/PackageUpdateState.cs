@@ -5,6 +5,6 @@ namespace LunaticPanel.PackageManager.Application.Pulses.States;
 
 public sealed record PackageUpdateState : IStateFeatureSingleton
 {
-    public IEnumerable<PackagePayload> FoundUpdates { get; init; } = Array.Empty<PackagePayload>();
+    public IEnumerable<PackageManifestPayload> FoundUpdates { get; init; } = Array.Empty<PackageManifestPayload>();
     public bool IsLoading { get; init; }
 }

@@ -7,7 +7,7 @@ using MedihatR;
 using StatePulse.Net;
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
-internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<PeriodicCheckPackageUpdatesQuery, ICollection<PackagePayload>>
+internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<PeriodicCheckPackageUpdatesQuery, ICollection<PackageManifestPayload>>
 {
     private readonly IMedihater _medihater;
     private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState;
@@ -24,14 +24,14 @@ internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<Periodi
 
     }
 
-    public async Task<ICollection<PackagePayload>> Handle(PeriodicCheckPackageUpdatesQuery request, CancellationToken ct = default)
+    public async Task<ICollection<PackageManifestPayload>> Handle(PeriodicCheckPackageUpdatesQuery request, CancellationToken ct = default)
     {
         try
         {
             _crazyReport.Report("Handler Called");
             var snap = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new Version(p.Version));
             var result = await _medihater.Send(new GetPackagesLatestVersionQuery(snap.Select(p => p.Key)), ct);
-            var updates = result.Where(p => new Version(p.Version) > snap[p.Info.PackageId]).ToList();
+            var updates = result.Where(p => new Version(p.Version) > snap[p.Id]).ToList();
             return updates;
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

@@ -29,7 +29,7 @@ public class SearchMappingTests
         var response = new SearchResponse<PackageInfoPayload>
         {
             Result = new List<PackageInfoPayload> { RepositoryMock },
-            Total = 1,
+            TotalResults = 1,
             Position = 100
         };
         var result = response.ToDomainQueryModel(p => p.ToDomainEntity());
@@ -56,7 +56,7 @@ public class SearchMappingTests
 
         Assert.Single(result.Result);
         Assert.Equal(RepositoryMock, result.Result.First());
-        Assert.Equal(1, result.Total);
+        Assert.Equal(1, result.TotalResults);
         Assert.Equal(100, result.Position);
     }
 }

@@ -31,7 +31,7 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public PackagePayload? ScheduledRollback { get; private set; }
     public bool IsAlreadyInstalled { get; private set; }
     public bool CanDelete { get; private set; }
-    public PackagePayload? AvailableUpdate { get; private set; }
+    public PackageManifestPayload? AvailableUpdate { get; private set; }
     public bool HasUpdateAvailable => AvailableUpdate != default;
 
     public PackagePayload? AvailableRollback { get; private set; }
@@ -58,7 +58,7 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     protected override void OnViewModelBeforeRender()
     {
         ScheduledUpdate = ManagerState.PendingUpdates.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
-        AvailableUpdate = PackageUpdate.FoundUpdates.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
+        AvailableUpdate = PackageUpdate.FoundUpdates.FirstOrDefault(p => p.Id == Data.Info.PackageId);
         AvailableRollback = ManagerState.AvailableRollbacks.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
         CanScheduleUpdate = !HasUpdateScheduled && HasUpdateAvailable;
         CanScheduleRollback = !HasUpdateScheduled && HasAvailableRollback && ScheduledUpdate != AvailableRollback;

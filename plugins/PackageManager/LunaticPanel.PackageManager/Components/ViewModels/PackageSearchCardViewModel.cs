@@ -20,7 +20,7 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
     public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
 
 
-    public PackageInfoPayload Data { get; set; } = default!;
+    public PackageManifestPayload Data { get; set; } = default!;
     public bool IsInstalled { get; set; }
     public bool IsPendingUpdate { get; set; }
     public bool IsDeleted { get; set; }
@@ -34,9 +34,9 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
 
     protected override void OnViewModelBeforeRender()
     {
-        IsInstalled = ManagerState.Installed.Any(p => p.Info.PackageId == Data.PackageId);
-        IsPendingUpdate = ManagerState.PendingUpdates.Any(p => p.Info.PackageId == Data.PackageId);
-        IsDeleted = ManagerState.PendingDelete.Any(p => p.Info.PackageId == Data.PackageId);
+        IsInstalled = ManagerState.Installed.Any(p => p.Info.PackageId == Data.Id);
+        IsPendingUpdate = ManagerState.PendingUpdates.Any(p => p.Info.PackageId == Data.Id);
+        IsDeleted = ManagerState.PendingDelete.Any(p => p.Info.PackageId == Data.Id);
     }
     public async Task InstallAsync() => await FailSafeExecutionAsync(InstallProcessAsync);
     public async Task InstallProcessAsync()
@@ -45,7 +45,7 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
         try
         {
             IsLoading = true;
-            var result = await _medihater.Send(new GetPackagesLatestVersionQuery([Data.PackageId]));
+            var result = await _medihater.Send(new GetPackagesLatestVersionQuery([Data.Id]));
             if (result.Count <= 0)
                 throw new HostCodedException("NotFound", "Cannot find package.");
             var target = result.First();

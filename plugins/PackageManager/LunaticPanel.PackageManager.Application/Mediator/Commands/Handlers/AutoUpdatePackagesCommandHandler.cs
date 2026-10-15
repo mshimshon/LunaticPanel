@@ -37,31 +37,31 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
             _crazyReport.Report("Handler Called");
             var snap = _packageUpdateState.State.FoundUpdates.ToList();
             var currentVersions = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new Version(p.Version));
-            var UpdateVersion = snap.ToDictionary(p => p.Info.PackageId, p => new Version(p.Version));
-            var UpdatePanelVersion = snap.ToDictionary(p => p.Info.PackageId, p => new Version(p.PanelVersion));
+            var UpdateVersion = snap.ToDictionary(p => p.Id, p => new Version(p.Version));
+            var UpdatePanelVersion = snap.ToDictionary(p => p.Id, p => new Version(p.PanelVersion));
             int major = _panelControl.PanelVersion.Major;
             foreach (var item in snap)
             {
                 Version packagePanelVersion = new Version(item.PanelVersion);
                 Version packageVersion = new Version(item.PanelVersion);
-                Version packageCurrentVersion = currentVersions[item.Info.PackageId];
+                Version packageCurrentVersion = currentVersions[item.Id];
                 int currentPackageMajor = packageCurrentVersion.Major;
                 int packagePanelMajor = packagePanelVersion.Major;
                 int packageVersionMajor = packageVersion.Major;
                 if (packagePanelMajor != major)
                 {
-                    _crazyReport.ReportWarning("Cannot Auto Update for {0} due to Panel Major Mismatch", item.Info.PackageId);
+                    _crazyReport.ReportWarning("Cannot Auto Update for {0} due to Panel Major Mismatch", item.Id);
                     continue;
                 }
                 if (packageVersionMajor != currentPackageMajor)
                 {
-                    _crazyReport.ReportWarning("Cannot Auto Update for {0} due to Major Version Mismatch", item.Info.PackageId);
+                    _crazyReport.ReportWarning("Cannot Auto Update for {0} due to Major Version Mismatch", item.Id);
                     continue;
                 }
 
                 if (packagePanelVersion > _panelControl.PanelVersion)
                 {
-                    _crazyReport.ReportWarning("Cannot Auto Update for {0} the package was compiled against more recent panel {1}.", item.Info.PackageId, packagePanelVersion);
+                    _crazyReport.ReportWarning("Cannot Auto Update for {0} the package was compiled against more recent panel {1}.", item.Id, packagePanelVersion);
                     continue;
                 }
                 await _medihater.Send(new PackageUpdateCommand(item), ct);

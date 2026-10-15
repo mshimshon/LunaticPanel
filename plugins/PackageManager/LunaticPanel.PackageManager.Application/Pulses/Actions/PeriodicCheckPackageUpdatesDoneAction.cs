@@ -5,5 +5,5 @@ namespace LunaticPanel.PackageManager.Application.Pulses.Actions;
 
 public sealed record PeriodicCheckPackageUpdatesDoneAction : IAction
 {
-    public ICollection<PackagePayload> AvailableUpdates { get; set; } = Array.Empty<PackagePayload>();
+    public ICollection<PackageManifestPayload> AvailableUpdates { get; set; } = Array.Empty<PackageManifestPayload>();
 }
