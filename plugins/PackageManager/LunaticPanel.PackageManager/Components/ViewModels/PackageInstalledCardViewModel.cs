@@ -71,15 +71,16 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
         CanScheduleRollback = !HasUpdateScheduled && HasAvailableRollback && ScheduledUpdate != AvailableRollback;
         CanDelete = !IsPreInstalled;
         RestartIsRequired = !IsAlreadyInstalled && HasUpdateScheduled;
-        CanEnable = (PendingStateRestart == default && State != PackageStatePayload.Enabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Disabled);
-        CanDisable = (PendingStateRestart == default && State != PackageStatePayload.Disabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Enabled);
         var runtime = ManagerState.RuntimePackages.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
         if (runtime != default)
             State = runtime.Info.State;
+        CanEnable = (PendingStateRestart == default && State != PackageStatePayload.Enabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Disabled);
+        CanDisable = (PendingStateRestart == default && State != PackageStatePayload.Disabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Enabled);
+
         if (!RestartIsRequired)
-            if (BootstrapState.Enabled.Contains(Data.Info.PackageId) || State == PackageStatePayload.Disabled)
+            if (BootstrapState.Enabled.Contains(Data.Info.PackageId) && State == PackageStatePayload.Disabled)
                 PendingStateRestart = PackageStatePayload.Enabled;
-            else if (BootstrapState.Disabled.Contains(Data.Info.PackageId) || State == PackageStatePayload.Enabled)
+            else if (BootstrapState.Disabled.Contains(Data.Info.PackageId) && State == PackageStatePayload.Enabled)
                 PendingStateRestart = PackageStatePayload.Disabled;
             else
                 PendingStateRestart = default;
@@ -104,12 +105,19 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public Task CancelScheduledRollbackAsync() => throw new NotImplementedException();
     public async Task Enable()
     {
-        await _statePulse.Dispatcher.Prepare<EnablePluginAction>().With(p => p.Id, Data.Info.PackageId).DispatchAsync();
+        IsLoading = true;
+        await _statePulse.Dispatcher.Prepare<EnablePluginAction>()
+            .With(p => p.Id, Data.Info.PackageId)
+            .DispatchAsync();
+        IsLoading = false;
     }
 
     public async Task Disable()
     {
-        await _statePulse.Dispatcher.Prepare<DisablePluginAction>().With(p => p.Id, Data.Info.PackageId).DispatchAsync();
-
+        IsLoading = true;
+        await _statePulse.Dispatcher.Prepare<DisablePluginAction>()
+            .With(p => p.Id, Data.Info.PackageId)
+            .DispatchAsync();
+        IsLoading = false;
     }
 }

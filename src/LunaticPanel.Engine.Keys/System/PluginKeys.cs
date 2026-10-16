@@ -6,7 +6,7 @@ public static class PluginKeys
     {
         public const string FetchAll = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchAll)}";
         /// <summary>
-        /// Return raw bootstrap file, loaded from disk every single time.
+        /// Return List of BootstrapPluginDescriptor from bootstrap file, loaded from disk every single time.
         /// </summary>
         public const string FetchBootstrapFile = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchBootstrapFile)}";
     }
@@ -23,7 +23,7 @@ public static class PluginKeys
         /// <summary>
         /// Set Plugin as Disabled for the next startup.
         /// </summary>
-        public const string DisablePlugin = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(EnablePlugin)}";
+        public const string DisablePlugin = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(DisablePlugin)}";
         /// <summary>
         /// Called after the Plugin is Enabled (Doesn't called if the plugin was disabled directly into the bootstrap.json)
         /// </summary>

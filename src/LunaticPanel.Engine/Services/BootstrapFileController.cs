@@ -22,7 +22,7 @@ internal class BootstrapFileController : IBootstrapFileController
     {
         FileStream? fs = await WaitForLockAsync(_bootstrapLocation, ct);
         using StreamReader reader = new StreamReader(fs);
-        var json = reader.ReadToEnd();
+        var json = await File.ReadAllTextAsync(_bootstrapLocation, ct);
         reader.Close();
         fs.Close();
         return JsonSerializer.Deserialize<BootstrapConfiguration>(json)!;

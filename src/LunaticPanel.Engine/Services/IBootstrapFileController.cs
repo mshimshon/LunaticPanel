@@ -6,5 +6,5 @@ internal interface IBootstrapFileController
 {
     Task DisablePlugin(string id, CancellationToken ct = default);
     Task EnablePlugin(string id, CancellationToken ct = default);
-    Task<BootstrapConfiguration> LoadFile(CancellationToken ct);
+    Task<BootstrapConfiguration> LoadFile(CancellationToken ct = default);
 }

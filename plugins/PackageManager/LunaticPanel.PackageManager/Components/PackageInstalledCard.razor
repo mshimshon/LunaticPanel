@@ -79,24 +79,19 @@
             </MudButton>
         }
 
-        @if (!ViewModel.HasDeleteScheduled)
+        @if (!ViewModel.HasDeleteScheduled )
         {
-            @if (ViewModel.PendingStateRestart != default)
+            @if (ViewModel.CanEnable)
             {
-                @if (ViewModel.CanEnable)
-                {
-                    <MudButton Variant="Variant.Text" OnClick=@ViewModel.Enable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
-                        @PACKAGE_SWITCH_ENABLE
-                    </MudButton>
-                }
-                else if (ViewModel.CanDisable)
-                {
-                    <MudButton Variant="Variant.Text" OnClick=@ViewModel.Disable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
-                        @PACKAGE_SWITCH_DISABLE
-                    </MudButton>
-                }
-
-
+                <MudButton Variant="Variant.Text" OnClick=@ViewModel.Enable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
+                    @PACKAGE_SWITCH_ENABLE
+                </MudButton>
+            }
+            else if (ViewModel.CanDisable)
+            {
+                <MudButton Variant="Variant.Text" OnClick=@ViewModel.Disable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
+                    @PACKAGE_SWITCH_DISABLE
+                </MudButton>
             }
 
         }

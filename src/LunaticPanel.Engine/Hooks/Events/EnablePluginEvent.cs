@@ -6,7 +6,7 @@ using LunaticPanel.Engine.Web.Services;
 
 namespace LunaticPanel.Engine.Web.Hooks.Events;
 
-[EventBusKey(PluginKeys.Events.DisablePlugin, ServiceLifetime = EBusLifetime.Scoped, Version = 1)]
+[EventBusKey(PluginKeys.Events.EnablePlugin, ServiceLifetime = EBusLifetime.Scoped)]
 internal class EnablePluginEvent : IEventBusHandler
 {
     private readonly IBootstrapFileController _bootstrapFileController;
