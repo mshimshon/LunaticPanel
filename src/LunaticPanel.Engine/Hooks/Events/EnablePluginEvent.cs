@@ -20,6 +20,7 @@ internal class EnablePluginEvent : IEventBusHandler
     public async Task HandleAsync(IEventBusMessage evt)
     {
         string id = await evt.ReadAs<string>();
+        Console.WriteLine($"Enable Plugin => {id}");
         await _bootstrapFileController.EnablePlugin(id);
         await _eventBus.PublishDataAsync(PluginKeys.Events.OnPluginEnabled, id);
     }

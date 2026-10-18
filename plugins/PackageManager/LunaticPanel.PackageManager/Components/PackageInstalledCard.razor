@@ -28,7 +28,15 @@
         }
         else
         {
-            <MudChip Size=Size.Small T="string" Color="Color.Error">@(PACKAGE_STATUS_UNKNOWN)</MudChip>
+            @if (!ViewModel.IsAlreadyInstalled)
+            {
+                <MudChip Size=Size.Small T="string" Color="Color.Warning">@(PACKAGE_STATUS_RESTART_REQUIRED)</MudChip>
+            }
+            else
+            {
+                <MudChip Size=Size.Small T="string" Color="Color.Error">@(PACKAGE_STATUS_UNKNOWN)</MudChip>
+            }
+
         }
     </MudCardContent>
     <MudCardActions>
@@ -89,7 +97,7 @@
             }
             else if (ViewModel.CanDisable)
             {
-                <MudButton Variant="Variant.Text" OnClick=@ViewModel.Disable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
+                <MudButton   Variant="Variant.Text" OnClick=@ViewModel.Disable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
                     @PACKAGE_SWITCH_DISABLE
                 </MudButton>
             }

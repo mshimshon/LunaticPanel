@@ -19,7 +19,9 @@ internal class DisablePluginEvent : IEventBusHandler
     }
     public async Task HandleAsync(IEventBusMessage evt)
     {
+
         string id = await evt.ReadAs<string>();
+        Console.WriteLine($"Disable Plugin => {id}");
         await _bootstrapFileController.DisablePlugin(id);
         await _eventBus.PublishDataAsync(PluginKeys.Events.OnPluginDisabled, id);
     }

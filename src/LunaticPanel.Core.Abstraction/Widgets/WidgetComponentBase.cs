@@ -115,33 +115,29 @@ public abstract class WidgetComponentBase<TPluginEntry> : ComponentBase, IAsyncD
             if (_renderCoalescing) return;
             _renderCoalescing = true;
         }
-        await InvokeAsync(async () =>
+        // TODO: Review if ditching render gate.
+        await _renderGate.WaitAsync();
+        try
         {
-            // TODO: Review if ditching render gate.
-            await _renderGate.WaitAsync();
-            try
+            FailSafeExecution(BaseOnBeforeRender);
+            await FailSafeExecutionAsync(BaseOnBeforeRenderAsync);
+            FailSafeExecution(OnWidgetBeforeRender);
+            await FailSafeExecutionAsync(OnWidgetBeforeRenderAsync);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            // TODO: LOG ISSUES
+            Console.WriteLine($"WidgetComponentBase::InvokeMyComponentStateChanged = {ex.Message}");
+        }
+        finally
+        {
+            lock (_lock)
             {
-                FailSafeExecution(BaseOnBeforeRender);
-                await FailSafeExecutionAsync(BaseOnBeforeRenderAsync);
-                FailSafeExecution(OnWidgetBeforeRender);
-                await FailSafeExecutionAsync(OnWidgetBeforeRenderAsync);
-
-                StateHasChanged();
+                _renderCoalescing = false;
             }
-            catch (Exception ex)
-            {
-                // TODO: LOG ISSUES
-                Console.WriteLine($"WidgetComponentBase::InvokeMyComponentStateChanged = {ex.Message}");
-            }
-            finally
-            {
-                lock (_lock)
-                {
-                    _renderCoalescing = false;
-                }
-                _renderGate.Release();
-            }
-        });
+            _renderGate.Release();
+        }
     }
 
     protected virtual Task InvokeStateChanges(SpreadChangeOption spreadChangeOption = SpreadChangeOption.TouchMyComponentOnly)

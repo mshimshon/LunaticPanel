@@ -16,6 +16,7 @@ internal class OnPluginEnabledChanged : IEventBusHandler
     }
     public async Task HandleAsync(IEventBusMessage evt)
     {
+        Console.WriteLine("OnPluginEnabledChanged");
         await _dispatcher.Prepare<LoadBootstrapAction>().DispatchAsync();
     }
 }

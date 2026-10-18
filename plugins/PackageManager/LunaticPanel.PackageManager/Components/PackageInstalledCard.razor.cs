@@ -10,6 +10,7 @@ public partial class PackageInstalledCard
     private const string PACKAGE_ENABLED = "Enabled"; // TODO: LOCALIZE
     private const string PACKAGE_DISABLED = "Disabled"; // TODO: LOCALIZE
     private const string PACKAGE_STATUS_UNKNOWN = "Unable to get Plugin Status"; // TODO: LOCALIZE
+    private const string PACKAGE_STATUS_RESTART_REQUIRED = "Restart Required"; // TODO: LOCALIZE
     private const string PACKAGE_UPDATE = "Schedule Update to {0}"; // TODO: LOCALIZE
     private const string PACKAGE_UPDATE_SCHEDULED = "Update Scheduled for v{0}"; // TODO: LOCALIZE
     private const string PACKAGE_UPDATE_CANCEL = "Cancel Update to {0}"; // TODO: LOCALIZE

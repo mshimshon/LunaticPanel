@@ -11,11 +11,13 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInstalledCardViewModel
 {
     private readonly IStatePulse _statePulse;
+    private readonly IStateAccessor<PackageUpdateState> _packageUpdateAccess;
+    private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskAccess;
     private readonly IPanelControl _panelControl;
 
     public PackagePayload Data { get; set; } = default!;
-    public PackageUpdateState PackageUpdate => _statePulse.StateOf<PackageUpdateState>(() => this, UpdateChanges);
-    public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
+    public PackageUpdateState PackageUpdate => _packageUpdateAccess.State;
+    public PackageManagerDiskState ManagerState => _packageManagerDiskAccess.State;
     public PackageUpdateScheduleState UpdateScheduleState => _statePulse.StateOf<PackageUpdateScheduleState>(() => this, UpdateChanges);
     public PackageManagerDiskEditorState ManagerEditorState => _statePulse.StateOf<PackageManagerDiskEditorState>(() => this, UpdateChanges);
     public BootstrapState BootstrapState => _statePulse.StateOf<BootstrapState>(() => this, UpdateChanges);
@@ -49,9 +51,14 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
         _panelControl.Shutdown();
         return Task.CompletedTask;
     }
-    public PackageInstalledCardViewModel(IStatePulse statePulse, IPanelControl panelControl)
+    public PackageInstalledCardViewModel(IStatePulse statePulse,
+        IStateAccessor<PackageUpdateState> packageUpdateAccess,
+        IStateAccessor<PackageManagerDiskState> packageManagerDiskAccess,
+        IPanelControl panelControl)
     {
         _statePulse = statePulse;
+        _packageUpdateAccess = packageUpdateAccess;
+        _packageManagerDiskAccess = packageManagerDiskAccess;
         _panelControl = panelControl;
     }
     protected override void OnViewModelParametersSet()
@@ -74,8 +81,6 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
         var runtime = ManagerState.RuntimePackages.FirstOrDefault(p => p.Info.PackageId == Data.Info.PackageId);
         if (runtime != default)
             State = runtime.Info.State;
-        CanEnable = (PendingStateRestart == default && State != PackageStatePayload.Enabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Disabled);
-        CanDisable = (PendingStateRestart == default && State != PackageStatePayload.Disabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Enabled);
 
         if (!RestartIsRequired)
             if (BootstrapState.Enabled.Contains(Data.Info.PackageId) && State == PackageStatePayload.Disabled)
@@ -84,6 +89,9 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
                 PendingStateRestart = PackageStatePayload.Disabled;
             else
                 PendingStateRestart = default;
+        RestartIsRequired = PendingStateRestart != State;
+        CanEnable = (PendingStateRestart == default && State != PackageStatePayload.Enabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Disabled);
+        CanDisable = (PendingStateRestart == default && State != PackageStatePayload.Disabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Enabled);
     }
 
     public async Task UpdateAsync()
@@ -105,6 +113,7 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public Task CancelScheduledRollbackAsync() => throw new NotImplementedException();
     public async Task Enable()
     {
+
         IsLoading = true;
         await _statePulse.Dispatcher.Prepare<EnablePluginAction>()
             .With(p => p.Id, Data.Info.PackageId)

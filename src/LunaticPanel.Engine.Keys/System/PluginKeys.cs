@@ -9,6 +9,10 @@ public static class PluginKeys
         /// Return List of BootstrapPluginDescriptor from bootstrap file, loaded from disk every single time.
         /// </summary>
         public const string FetchBootstrapFile = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchBootstrapFile)}";
+        /// <summary>
+        /// Same as FetchBootstrapFile but only return the currently loaded version from host RAM. (Used to compare changes)
+        /// </summary>
+        public const string FetchBootstrap = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchBootstrap)}";
     }
 
     public static class Events

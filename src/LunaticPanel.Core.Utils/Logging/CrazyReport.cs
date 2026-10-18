@@ -42,7 +42,7 @@ internal class CrazyReport : ICrazyReport
     {
         ErrorCatch(() =>
         {
-            Console.WriteLine(line);
+            Console.WriteLine($"{GetPrefix()}:{line}");
             Log(line, LogLevel.Trace);
         });
     }
@@ -51,7 +51,7 @@ internal class CrazyReport : ICrazyReport
         ErrorCatch(() =>
         {
             var line = string.Format(format, arg);
-            Console.WriteLine(line);
+            Console.WriteLine($"{GetPrefix()}:{line}");
             Log(line, LogLevel.Trace);
         });
     }

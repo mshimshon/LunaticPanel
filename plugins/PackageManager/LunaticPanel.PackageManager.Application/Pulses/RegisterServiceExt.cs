@@ -31,13 +31,11 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<EnablePluginDoneAction>();
         services.AddStatePulseService<EnablePluginEffect>();
         services.AddStatePulseService<EnablePluginReducer>();
-        services.AddStatePulseService<EnablePluginDoneReducer>();
 
         services.AddStatePulseService<DisablePluginAction>();
         services.AddStatePulseService<DisablePluginDoneAction>();
         services.AddStatePulseService<DisablePluginEffect>();
         services.AddStatePulseService<DisablePluginReducer>();
-        services.AddStatePulseService<DisablePluginDoneReducer>();
 
         services.AddStatePulseService<InstallPackageAction>();
         services.AddStatePulseService<InstallPackageDoneAction>();

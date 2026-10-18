@@ -16,6 +16,7 @@ internal class GetBootstrapFileQuery : IQueryBusHandler
     }
     public async Task<QueryBusMessageResponse> HandleAsync(IQueryBusMessage qry)
     {
+        Console.WriteLine("Loading Bootstrap File");
         var result = await _bootstrapFileController.LoadFile();
         return await qry.ReplyWith(result.KnownPlugins);
     }
