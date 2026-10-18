@@ -62,9 +62,9 @@ public static class InfrastructureServiceRegisterExt
         services.AddFileWatcherFactoryUtilityService();
         services.AddScoped<IPackageUploader, PackageUploaderService>();
         services.AddSingleton<IValidationQueueHandlerService, ValidationQueueHandlerServer>();
-        services.AddTransient<IManifestReadRepository, ManifestReadRepository>();
-        services.AddTransient<IManifestWriteRepository, ManifestWriteRepository>();
-        services.AddTransient<IPackageDownloadResolver, PackageDownloadResolver>();
+        services.AddScoped<IManifestReadRepository, ManifestReadRepository>();
+        services.AddScoped<IManifestWriteRepository, ManifestWriteRepository>();
+        services.AddScoped<IPackageDownloadResolver, PackageDownloadResolver>();
         services.AddDbContext<PackageDatabaseContext>(options =>
         {
             options.UseSqlite($"Data Source={PackageDatabaseLocation}");

@@ -89,7 +89,8 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
                 PendingStateRestart = PackageStatePayload.Disabled;
             else
                 PendingStateRestart = default;
-        RestartIsRequired = PendingStateRestart != State;
+        if (!RestartIsRequired)
+            RestartIsRequired = PendingStateRestart != default && PendingStateRestart != State;
         CanEnable = (PendingStateRestart == default && State != PackageStatePayload.Enabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Disabled);
         CanDisable = (PendingStateRestart == default && State != PackageStatePayload.Disabled) || (PendingStateRestart != default && PendingStateRestart == PackageStatePayload.Enabled);
     }

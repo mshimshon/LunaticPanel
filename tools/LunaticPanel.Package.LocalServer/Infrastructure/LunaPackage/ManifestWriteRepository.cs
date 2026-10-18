@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Exceptions;
+using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models;
 using LunaticPanel.Package.LocalServer.Infrastructure.EntityFramework.Models.Mapping;
 using LunaticPanel.Package.Server.Domain.Entites;
 using LunaticPanel.Package.Server.Domain.Entites.ValueObjects;
@@ -18,13 +19,21 @@ public class ManifestWriteRepository : IManifestWriteRepository
     }
     public async Task CreateAsync(ManifestEntity manifest, CancellationToken ct = default)
     {
-
-        await _packageDatabase.PackageVersions.AddAsync(manifest.ToPackageInfoModel(), ct);
+        PackageInfoModel item = manifest.ToPackageInfoModel();
+        bool exist = await _packageDatabase.Packages.AnyAsync(p => p.Id == item.PackageId, ct);
+        if (exist)
+            item = item with
+            {
+                Package = default
+            };
+        await _packageDatabase.PackageVersions.AddAsync(item, ct);
         await _packageDatabase.SaveChangesAsync(ct);
     }
     public async Task EndLifeAsync(PackageId id, PackageEndOfLifeMessage message, CancellationToken ct = default)
     {
-        var model = await _packageDatabase.Packages.AsSplitQuery().Include(p => p.Versions)
+        var model = await _packageDatabase.Packages
+            .AsSplitQuery()
+            .Include(p => p.Versions)
             .SingleOrDefaultAsync(p => p.Id == id.Value, ct);
         if (model == default)
             throw new PackageNotFoundException(id.Value);
@@ -40,7 +49,8 @@ public class ManifestWriteRepository : IManifestWriteRepository
     }
     public async Task HideAsync(PackageId id, PackageVersion version, CancellationToken ct = default)
     {
-        var model = await _packageDatabase.PackageVersions.SingleOrDefaultAsync(p => p.PackageId == id.Value && p.Version == version.Value, ct);
+        var model = await _packageDatabase.PackageVersions
+            .SingleOrDefaultAsync(p => p.PackageId == id.Value && p.Version == version.Value, ct);
         if (model == default)
             throw new PackageVersionNotFoundException(id.Value, version.Value);
         model.Hidden = true;

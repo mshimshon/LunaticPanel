@@ -24,7 +24,7 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
 
     public ValidationQueueHandlerServer(IServiceProvider serviceProvider)
     {
-        _serviceProvider = serviceProvider.CreateScope().ServiceProvider;
+        _serviceProvider = serviceProvider;
     }
     public Task CacheUploadRouteAsync(PackageUploadAccessResponse uploadRoute, CancellationToken ct = default)
     {
@@ -107,11 +107,12 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
                 continue;
             if (string.IsNullOrWhiteSpace(file))
                 continue;
-
+            var scope = _serviceProvider.CreateScope();
+            var sp = scope.ServiceProvider;
             try
             {
 
-                IMediator mediator = _serviceProvider.GetRequiredService<IMediator>();
+                IMediator mediator = sp.GetRequiredService<IMediator>();
                 var validationRequest = new PackageValidationRequest()
                 {
                     Target = file,
@@ -130,6 +131,10 @@ public class ValidationQueueHandlerServer : IValidationQueueHandlerService
                 Console.Error.WriteLine(ex.Message);
                 await ClearExpiredUpload(uploadId);
                 continue;
+            }
+            finally
+            {
+                scope.Dispose();
             }
         } while (_validationQueue.Count > 0);
 

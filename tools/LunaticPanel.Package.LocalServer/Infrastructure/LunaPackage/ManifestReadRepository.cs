@@ -43,10 +43,10 @@ public class ManifestReadRepository : IManifestReadRepository
     }
     public async Task<ManifestEntity> GetMostRecentAsync(PackageId id, CancellationToken ct = default)
     {
-        var latest = _packageDatabase.PackageVersions
+        var allVersions = _packageDatabase.PackageVersions
             .Where(p => p.PackageId == id.Value)
-            .ToList()
-            .OrderByDescending(p => Version.Parse(p.Version))
+            .ToList();
+        var latest = allVersions.OrderByDescending(p => Version.Parse(p.Version))
             .FirstOrDefault();
         if (latest == default)
             throw new PackageNotFoundException(id.Value);

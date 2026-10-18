@@ -15,6 +15,6 @@ public sealed record PackageInfoModel : IModelTimestamps
     public string Title { get; set; } = default!;
     public string? Copyright { get; set; }
     public bool Hidden { get; set; }
-    public PackageModel Package { get; set; } = default!;
+    public PackageModel? Package { get; set; } = default!;
     public string PackageId { get; set; } = default!;
 }

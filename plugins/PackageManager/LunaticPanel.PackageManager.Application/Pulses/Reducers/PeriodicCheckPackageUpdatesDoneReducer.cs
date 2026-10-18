@@ -1,3 +1,4 @@
+using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using StatePulse.Net;
@@ -10,6 +11,6 @@ internal class PeriodicCheckPackageUpdatesDoneReducer : IReducer<PackageUpdateSt
         => state with
         {
             IsLoading = false,
-            FoundUpdates = action.AvailableUpdates.ToList()
+            FoundUpdates = action.AvailableUpdates ?? Array.Empty<PackageManifestPayload>()
         };
 }

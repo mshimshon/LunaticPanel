@@ -21,7 +21,7 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
     {
         _statePulse = statePulse;
     }
-    protected override bool GetStateLoadingStatus() => PackageManagerState.IsLoading;
+    protected override bool GetStateLoadingStatus() => PackageManagerState.IsLoading || PackageUpdateState.IsLoading;
     protected override void OnViewModelBeforeRender()
     {
         InstalledPackageCount = PackageManagerState.Installed.Count();
