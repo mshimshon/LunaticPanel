@@ -53,36 +53,31 @@
             </MudButton>
         }
 
-        @if (ViewModel.RestartIsRequired)
-        {
-            <MudButton OnClick=@ViewModel.Restart Variant="Variant.Text" Color="Color.Warning">
-                @PANEL_RESTART
-            </MudButton>
-        }
+
         
         @if (!ViewModel.HasUpdateScheduled && ViewModel.HasUpdateAvailable)
         {
-            <MudButton Variant="Variant.Text" Color="Color.Warning">
+            <MudButton OnClick=@ViewModel.UpdateAsync Variant="Variant.Text" Color="Color.Warning">
                 @string.Format(PACKAGE_UPDATE, ViewModel.AvailableUpdate!.Version)
             </MudButton>
         }
 
         @if (!ViewModel.HasUpdateScheduled && ViewModel.HasAvailableRollback)
         {
-            <MudButton Variant="Variant.Text" Color="Color.Warning">
+            <MudButton  Variant="Variant.Text" Color="Color.Warning">
                 @string.Format(PACKAGE_ROLLBACK, ViewModel.AvailableRollback!.Version)
             </MudButton>
         }
 
         @if (ViewModel.HasDeleteScheduled)
         {
-            <MudButton Variant="Variant.Text" Color="Color.Warning">
+            <MudButton Variant="Variant.Text" Color="Color.Error">
                 @PACKAGE_DELETE_CANCEL
             </MudButton>
         }
         else if (!ViewModel.HasDeleteScheduled && ViewModel.CanDelete && ViewModel.IsAlreadyInstalled)
         {
-            <MudButton Variant="Variant.Text" Color="Color.Warning">
+            <MudButton Variant="Variant.Text" Color="Color.Error">
                 @string.Format(PACKAGE_SCHEDULE_DELETE)
             </MudButton>
         }
@@ -91,7 +86,7 @@
         {
             @if (ViewModel.CanEnable)
             {
-                <MudButton Variant="Variant.Text" OnClick=@ViewModel.Enable Color="Color.Warning" Disabled=@ViewModel.IsLoading>
+                <MudButton Variant="Variant.Text" OnClick=@ViewModel.Enable Color="Color.Success" Disabled=@ViewModel.IsLoading>
                     @PACKAGE_SWITCH_ENABLE
                 </MudButton>
             }

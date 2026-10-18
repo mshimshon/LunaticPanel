@@ -27,7 +27,12 @@
     else
     {
         <MudItem xs="12">
-            <MudButton OnClick=ViewModel.CheckForUpdates  Disabled=@ViewModel.IsLoading>Check Updates</MudButton>
+            <MudButton OnClick=ViewModel.CheckForUpdates Disabled=@ViewModel.IsLoading>Check Updates</MudButton>
+            @if (ViewModel.RestartRequired)
+            {
+                <MudButton OnClick=ViewModel.RestartPanel Color=@Color.Warning Disabled=@ViewModel.IsLoading>Restart Panel</MudButton>
+
+            }
         </MudItem>
         @foreach (var package in ViewModel.Result)
         {

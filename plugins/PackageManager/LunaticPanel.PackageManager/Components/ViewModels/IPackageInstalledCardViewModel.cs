@@ -35,4 +35,5 @@ public interface IPackageInstalledCardViewModel : IWidgetViewModel
     Task Restart();
     Task Enable();
     Task Disable();
+    Task UpdateAsync();
 }

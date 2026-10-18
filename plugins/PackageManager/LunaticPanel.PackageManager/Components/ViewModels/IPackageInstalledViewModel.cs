@@ -11,4 +11,6 @@ public interface IPackageInstalledViewModel : IWidgetViewModel
     PackageUpdateState PackageUpdateState { get; }
     IEnumerable<PackagePayload> Result { get; }
     Task CheckForUpdates();
+    Task RestartPanel();
+    bool RestartRequired { get; }
 }

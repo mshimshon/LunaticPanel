@@ -13,6 +13,7 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     private readonly IStatePulse _statePulse;
     private readonly IStateAccessor<PackageUpdateState> _packageUpdateAccess;
     private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskAccess;
+    private readonly IStateAccessor<BootstrapState> _bootstrapAccess;
     private readonly IPanelControl _panelControl;
 
     public PackagePayload Data { get; set; } = default!;
@@ -20,7 +21,7 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public PackageManagerDiskState ManagerState => _packageManagerDiskAccess.State;
     public PackageUpdateScheduleState UpdateScheduleState => _statePulse.StateOf<PackageUpdateScheduleState>(() => this, UpdateChanges);
     public PackageManagerDiskEditorState ManagerEditorState => _statePulse.StateOf<PackageManagerDiskEditorState>(() => this, UpdateChanges);
-    public BootstrapState BootstrapState => _statePulse.StateOf<BootstrapState>(() => this, UpdateChanges);
+    public BootstrapState BootstrapState => _bootstrapAccess.State;
 
     public bool CanScheduleUpdate { get; private set; }
     public bool HasUpdateScheduled => ScheduledUpdate != default;
@@ -54,11 +55,13 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public PackageInstalledCardViewModel(IStatePulse statePulse,
         IStateAccessor<PackageUpdateState> packageUpdateAccess,
         IStateAccessor<PackageManagerDiskState> packageManagerDiskAccess,
+        IStateAccessor<BootstrapState> bootstrapAccess,
         IPanelControl panelControl)
     {
         _statePulse = statePulse;
         _packageUpdateAccess = packageUpdateAccess;
         _packageManagerDiskAccess = packageManagerDiskAccess;
+        _bootstrapAccess = bootstrapAccess;
         _panelControl = panelControl;
     }
     protected override void OnViewModelParametersSet()
@@ -98,7 +101,9 @@ internal class PackageInstalledCardViewModel : WidgetViewModelBase, IPackageInst
     public async Task UpdateAsync()
     {
         IsLoading = true;
-        await _statePulse.Dispatcher.Prepare<PackageRollbackAction>().With(p => p.Package, Data).DispatchAsync();
+        await _statePulse.Dispatcher.Prepare<InstallPackageAction>()
+            .With(p => p.Target, AvailableUpdate)
+            .DispatchAsync();
         IsLoading = false;
     }
     public async Task CancelUpdateAsync() => await FailSafeExecutionAsync(CancelInstallAsync);

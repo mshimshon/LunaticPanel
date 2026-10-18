@@ -60,6 +60,7 @@ public class PluginEntry : PluginBase, IPlugin
         var dispatch = pluginContext.GetRequired<IDispatcher>();
         await dispatch.Prepare<LoadSourcesAction>().Await().DispatchAsync();
         await dispatch.Prepare<LoadPackageDiskFoldersAction>().Await().DispatchAsync();
+        await dispatch.Prepare<LoadBootstrapAction>().Await().DispatchAsync();
     }
 
 }
