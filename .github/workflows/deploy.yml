@@ -94,24 +94,32 @@ jobs:
           RELEASE_NOTES_FILE="/tmp/artifacts/output/release_notes.md"
           echo "" > "$RELEASE_NOTES_FILE"
 
-          # 1. Extract Breaking Changes
-          BREAKS=$(echo "$COMMITS" | grep '^break:' | sed 's/^break:[[:space:]]*//' | sed 's/^/- /')
+          # 1. Extract Breaking Changes straight from git log
+          BREAKS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^break:' | sed 's/^break:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$BREAKS" ]; then
             echo "## BREAKING CHANGES" >> "$RELEASE_NOTES_FILE"
             echo "$BREAKS" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 2. Extract Features
-          FEATS=$(echo "$COMMITS" | grep '^feat:' | sed 's/^feat:[[:space:]]*//' | sed 's/^/- /')
+          # 2. Extract Features straight from git log
+          FEATS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^feat:' | sed 's/^feat:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$FEATS" ]; then
             echo "## New Features" >> "$RELEASE_NOTES_FILE"
             echo "$FEATS" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 4. Extract Notes 
-          NOTES=$(echo "$COMMITS" | grep '^note:' | sed 's/^note:[[:space:]]*//' | sed 's/^/- /')
+          # 3. Extract Fixes straight from git log
+          FIXES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^fix:' | sed 's/^fix:[[:space:]]*//' | sed 's/^/- /' || true)
+          if [ -n "$FIXES" ]; then
+            echo "## Fixes" >> "$RELEASE_NOTES_FILE"
+            echo "$FIXES" >> "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
+          fi
+
+          # 4. Extract Notes straight from git log
+          NOTES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^note:' | sed 's/^note:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$NOTES" ]; then
             echo "## Notes" >> "$RELEASE_NOTES_FILE"
             echo "$NOTES" >> "$RELEASE_NOTES_FILE"
