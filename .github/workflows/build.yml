@@ -19,6 +19,7 @@ jobs:
       contents: write
 
     steps:
+    steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
@@ -35,6 +36,7 @@ jobs:
           LAST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -n 1) 
           echo "$LAST_TAG"
           if [ -z "$LAST_TAG" ]; then
+            echo "First Release Detected"
             echo "version=v0.0.100" >> "$GITHUB_OUTPUT"
             echo "release=true" >> "$GITHUB_OUTPUT"
             exit 0
@@ -62,11 +64,8 @@ jobs:
 
           else
             echo "release=false" >> "$GITHUB_OUTPUT"
-            gh run cancel "$GITHUB_RUN_ID"
-            echo "This will be skipped entirely... there are no fix:,break: or feat:. commits!"
-            # Sleep briefly to give the API call time to process before the script ends
-            sleep 10
-            exit 0
+            echo "Error this is not a release... there are no fix:,break: or feat:. commits!"
+            exit 1
           fi
 
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
