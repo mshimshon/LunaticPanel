@@ -17,7 +17,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0 # 👈 This forces GitHub to pull ALL history and tags
       - name: Calculate Version
         id: get_version
         run: |
@@ -28,6 +29,7 @@ jobs:
             exit 1
           fi
           LAST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -n 1) 
+          echo "$LAST_TAG"
           if [ -z "$LAST_TAG" ]; then
             echo "version=v0.0.100" >> "$GITHUB_OUTPUT"
             echo "release=true" >> "$GITHUB_OUTPUT"
