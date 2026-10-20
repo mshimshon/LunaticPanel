@@ -45,6 +45,7 @@
     <File Path="Directory.Packages.props" />
     <File Path="serve_packages.sh" />
     <File Path=".editorconfig" />
+    <File Path=".github/workflows/branch_squasher.yml" />
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/deploy.yml" />
     <File Path="src/lpcli-compose.yml" />

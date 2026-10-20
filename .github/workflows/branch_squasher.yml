@@ -1,0 +1,112 @@
+name: Build
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_TEST_RUNNER: Microsoft.Testing.Platform
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      id-token: write
+      actions: write
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 👈 This forces GitHub to pull ALL history and tags
+
+      - name: Calculate Version
+        id: get_version
+        run: |
+          set -eu
+
+          # 1. Verify Git workspace
+          if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            echo "::error::This directory is not a Git repository."
+            exit 1
+          fi
+
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@://github.com"
+
+          # 2. Get all commit hashes since branching off main
+          MAIN_BASE=$(git merge-base origin/main HEAD)
+          COMMITS_HASHES=$(git log "$MAIN_BASE"..HEAD --format="%H")
+
+          if [ -z "$COMMITS_HASHES" ]; then
+            echo "No new commits found since split from main."
+            exit 0
+          fi
+
+          # 3. Scan backwards (oldest to newest) to find the FIRST ever WIP commit
+          FIRST_WIP_HASH=""
+          for hash in $(echo "$COMMITS_HASHES" | tac || echo "$COMMITS_HASHES" | tail -r); do
+            subject=$(git log -n 1 --format="%s" "$hash")
+            if echo "$subject" | grep -iq '^wip:'; then
+              FIRST_WIP_HASH="$hash"
+              break
+            fi
+          done
+
+          # If there are absolutely no WIP commits, exit early. History is clean.
+          if [ -z "$FIRST_WIP_HASH" ]; then
+            echo "No WIP commits detected. Moving on."
+            exit 0
+          fi
+
+          # 4. Extract raw semantic commit logs across the feature branch
+          RAW_LOGS=$(git log "$MAIN_BASE"..HEAD --format="%s")
+
+          BREAKS=$(echo "$RAW_LOGS" | grep -i '^break:' || true)
+          FEATS=$(echo "$RAW_LOGS" | grep -i '^feat:' || true)
+          FIXES=$(echo "$RAW_LOGS" | grep -i '^fix:' || true)
+          NOTES=$(echo "$RAW_LOGS" | grep -i '^note:' || true)
+
+          # 5. Execute Squash Logic based on rules
+          MSG_FILE="/tmp/combined_msg.txt"
+          printf "" > "$MSG_FILE"
+
+          if [ -n "$BREAKS" ] || [ -n "$FEATS" ] || [ -n "$FIXES" ] || [ -n "$NOTES" ]; then
+            # ==========================================
+            # RULE 1: MIXED HISTORY (WIP + SEMANTIC COMMITS)
+            # ==========================================
+            echo "Mixed history detected. Squashing WIPs out..."
+
+            # Reset soft back to the parent of the first WIP commit
+            git reset --soft "${FIRST_WIP_HASH}~1"
+            git add .
+
+            # Re-create cleanly separated semantic commits in order
+            # This makes each semantic commit a separate line entry on your branch
+            [ -n "$BREAKS" ] && echo "$BREAKS" | while read -r line; do git commit -m "$line"; done
+            [ -n "$FEATS" ]  && echo "$FEATS"  | while read -r line; do git commit -m "$line"; done
+            [ -n "$FIXES" ]  && echo "$FIXES"  | while read -r line; do git commit -m "$line"; done
+            [ -n "$NOTES" ]  && echo "$NOTES"  | while read -r line; do git commit -m "$line"; done
+
+          else
+            # ==========================================
+            # RULE 2: ONLY WIP COMMITS PRESENT
+            # ==========================================
+            echo "Only WIP commits found. Consolidating into a single WIP milestone..."
+  
+            # Reset soft to the parent of the first WIP commit
+            git reset --soft "${FIRST_WIP_HASH}~1"
+            git add .
+  
+            # Commit everything into a single tracking WIP block
+            git commit -m "wip: work in progress (combined tracking entry)"
+          fi
+
+          # 6. Push changes safely back to your feature branch remote
+          git push origin HEAD --force-with-lease
+          echo "Successfully completed branch history squashing rules!"
+
+
