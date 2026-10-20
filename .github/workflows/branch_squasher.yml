@@ -1,4 +1,4 @@
-name: Build
+name: Branch WIP Cleanup
 
 on:
   push:
