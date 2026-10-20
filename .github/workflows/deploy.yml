@@ -50,7 +50,7 @@ jobs:
 
           COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:%s) 
           PREV_VERSION=${LAST_TAG#v} 
-          echo "Current Release $LAST_VERSION"
+          echo "Current Release $PREV_VERSION"
           VERSION=$PREV_VERSION
 
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
