@@ -26,10 +26,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-    steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:

@@ -19,11 +19,11 @@ jobs:
       contents: write
 
     steps:
-    steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # 👈 This forces GitHub to pull ALL history and tags
+
       - name: Calculate Version
         id: get_version
         run: |
