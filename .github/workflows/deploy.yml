@@ -118,7 +118,7 @@ jobs:
             echo "$NOTES" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
-
+          cat "$RELEASE_NOTES_FILE"
           echo "notes_file=$RELEASE_NOTES_FILE" >> "$GITHUB_OUTPUT"
 
 
