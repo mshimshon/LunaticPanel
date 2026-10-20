@@ -43,7 +43,7 @@ jobs:
           echo "$LAST_TAG"
           if [ -z "$LAST_TAG" ]; then
             echo "First Release Detected"
-            echo "version=v0.0.100" >> "$GITHUB_OUTPUT"
+            echo "version=0.0.100" >> "$GITHUB_OUTPUT"
             echo "release=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -74,7 +74,7 @@ jobs:
             exit 1
           fi
 
-          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
 
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "release=true" >> "$GITHUB_OUTPUT"
