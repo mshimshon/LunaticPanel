@@ -18,6 +18,7 @@ jobs:
         id: get_version
         shell: sh
         run: |
+          set -eu
           LAST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
           if [ -z "$LAST_TAG" ]; then
             echo "version=v0.0.100" >> "$GITHUB_OUTPUT"
@@ -71,6 +72,7 @@ jobs:
 
       - name: Run All Unit Tests
         run: |
+          set -eu
           dotnet test \
             LunaticPanel.slnx \
             --no-build \
@@ -80,6 +82,7 @@ jobs:
 
       - name: Publish LunaticPanel.Package.Tool (self-contained)
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           dotnet publish \
@@ -95,6 +98,7 @@ jobs:
 
       - name: Pack NuGet packages
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           mkdir -p "/tmp/artifacts/output"
@@ -127,6 +131,7 @@ jobs:
 
       - name: Validate Plugins
         run: |
+          set -eu
           mkdir -p /tmp/artifacts/build
 
           VERSION="${{ steps.get_version.outputs.version }}"

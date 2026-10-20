@@ -31,6 +31,7 @@ jobs:
         id: get_version
         shell: sh
         run: |
+          set -eu
           LAST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
           if [ -z "$LAST_TAG" ]; then
             echo "version=v0.0.100" >> "$GITHUB_OUTPUT"
@@ -79,6 +80,7 @@ jobs:
 
       - name: Publish LunaticPanel.Hybrid.Web (linux, not self-contained)
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           dotnet publish \
@@ -96,6 +98,7 @@ jobs:
 
       - name: Publish LunaticPanel.Package.Tool (self-contained)
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           dotnet publish \
@@ -114,6 +117,7 @@ jobs:
 
       - name: Publish LunaticPanel.Package.LocalServer (linux, not self-contained)
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           dotnet publish \
@@ -135,6 +139,7 @@ jobs:
 
       - name: Pack NuGet packages
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           KEY_PROJECTS=(
@@ -168,6 +173,7 @@ jobs:
 
       - name: Package plugins
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           PLUGINS=(
@@ -211,6 +217,7 @@ jobs:
           ls -R /tmp/artifacts/output
       - name: Push Version Tag
         run: |
+          set -eu
           TAG="v${{ steps.get_version.outputs.version }}"
           git tag "$TAG"
           git push origin "$TAG"
@@ -242,6 +249,7 @@ jobs:
       - name: Extract version
         id: get_version
         run: |
+          set -eu
           mkdir -p "/tmp/artifacts/output"
 
           TAG="${{ github.event.workflow_run.head_branch }}"
@@ -256,6 +264,7 @@ jobs:
 
       - name: Pack NuGet packages
         run: |
+          set -eu
           VERSION="${{ steps.get_version.outputs.version }}"
 
           KEY_PROJECTS=(
@@ -296,6 +305,7 @@ jobs:
           max_attempts: 10
           retry_wait_seconds: 10
           command: |
+            set -eu
             VERSION="${{ steps.get_version.outputs.version }}"
 
             for PKG in /tmp/artifacts/output/*.nupkg; do
