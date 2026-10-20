@@ -72,7 +72,7 @@ jobs:
 
            echo "Next Release $NEW_VERSION"
 
-          echo "previous_version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
+          echo "previous_version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "release=true" >> "$GITHUB_OUTPUT"
 
