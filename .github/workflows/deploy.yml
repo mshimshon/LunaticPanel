@@ -49,8 +49,9 @@ jobs:
           fi
 
           COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:%s) 
-
-          VERSION=${LAST_TAG#v} 
+          PREV_VERSION=${LAST_TAG#v} 
+          echo "Current Release $LAST_VERSION"
+          VERSION=$PREV_VERSION
 
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
           MINOR=$(echo "$VERSION" | cut -d. -f2) 
@@ -76,9 +77,48 @@ jobs:
 
           NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
 
+          echo "previous_version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "release=true" >> "$GITHUB_OUTPUT"
 
+      - name: Generate Release Notes
+        id: generate_release_notes
+        run: |
+          set -eu
+          
+          # Fetch the commits between the last tag and HEAD again
+          LAST_VERSION="${{ steps.get_version.outputs.previous_version }}"
+          NEXT_VERSION="${{ steps.get_version.outputs.version }}"
+          
+
+          RELEASE_NOTES_FILE="/tmp/artifacts/output/release_notes.md"
+          echo "" > "$RELEASE_NOTES_FILE"
+
+          # 1. Extract Breaking Changes
+          BREAKS=$(echo "$COMMITS" | grep '^break:' | sed 's/^break:[[:space:]]*//' | sed 's/^/- /')
+          if [ -n "$BREAKS" ]; then
+            echo "## BREAKING CHANGES" >> "$RELEASE_NOTES_FILE"
+            echo "$BREAKS" >> "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
+          fi
+
+          # 2. Extract Features
+          FEATS=$(echo "$COMMITS" | grep '^feat:' | sed 's/^feat:[[:space:]]*//' | sed 's/^/- /')
+          if [ -n "$FEATS" ]; then
+            echo "## New Features" >> "$RELEASE_NOTES_FILE"
+            echo "$FEATS" >> "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
+          fi
+
+          # 4. Extract Notes 
+          NOTES=$(echo "$COMMITS" | grep '^note:' | sed 's/^note:[[:space:]]*//' | sed 's/^/- /')
+          if [ -n "$NOTES" ]; then
+            echo "## Notes" >> "$RELEASE_NOTES_FILE"
+            echo "$NOTES" >> "$RELEASE_NOTES_FILE"
+            echo "" >> "$RELEASE_NOTES_FILE"
+          fi
+
+          echo "notes_file=$RELEASE_NOTES_FILE" >> "$GITHUB_OUTPUT"
 
 
       - name: Setup .NET 10
@@ -237,6 +277,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
+          body_path: ${{ steps.generate_release_notes.outputs.notes_file }}
           files: |
             /tmp/artifacts/output/*.*
 
