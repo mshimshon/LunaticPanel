@@ -9,7 +9,7 @@ jobs:
   build:
     if: github.event.base_ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
+
     env:
       DOTNET_TEST_RUNNER: Microsoft.Testing.Platform
 
@@ -20,6 +20,7 @@ jobs:
           TAG="${GITHUB_REF#refs/tags/}"
           VERSION="${TAG#v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -35,19 +36,35 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run All Unit Tests
-        # Ensure 'LunaticPanel.sln' matches your exact solution file name
-        run: dotnet test LunaticPanel.slnx --no-build --configuration Release --verbosity normal -p:TreatWarningsAsErrors=false
+        run: |
+          dotnet test \
+            LunaticPanel.slnx \
+            --no-build \
+            --configuration Release \
+            --verbosity normal \
+            -p:TreatWarningsAsErrors=false
 
       - name: Publish LunaticPanel.Package.Tool (self-contained)
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          dotnet publish $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj \
-            -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o /tmp/artifacts/tool /p:AssemblyVersion=$VERSION /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION
-      
+
+          dotnet publish \
+            $GITHUB_WORKSPACE/tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj \
+            -c Release \
+            -r linux-x64 \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -o /tmp/artifacts/tool \
+            /p:AssemblyVersion=$VERSION \
+            /p:FileVersion=$VERSION \
+            /p:InformationalVersion=$VERSION
+
       - name: Pack NuGet packages
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
+
           mkdir -p "/tmp/artifacts/output"
+
           KEY_PROJECTS=(
             "src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
             "src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj"
@@ -66,28 +83,51 @@ jobs:
 
           for KEY in "${KEY_PROJECTS[@]}"; do
             ABSOLUTE_CSPROJ_PATH="${{ github.workspace }}/$KEY"
-            dotnet pack "$ABSOLUTE_CSPROJ_PATH" -c Release -o "/tmp/artifacts/output" /p:Version=$VERSION
+
+            dotnet pack \
+              "$ABSOLUTE_CSPROJ_PATH" \
+              -c Release \
+              -o "/tmp/artifacts/output" \
+              /p:Version=$VERSION
           done
 
       - name: Validate Plugins
         run: |
           mkdir -p /tmp/artifacts/build
+
           VERSION="${{ steps.get_version.outputs.version }}"
+
           PLUGINS=(
             "$GITHUB_WORKSPACE/plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
           )
 
           for KEY in "${PLUGINS[@]}"; do
             FILE_NAME=$(basename "$KEY")
-            FILE_NAME=$(basename "$KEY")
             PROJECT_NAME="${FILE_NAME%.csproj}"
+
             TARGET_BUILD_DIR="/tmp/artifacts/plugins_build/$PROJECT_NAME"
             mkdir -p "$TARGET_BUILD_DIR"
-            dotnet publish "$KEY" -r linux-x6 -c Release -o "$TARGET_BUILD_DIR" /p:FileVersion=$VERSION /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:AssemblyVersion=$VERSION
-            /tmp/artifacts/tool/LunaticPanel.Package.Tool pack --input "$TARGET_BUILD_DIR" --output "/tmp/artifacts/output" --version $VERSION
+
+            dotnet publish \
+              "$KEY" \
+              -r linux-x64 \
+              -c Release \
+              -o "$TARGET_BUILD_DIR" \
+              /p:FileVersion=$VERSION \
+              /p:InformationalVersion=$VERSION \
+              /p:Version=$VERSION \
+              /p:AssemblyVersion=$VERSION
+
+            /tmp/artifacts/tool/LunaticPanel.Package.Tool \
+              pack \
+              --input "$TARGET_BUILD_DIR" \
+              --output "/tmp/artifacts/output" \
+              --version $VERSION
+
             EXPECTED_PKG="/tmp/artifacts/output/${PROJECT_NAME}.${VERSION}.lpkg"
+
             if [ -z "$EXPECTED_PKG" ] || [ ! -s "$EXPECTED_PKG" ]; then
-               ls -R /tmp/artifacts/output
+              ls -R /tmp/artifacts/output
               echo "❌ Error: Packed file for ${PROJECT_NAME} version ${VERSION} was not generated or is empty!"
               exit 1
             else
