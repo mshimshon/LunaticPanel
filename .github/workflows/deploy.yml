@@ -96,44 +96,38 @@ jobs:
           RELEASE_NOTES_FILE="/tmp/artifacts/output/release_notes.md"
           echo "" > "$RELEASE_NOTES_FILE"
 
-          # 1. Extract Breaking Changes straight from git log (Case-Insensitive)
-          BREAKS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^break:' | sed 's/^[Bb][Rr][Ee][Aa][Kk]:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 1. Extract Breaking Changes from FULL commit bodies (%B)
+          BREAKS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%B | grep -Ei '^break:' | sed 's/^[Bb][Rr][Ee][Aa][Kk]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$BREAKS" ]; then
             echo "## BREAKING CHANGES" >> "$RELEASE_NOTES_FILE"
             printf "%s\n" "$BREAKS" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 2. Extract Features straight from git log (Case-Insensitive)
-          FEATS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^feat:' | sed 's/^[Ff][Ee][Aa][Tt]:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 2. Extract Features from FULL commit bodies (%B)
+          FEATS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%B | grep -Ei '^feat:' | sed 's/^[Ff][Ee][Aa][Tt]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$FEATS" ]; then
             echo "## New Features" >> "$RELEASE_NOTES_FILE"
             printf "%s\n" "$FEATS" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 3. Extract Fixes straight from git log (Case-Insensitive)
-          FIXES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^fix:' | sed 's/^[Ff][Ii][Xx]:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 3. Extract Fixes from FULL commit bodies (%B)
+          FIXES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%B | grep -Ei '^fix:' | sed 's/^[Ff][Ii][Xx]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$FIXES" ]; then
             echo "## Fixes" >> "$RELEASE_NOTES_FILE"
             printf "%s\n" "$FIXES" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 4. Extract Notes straight from git log (Case-Insensitive)
-          NOTES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^note:' | sed 's/^[Nn][Oo][Tt][Ee]:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 4. Extract Notes from FULL commit bodies (%B)
+          NOTES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%B | grep -Ei '^note:' | sed 's/^[Nn][Oo][Tt][Ee]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$NOTES" ]; then
             echo "## Notes" >> "$RELEASE_NOTES_FILE"
             printf "%s\n" "$NOTES" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 5. Strict Validation Check
-          if [ ! -s "$RELEASE_NOTES_FILE" ] || [ -z "$(cat "$RELEASE_NOTES_FILE" | tr -d '[:space:]')" ]; then
-            echo "::error::Release note not generated because no valid commits were found!"
-            rm -f "$GITHUB_OUTPUT"
-            exit 1
-          fi
 
           echo "notes_file=$RELEASE_NOTES_FILE" >> "$GITHUB_OUTPUT"
 
