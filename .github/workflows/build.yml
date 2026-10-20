@@ -13,6 +13,10 @@ jobs:
     env:
       DOTNET_TEST_RUNNER: Microsoft.Testing.Platform
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      id-token: write
+      actions: write
+      contents: write
 
     steps:
       - name: Checkout Code
