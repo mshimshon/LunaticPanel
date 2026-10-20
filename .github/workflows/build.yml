@@ -44,9 +44,7 @@ jobs:
 
           COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:%s) 
           PREV_VERSION=${LAST_TAG#v} 
-          echo "Current Release $PREV_VERSION"
           VERSION=$PREV_VERSION
-
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
           MINOR=$(echo "$VERSION" | cut -d. -f2) 
           PATCH=$(echo "$VERSION" | cut -d. -f3) 
@@ -70,6 +68,9 @@ jobs:
           fi
 
           NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "Current Release $VERSION"
+
+           echo "Next Release $NEW_VERSION"
 
           echo "previous_version=$PREV_VERSION" >> "$GITHUB_OUTPUT"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
