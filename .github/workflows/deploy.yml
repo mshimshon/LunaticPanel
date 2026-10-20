@@ -91,7 +91,7 @@ jobs:
           LAST_VERSION="${{ steps.get_version.outputs.previous_version }}"
           NEXT_VERSION="${{ steps.get_version.outputs.version }}"
           
-
+          mkdir -p /tmp/artifacts/output
           RELEASE_NOTES_FILE="/tmp/artifacts/output/release_notes.md"
           echo "" > "$RELEASE_NOTES_FILE"
 
