@@ -15,6 +15,9 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Calculate Version
         id: get_version
         run: |
@@ -65,8 +68,7 @@ jobs:
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "release=true" >> "$GITHUB_OUTPUT"
 
-      - name: Checkout Code
-        uses: actions/checkout@v4
+
 
       - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
