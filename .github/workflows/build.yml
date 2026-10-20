@@ -49,16 +49,16 @@ jobs:
           MINOR=$(echo "$VERSION" | cut -d. -f2) 
           PATCH=$(echo "$VERSION" | cut -d. -f3) 
 
-          if echo "$COMMITS" | grep -q '^break:'; then
+          if echo "$COMMITS" | grep -iq '^break:'; then
             MAJOR=$((MAJOR + 1))
             MINOR=0
             PATCH=0
 
-          elif echo "$COMMITS" | grep -q '^feat:'; then
+          elif echo "$COMMITS" | grep -iq '^feat:'; then
             MINOR=$((MINOR + 1))
             PATCH=0
 
-          elif echo "$COMMITS" | grep -q '^fix:'; then
+          elif echo "$COMMITS" | grep -iq '^fix:'; then
             PATCH=$((PATCH + 1))
 
           else

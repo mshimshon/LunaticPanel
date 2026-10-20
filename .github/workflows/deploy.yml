@@ -57,16 +57,16 @@ jobs:
           MINOR=$(echo "$VERSION" | cut -d. -f2) 
           PATCH=$(echo "$VERSION" | cut -d. -f3) 
 
-          if echo "$COMMITS" | grep -q '^break:'; then
+          if echo "$COMMITS" | grep -iq '^break:'; then
             MAJOR=$((MAJOR + 1))
             MINOR=0
             PATCH=0
 
-          elif echo "$COMMITS" | grep -q '^feat:'; then
+          elif echo "$COMMITS" | grep -iq '^feat:'; then
             MINOR=$((MINOR + 1))
             PATCH=0
 
-          elif echo "$COMMITS" | grep -q '^fix:'; then
+          elif echo "$COMMITS" | grep -iq '^fix:'; then
             PATCH=$((PATCH + 1))
 
           else
@@ -96,43 +96,45 @@ jobs:
           RELEASE_NOTES_FILE="/tmp/artifacts/output/release_notes.md"
           echo "" > "$RELEASE_NOTES_FILE"
 
-          # 1. Extract Breaking Changes straight from git log
-          BREAKS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^break:' | sed 's/^break:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 1. Extract Breaking Changes straight from git log (Case-Insensitive)
+          BREAKS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^break:' | sed 's/^[Bb][Rr][Ee][Aa][Kk]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$BREAKS" ]; then
             echo "## BREAKING CHANGES" >> "$RELEASE_NOTES_FILE"
-            echo "$BREAKS" >> "$RELEASE_NOTES_FILE"
+            printf "%s\n" "$BREAKS" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 2. Extract Features straight from git log
-          FEATS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^feat:' | sed 's/^feat:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 2. Extract Features straight from git log (Case-Insensitive)
+          FEATS=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^feat:' | sed 's/^[Ff][Ee][Aa][Tt]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$FEATS" ]; then
             echo "## New Features" >> "$RELEASE_NOTES_FILE"
-            echo "$FEATS" >> "$RELEASE_NOTES_FILE"
+            printf "%s\n" "$FEATS" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 3. Extract Fixes straight from git log
-          FIXES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^fix:' | sed 's/^fix:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 3. Extract Fixes straight from git log (Case-Insensitive)
+          FIXES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^fix:' | sed 's/^[Ff][Ii][Xx]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$FIXES" ]; then
             echo "## Fixes" >> "$RELEASE_NOTES_FILE"
-            echo "$FIXES" >> "$RELEASE_NOTES_FILE"
+            printf "%s\n" "$FIXES" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
 
-          # 4. Extract Notes straight from git log
-          NOTES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep '^note:' | sed 's/^note:[[:space:]]*//' | sed 's/^/- /' || true)
+          # 4. Extract Notes straight from git log (Case-Insensitive)
+          NOTES=$(git log "v$LAST_VERSION"..HEAD --pretty=format:%s | grep -i '^note:' | sed 's/^[Nn][Oo][Tt][Ee]:[[:space:]]*//' | sed 's/^/- /' || true)
           if [ -n "$NOTES" ]; then
             echo "## Notes" >> "$RELEASE_NOTES_FILE"
-            echo "$NOTES" >> "$RELEASE_NOTES_FILE"
+            printf "%s\n" "$NOTES" >> "$RELEASE_NOTES_FILE"
             echo "" >> "$RELEASE_NOTES_FILE"
           fi
+
+          # 5. Strict Validation Check
           if [ ! -s "$RELEASE_NOTES_FILE" ] || [ -z "$(cat "$RELEASE_NOTES_FILE" | tr -d '[:space:]')" ]; then
             echo "::error::Release note not generated because no valid commits were found!"
-            # We explicitly destroy the environment tracking file to make absolutely sure github cannot pass a success
             rm -f "$GITHUB_OUTPUT"
             exit 1
           fi
+
           echo "notes_file=$RELEASE_NOTES_FILE" >> "$GITHUB_OUTPUT"
 
 
