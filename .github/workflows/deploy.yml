@@ -15,6 +15,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    environment:
+      name: production
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
@@ -293,40 +295,6 @@ jobs:
           body_path: ${{ steps.generate_release_notes.outputs.notes_file }}
           files: |
             /tmp/artifacts/output/*.*
-
-  deploy_nuget:
-    needs: release
-    runs-on: ubuntu-latest
-
-    environment:
-      name: production
-
-    timeout-minutes: 360
-
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Extract version
-        id: get_version
-        run: |
-          set -eu
-          mkdir -p "/tmp/artifacts/output"
-
-          TAG="${{ github.event.workflow_run.head_branch }}"
-          VERSION="${TAG#v}"
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.x'
-
       - name: Pack NuGet packages
         run: |
           set -eu
@@ -382,3 +350,5 @@ jobs:
                 --source https://api.nuget.org/v3/index.json \
                 --skip-duplicate || exit 1
             done
+
+
