@@ -297,35 +297,6 @@ jobs:
           body_path: ${{ steps.generate_release_notes.outputs.notes_file }}
           files: |
             /tmp/artifacts/output/*.*
-      - name: Pack NuGet packages
-        run: |
-          set -eu
-          VERSION="${{ steps.get_version.outputs.version }}"
-
-          KEY_PROJECTS=(
-            "src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
-            "src/LunaticPanel.Core.Abstraction/LunaticPanel.Core.Abstraction.csproj"
-            "src/LunaticPanel.Core.PluginValidator/LunaticPanel.Core.PluginValidator.csproj"
-            "src/LunaticPanel.Core/LunaticPanel.Core.csproj"
-            "src/LunaticPanel.Core.Extensions/LunaticPanel.Core.Extensions.csproj"
-            "src/LunaticPanel.Core.Utils.Abstraction/LunaticPanel.Core.Utils.Abstraction.csproj"
-            "src/LunaticPanel.Core.Utils/LunaticPanel.Core.Utils.csproj"
-            "tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj"
-            "tools/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj"
-            "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj"
-            "plugins/PackageManager/LunaticPanel.PackageManager.Keys/LunaticPanel.PackageManager.Keys.csproj"
-            "src/LunaticPanel.Engine.Keys/LunaticPanel.Engine.Keys.csproj"
-          )
-
-          for KEY in "${KEY_PROJECTS[@]}"; do
-            ABSOLUTE_CSPROJ_PATH="${{ github.workspace }}/$KEY"
-
-            dotnet pack \
-              "$ABSOLUTE_CSPROJ_PATH" \
-              -c Release \
-              -o "/tmp/artifacts/output" \
-              /p:Version=$VERSION
-          done
 
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
