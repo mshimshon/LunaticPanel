@@ -1,10 +1,10 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+
   workflow_dispatch:
 
 concurrency:
@@ -28,18 +28,46 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Extract version
+      - name: Calculate Version
         id: get_version
+        shell: sh
         run: |
-          mkdir -p "/tmp/artifacts/output"
+          LAST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -n 1)
+          if [ -z "$LAST_TAG" ]; then
+            echo "version=v0.0.100" >> "$GITHUB_OUTPUT"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-          # Grabs the short tag name (e.g., v0.0.2)
-          TAG="${{ github.event.workflow_run.head_branch }}"
+          COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:%s)
 
-          # Strips the leading 'v' to get just the numbers (e.g., 0.0.2)
-          VERSION="${TAG#v}"
+          VERSION=${LAST_TAG#v}
 
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+          if echo "$COMMITS" | grep -q '^break:'; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+
+          elif echo "$COMMITS" | grep -q '^feat:'; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+
+          elif echo "$COMMITS" | grep -q '^fix:'; then
+            PATCH=$((PATCH + 1))
+
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "release=true" >> "$GITHUB_OUTPUT"
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
@@ -182,6 +210,11 @@ jobs:
           done
 
           ls -R /tmp/artifacts/output
+      - name: Push Version Tag
+        run: |
+          TAG="v${{ steps.get_version.outputs.version }}"
+          git tag "$TAG"
+          git push origin "$TAG"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
