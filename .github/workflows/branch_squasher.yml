@@ -23,77 +23,50 @@ jobs:
         with:
           fetch-depth: 0 # 👈 This forces GitHub to pull ALL history and tags
 
-      - name: Squash WIP Commits
-        id: get_version
+      - name: Check Git Checkout
+        id: check_history
         run: |
           set -eu
-
-          # 1. Verify Git workspace
           if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-            echo "::error::This directory is not a Git repository."
+            echo "::error::This directory is not a Git repository. Did you forget actions/checkout?"
             exit 1
           fi
+      - name: Configure git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@://github.com"
+      - name: Run squasher
+        id: squasher
+        shell: pwsh
+        run: ./.github/scripts/wip_squasher.ps1
 
-          # 2. Get all commits since branching off main
-          MAIN_BASE=$(git merge-base origin/main HEAD)
-          COMMITS_HASHES=$(git log "$MAIN_BASE"..HEAD --format="%H")
 
-          if [ -z "$COMMITS_HASHES" ]; then
-            echo "No new commits found since split from main."
-            exit 0
+      - name: Squasher Result
+        if: steps.squasher.outputs.squashed_ready == 'true'
+        run: |
+          echo "ready=${{ steps.squasher.outputs.squashed_ready }}"
+          echo "from=${{ steps.squasher.outputs.squash_from }}"
+          cat /tmp/commit.txt
+
+      - name: Rewrite history 
+        if: steps.squasher.outputs.squashed_ready == 'true'
+        run: |
+          SHA="${{ steps.squasher.outputs.squash_from }}"
+    
+          # Check if the commit has a parent
+          if git rev-parse --verify "${SHA}^" >/dev/null 2>&1; then
+            # Has a parent: safe to reset normally
+            git reset --soft "${SHA}^"
+          else
+            # It's the root commit: soft reset back to an empty repo state
+            git update-ref -d HEAD
           fi
+    
+          # Re-commit all staged changes with your new file
+          git commit --allow-empty -F /tmp/commit.txt
 
-          # 3. Check HEAD commit type
-          HEAD_SUBJECT=$(git log -n 1 --format="%s" HEAD)
-
-          # If HEAD is a WIP commit, do absolutely nothing and wait!
-          if echo "$HEAD_SUBJECT" | grep -iq '^wip:'; then
-            echo "HEAD is currently a WIP commit ($HEAD_SUBJECT). Skipping cleanup rules until a semantic commit lands at HEAD."
-            exit 0
-          fi
-
-          # 4. Find the FIRST ever WIP commit from the bottom of your branch
-          FIRST_WIP_HASH=""
-          for hash in $(echo "$COMMITS_HASHES" | tac || echo "$COMMITS_HASHES" | tail -r); do
-            subject=$(git log -n 1 --format="%s" "$hash")
-            if echo "$subject" | grep -iq '^wip:'; then
-              FIRST_WIP_HASH="$hash"
-              break
-            fi
-          done
-
-          # If there are no WIP commits trapped below your semantic HEAD, your history is already clean!
-          if [ -z "$FIRST_WIP_HASH" ]; then
-            echo "No intermediate WIP commits detected under HEAD. Branch history is clean."
-            exit 0
-          fi
-
-          echo "Intermediate WIP commits detected. Cleaning up branch history below semantic HEAD..."
-
-          # 5. Extract raw semantic logs across the branch (YOUR EXACT EXTRACTION LINES)
-          RAW_LOGS=$(git log "$MAIN_BASE"..HEAD --format="%s")
-
-          BREAKS=$(echo "$RAW_LOGS" | grep -i '\(^\| \)\(break:\)' || true)
-          FEATS=$(echo "$RAW_LOGS" | grep -i '\(^\| \)\(feat:\)' || true)
-          FIXES=$(echo "$RAW_LOGS" | grep -i '\(^\| \)\(fix:\)' || true)
-          NOTES=$(echo "$RAW_LOGS" | grep -i '\(^\| \)\(note:\)' || true)
-
-          # 6. Execute rule-based squash
-          # Reset all the way back to the parent of the first ever WIP commit
-          git reset --soft "${FIRST_WIP_HASH}~1"
-          git add .
-
-          # Re-commit your clean semantic blocks in chronological order, preserving multi-lines safely
-          [ -n "$BREAKS" ] && echo "$BREAKS" | tac | while IFS= read -r line; do git commit -m "$line"; done
-          [ -n "$FEATS" ]  && echo "$FEATS"  | tac | while IFS= read -r line; do git commit -m "$line"; done
-          [ -n "$FIXES" ]  && echo "$FIXES"  | tac | while IFS= read -r line; do git commit -m "$line"; done
-          [ -n "$NOTES" ]  && echo "$NOTES"  | tac | while IFS= read -r line; do git commit -m "$line"; done
-
-          # 7. Push updates safely back to your remote feature branch
-          git push origin HEAD --force-with-lease
-          echo "Successfully cleaned intermediate WIP entries and organized semantic commits!"
-
-
+      - name: Push rewritten branch
+        if: steps.squasher.outputs.squashed_ready == 'true'
+        run: |
+          git push --force-with-lease origin HEAD
