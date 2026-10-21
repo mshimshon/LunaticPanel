@@ -138,3 +138,8 @@ Any monetization will come from paid plugins specialities but rest assure that o
 
 ## Community and Contribution
 The job is massive and never ending! there will never be enough good folks to contribute feel free to connect with us on discord, the project is young fresh and we need anyone able to improve, clean up and develop stability features.
+
+should activate hooks on the clone repo to clean your branch for wip: before each push to help keep commits clean.
+```
+git config --local core.hooksPath .githooks
+```
