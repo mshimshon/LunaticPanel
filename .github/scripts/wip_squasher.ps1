@@ -270,7 +270,7 @@ for ($index = $commits.Count - 1; $index -ge 0; $index--) {
 if ($null -eq $firstWipCommit) {
     Write-Host "[DEBUG] No WIP tag encountered on this branch segment. Nothing to squash."
     Set-GitHubOutput -Name "squashed_ready" -Value "false"
-    exit 1
+    exit 0
 }
 
 Write-Host "[DEBUG] Slicing commit array up to index boundary: [: $firstWipIndex + 1]"
