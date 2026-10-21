@@ -213,6 +213,20 @@ Write-Host "[DEBUG] Target HEAD evaluation commit -> SHA: $($head.sha.Substring(
 $headEntries = @(Get-CommitEntries -Message $head.message)
 Write-Host "[DEBUG] Extracted tags from HEAD: $(Format-DebugList -Values $headEntries)"
 
+$hasWipTag = $false
+foreach ($entry in $headEntries) {
+    if ($entry.StartsWith("wip:", [System.StringComparison]::OrdinalIgnoreCase)) {
+        $hasWipTag = $true
+        break
+    }
+}
+
+if ($hasWipTag) {
+    Write-Host "[DEBUG] HEAD contains a WIP tag. Stopping execution so it cannot be pushed."
+    Set-GitHubOutput -Name "squashed_ready" -Value "false"
+    exit 1
+}
+
 $hasReleaseTag = $false
 foreach ($entry in $headEntries) {
     foreach ($prefix in $releasePrefixes) {
@@ -291,16 +305,6 @@ foreach ($commit in $cycleCommits) {
             Write-Host "   [DROP] Skipping text segment tag: $entry"
         }
     }
-}
-
-$headWips = @(
-    $headEntries | Where-Object {
-        $_.StartsWith("wip:", [System.StringComparison]::OrdinalIgnoreCase)
-    }
-)
-if ($headWips.Count -gt 0) {
-    Write-Host "[DEBUG] Carrying forward active HEAD WIP tracking markers: $(Format-DebugList -Values $headWips)"
-    $rebuiltEntries.AddRange([string[]] $headWips)
 }
 
 if ($rebuiltEntries.Count -eq 0) {
