@@ -298,6 +298,7 @@ jobs:
           git push origin "$TAG" || exit 1
 
       - name: Create GitHub Release
+        if: steps.get_version.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.version }}
@@ -306,12 +307,14 @@ jobs:
             /tmp/artifacts/output/*.*
 
       - name: NuGet login (OIDC → temp API key)
+        if: steps.get_version.outputs.release == 'true'
         uses: NuGet/login@v1
         id: login
         with:
           user: ${{ secrets.NUGET_USER }}
 
       - name: Push all NuGet packages with retry
+        if: steps.get_version.outputs.release == 'true'
         uses: nick-invision/retry@v2
         with:
           timeout_minutes: 30
