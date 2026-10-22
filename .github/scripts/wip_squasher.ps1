@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
-$tokenPattern = [regex]::new("(?i)\b(break|feat|fix|note|wip)\b\s*:")
-$releasePrefixes = @("break:", "feat:", "fix:", "note:")
+$tokenPattern = [regex]::new("(?i)\b(break|feat|fix|note|wip|trace)\b\s*:")
+$releasePrefixes = @("break:", "feat:", "fix:", "note:", "trace:")
 
 function Invoke-GitCommand {
     param(

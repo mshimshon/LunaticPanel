@@ -46,13 +46,11 @@
     <File Path="serve_packages.sh" />
     <File Path=".editorconfig" />
     <File Path=".github/scripts/squasher.py" />
-    <File Path=".github/workflows/branch_squasher.yml" />
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/deploy.yml" />
     <File Path="src/lpcli-compose.yml" />
   </Folder>
   <Folder Name="/Solution Items/Workflows/">
-    <File Path=".github/workflows/branch_squasher.yml" />
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/deploy.yml" />
   </Folder>
