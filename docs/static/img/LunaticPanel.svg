@@ -1,4 +1,4 @@
-<svg xmlns="http://w3.org" viewBox="0 0 700 250" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 250" width="100%" height="100%">
   <defs>
     <!-- Import Google Font: Poppins -->
     <style>
@@ -26,19 +26,16 @@
   </defs>
 
   <g transform="translate(20, 20)">
-    <!-- LOGO TEXT WITH POPPINS FONT -->
     <text y="130" class="logo-text" filter="url(#subtleShadow)">
-      <!-- "Lunatic" with dark outline to remain visible on white backgrounds -->
       <tspan fill="#FFFFFF" stroke="#1A2B4C" stroke-width="2.5" stroke-linejoin="round">Lunatic</tspan>
-      <!-- Closed the gap significantly using a negative dx offset shift -->
       <tspan dx="-8" fill="url(#blueGradient)" stroke="#004080" stroke-width="0.5">Panel</tspan>
     </text>
 
     <!-- CALIBRATED UNDERLINE WAVE -->
-    <!-- Shifted the starting coordinate back to 20 to perfectly align with the left edge of the 'L' in Lunatic -->
+    <!-- Corrected the path data structure to use a smooth curve (S) back to the baseline -->
     <path d="M 20,152 
              C 160,172  360,172  485,153 
-             C 360,165  160,165  20,152 
+             S 160,165  20,152 
              Z" 
           fill="url(#blueGradient)" 
           filter="url(#subtleShadow)" />
