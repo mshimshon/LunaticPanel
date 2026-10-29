@@ -522,8 +522,12 @@ internal sealed class DeploymentService
         }
         if (Configuration.OpenShell)
             serviceShown.Add(ShowShellAsync(_deployEnvironmentName));
-        await WaitForCtrlCAsync();
-        await CleanUp(serviceShown);
+        if (Configuration.ExitAtLaunch)
+        {
+            await WaitForCtrlCAsync();
+            await CleanUp(serviceShown);
+        }
+
     }
 
     private async Task CleanUp(List<Process> processes)
