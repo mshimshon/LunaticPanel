@@ -111,7 +111,7 @@ http://localhost:10002/
 To pack and test your own packages install the official global command-line utility:
 
 ```bash
-dotnet tool install --global LunaticPanel.Packages.Tool
+dotnet tool install --global LunaticPanel.Package.Tool
 ```
 
 ## Developing Plugins
