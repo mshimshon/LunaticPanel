@@ -8,7 +8,11 @@
   "SponsorHeader": "Release Sponsors",
   "ThanksHeader": "Special Thanks",
   "Projects": {
-    "_": "Lunatic Panel"
+    "_": "Lunatic Panel",
+    "tools/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj": "Debug Tool",
+    "tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj": "Packing Tool",
+    "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj": "LunaPackage Server Lib",
+    "tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj": "LunaPackage Local Server"
   },
   "TagMarkdown": {
     "@": "[{this}](https://github.com/{this})"
