@@ -4,8 +4,6 @@
 [![NuGet Version](https://img.shields.io/nuget/v/LunaticPanel.Core)](https://www.nuget.org/packages/LunaticPanel.Core)
 [![](https://img.shields.io/nuget/dt/LunaticPanel.Core?label=Downloads)](https://www.nuget.org/packages/LunaticPanel.Core)
 [![Build](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml)
-
-
 [![Deploy](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml)
 
 # Lunatic Panel
@@ -27,13 +25,13 @@ For developers, it provides a clean, decoupled ecosystem to build and distribute
 ---
 # System Requirements
 
-| Resource | Minimum | Recommended |
-| :--- | :--- | :--- |
-| **Operating System** | Debian 12+ | Debian 12+ |
-| **Processor (CPU)** | **2 vCPU** / Core | **4 vCPUs** / Cores |
-| **Memory (RAM)** | **1 GB RAM** | **4 GB RAM** |
-| **Storage** | **5 GB** | **20 GB** |
-| **Runtime**| .NET 10.0 LTS | .NET 10.0 LTS |
+| Resource             | Minimum           | Recommended         |
+| :------------------- | :---------------- | :------------------ |
+| **Operating System** | Debian 12+        | Debian 12+          |
+| **Processor (CPU)**  | **2 vCPU** / Core | **4 vCPUs** / Cores |
+| **Memory (RAM)**     | **1 GB RAM**      | **4 GB RAM**        |
+| **Storage**          | **5 GB**          | **20 GB**           |
+| **Runtime**          | .NET 10.0 LTS     | .NET 10.0 LTS       |
 
 * **Note:** Do not take these values at face value; they are highly dependent on which plugins you run in the system. These recommendations are based on an estimated expectation of running only a few plugins.
 
@@ -132,7 +130,7 @@ Full Documentation will be live soon for the rest of this process.
 
 
 ## Licensing
-MIT Free it will always be period! the core is 100% free including official plugins shipped with it in this repository. 
+MIT Free it will always be period! the core is 100% free including official plugins shipped with it in this repository.
 
 Any monetization will come from paid plugins specialities but rest assure that our official marketplace will feature strict ecosystem with licensing and billing to make it as easy as managing application on Apple store or Google store.
 
