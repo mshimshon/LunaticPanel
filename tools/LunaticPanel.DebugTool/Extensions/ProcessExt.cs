@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using CliWrap;
+using CliWrap.Buffered;
 
 namespace LunaticPanel.DebugTool.Extensions;
 
@@ -8,6 +10,24 @@ internal static class ProcessExt
     public static async Task<string> RunProcessAsync(string fileName, string arguments)
     {
         Console.WriteLine($"Running Process {fileName} {arguments}");
+        var stdoutBuilder = new StringBuilder();
+        var stderrBuilder = new StringBuilder();
+
+        await Cli.Wrap(fileName)
+            .WithArguments(arguments)
+            .WithStandardOutputPipe(PipeTarget.ToDelegate(line =>
+            {
+                stdoutBuilder.AppendLine(line);
+                Console.WriteLine(line);
+            }))
+            .WithStandardErrorPipe(PipeTarget.ToDelegate(line =>
+            {
+                stderrBuilder.AppendLine(line);
+                Console.Error.WriteLine(line);
+            }))
+            .ExecuteAsync();
+        return stdoutBuilder.ToString();
+
         var psi = new ProcessStartInfo
         {
             FileName = fileName,
@@ -21,8 +41,6 @@ internal static class ProcessExt
         using var process = new Process { StartInfo = psi };
         process.Start();
 
-        var stdoutBuilder = new StringBuilder();
-        var stderrBuilder = new StringBuilder();
 
         var stdoutTask = Task.Run(async () =>
         {
@@ -44,8 +62,7 @@ internal static class ProcessExt
             }
         });
 
-        await Task.WhenAll(stdoutTask, stderrTask);
-        process.WaitForExit();
+        await Task.WhenAll(stdoutTask, stderrTask, process.WaitForExitAsync());
 
         if (process.ExitCode != 0)
             throw new Exception($"Process '{fileName} {arguments}' failed with exit code {process.ExitCode}.");

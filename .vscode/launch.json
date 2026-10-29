@@ -20,6 +20,25 @@
             "stopAtEntry": false
         },
         {
+            "name": "Specific Project (Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "publish_debugger",
+            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
+            "args": [
+                "C:\\Users\\Administrator\\source\\repos\\GameHost\\src\\lpcli-compose.yml",
+                "--deploy",
+                "--debug",
+                "--auto-kill",
+                "--open-shell",
+                "--auto-kill",
+                "--no-interaction"
+            ],
+            "cwd": "${workspaceFolder}/src",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             "name": "Panel & Plugins (Skip Services)",
             "type": "coreclr",
             "request": "launch",

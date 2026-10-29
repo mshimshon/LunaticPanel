@@ -36,8 +36,9 @@
 	  </None>
   </ItemGroup>
   <ItemGroup>
+	  <PackageReference Include="CliWrap" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-	  <PackageReference Include="YamlDotNet"   />
+	  <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 
   <ItemGroup>

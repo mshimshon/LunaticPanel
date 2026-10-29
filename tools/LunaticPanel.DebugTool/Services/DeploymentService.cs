@@ -561,7 +561,9 @@ internal sealed class DeploymentService
     }
     private async Task SubsystemConfigure(CancellationToken ct = default)
     {
-        await RunAsync("Debian", "echo -e '[boot]\nsystemd=true' > /etc/wsl.conf");
+        string wslTmpFile = Path.GetTempFileName();
+        File.WriteAllText(wslTmpFile, "[boot]\nsystemd=true\n[user]\ndefault=root");
+        await CopyFileAsync("Debian", wslTmpFile, "/etc/wsl.conf");
         await ShudownAsync("Debian");
         await StartAsync("Debian");
         var deps = _systemDependencies.Union(Configuration.Compose.Apt).ToArray();
@@ -572,13 +574,8 @@ internal sealed class DeploymentService
         Console.Out.WriteLine($"Random Username ({username}) and Password ({password}) generated.");
         await RunAsync("Debian", $"useradd -m {username}");
         await RunAsync("Debian", $"printf '%s:%s\n' '{username}' '{password}' | chpasswd");
-        await RunAsync("Debian", $"printf '[user]\ndefault=%s\n' 'root' >> /etc/wsl.conf");
-        // Grant passwordless sudo execution rights to the lpcli_debug user
-        // Ensure the new configuration file has the strict permissions required by Linux
         await RunAsync("Debian", "sysctl -w kernel.yama.ptrace_scope=0");
         Console.Out.WriteLine($"Debian WSL Configure.");
-
-        await ShudownAsync("Debian");
     }
 
     private async Task DeployServicesAsync(CancellationToken ct = default)
