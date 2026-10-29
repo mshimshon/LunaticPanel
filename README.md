@@ -104,7 +104,7 @@ http://localhost:10002/
 
 # Developers
 
-[Documentation](https://doc.lunaticpane.com) | [Official Discord](https://discord.gg/DMegAnGyJv)
+[Documentation](https://doc.lunaticpanel.com) | [Official Discord](https://discord.gg/DMegAnGyJv)
 
 ## Packing Tool
 
