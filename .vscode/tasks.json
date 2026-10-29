@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "publish_debugger",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "publish",
+                "${workspaceFolder}/tools/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj",
+                "-c",
+                "Debug",
+                "--self-contained",
+                "true",
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish_plugins_noservices",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "publish",
+                "${workspaceFolder}/tools/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj",
+                "-c",
+                "Debug",
+                "--self-contained",
+                "true",
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
+// $GITHUB_WORKSPACE/src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj \
+// -c Release \
+// -r linux-x64 \
+// --self-contained false \
+// -o /tmp/artifacts/web

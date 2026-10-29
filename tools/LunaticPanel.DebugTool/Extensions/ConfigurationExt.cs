@@ -59,8 +59,10 @@ internal static class ConfigurationExt
     public static ConfigurationPayload GenerateConfiguration(string[] args)
     {
         string workingDir = Environment.CurrentDirectory;
-        if (args.Length > 0 && Directory.Exists(args[0]))
-            workingDir = args[0];
+        if (args.Length > 0 && (args[0].EndsWith("lpcli-compose.yml") || args[0].EndsWith("lpcli-compose.yaml")))
+            if (File.Exists(Path.GetFullPath(args[0])))
+                workingDir = Path.GetDirectoryName(args[0])!;
+
         ValidateParameters(args);
         foreach (var item in args)
         {
@@ -77,6 +79,7 @@ internal static class ConfigurationExt
             DebugMode = DebugMode,
             Snap = snap,
             OpenOnly = targetedOpens,
+            ExitAtLaunch = args.HasFlag("--close-cli"),
             AutoKill = args.HasFlag("--auto-kill"),
             NoOpen = args.HasFlag("--no-open"),
             OpenShell = args.HasFlag("--open-shell"),

@@ -1,0 +1,60 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Panel Only (Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "publish_debugger",
+            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
+            "args": [
+                "--deploy",
+                "--debug",
+                "--auto-kill",
+                "--open-shell",
+                "--auto-kill",
+                "--no-interaction"
+            ],
+            "cwd": "${workspaceFolder}/src",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Panel & Plugins (Skip Services)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "publish_plugins_noservices",
+            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
+            "args": [
+                "--deploy",
+                "--debug",
+                "--auto-kill",
+                "--open-shell",
+                "--auto-kill",
+                "--no-interaction",
+                "--skip-services"
+            ],
+            "cwd": "${workspaceFolder}/plugins",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Panel & Plugins",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "publish_plugins",
+            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
+            "args": [
+                "--deploy",
+                "--debug",
+                "--auto-kill",
+                "--open-shell",
+                "--auto-kill",
+                "--no-interaction"
+            ],
+            "cwd": "${workspaceFolder}/plugins",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
+}

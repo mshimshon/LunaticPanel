@@ -3,6 +3,7 @@
 internal sealed record ConfigurationPayload
 {
     public string WorkingDir { get; init; } = default!;
+    public bool ExitAtLaunch { get; init; }
     public bool DebugMode { get; init; }
     public bool SkipSubSystemRebuild { get; init; }
     public bool SkipServiceRebuild { get; init; }
