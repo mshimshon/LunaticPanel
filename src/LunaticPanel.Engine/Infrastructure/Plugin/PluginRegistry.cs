@@ -7,7 +7,7 @@ public class PluginRegistry : IPluginRegistry
 {
     private static readonly ICollection<PluginRegistryDescriptorModel> _plugins = new List<PluginRegistryDescriptorModel>();
 
-    private static readonly Object _lock = new();
+    private static readonly Lock _lock = new();
 
     public void Register(PluginRegistryDescriptorModel item)
     {

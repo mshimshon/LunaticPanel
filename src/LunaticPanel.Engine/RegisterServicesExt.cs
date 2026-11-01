@@ -21,6 +21,7 @@ using LunaticPanel.Engine.Web.Pages.Dashboard;
 using LunaticPanel.Engine.Web.Services;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using LunaticPanel.Engine.Web.Services.PanelControl;
+using LunaticPanel.Engine.Web.Services.UpdateService;
 using MedihatR;
 using MudBlazor;
 using MudBlazor.Services;
@@ -40,6 +41,7 @@ public static class RegisterServicesExt
         services.AddLinuxCommandUtilityService();
         services.AddPluginLocationUtilityService("lunaticpanel");
         services.AddSafeFileWriterUtilityService();
+        services.AddSingleton<IPanelUpdateService, PanelUpdateService>();
         services.AddScoped<HostExceptionHandler>();
         services.AddScoped<MainMenuViewModel>();
         services.AddScoped<MainLayoutViewModel>();

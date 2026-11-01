@@ -1,2 +1,3 @@
 [*]
 end_of_line = lf
+dotnet_style_namespace_match_folder = true:warning
