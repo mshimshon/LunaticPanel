@@ -99,7 +99,7 @@ jobs:
             --no-build \
             --configuration Release \
             --verbosity normal \
-            -p:TreatWarningsAsErrors=false
+            /p:TreatWarningsAsErrors=false
 
       - name: Publish LunaticPanel.Package.Tool (self-contained)
         run: |
@@ -111,7 +111,7 @@ jobs:
             -c Release \
             -r linux-x64 \
             --self-contained true \
-            -p:PublishSingleFile=true \
+            /p:PublishSingleFile=true \
             -o /tmp/artifacts/tool \
             /p:AssemblyVersion=$VERSION \
             /p:FileVersion=$VERSION \

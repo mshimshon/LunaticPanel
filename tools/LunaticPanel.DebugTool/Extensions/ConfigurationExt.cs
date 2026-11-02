@@ -88,6 +88,8 @@ internal static class ConfigurationExt
             NoInteraction = args.HasFlag("--no-interaction"),
 
         };
+
+
         PrintDebug = result.PrintDebug;
 
         result = result with

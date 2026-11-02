@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <BlazorDisableThrowNavigationException>false</BlazorDisableThrowNavigationException>
-	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+	  <Configurations>Debug;Release</Configurations>
 	  <CopyOutputSymbolsToPublishDirectory>true</CopyOutputSymbolsToPublishDirectory>
 
   </PropertyGroup>

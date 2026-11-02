@@ -17,7 +17,7 @@ internal static class MSBuildExt
         Console.Out.WriteLine($"Temp Publish Target At '{cliProjectOutput}'");
         if (Directory.Exists(cliProjectOutput))
             Directory.Delete(cliProjectOutput, true);
-        string cmd = $"publish \"{project}\" -c Debug -r linux-x64 {(selfContained ? "--self-contained true" : "")} -o \"{cliProjectOutput}\"";
+        string cmd = $"publish \"{project}\" -c Debug -r linux-x64 {(selfContained ? "--self-contained true" : "")} -o \"{cliProjectOutput}\" /p:DebugType=portable /p:CopyOutputSymbolsToPublishDirectory=true";
         Console.Out.WriteLine($"dotnet {cmd}");
 
         await ProcessExt.RunProcessAsync("dotnet", cmd);
@@ -38,7 +38,7 @@ internal static class MSBuildExt
         Console.Out.WriteLine($"Temp Build Target At '{cliProjectOutput}'");
         if (Directory.Exists(cliProjectOutput))
             Directory.Delete(cliProjectOutput, true);
-        string cmd = $"build \"{project}\" -c Debug -o \"{cliProjectOutput}\" /p:RuntimeIdentifier=linux-x64 /p:CopyLocalLockFileAssemblies=true ";
+        string cmd = $"build \"{project}\" -c Debug -o \"{cliProjectOutput}\" /p:RuntimeIdentifier=linux-x64 /p:CopyLocalLockFileAssemblies=true /p:DebugType=portable /p:CopyOutputSymbolsToPublishDirectory=true ";
         Console.Out.WriteLine($"dotnet {cmd}");
 
         await ProcessExt.RunProcessAsync("dotnet", cmd);

@@ -174,6 +174,7 @@ public static class Bootstrap
             await InitializeActivePlugin(plugin, webApp, masterSp, configuration, crazyReport);
 
         await masterSp.RuntimeStartupAfterPluginsAsync();
+        await masterSp.RuntimeHostStartup();
     }
 
     private static void LoadConfiguration()

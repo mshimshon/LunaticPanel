@@ -1,8 +1,9 @@
 ﻿@if (!ViewModel.Loading)
 {
     <MudGrid>
-         <MudItem xs="12">
-            <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Secondary" Class="mud-width-full pa-2">
+        <MudItem xs="12">
+            <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Secondary"
+                        Class="mud-width-full pa-2">
                 <MudNavLink Href="/" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
             </MudNavMenu>
         </MudItem>
@@ -29,11 +30,12 @@
                 </MudAlert>
             </MudItem>
         }
-         <MudItem xs="12">
+        <MudItem xs="12">
 
-        <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Secondary" Class="mud-width-full pa-2">
-            <MudNavLink Href="/debugging/plugins" Icon="@Icons.Material.Filled.BugReport">Plugin (Debug)</MudNavLink>
-        </MudNavMenu>
+            <MudNavMenu Dense="true" Rounded="true" Margin="Margin.Dense" Color="Color.Secondary"
+                        Class="mud-width-full pa-2">
+                <MudNavLink Href="/debugging/plugins" Icon="@Icons.Material.Filled.BugReport">Plugin (Debug)</MudNavLink>
+            </MudNavMenu>
         </MudItem>
     </MudGrid>
 
@@ -43,8 +45,8 @@ else
 {
     <MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7" />
 }
-    <MudGrid>
-         <MudItem xs="12">
+<MudGrid>
+    <MudItem xs="12">
         <MudText>@($"LunaticPanel v{@ViewModel.PanelVersion}")</MudText>
     </MudItem>
 </MudGrid>

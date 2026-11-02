@@ -2,78 +2,74 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Panel Only (Debug)",
+            "name": "Attach Panel (Running)",
             "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "publish_debugger",
-            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
-            "args": [
-                "--deploy",
-                "--debug",
-                "--auto-kill",
-                "--open-shell",
-                "--auto-kill",
-                "--no-interaction"
-            ],
-            "cwd": "${workspaceFolder}/src",
-            "console": "internalConsole",
-            "stopAtEntry": false
+            "request": "attach",
+            "processName": "LunaticPanel.Hybrid.Web",
+            "justMyCode": false,
+            "sourceFileMap": {
+                "/srv/lunaticpanel": "${workspaceRoot}"
+            },
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}",
+                "pipeProgram": "wsl.exe",
+                "pipeArgs": [
+                    "-d",
+                    "lpcli_deploy",
+                    "-u",
+                    "root"
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "~/vsdbg/vsdbg"
+            }
         },
         {
-            "name": "Specific Project (Debug)",
+            "name": "Debug Panel (Complete)",
             "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "publish_debugger",
-            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
-            "args": [
-                "C:\\Users\\Administrator\\source\\repos\\GameHost\\src\\lpcli-compose.yml",
-                "--deploy",
-                "--debug",
-                "--auto-kill",
-                "--open-shell",
-                "--auto-kill",
-                "--no-interaction"
-            ],
-            "cwd": "${workspaceFolder}/src",
-            "console": "internalConsole",
-            "stopAtEntry": false
+            "preLaunchTask": "Run Panel DebugTool Rebuild",
+            "postDebugTask": "Shutdown WSL",
+            "request": "attach",
+            "processId": "${command:pickRemoteProcess}",
+            "justMyCode": false,
+            "sourceFileMap": {
+                "/srv/lunaticpanel": "${workspaceRoot}"
+            },
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}",
+                "pipeProgram": "wsl.exe",
+                "pipeArgs": [
+                    "-d",
+                    "lpcli_deploy",
+                    "-u",
+                    "root"
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "~/vsdbg/vsdbg"
+            }
         },
         {
-            "name": "Panel & Plugins (Skip Services)",
+            "name": "Debug Panel (Fast)",
             "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "publish_plugins_noservices",
-            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
-            "args": [
-                "--deploy",
-                "--debug",
-                "--auto-kill",
-                "--open-shell",
-                "--auto-kill",
-                "--no-interaction",
-                "--skip-services"
-            ],
-            "cwd": "${workspaceFolder}/plugins",
-            "console": "internalConsole",
-            "stopAtEntry": false
+            "preLaunchTask": "Run Panel DebugTool Skip Services",
+            "postDebugTask": "Shutdown WSL",
+            "request": "attach",
+            "processName": "LunaticPanel.Hybrid.Web",
+            "justMyCode": false,
+            "sourceFileMap": {
+                "/srv/lunaticpanel": "${workspaceRoot}"
+            },
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}",
+                "pipeProgram": "wsl.exe",
+                "pipeArgs": [
+                    "-d",
+                    "lpcli_deploy",
+                    "-u",
+                    "root"
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "~/vsdbg/vsdbg"
+            }
         },
-        {
-            "name": "Panel & Plugins",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "publish_plugins",
-            "program": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.dll",
-            "args": [
-                "--deploy",
-                "--debug",
-                "--auto-kill",
-                "--open-shell",
-                "--auto-kill",
-                "--no-interaction"
-            ],
-            "cwd": "${workspaceFolder}/plugins",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        }
     ]
 }
