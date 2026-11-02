@@ -1,4 +1,5 @@
 
+using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
@@ -12,14 +13,18 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
 {
     private readonly ICrazyReport<PackageUpdateScheduled> _crazyReport;
     private readonly IPanelUpdateService _panelUpdateService;
+    private readonly ICircuitRegistry _circuitRegistry;
+
     private static bool isExecuting = false;
     private static readonly Lock _lock = new();
     private TimeSpan _configuredTiming = new(1, 0, 0, 0);
-    public PackageUpdateScheduled(ICrazyReport<PackageUpdateScheduled> crazyReport, IPanelUpdateService panelUpdateService)
+    public PackageUpdateScheduled(ICrazyReport<PackageUpdateScheduled> crazyReport, IPanelUpdateService panelUpdateService, ICircuitRegistry circuitRegistry)
     {
         // PackageUpdateState
         _crazyReport = crazyReport;
         _panelUpdateService = panelUpdateService;
+        _circuitRegistry = circuitRegistry;
+
         _crazyReport.SetModule("Scheduler");
         string? hoursCheck = Environment.GetEnvironmentVariable("LP_UPDATE_HOURS");
         string? minutesCheck = Environment.GetEnvironmentVariable("LP_UPDATE_MINUTES");
@@ -51,6 +56,8 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
 
         try
         {
+            if (_panelUpdateService.BlockedByPlugin) return;
+            if (_panelUpdateService.Staged != default) return;
             // Get the Latest Update
             await _panelUpdateService.DownloadUpdateAsync(ct);
             // Check if upgrade folder contains same plugins versions as installed/applied compatible with the upcoming upgrade.

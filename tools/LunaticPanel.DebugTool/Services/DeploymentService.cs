@@ -84,7 +84,13 @@ internal sealed class DeploymentService
 
         if (!_skipStep)
         {
-            bool distroInstallRequired = !Configuration.SkipSubSystemRebuild || !File.Exists(_operatingSystemImgFile);
+            bool distroInstallRequired = Configuration.SkipSubSystemRebuild || !File.Exists(_operatingSystemImgFile);
+
+            if (Configuration.DebugMode)
+            {
+                System.Console.WriteLine($"Should Rebuild SubSystem? {Configuration.SkipSubSystemRebuild}");
+                System.Console.WriteLine($"Is Distro Missing ? {!File.Exists(_operatingSystemImgFile)}");
+            }
             if (debianExist && distroInstallRequired)
             {
                 Console.Out.WriteLine("We require to destroy 'Debian' distro currently on your WSL.");
@@ -113,6 +119,14 @@ internal sealed class DeploymentService
                     await DestroyAsync(_deployEnvironmentName);
                 }
             }
+
+            if (Configuration.DebugMode)
+            {
+                System.Console.WriteLine($"Should Rebuild Services ? {Configuration.SkipServiceRebuild}");
+                System.Console.WriteLine($"Is Distro Missing ? {!File.Exists(_serviceInstalledFile)}");
+                System.Console.WriteLine($"Is Fresh Run ? {isFresh}");
+            }
+
             bool serviceInstallRequired = !Configuration.SkipServiceRebuild || !File.Exists(_serviceInstalledFile) || isFresh;
 
 
@@ -255,7 +269,7 @@ internal sealed class DeploymentService
                 if (File.Exists(finalizeFrom))
                     if (pp.Archive == "zip")
                         await ArchiveExt.CreateZipAsync(finalizeFrom, tmpArchivePath, ct);
-                    else if (pp.Archive == "zip")
+                    else if (pp.Archive == "tar.gz")
                         await ArchiveExt.CreateFileTarGzAsync(finalizeFrom, tmpArchivePath, ct);
                     else throw new Exception($"{pp.Archive} not supported format.");
                 else if (Directory.Exists(finalizeFrom))
@@ -522,7 +536,7 @@ internal sealed class DeploymentService
         }
         if (Configuration.OpenShell)
             serviceShown.Add(ShowShellAsync(_deployEnvironmentName));
-        if (Configuration.ExitAtLaunch)
+        if (!Configuration.ExitAtLaunch)
         {
             await WaitForCtrlCAsync();
             await CleanUp(serviceShown);

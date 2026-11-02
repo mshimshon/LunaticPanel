@@ -12,7 +12,7 @@
 	  <Description>Lunatic Panel Core Plugin Package</Description>
 	  <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-	  <Configurations>Debug;Release;</Configurations>
+	  <Configurations>Debug;Release</Configurations>
 	  <PackageIcon>icon.png</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
@@ -50,11 +50,11 @@
 		<ProjectReference Include="..\LunaticPanel.Core.PluginValidator\LunaticPanel.Core.PluginValidator.csproj" />
 		<ProjectReference Include="..\LunaticPanel.Core.Utils\LunaticPanel.Core.Utils.csproj" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
   </ItemGroup>
-	
+
 	<ItemGroup>
 	  <Folder Include="Messaging\Common\" />
 	</ItemGroup>

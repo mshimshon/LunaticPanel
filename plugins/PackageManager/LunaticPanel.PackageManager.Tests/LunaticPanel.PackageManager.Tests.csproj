@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+	  <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -19,7 +19,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-	
+
 	<!-- Fuck you Microsoft global.json wtf is wrong with you people stop letting AI code your shit -->
 	<ItemGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
 		<PackageReference Include="xunit.v3" />
@@ -28,7 +28,7 @@
 	<ItemGroup Condition="'$(BuildingInsideVisualStudio)' != 'true'">
 		<PackageReference Include="xunit.v3.mtp-off" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 	  <ProjectReference Include="..\LunaticPanel.PackageManager.Application\LunaticPanel.PackageManager.Application.csproj" />
 	  <ProjectReference Include="..\LunaticPanel.PackageManager.Domain\LunaticPanel.PackageManager.Domain.csproj" />

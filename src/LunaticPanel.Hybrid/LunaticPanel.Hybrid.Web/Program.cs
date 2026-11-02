@@ -1,10 +1,10 @@
 using LunaticPanel.Engine.Web.Boostrap;
+using MudBlazor;
 using System.Diagnostics;
 using App = LunaticPanel.Hybrid.Web.App;
 var builder = WebApplication.CreateBuilder(args);
 
-Console.WriteLine("WHAT THE FUCK OK");
-if (args.Contains("--debugger", StringComparer.OrdinalIgnoreCase))
+if (args.Contains("--debugger", StringComparer.OrdinalIgnoreCase) || bool.TryParse(Environment.GetEnvironmentVariable("LP_WAIT_FOR_DEBUGGER"), out var wait) && wait)
 {
     if (!Debugger.IsAttached)
     {
@@ -17,7 +17,7 @@ if (args.Contains("--debugger", StringComparer.OrdinalIgnoreCase))
 }
 builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddCircuitOptions(o => o.DetailedErrors = true);
 builder.WebHost.UseKestrel();
-
+builder.Services.AddHttpContextAccessor();
 
 Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
 

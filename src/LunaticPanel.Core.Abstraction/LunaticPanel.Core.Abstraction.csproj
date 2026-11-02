@@ -12,7 +12,7 @@
 	<Description>Abstration of the Lunatic Panel Plugin Core.</Description>
 	<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-	<Configurations>Debug;Release;</Configurations>
+	<Configurations>Debug;Release</Configurations>
 	  <PackageIcon>icon.png</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageLicenseFile>LICENSE.md</PackageLicenseFile>

@@ -11,7 +11,7 @@
     <Description>Lunatic Panel Engine Keys for Plugin Comunication Bus.</Description>
     <PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-    <Configurations>Debug;Release;</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>keys.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>

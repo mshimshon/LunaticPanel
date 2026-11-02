@@ -17,7 +17,7 @@
 		<Description>Analyzer for Lunatic Panel code Policy</Description>
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-		<Configurations>Debug;Release;</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<!-- 2. Ensure symbols packaging doesn't break a library-less pack -->
 		<IncludeSymbols>false</IncludeSymbols>
 		<!-- FIX RS1036: Enforce modern analyzer rule validations -->
@@ -53,7 +53,7 @@
 		<!-- 3. Explicitly bundle the analyzer DLL into the correct NuGet path -->
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
-	
+
 	<Target Name="CopyNuPkg" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
 		<MakeDir Directories="..\..\..\..\nupkgs" />
 		<ItemGroup>
