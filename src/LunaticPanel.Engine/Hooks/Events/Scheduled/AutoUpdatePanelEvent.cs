@@ -1,6 +1,7 @@
 
 using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Engine.Keys.System;
@@ -18,6 +19,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
     private static bool isExecuting = false;
     private static readonly Lock _lock = new();
     private TimeSpan _configuredTiming = new(1, 0, 0, 0);
+    private Version _panelVersion = default!;
     public PackageUpdateScheduled(ICrazyReport<PackageUpdateScheduled> crazyReport, IPanelUpdateService panelUpdateService, ICircuitRegistry circuitRegistry)
     {
         // PackageUpdateState
@@ -26,6 +28,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
         _circuitRegistry = circuitRegistry;
 
         _crazyReport.SetModule("Scheduler");
+        _panelVersion = typeof(IPlugin).Assembly.GetName().Version!;
         string? hoursCheck = Environment.GetEnvironmentVariable("LP_UPDATE_HOURS");
         string? minutesCheck = Environment.GetEnvironmentVariable("LP_UPDATE_MINUTES");
         if (int.TryParse(hoursCheck, out var hours))
@@ -58,6 +61,8 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
         {
             if (_panelUpdateService.BlockedByPlugin) return;
             if (_panelUpdateService.Staged != default) return;
+            var latestVersion = await _panelUpdateService.GetLatestVersion(ct);
+            if (latestVersion <= _panelVersion) return;
             // Get the Latest Update
             await _panelUpdateService.DownloadUpdateAsync(ct);
             // Check if upgrade folder contains same plugins versions as installed/applied compatible with the upcoming upgrade.

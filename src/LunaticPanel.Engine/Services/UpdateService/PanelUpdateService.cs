@@ -105,15 +105,16 @@ internal class PanelUpdateService : IPanelUpdateService
     {
         if (Installing != default || Staged != default)
             return;
-        PluginUpgradeDownloaded = default;
-        AwaitingForPluginCompatibilityUpdate = true;
+
         SafeToUpgrade();
         if (BlockedByPlugin) return;
 
         string lastDownloaded = Path.Combine(_upgradeDownloadFolder, "cache.txt");
         if (!File.Exists(lastDownloaded)) return;
-
+        PluginUpgradeDownloaded = default;
+        AwaitingForPluginCompatibilityUpdate = true;
         Version versionCache = new Version(File.ReadAllText(lastDownloaded));
+        if (versionCache <= _currentPanelVersion) return;
         string[] installed = Directory.GetFiles(_pluginInstalledLocationFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
