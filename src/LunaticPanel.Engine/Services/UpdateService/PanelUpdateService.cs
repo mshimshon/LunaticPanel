@@ -114,7 +114,7 @@ internal class PanelUpdateService : IPanelUpdateService
         if (!File.Exists(lastDownloaded)) return;
 
         Version versionCache = new Version(File.ReadAllText(lastDownloaded));
-        string[] installed = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
+        string[] installed = Directory.GetFiles(_pluginInstalledLocationFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
         foreach (var item in plugins)
@@ -199,24 +199,19 @@ internal class PanelUpdateService : IPanelUpdateService
         using var client = _httpClientFactory.CreateClient();
         client.BaseAddress = new Uri(_updateEndpoint);
         var version = await GetLatestVersion(client, ct);
+        if (version <= _currentPanelVersion) return;
         string lastDownloaded = Path.Combine(_upgradeDownloadFolder, "cache.txt");
-        Version? versionCache = default;
-        if (File.Exists(lastDownloaded))
-            versionCache = new Version(File.ReadAllText(lastDownloaded));
         // _previewEnabled
-        if (versionCache == default || versionCache != version)
-        {
-            // Download Panel
-            await DownloadFile(client, "lunaticpanel_latest.tar.gz", Path.Combine(_upgradeDownloadFolder, "lunaticpanel_latest.tar.gz"), ct);
-            // Download Plugins
-            string officialPanelPlugins = Path.Combine(_upgradeDownloadFolder, "lunaticpanel_plugins_latest.tar.gz");
-            await DownloadFile(client, "lunaticpanel_plugins_latest.tar.gz", officialPanelPlugins, ct);
-            // Send all plugins into plugin upgrade staging folder.
-            await ArchiveUtilityExt.ExtractTo(officialPanelPlugins, _upgradePluginUpgradeFolder, ArchiveType.TarGz);
-            await _safeFileWriter.WriteThenCopyFileAsync(lastDownloaded, version!.ToString(3));
-            versionCache = version;
-        }
-        Downloaded = versionCache;
+        // Download Panel
+        await DownloadFile(client, $"lunaticpanel_{version}.tar.gz", Path.Combine(_upgradeDownloadFolder, "lunaticpanel_latest.tar.gz"), ct);
+        // Download Plugins
+        string officialPanelPlugins = Path.Combine(_upgradeDownloadFolder, "lunaticpanel_plugins_latest.tar.gz");
+        await DownloadFile(client, $"lunaticpanel_plugins_{version}.tar.gz", officialPanelPlugins, ct);
+        ResetFolder(_upgradePluginUpgradeFolder);
+        // Send all plugins into plugin upgrade staging folder.
+        await ArchiveUtilityExt.ExtractTo(officialPanelPlugins, _upgradePluginUpgradeFolder, ArchiveType.TarGz);
+        await _safeFileWriter.WriteThenCopyFileAsync(lastDownloaded, version!.ToString(3));
+        Downloaded = version;
         await CheckPluginsAsync(ct);
     }
 
@@ -267,10 +262,8 @@ internal class PanelUpdateService : IPanelUpdateService
                         File.Move(item.Key, Path.Combine(applyUserInstalledolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"));
 
             // Clear Working Files
-            Directory.Delete(_upgradeDownloadFolder, true);
-            Directory.Delete(_upgradePluginUpgradeFolder, true);
-            EnsureCreated(_upgradeDownloadFolder);
-            EnsureCreated(_upgradePluginUpgradeFolder);
+            ResetFolder(_upgradePluginUpgradeFolder);
+            ResetFolder(_upgradeDownloadFolder);
 
             await _safeFileWriter.WriteThenCopyFileAsync(upgradeVersionCache, Installing.ToString(3));
             await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(binPanelPath, "access.test"), Installing.ToString(3));
@@ -309,6 +302,23 @@ internal class PanelUpdateService : IPanelUpdateService
 
     }
 
+    private void ResetFolder(string path)
+    {
+        if (Directory.Exists(path))
+            Directory.Delete(path, true);
+        EnsureCreated(path);
+    }
+    public async Task<Version> GetLatestVersion(CancellationToken ct = default)
+    {
+        using (var client = _httpClientFactory.CreateClient())
+        {
+            client.BaseAddress = new Uri(_updateEndpoint);
+            var version = await GetLatestVersion(client, ct);
+            if (version <= _currentPanelVersion) return version;
+            throw new Exception("Couldn't fetch remote version.");
+        }
+
+    }
 
     private async Task<Version?> GetLatestVersion(HttpClient client, CancellationToken ct = default)
     {
