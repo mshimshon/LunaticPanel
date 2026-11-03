@@ -16,8 +16,6 @@
     <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.2" />
     <PackageVersion Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.2" />
     <PackageVersion Include="DotNetCore.CAP.OpenTelemetry" Version="10.0.2" />
-    <PackageVersion Include="LunaticPanel.Core" Version="0.1.836" />
-    <PackageVersion Include="LunaticPanel.Engine.Keys" Version="0.1.836" />
     <PackageVersion Include="MaksimShimshon.Mediator" Version="1.1.0" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.11" />

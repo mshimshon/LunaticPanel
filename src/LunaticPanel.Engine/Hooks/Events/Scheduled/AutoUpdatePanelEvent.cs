@@ -61,18 +61,18 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
         {
             if (_panelUpdateService.BlockedByPlugin) return;
             if (_panelUpdateService.Staged != default) return;
-            var latestVersion = await _panelUpdateService.GetLatestVersion(ct);
+            var latestVersion = await _panelUpdateService.GetLatestVersion();
             if (latestVersion <= _panelVersion) return;
             // Get the Latest Update
-            await _panelUpdateService.DownloadUpdateAsync(ct);
+            await _panelUpdateService.DownloadUpdateAsync();
             // Check if upgrade folder contains same plugins versions as installed/applied compatible with the upcoming upgrade.
-            await _panelUpdateService.CheckPluginsAsync(ct);
+            await _panelUpdateService.CheckPluginsAsync();
             // if still missing plugins, skip do not install upgrade.
             if (_panelUpdateService.AwaitingForPluginCompatibilityUpdate)
                 return;
             // All plugins are compatible with the next major panel upgrade, auto upgrade is ready to deploy.
             if (_panelUpdateService.Downloaded != default && _panelUpdateService.Install == default)
-                await _panelUpdateService.InstallUpdateAsync(ct);
+                await _panelUpdateService.InstallUpdateAsync();
 
         }
         catch (Exception ex)
