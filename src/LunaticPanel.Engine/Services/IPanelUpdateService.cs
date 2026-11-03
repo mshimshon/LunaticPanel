@@ -20,6 +20,7 @@ public interface IPanelUpdateService
     /// </summary>
     bool AwaitingForPluginCompatibilityUpdate { get; }
 
+    Task<Version> GetLatestVersion(CancellationToken ct = default);
     Task InstallUpdateAsync(CancellationToken ct = default);
     Task DownloadUpdateAsync(CancellationToken ct = default);
     Task CheckPluginsAsync(CancellationToken ct = default);
