@@ -258,9 +258,9 @@ internal class PanelUpdateService : IPanelUpdateService
             if (PluginUpgradeDownloaded != default)
                 foreach (var item in PluginUpgradeDownloaded)
                     if (PreInstalled.Contains(item.Value.Id))
-                        File.Move(item.Key, Path.Combine(applyPreInstalledFolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"));
+                        File.Move(item.Key, Path.Combine(applyPreInstalledFolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"), true);
                     else
-                        File.Move(item.Key, Path.Combine(applyUserInstalledolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"));
+                        File.Move(item.Key, Path.Combine(applyUserInstalledolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"), true);
 
             // Clear Working Files
             ResetFolder(_upgradePluginUpgradeFolder);
@@ -345,6 +345,7 @@ internal class PanelUpdateService : IPanelUpdateService
         string destinationPathDownload = Path.GetTempFileName();
         using var response = await client.GetAsync(remoteFile, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
+
         using (var downloadStream = await response.Content.ReadAsStreamAsync())
         {
             using (var fileStream = new FileStream(destinationPathDownload, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
@@ -352,8 +353,7 @@ internal class PanelUpdateService : IPanelUpdateService
                 await downloadStream.CopyToAsync(fileStream);
             }
         }
-
-        File.Move(destinationPathDownload, targetLocation); // Final Move.
+        File.Move(destinationPathDownload, targetLocation, true); // Final Move.
     }
 
 }
