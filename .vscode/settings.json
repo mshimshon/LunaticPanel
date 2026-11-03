@@ -1,5 +1,7 @@
 {
     "dotnet.defaultSolution": "LunaticPanel.slnx",
+    "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "fullSolution",
+    "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "fullSolution",
     "git.showActionButton": {
         "commit": true,
         "publish": false,

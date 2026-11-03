@@ -1,4 +1,4 @@
-namespace LunaticPanel.Core.Utils.Abstraction.Archive;
+namespace LunaticPanel.Core.Extensions;
 
 public enum ArchiveType
 {

@@ -10,6 +10,7 @@ using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using System.Text.Json;
 using static LunaticPanel.Engine.Web.Boostrap.Plugin.BootstrapPlugins;
+using static LunaticPanel.Engine.Web.Boostrap.BootstrapPanelUpdates;
 using static LunaticPanel.Engine.Web.Boostrap.Plugin.BootstrapPluginsValidator;
 namespace LunaticPanel.Engine.Web.Boostrap;
 
@@ -28,11 +29,11 @@ public static class Bootstrap
         UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
         UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
 
-    public static void BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
+    public static async Task BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
     {
         LibraryLocation = "/srv";
         ConfigLocation = "/var/lib";
-
+        await ApplyPanelUpdate(); // Perform Pending Update of the panel
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
         ProcessDeletePlugins();
@@ -208,9 +209,9 @@ public static class Bootstrap
 
         PluginDirectory = Path.Combine(LibraryLocation, ConfigNameKey, "plugins");
         ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey, "config");
-        string applyLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
-        string rollbacksLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
-        string installedLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
+        string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
+        string rollbacksLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "rollbacks");
+        string installedLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "installed");
         EnsurePathCreated(PluginDirectory, ConfigDirectory, applyLocation, rollbacksLocation, installedLocation);
 
     }

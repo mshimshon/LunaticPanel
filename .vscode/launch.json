@@ -6,9 +6,18 @@
             "type": "coreclr",
             "request": "attach",
             "processName": "LunaticPanel.Hybrid.Web",
-            "justMyCode": false,
-            "sourceFileMap": {
-                "/srv/lunaticpanel": "${workspaceRoot}"
+            "requireExactSource": false,
+            "sourceLinkOptions": {
+                "*": {
+                    "enabled": false
+                }
+            },
+            "logging": {
+                "moduleLoad": true,
+                "diagnosticsLog": {
+                    "debugEngineAPITracing": "all",
+                    "protocolMessages": true
+                }
             },
             "pipeTransport": {
                 "pipeCwd": "${workspaceRoot}",
@@ -20,19 +29,28 @@
                     "root"
                 ],
                 "quoteArgs": false,
-                "debuggerPath": "~/vsdbg/vsdbg"
+                "debuggerPath": "/opt/vsdbg/vsdbg"
             }
         },
         {
             "name": "Debug Panel (Complete)",
             "type": "coreclr",
-            "preLaunchTask": "Run Panel DebugTool Rebuild",
+            "preLaunchTask": "Deploying Dev Envrionement (Full Rebuild)",
             "postDebugTask": "Shutdown WSL",
             "request": "attach",
-            "processId": "${command:pickRemoteProcess}",
-            "justMyCode": false,
-            "sourceFileMap": {
-                "/srv/lunaticpanel": "${workspaceRoot}"
+            "processName": "LunaticPanel.Hybrid.Web",
+            "requireExactSource": false,
+            "sourceLinkOptions": {
+                "*": {
+                    "enabled": false
+                }
+            },
+            "logging": {
+                "moduleLoad": true,
+                "diagnosticsLog": {
+                    "debugEngineAPITracing": "all",
+                    "protocolMessages": true
+                }
             },
             "pipeTransport": {
                 "pipeCwd": "${workspaceRoot}",
@@ -44,19 +62,23 @@
                     "root"
                 ],
                 "quoteArgs": false,
-                "debuggerPath": "~/vsdbg/vsdbg"
+                "debuggerPath": "/opt/vsdbg/vsdbg"
             }
         },
         {
             "name": "Debug Panel (Fast)",
             "type": "coreclr",
-            "preLaunchTask": "Run Panel DebugTool Skip Services",
+            "preLaunchTask": "Deploying Dev Envrionement (Partial Rebuild)",
             "postDebugTask": "Shutdown WSL",
             "request": "attach",
             "processName": "LunaticPanel.Hybrid.Web",
-            "justMyCode": false,
-            "sourceFileMap": {
-                "/srv/lunaticpanel": "${workspaceRoot}"
+            "requireExactSource": false,
+            "logging": {
+                "moduleLoad": true,
+                "diagnosticsLog": {
+                    "debugEngineAPITracing": "all",
+                    "protocolMessages": true
+                }
             },
             "pipeTransport": {
                 "pipeCwd": "${workspaceRoot}",
@@ -68,7 +90,7 @@
                     "root"
                 ],
                 "quoteArgs": false,
-                "debuggerPath": "~/vsdbg/vsdbg"
+                "debuggerPath": "/opt/vsdbg/vsdbg"
             }
         },
     ]

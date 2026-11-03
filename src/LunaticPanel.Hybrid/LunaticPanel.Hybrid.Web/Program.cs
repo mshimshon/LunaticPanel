@@ -3,8 +3,8 @@ using MudBlazor;
 using System.Diagnostics;
 using App = LunaticPanel.Hybrid.Web.App;
 var builder = WebApplication.CreateBuilder(args);
-
-if (args.Contains("--debugger", StringComparer.OrdinalIgnoreCase) || bool.TryParse(Environment.GetEnvironmentVariable("LP_WAIT_FOR_DEBUGGER"), out var wait) && wait)
+bool waitForDebugger = args.Contains("--debugger", StringComparer.OrdinalIgnoreCase) || bool.TryParse(Environment.GetEnvironmentVariable("LP_WAIT_FOR_DEBUGGER"), out var wait) && wait;
+if (waitForDebugger)
 {
     if (!Debugger.IsAttached)
     {
@@ -12,6 +12,13 @@ if (args.Contains("--debugger", StringComparer.OrdinalIgnoreCase) || bool.TryPar
         while (!Debugger.IsAttached)
             Thread.Sleep(100); // Check every 100ms
     }
+    _ = Task.Run(() =>
+    {
+        while (Debugger.IsAttached)
+            Thread.Sleep(50);
+        System.Console.WriteLine("Quit Debugger is Detached");
+        Environment.Exit(0);
+    });
     Debugger.Break();
 
 }
@@ -19,7 +26,7 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddCircui
 builder.WebHost.UseKestrel();
 builder.Services.AddHttpContextAccessor();
 
-Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
+await Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
 
 WebApplication app = builder.Build();
 

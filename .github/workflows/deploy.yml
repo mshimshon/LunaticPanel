@@ -260,7 +260,7 @@ jobs:
           mkdir -p /tmp/artifacts/cdn
           tar -czf /tmp/artifacts/cdn/lunaticpanel_latest.tar.gz -C /tmp/artifacts/web .
           tar -czf /tmp/artifacts/cdn/lunaticpanel_plugins_latest.tar.gz -C /tmp/artifacts/output/ $(cd /tmp/artifacts/output && ls *.lpkg)
-          echo "${{ steps.get_version.outputs.version }}" > /tmp/artifacts/cdn/index.html
+          echo "${{ steps.get_version.outputs.version }}" > /tmp/artifacts/cdn/stable.txt
 
       - name: Upload to Cloudflare R2
         uses: ryand56/r2-upload-action@v1

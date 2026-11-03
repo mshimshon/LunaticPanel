@@ -13,7 +13,7 @@
                 "--",
                 "bash",
                 "-c",
-                "apt install curl -y && curl -sSL https://aka.ms/getvsdbgsh | /bin/sh /dev/stdin -v latest -l ~/vsdbg"
+                "apt install curl -y && mkdir -p /opt/vsdbg &&curl -sSL https://aka.ms/getvsdbgsh | /bin/bash /dev/stdin -v latest -l /opt/vsdbg"
             ],
             "problemMatcher": [],
             "presentation": {
@@ -139,10 +139,11 @@
             "args": [
                 "--deploy",
                 "--debug",
+                "--clean",
                 "--auto-kill",
+                "--no-open",
                 "--close-cli",
                 "--skip-wsl",
-                "--open-shell",
                 "--no-interaction"
             ],
             "problemMatcher": "$msCompile"
@@ -161,6 +162,7 @@
             "args": [
                 "--deploy",
                 "--debug",
+                "--clean",
                 "--auto-kill",
                 "--close-cli",
                 "--no-open",
@@ -171,26 +173,24 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Run Panel DebugTool Skip Services", // <-- This is your empty parent task
+            "label": "Deploying Dev Envrionement (Partial Rebuild)", // <-- This is your empty parent task
             "dependsOrder": "sequence", // Ensures child tasks run one after another
             "dependsOn": [
                 "LPCLI with Plugins (Skip Service Build)",
                 "Install VSCODE Debugger",
                 "Open Panel Logging",
                 "Open LunaPackage Server Logging",
-                "Open Interactive Shell"
             ],
             "problemMatcher": []
         },
         {
-            "label": "Run Panel DebugTool Rebuild", // <-- This is your empty parent task
+            "label": "Deploying Dev Envrionement (Full Rebuild)", // <-- This is your empty parent task
             "dependsOrder": "sequence", // Ensures child tasks run one after another
             "dependsOn": [
                 "LPCLI with Plugins (Full Build)",
                 "Install VSCODE Debugger",
                 "Open Panel Logging",
                 "Open LunaPackage Server Logging",
-                "Open Interactive Shell"
             ],
             "problemMatcher": []
         }

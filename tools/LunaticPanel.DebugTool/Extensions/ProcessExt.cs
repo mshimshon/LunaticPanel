@@ -27,7 +27,7 @@ internal static class ProcessExt
             }))
             .ExecuteAsync();
         return stdoutBuilder.ToString();
-
+        // TODO: Clean
         var psi = new ProcessStartInfo
         {
             FileName = fileName,

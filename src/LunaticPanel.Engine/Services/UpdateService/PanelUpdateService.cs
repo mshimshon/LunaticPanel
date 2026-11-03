@@ -3,7 +3,7 @@ using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Messaging.EventBus;
-using LunaticPanel.Core.Utils.Abstraction.Archive;
+using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.Engine.Keys.System;
@@ -33,7 +33,6 @@ internal class PanelUpdateService : IPanelUpdateService
     private readonly string _updateEndpoint = "https://update.lunaticpanel.com/release/";
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ISafeFileWriter _safeFileWriter;
-    private readonly IArchiveUtility _archiveUtility;
     private readonly ICircuitRegistry _circuitRegistry;
     private readonly IEventBus _eventBus;
     private readonly ICrazyReport<PanelUpdateService> _crazyReport;
@@ -42,6 +41,7 @@ internal class PanelUpdateService : IPanelUpdateService
     private readonly string _upgradeDownloadFolder;
     private readonly string _upgradeApplyFolder;
     private readonly string _upgradePluginUpgradeFolder;
+    private readonly string _pluginStageLocationRootFolder;
     private readonly string _pluginApplyLocationFolder;
     private readonly string _pluginRollbackLocationFolder;
     private readonly string _pluginInstalledLocationFolder;
@@ -49,39 +49,46 @@ internal class PanelUpdateService : IPanelUpdateService
     private readonly string _binPreinstalledPlugins;
     private readonly string _upgradeBackup;
     private readonly bool _autoRestart = true;
-    private string EnsureCreated(string path)
+    private readonly bool _previewEnabled = false;
+    private string EnsureCreated(string path, bool clearExist = false)
     {
+        if (string.IsNullOrWhiteSpace(path)) return path;
+        if (clearExist && Directory.Exists(path))
+            Directory.Delete(path, true);
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
+
         return path;
     }
     public PanelUpdateService(
         IHttpClientFactory httpClientFactory,
-        ISafeFileWriter safeFileWriter,
-        IArchiveUtility archiveUtility, ICircuitRegistry circuitRegistry,
+        ISafeFileWriter safeFileWriter, ICircuitRegistry circuitRegistry,
         IEventBus eventBus,
         ICrazyReport<PanelUpdateService> crazyReport)
     {
         _httpClientFactory = httpClientFactory;
         _safeFileWriter = safeFileWriter;
-        _archiveUtility = archiveUtility;
         _circuitRegistry = circuitRegistry;
         _eventBus = eventBus;
         _crazyReport = crazyReport;
         _currentPanelVersion = typeof(IPlugin).Assembly.GetName().Version!;
-        _upgradeRootFolder = Path.Combine("var", "lib", "lunaticpanel", ".upgrade");
+        _upgradeRootFolder = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".upgrade");
         _upgradeDownloadFolder = Path.Combine(_upgradeRootFolder, "download");
         _upgradeApplyFolder = Path.Combine(_upgradeRootFolder, "apply");
         _upgradePluginUpgradeFolder = Path.Combine(_upgradeRootFolder, "plugins");
+        _upgradeBackup = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".upgrade", "backups");
         CreateRequiredFolders();
-        _pluginApplyLocationFolder = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
-        _pluginDeleteLocationFolder = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "delete");
-        _pluginRollbackLocationFolder = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
-        _pluginInstalledLocationFolder = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
-        _binPreinstalledPlugins = Path.Combine("srv", "lunaticpanel", "preinstalled");
-        _upgradeBackup = Path.Combine("var", "lib", "lunaticpanel", ".upgrade", "backups");
+        _pluginStageLocationRootFolder = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins");
+        _pluginApplyLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "apply");
+        _pluginDeleteLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "delete");
+        _pluginRollbackLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "rollbacks");
+        _pluginInstalledLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "installed");
+        _binPreinstalledPlugins = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "preinstalled");
         if (bool.TryParse(Environment.GetEnvironmentVariable("LP_UPGRADE_AUTO_RESTART"), out var autoRestart))
             _autoRestart = autoRestart;
+
+        if (bool.TryParse(Environment.GetEnvironmentVariable("LP_OPT_OUT_PREVIEW"), out var previewOptOut))
+            _previewEnabled = !previewOptOut;
 
         SafeToUpgrade();
     }
@@ -92,6 +99,7 @@ internal class PanelUpdateService : IPanelUpdateService
         EnsureCreated(_upgradeDownloadFolder);
         EnsureCreated(_upgradeApplyFolder);
         EnsureCreated(_upgradePluginUpgradeFolder);
+        EnsureCreated(_upgradeBackup);
     }
     public async Task CheckPluginsAsync(CancellationToken ct = default)
     {
@@ -111,7 +119,7 @@ internal class PanelUpdateService : IPanelUpdateService
         Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
         foreach (var item in plugins)
         {
-            var manifest = await _archiveUtility.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default)
             {
                 _crazyReport.ReportWarning($"'{item}' failed to extract manifest.");
@@ -156,7 +164,7 @@ internal class PanelUpdateService : IPanelUpdateService
         PreInstalled.Clear();
         foreach (var item in installed)
         {
-            var manifest = await _archiveUtility.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
             PreInstalled.Add(manifest.Id);
             Version pPanelVersion = new(manifest.PanelVersion);
@@ -195,7 +203,7 @@ internal class PanelUpdateService : IPanelUpdateService
         Version? versionCache = default;
         if (File.Exists(lastDownloaded))
             versionCache = new Version(File.ReadAllText(lastDownloaded));
-
+        // _previewEnabled
         if (versionCache == default || versionCache != version)
         {
             // Download Panel
@@ -204,7 +212,7 @@ internal class PanelUpdateService : IPanelUpdateService
             string officialPanelPlugins = Path.Combine(_upgradeDownloadFolder, "lunaticpanel_plugins_latest.tar.gz");
             await DownloadFile(client, "lunaticpanel_plugins_latest.tar.gz", officialPanelPlugins, ct);
             // Send all plugins into plugin upgrade staging folder.
-            await _archiveUtility.ExtractTo(officialPanelPlugins, _upgradePluginUpgradeFolder, ArchiveType.TarGz);
+            await ArchiveUtilityExt.ExtractTo(officialPanelPlugins, _upgradePluginUpgradeFolder, ArchiveType.TarGz);
             await _safeFileWriter.WriteThenCopyFileAsync(lastDownloaded, version!.ToString(3));
             versionCache = version;
         }
@@ -222,18 +230,14 @@ internal class PanelUpdateService : IPanelUpdateService
         string backupPanelFile = Path.Combine(_upgradeBackup, $"panel-{nextCount}.tar.gz");
         string backupPluginFile = Path.Combine(_upgradeBackup, $"plugins-{nextCount}.tar.gz");
         string upgradeVersionCache = Path.Combine(_upgradeApplyFolder, $"version.txt");
-        string binPanelPath = Path.Combine("srv", "lunaticpanel");
-        string stagingPlugin = Path.Combine("var", "lib", "lunaticpanel", ".plugins");
-        string stagingPluginInstalled = Path.Combine(stagingPlugin, "installed");
+        string binPanelPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel");
+        string stagingPluginInstalled = Path.Combine(_pluginStageLocationRootFolder, "installed");
         var downloadedPanel = Path.Combine(_upgradeDownloadFolder, "lunaticpanel_latest.tar.gz");
-        var applyPanelFolderLocation = EnsureCreated(Path.Combine(_upgradeDownloadFolder, "lunaticpanel"));
-        var applyUserInstalledolderLocation = EnsureCreated(Path.Combine(_upgradeDownloadFolder, "plugin_user_installed"));
-        var applyPreInstalledFolderLocation = EnsureCreated(Path.Combine(_upgradeDownloadFolder, "plugin_preinstalled"));
+        var applyPanelFileLocation = Path.Combine(_upgradeApplyFolder, "lunaticpanel_latest.tar.gz");
+        var applyUserInstalledolderLocation = EnsureCreated(Path.Combine(_upgradeApplyFolder, "plugin_user_installed"), true);
+        var applyPreInstalledFolderLocation = EnsureCreated(Path.Combine(_upgradeApplyFolder, "plugin_preinstalled"), true);
         try
         {
-            _crazyReport.ReportInfo("Creating Full Panel Backup");
-            await _archiveUtility.PackTarGz(binPanelPath, backupPanelFile, ct);
-            await _archiveUtility.PackTarGz(stagingPluginInstalled, backupPluginFile, ct);
             _crazyReport.ReportInfo($"Panel version {_currentPanelVersion.ToString(3)} backed up ('{backupPanelFile}')");
             _crazyReport.ReportInfo($"Panel installed plugins for panel {_currentPanelVersion.ToString(3)} backed up ('{backupPluginFile}')");
 
@@ -254,20 +258,25 @@ internal class PanelUpdateService : IPanelUpdateService
                 _crazyReport.ReportError("Panel cannot upgrade as there is a mismatch between preinstalled and upgraded package folder.");
                 return;
             }
-            await _safeFileWriter.WriteThenCopyFileAsync(upgradeVersionCache, Installing.ToString(3));
-            await _archiveUtility.ExtractTo(downloadedPanel, applyPanelFolderLocation, ArchiveType.TarGz);
-            await _archiveUtility.ExtractTo(downloadedPanel, applyPanelFolderLocation, ArchiveType.TarGz);
+            File.Move(downloadedPanel, applyPanelFileLocation, true);
             if (PluginUpgradeDownloaded != default)
                 foreach (var item in PluginUpgradeDownloaded)
                     if (PreInstalled.Contains(item.Value.Id))
                         File.Move(item.Key, Path.Combine(applyPreInstalledFolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"));
                     else
                         File.Move(item.Key, Path.Combine(applyUserInstalledolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"));
+
             // Clear Working Files
             Directory.Delete(_upgradeDownloadFolder, true);
             Directory.Delete(_upgradePluginUpgradeFolder, true);
             EnsureCreated(_upgradeDownloadFolder);
             EnsureCreated(_upgradePluginUpgradeFolder);
+
+            await _safeFileWriter.WriteThenCopyFileAsync(upgradeVersionCache, Installing.ToString(3));
+            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(binPanelPath, "access.test"), Installing.ToString(3));
+            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_upgradeRootFolder, "access.test"), Installing.ToString(3));
+            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_pluginStageLocationRootFolder, "access.test"), Installing.ToString(3));
+
             Staged = Installing;
             _crazyReport.ReportInfo($"Auto Restart ? {_autoRestart} ");
             _crazyReport.ReportInfo($"Active Circuits ? {_circuitRegistry.GetActiveCircuits().Count} ");
@@ -303,19 +312,37 @@ internal class PanelUpdateService : IPanelUpdateService
 
     private async Task<Version?> GetLatestVersion(HttpClient client, CancellationToken ct = default)
     {
-        var response = await client.GetAsync("index.html");
-        response.EnsureSuccessStatusCode();
-        string versionRaw = await response.Content.ReadAsStringAsync();
-        return new Version(versionRaw);
+        string versionLatestRaw = "";
+        var responseStable = await client.GetAsync("stable.txt");
+        responseStable.EnsureSuccessStatusCode();
+        string versionStableRaw = await responseStable.Content.ReadAsStringAsync();
+        // TODO: Add Support for Preview Versioning.
+        // if (_previewEnabled)
+        // {
+        //     var responsePreview = await client.GetAsync("stable.txt");
+        //     if (responsePreview.IsSuccessStatusCode)
+        //     {
+        //         string versionPreviewRaw = await responsePreview.Content.ReadAsStringAsync();
+
+
+        //     }
+        // }
+        return new Version(versionStableRaw);
     }
     public async Task DownloadFile(HttpClient client, string remoteFile, string targetLocation, CancellationToken ct = default)
     {
         string destinationPathDownload = Path.GetTempFileName();
         using var response = await client.GetAsync(remoteFile, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
-        using var downloadStream = await response.Content.ReadAsStreamAsync();
-        using var fileStream = new FileStream(destinationPathDownload, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
-        await downloadStream.CopyToAsync(fileStream);
+        using (var downloadStream = await response.Content.ReadAsStreamAsync())
+        {
+            using (var fileStream = new FileStream(destinationPathDownload, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
+            {
+                await downloadStream.CopyToAsync(fileStream);
+            }
+        }
+
         File.Move(destinationPathDownload, targetLocation); // Final Move.
     }
+
 }

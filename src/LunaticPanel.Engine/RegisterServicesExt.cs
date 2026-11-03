@@ -42,7 +42,6 @@ public static class RegisterServicesExt
         services.AddLinuxCommandUtilityService();
         services.AddPluginLocationUtilityService("lunaticpanel");
         services.AddSafeFileWriterUtilityService();
-        services.AddArchiveUtilityService();
         services.AddScoped<IPanelUpdateService, PanelUpdateService>();
         services.AddHttpClient();
         services.AddScoped<HostExceptionHandler>();
