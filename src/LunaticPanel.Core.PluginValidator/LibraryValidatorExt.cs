@@ -320,7 +320,7 @@ public static class LibraryValidatorExt
         if (currentCoreVersion.Major != corePluginVersion.Major)
             throw new PluginCoreVersionFailedException($"Plugin was compiled with panel v{corePluginVersion.Major} and the current panel version is v{currentCoreVersion.Major}.");
         if (currentCoreVersion < corePluginVersion)
-            throw new PluginCoreVersionFailedException($"Plugin was compiled with panel v{corePluginVersion} and this panel sdk outdated with v{currentCoreVersion}.");
+            throw new PluginCoreVersionFailedException($"Tool SDK is binding panel v{currentCoreVersion} and the plugin is bounded to outdated v{corePluginVersion}.");
 
 
         Console.WriteLine("Validator Success");

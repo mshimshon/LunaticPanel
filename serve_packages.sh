@@ -22,7 +22,7 @@ WORKING_DIR="${TARGET_DIR}"
 EXEC_START="/usr/bin/dotnet"
 STARTUP_PARAMETERS="${TARGET_DIR}/LunaticPanel.Package.LocalServer.dll --urls \"http://*:10002;\""
 
-DEPENDS_ON=() 
+DEPENDS_ON=()
 ENVIRONMENT=()
 # 2. Clear and recreate the setup directory
 rm -rf "$SETUP_DIR"
@@ -44,7 +44,7 @@ LATEST_TAG=$(wget -qO- "https://api.github.com/repos/${REPO}/releases/latest" \
   | sed -E 's/.*"([^"]+)".*/\1/')
 
 echo "LATEST_TAG = $LATEST_TAG"
-if [ -z "$LATEST_TAG" ]; then 
+if [ -z "$LATEST_TAG" ]; then
   echo "Error: Could not fetch latest release tag from GitHub." >&2
   exit 1
 fi
@@ -57,7 +57,7 @@ echo "Extracted Version: $VERSION"
 
 # 4. Download main payload asset lpkg-server-lite.0.0.29.tar.gz
 MAIN_ARCHIVE="lpkg-server-lite.${VERSION}.tar.gz"
-DOWNLOAD_TARGET="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${MAIN_ARCHIVE}" 
+DOWNLOAD_TARGET="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${MAIN_ARCHIVE}"
 echo "Downloading main payload: ${DOWNLOAD_TARGET}..."
 wget -qO "${SETUP_DIR}/${MAIN_ARCHIVE}" $DOWNLOAD_TARGET
 
@@ -77,7 +77,7 @@ if command -v dotnet &> /dev/null && dotnet --list-runtimes | grep -q "Microsoft
     echo "Validated: .NET ${TARGET_DOTNET_VERSION} ASP.NET Core Runtime is already available."
 else
     echo ".NET ${TARGET_DOTNET_VERSION} runtime missing or not detected. Running official Microsoft installer..."
-    
+
     apt-get install -y wget tar ca-certificates
 
     # 2. Download official Microsoft .NET installation script
@@ -87,7 +87,7 @@ else
     # 3. Run script targeting a global /usr/share/dotnet directory
     #    This downloads only the lightweight aspnetcore runtime stack
     /tmp/dotnet-install.sh --channel "${TARGET_DOTNET_VERSION}" --runtime aspnetcore --install-dir /usr/share/dotnet
-    
+
     # 4. Create standard global symlink if it doesn't already exist
     if [ ! -f /usr/bin/dotnet ]; then
         ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
@@ -104,7 +104,29 @@ else
     echo ".NET ${TARGET_DOTNET_VERSION} standard installation successfully verified!"
 fi
 
+# Define the target directory and file path
+TARGET_DIR="/etc/lunapackage"
+TARGET_FILE="${TARGET_DIR}/env.conf"
 
+# Ensure the directory exists
+ mkdir -p "$TARGET_DIR"
+
+# Check if the file already exists before creating it
+if [ ! -f "$TARGET_FILE" ]; then
+    echo "Creating configuration file at $TARGET_FILE..."
+
+    # Write the environment variables to the file
+     tee "$TARGET_FILE" > /dev/null << 'EOF'
+# /etc/lunaticpanel/env.conf
+
+EOF
+
+    # Set secure permissions (Readable only by root/system processes)
+    chmod 600 "$TARGET_FILE"
+    echo "File created successfully with secure permissions."
+else
+    echo "Notice: $TARGET_FILE already exists. No changes made."
+fi
 
 if systemctl list-unit-files | grep -q "^${SERVICE_NAME}.service"; then
     echo "Stopping existing ${SERVICE_NAME} service..."
@@ -122,6 +144,7 @@ Type=simple
 WorkingDirectory=${WORKING_DIR}
 
 ExecStart=${EXEC_START} ${STARTUP_PARAMETERS}
+EnvironmentFile=/etc/lunapackage/env.conf
 Restart=always
 RestartSec=5s
 $(for item in "${ENVIRONMENT[@]}"; do echo "Environment=${item}"; done)
@@ -147,14 +170,14 @@ echo "Streaming payload via pipeline..."
 # 1. Loop and pipe the request until Kestrel actually serves the JSON payload
 MAX_ATTEMPTS=10
 for ((i=1; i<=MAX_ATTEMPTS; i++)); do
-  # We pipe curl directly into a variable check. 
+  # We pipe curl directly into a variable check.
   # If curl returns nothing, the loop yields and retries.
   RESPONSE=$(wget -qO- http://localhost:10002/lpkg/versions | cat)
 
   if [ -n "$RESPONSE" ]; then
     break
   fi
-  
+
   echo "Retrying in 1s ($i/$MAX_ATTEMPTS)..."
   sleep 1
 done

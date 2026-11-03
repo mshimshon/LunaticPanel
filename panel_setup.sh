@@ -24,7 +24,7 @@ DESCRIPTION="LunaticPanel Lightweight package serving."
 WORKING_DIR="${TARGET_DIR}"
 EXEC_START="/usr/bin/dotnet"
 STARTUP_PARAMETERS="${TARGET_DIR}/LunaticPanel.Hybrid.Web.dll --urls \"http://*:10001;\""
-DEPENDS_ON=() 
+DEPENDS_ON=()
 ENVIRONMENT=()
 
 # 2. Clear and recreate the setup directory
@@ -52,7 +52,7 @@ else
     # 3. Run script targeting a global /usr/share/dotnet directory
     #    This downloads only the lightweight aspnetcore runtime stack
     /tmp/dotnet-install.sh --channel "${TARGET_DOTNET_VERSION}" --runtime aspnetcore --install-dir /usr/share/dotnet
-    
+
     # 4. Create standard global symlink if it doesn't already exist
     if [ ! -f /usr/bin/dotnet ]; then
         ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
@@ -78,6 +78,31 @@ else
 fi
 
 
+# Define the target directory and file path
+TARGET_DIR="/etc/lunaticpanel"
+TARGET_FILE="${TARGET_DIR}/env.conf"
+
+# Ensure the directory exists
+mkdir -p "$TARGET_DIR"
+
+# Check if the file already exists before creating it
+if [ ! -f "$TARGET_FILE" ]; then
+    echo "Creating configuration file at $TARGET_FILE..."
+
+    # Write the environment variables to the file
+    tee "$TARGET_FILE" > /dev/null << 'EOF'
+# /etc/lunaticpanel/env.conf
+
+EOF
+
+    # Set secure permissions (Readable only by root/system processes)
+    chmod 600 "$TARGET_FILE"
+    echo "File created successfully with secure permissions."
+else
+    echo "Notice: $TARGET_FILE already exists. No changes made."
+fi
+
+
 if systemctl list-unit-files | grep -q "^${SERVICE_NAME}.service"; then
     echo "${SERVICE_NAME} Exist.............. OK!"
     systemctl stop "${SERVICE_NAME}" || true
@@ -96,6 +121,7 @@ Group=root
 Type=simple
 WorkingDirectory=${WORKING_DIR}
 ExecStart=${EXEC_START} ${STARTUP_PARAMETERS}
+EnvironmentFile=/etc/lunaticpanel/env.conf
 Restart=always
 RestartSec=5s
 OOMScoreAdjust=-900
@@ -124,7 +150,7 @@ SCRIPT_DOWNLOAD="panel_download.sh"
 if [ ! -f "./${SCRIPT_DOWNLOAD}" ]; then
   echo "⚠️ Local execution script ./${SCRIPT_DOWNLOAD} is missing!"
   echo "📥 Downloading fresh script from the main branch of ${REPO}..."
-  
+
   wget -qO "./${SCRIPT_DOWNLOAD}" "https://raw.githubusercontent.com/${REPO}/main/${SCRIPT_DOWNLOAD}"
 
   if [ ! -s "./${SCRIPT_DOWNLOAD}" ] || grep -q "404: Not Found" "./${SCRIPT_DOWNLOAD}"; then
@@ -146,7 +172,7 @@ SCRIPT_INSTALL="panel_install.sh"
 if [ ! -f "./${SCRIPT_INSTALL}" ]; then
   echo "⚠️ Local execution script ./${SCRIPT_INSTALL} is missing!"
   echo "📥 Downloading fresh script from the main branch of ${REPO}..."
-  
+
   wget -qO "./${SCRIPT_INSTALL}" "https://raw.githubusercontent.com/${REPO}/main/${SCRIPT_INSTALL}"
 
   if [ ! -s "./${SCRIPT_INSTALL}" ] || grep -q "404: Not Found" "./${SCRIPT_INSTALL}"; then

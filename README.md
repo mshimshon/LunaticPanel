@@ -6,6 +6,27 @@
 [![Build](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml)
 [![Deploy](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml)
 
+# ⚠️ WARNING: NOT PRODUCTION READY
+
+## 🧔 Shimshon says DON'T BE STUPID 😉 ❤️❤️
+### ...or Delilah might crop your locks and hack your system into oblivion.
+
+Anything below version `1.0.0` is a digital danger zone. There is absolutely **no guarantee of stability**.
+
+Expect:
+* Complete, ground-up rewrites
+* Total architectural overhauls
+* Random breakages
+* Code instability explosions so violent you aren't Schwarzenegger enough to handle them!
+
+The official policy remains brutal but honest: **anything pre-1.0.0 is fair game for breaking changes without warning and without apologies.**
+
+Proceed at your own risk, or prepare for the chaos! 🔥
+
+*P.S. If anything goes to shit, just blame Justin!* 🤷‍♂️
+
+---
+
 # Lunatic Panel
 
 **Lunatic Panel** is an open-source, modular control panel template built on **Blazor Server** and **.NET LTS**. The core panel is entirely barebones, it contains zero built-in configuration tools. Instead, all features are discovered, downloaded, and managed directly through an integrated **Marketplace** system.

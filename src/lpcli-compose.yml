@@ -11,6 +11,7 @@ services:
       service_name: "lunaticpanel"
       # https:// to the location of deb release file we want.
       # deb_url: ""
+      startup_parameters: "--urls \"http://localhost:10001;\""
       exec_start: "./LunaticPanel.Hybrid.Web"
       working_dir: "/srv/lunaticpanel"
       description: "Lunatic Panel dashboard hosting."
@@ -35,7 +36,7 @@ services:
       service_name: "lpkg_localserver"
       # https:// to the location of deb release file we want.
       # deb_url: ""
-      startup_parameters: "--urls \"http://localhost:5001;\""
+      startup_parameters: "--urls \"http://localhost:10002;\""
       exec_start: "./LunaticPanel.Package.LocalServer"
       working_dir: "/srv/lunaticpanel_lpkg_localserver"
       description: "Lunatic Panel Local Package Server"
