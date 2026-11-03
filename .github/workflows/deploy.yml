@@ -257,9 +257,11 @@ jobs:
 
       - name: Building CDN Ready Release Files
         run: |
+          echo "${{ steps.get_version.outputs.version }}" > /tmp/artifacts/web/.version
+          echo "${{ steps.get_version.outputs.version }}" > /tmp/artifacts/output/.version
           mkdir -p /tmp/artifacts/cdn
-          tar -czf /tmp/artifacts/cdn/lunaticpanel_latest.tar.gz -C /tmp/artifacts/web .
-          tar -czf /tmp/artifacts/cdn/lunaticpanel_plugins_latest.tar.gz -C /tmp/artifacts/output/ $(cd /tmp/artifacts/output && ls *.lpkg)
+          tar -czf "/tmp/artifacts/cdn/lunaticpanel_${{ steps.get_version.outputs.version }}.tar.gz" -C /tmp/artifacts/web .
+          tar -czf "/tmp/artifacts/cdn/lunaticpanel_plugins_${{ steps.get_version.outputs.version }}.tar.gz" -C /tmp/artifacts/output/ $(cd /tmp/artifacts/output && ls *.lpkg)
           echo "${{ steps.get_version.outputs.version }}" > /tmp/artifacts/cdn/stable.txt
 
       - name: Upload to Cloudflare R2
