@@ -124,7 +124,20 @@ internal static class BootstrapPlugins
             ToApplyUpdates[item] = manifest;
         }
     }
+    public static void RestoreMissingRuntimesFromInstalled()
+    {
+        DetectUpdates();
 
+        string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
+        foreach (var shouldBeInstalled in Installed)
+            if (!Runtimes.Any(p => p.Value.Id == shouldBeInstalled.Value.Id) && !ToApplyUpdates.Any(p => p.Value.Id == shouldBeInstalled.Value.Id))
+                File.Move(shouldBeInstalled.Key, Path.Combine(applyLocation, Path.GetFileName(shouldBeInstalled.Key)), true);
+
+        DetectUpdates();
+        DetectDelete();
+        DetectRollbacks();
+        DetectInstalled();
+    }
     public static void ApplyUpdates()
     {
         string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");

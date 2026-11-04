@@ -36,10 +36,14 @@ public static class Bootstrap
         await ApplyPanelUpdate(); // Perform Pending Update of the panel
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
+        DetectUpdates();
+        DetectDelete();
+        DetectRollbacks();
+        DetectInstalled();
         ProcessDeletePlugins();
         ProcessPreinstalledPlugins();
-        // Order Matter for Flow
         DetectRuntimePlugins(); // Check What's in the runtime folder.
+        RestoreMissingRuntimesFromInstalled();
         ApplyUpdates(); // Add/Update plugins
         DetectRuntimePlugins(); // Reload what's in the runtime folder.
         DetectPlugins();
