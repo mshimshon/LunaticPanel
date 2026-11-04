@@ -327,8 +327,11 @@ internal class PanelUpdateService : IPanelUpdateService
         {
             client.BaseAddress = new Uri(_updateEndpoint);
             var version = await GetLatestVersion(client, ct);
-            if (version <= _currentPanelVersion) return version;
-            throw new Exception("Couldn't fetch remote version.");
+            if (version == default)
+                throw new Exception("Couldn't fetch remote version.");
+            if (version <= _currentPanelVersion)
+                return version;
+            return _currentPanelVersion;
         }
 
     }
