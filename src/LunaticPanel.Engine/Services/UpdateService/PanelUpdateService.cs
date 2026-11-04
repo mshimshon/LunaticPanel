@@ -83,7 +83,7 @@ internal class PanelUpdateService : IPanelUpdateService
         _pluginDeleteLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "delete");
         _pluginRollbackLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "rollbacks");
         _pluginInstalledLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "installed");
-        _binPreinstalledPlugins = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "preinstalled");
+        _binPreinstalledPlugins = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins_preinstalled");
         if (bool.TryParse(Environment.GetEnvironmentVariable("LP_UPGRADE_AUTO_RESTART"), out var autoRestart))
             _autoRestart = autoRestart;
 
@@ -115,7 +115,6 @@ internal class PanelUpdateService : IPanelUpdateService
         AwaitingForPluginCompatibilityUpdate = true;
         Version versionCache = new Version(File.ReadAllText(lastDownloaded));
         if (versionCache <= _currentPanelVersion) return;
-        string[] preinstalled = Directory.GetFiles(_binPreinstalledPlugins, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] installed = Directory.GetFiles(_pluginInstalledLocationFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
@@ -160,13 +159,18 @@ internal class PanelUpdateService : IPanelUpdateService
             }
             validForNextUpgrade[item] = manifest;
         }
-
         PreInstalled.Clear();
-        foreach (var item in preinstalled)
+        if (Directory.Exists(_binPreinstalledPlugins))
         {
-            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
-            if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
-            PreInstalled.Add(manifest.Id);
+            string[] preinstalled = Directory.GetFiles(_binPreinstalledPlugins, "*.lpkg", SearchOption.TopDirectoryOnly);
+
+            foreach (var item in preinstalled)
+            {
+                var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+                if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
+                PreInstalled.Add(manifest.Id);
+            }
+
         }
 
         bool nextFlag = false;
@@ -329,7 +333,7 @@ internal class PanelUpdateService : IPanelUpdateService
             var version = await GetLatestVersion(client, ct);
             if (version == default)
                 throw new Exception("Couldn't fetch remote version.");
-            if (version <= _currentPanelVersion)
+            if (version >= _currentPanelVersion)
                 return version;
             return _currentPanelVersion;
         }
@@ -338,10 +342,10 @@ internal class PanelUpdateService : IPanelUpdateService
 
     private async Task<Version?> GetLatestVersion(HttpClient client, CancellationToken ct = default)
     {
-        string versionLatestRaw = "";
         var responseStable = await client.GetAsync("stable.txt");
         responseStable.EnsureSuccessStatusCode();
         string versionStableRaw = await responseStable.Content.ReadAsStringAsync();
+        _crazyReport.Report($"Remote Panel Version is {versionStableRaw}");
         // TODO: Add Support for Preview Versioning.
         // if (_previewEnabled)
         // {
