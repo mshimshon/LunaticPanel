@@ -115,6 +115,7 @@ internal class PanelUpdateService : IPanelUpdateService
         AwaitingForPluginCompatibilityUpdate = true;
         Version versionCache = new Version(File.ReadAllText(lastDownloaded));
         if (versionCache <= _currentPanelVersion) return;
+        string[] preinstalled = Directory.GetFiles(_binPreinstalledPlugins, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] installed = Directory.GetFiles(_pluginInstalledLocationFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
@@ -160,15 +161,26 @@ internal class PanelUpdateService : IPanelUpdateService
             validForNextUpgrade[item] = manifest;
         }
 
-
-        bool nextFlag = false;
         PreInstalled.Clear();
-        foreach (var item in installed)
+        foreach (var item in preinstalled)
         {
             var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
             PreInstalled.Add(manifest.Id);
+        }
+
+        bool nextFlag = false;
+        foreach (var item in installed)
+        {
+            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+            if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
             Version pPanelVersion = new(manifest.PanelVersion);
+            if (pPanelVersion <= versionCache && pPanelVersion.Major == versionCache.Major && !validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
+            {
+                File.Copy(item, Path.Combine(_upgradePluginUpgradeFolder, Path.GetFileName(item)));
+                continue;
+            }
+
             if (!validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
             {
                 _crazyReport.ReportWarning($"Still awaiting valid plugin upgrade package built on panel version same major <= {versionCache}).");
