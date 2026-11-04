@@ -140,7 +140,7 @@ internal class PanelUpdateService : IPanelUpdateService
             if (manifest == default) continue;
             Version pPanelVersion = new(manifest.PanelVersion);
             if (pPanelVersion <= versionCache && pPanelVersion.Major == versionCache.Major && !validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
-                File.Copy(item, Path.Combine(_upgradePluginUpgradeFolder, Path.GetFileName(item)));
+                File.Copy(item, Path.Combine(_upgradePluginUpgradeFolder, Path.GetFileName(item)), true);
         }
 
 
@@ -163,7 +163,7 @@ internal class PanelUpdateService : IPanelUpdateService
                 _crazyReport.ReportWarning($"'{item}' Deleted.");
                 continue;
             }
-            Version pPanelVersion = new(manifest.PanelVersion);
+            Version pluginPanelVersion = new(manifest.PanelVersion);
             if (_currentPanelVersion.Major != versionCache.Major)
             {
                 _crazyReport.ReportWarning($"Panel version for plugin {manifest.Id} found '{item}' is not the same as the nextPlanned upgrade major {versionCache.Major}.");
@@ -171,9 +171,9 @@ internal class PanelUpdateService : IPanelUpdateService
                 _crazyReport.ReportWarning($"'{item}' Deleted.");
                 continue;
             }
-            if (versionCache > pPanelVersion)
+            if (pluginPanelVersion > versionCache)
             {
-                _crazyReport.ReportWarning($"Panel version for plugin {manifest.Id} found '{item}' was compiled using a more recent panel version ({pPanelVersion} > {versionCache}).");
+                _crazyReport.ReportWarning($"Panel version for plugin {manifest.Id} found '{item}' was compiled using a more recent panel version ({pluginPanelVersion} > {versionCache}).");
                 File.Delete(item);
                 _crazyReport.ReportWarning($"'{item}' Deleted.");
                 continue;
