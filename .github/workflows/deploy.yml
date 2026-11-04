@@ -239,6 +239,13 @@ jobs:
           done
 
           ls -R /tmp/artifacts/output
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Push Version Tag
         shell: bash
         run: |
@@ -274,11 +281,7 @@ jobs:
           source-dir: '/tmp/artifacts/cdn' # The folder you want to upload
           destination-dir: 'release'
 
-      - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@v1
-        id: login
-        with:
-          user: ${{ secrets.NUGET_USER }}
+
 
       - name: Push all NuGet packages with retry
         uses: nick-invision/retry@v2
