@@ -118,6 +118,20 @@ internal class PanelUpdateService : IPanelUpdateService
         string[] installed = Directory.GetFiles(_pluginInstalledLocationFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
+
+
+        foreach (var item in installed)
+        {
+            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+            if (manifest == default) continue;
+            Version pPanelVersion = new(manifest.PanelVersion);
+            if (pPanelVersion <= versionCache && pPanelVersion.Major == versionCache.Major && !validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
+                File.Copy(item, Path.Combine(_upgradePluginUpgradeFolder, Path.GetFileName(item)));
+        }
+
+
+        plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
+
         foreach (var item in plugins)
         {
             var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
@@ -178,12 +192,7 @@ internal class PanelUpdateService : IPanelUpdateService
         {
             var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
-            Version pPanelVersion = new(manifest.PanelVersion);
-            if (pPanelVersion <= versionCache && pPanelVersion.Major == versionCache.Major && !validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
-            {
-                File.Copy(item, Path.Combine(_upgradePluginUpgradeFolder, Path.GetFileName(item)));
-                continue;
-            }
+
 
             if (!validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
             {
