@@ -104,17 +104,31 @@ internal class PanelUpdateService : IPanelUpdateService
     public async Task CheckPluginsAsync(CancellationToken ct = default)
     {
         if (Installing != default || Staged != default)
+        {
+            _crazyReport.Report($"Installing Version {(Installing != default ? Installing : "NO")} Staged Folder {(Staged != default ? Staged : "NO")} Skip CheckPlugins.");
+
             return;
+        }
 
         SafeToUpgrade();
         if (BlockedByPlugin) return;
 
         string lastDownloaded = Path.Combine(_upgradeDownloadFolder, "cache.txt");
-        if (!File.Exists(lastDownloaded)) return;
+        if (!File.Exists(lastDownloaded))
+        {
+            _crazyReport.Report($"Cached Version Missing ('{lastDownloaded}').");
+
+            return;
+        }
         PluginUpgradeDownloaded = default;
         AwaitingForPluginCompatibilityUpdate = true;
         Version versionCache = new Version(File.ReadAllText(lastDownloaded));
-        if (versionCache <= _currentPanelVersion) return;
+        if (versionCache <= _currentPanelVersion)
+        {
+            _crazyReport.Report($"Cached Version {versionCache} lower or equal to current {_currentPanelVersion} Skip CheckPlugins.");
+
+            return;
+        }
         string[] installed = Directory.GetFiles(_pluginInstalledLocationFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
@@ -147,7 +161,7 @@ internal class PanelUpdateService : IPanelUpdateService
                 _crazyReport.ReportWarning($"'{item}' failed to extract manifest.");
                 File.Delete(item);
                 _crazyReport.ReportWarning($"'{item}' Deleted.");
-                return;
+                continue;
             }
             Version pPanelVersion = new(manifest.PanelVersion);
             if (_currentPanelVersion.Major != versionCache.Major)
@@ -218,14 +232,22 @@ internal class PanelUpdateService : IPanelUpdateService
     public async Task DownloadUpdateAsync(CancellationToken ct = default)
     {
         if (Installing != default || Staged != default)
+        {
+            _crazyReport.Report($"Installing Version {(Installing != default ? Installing : "NO")} Staged Folder {(Staged != default ? Staged : "NO")} Skip DownloadUpdate.");
             return;
+        }
         SafeToUpgrade();
         if (BlockedByPlugin) return;
         // Create the short-lived client from the injected factory
         using var client = _httpClientFactory.CreateClient();
         client.BaseAddress = new Uri(_updateEndpoint);
         var version = await GetLatestVersion(client, ct);
-        if (version <= _currentPanelVersion) return;
+        if (version <= _currentPanelVersion)
+        {
+            _crazyReport.ReportWarning($"Latest Version {version} is lower or equal to current panel version {_currentPanelVersion}.");
+
+            return;
+        }
         string lastDownloaded = Path.Combine(_upgradeDownloadFolder, "cache.txt");
         // _previewEnabled
         // Download Panel
@@ -244,7 +266,10 @@ internal class PanelUpdateService : IPanelUpdateService
     public async Task InstallUpdateAsync(CancellationToken ct = default)
     {
         if (Installing != default || Downloaded == default)
+        {
+            _crazyReport.Report($"Installing Version {(Installing != default ? Installing : "NO")} Staged Folder {(Staged != default ? Staged : "NO")} Skip InstallUpdate.");
             return;
+        }
         Installing = Downloaded;
         int backupFileCount = Directory.GetFiles(_upgradeBackup, "*.tar.gz").Count();
         int nextCount = backupFileCount + 1;
