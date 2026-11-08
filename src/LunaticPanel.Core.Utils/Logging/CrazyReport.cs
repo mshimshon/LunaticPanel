@@ -59,7 +59,7 @@ internal class CrazyReport : ICrazyReport
     {
         ErrorCatch(() =>
         {
-            Console.WriteLine($"{Red}{GetPrefix()}: {line}{Reset}");
+            Console.WriteLine($"{RED}{GetPrefix()}: {line}{RESET}");
             Log(line, LogLevel.Error);
         });
     }
@@ -68,7 +68,7 @@ internal class CrazyReport : ICrazyReport
         ErrorCatch(() =>
         {
             var line = string.Format(format, arg);
-            Console.WriteLine($"{Red}{GetPrefix()}: {line}{Reset}");
+            Console.WriteLine($"{RED}{GetPrefix()}: {line}{RESET}");
             Log(line, LogLevel.Error);
         });
     }
@@ -77,7 +77,7 @@ internal class CrazyReport : ICrazyReport
     {
         ErrorCatch(() =>
         {
-            Console.WriteLine($"{DarkCyan}{GetPrefix()}: {line}{Reset}");
+            Console.WriteLine($"{DARK_CYAN}{GetPrefix()}: {line}{RESET}");
             Log(line, LogLevel.Information);
         });
     }
@@ -86,7 +86,7 @@ internal class CrazyReport : ICrazyReport
         ErrorCatch(() =>
         {
             var line = string.Format(format, arg);
-            Console.WriteLine($"{DarkCyan}{GetPrefix()}: {line}{Reset}");
+            Console.WriteLine($"{DARK_CYAN}{GetPrefix()}: {line}{RESET}");
             Log(line, LogLevel.Information);
         });
     }
@@ -94,7 +94,7 @@ internal class CrazyReport : ICrazyReport
     {
         ErrorCatch(() =>
         {
-            Console.WriteLine($"{DarkGreen}{GetPrefix()}: {line}{Reset}");
+            Console.WriteLine($"{DARK_GREEN}{GetPrefix()}: {line}{RESET}");
             Log(line, LogLevel.Debug);
         });
     }
@@ -103,7 +103,7 @@ internal class CrazyReport : ICrazyReport
         ErrorCatch(() =>
         {
             var line = string.Format(format, arg);
-            Console.WriteLine($"{DarkGreen}{GetPrefix()}: {line}{Reset}");
+            Console.WriteLine($"{DARK_GREEN}{GetPrefix()}: {line}{RESET}");
             Log(line, LogLevel.Debug);
         });
     }
@@ -111,7 +111,7 @@ internal class CrazyReport : ICrazyReport
     {
         ErrorCatch(() =>
         {
-            Console.WriteLine($"{DarkYellow}{GetPrefix()}: {line}{Reset}");
+            Console.WriteLine($"{DARK_YELLOW}{GetPrefix()}: {line}{RESET}");
             Log(line, LogLevel.Warning);
         });
     }
@@ -120,7 +120,7 @@ internal class CrazyReport : ICrazyReport
         ErrorCatch(() =>
         {
             var line = string.Format(format, arg);
-            Console.WriteLine($"{DarkYellow}{GetPrefix()}: {line}{Reset}", arg);
+            Console.WriteLine($"{DARK_YELLOW}{GetPrefix()}: {line}{RESET}", arg);
             Log(line, LogLevel.Warning);
         });
 

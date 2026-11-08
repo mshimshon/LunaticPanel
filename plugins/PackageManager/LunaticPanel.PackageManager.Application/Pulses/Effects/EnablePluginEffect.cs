@@ -23,6 +23,6 @@ internal class EnablePluginEffect : IEffect<EnablePluginAction>
 
     public async Task EffectAsync(EnablePluginAction action, IDispatcher dispatcher)
     {
-        await _eventBus.PublishDataAsync(PluginKeys.Events.EnablePlugin, action.Id);
+        await _eventBus.PublishDataAsync(PluginKeys.Events.ENABLE_PLUGIN, action.Id);
     }
 }

@@ -5,7 +5,7 @@ using LunaticPanel.Engine.Web.Services;
 
 namespace LunaticPanel.Engine.Web.Hooks.Queries;
 
-[QueryBusKey(PluginKeys.Queries.FetchBootstrapFile, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
+[QueryBusKey(PluginKeys.Queries.FETCH_BOOTSTRAP_FILE, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
 internal class GetBootstrapFileQuery : IQueryBusHandler
 {
     private readonly IBootstrapFileController _bootstrapFileController;

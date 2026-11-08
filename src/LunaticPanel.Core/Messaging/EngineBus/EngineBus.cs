@@ -23,7 +23,7 @@ public class EngineBus : IEngineBus
 
     public Task<EngineBusResponse[]> ExecAsync(IEngineBusMessage engineBusRender, CancellationToken cancellationToken = default)
     {
-        if (engineBusRender.isTargetInternalId(_pluginInfo.PluginId))
+        if (engineBusRender.IsTargetInternalId(_pluginInfo.PluginId))
             if (!_pluginInfo.IsTargetInternalKeyRegistered(engineBusRender.GetKey()))
             {
                 var ex = new BusKeyNotRegisteredException(engineBusRender.GetKey(), _pluginInfo.PluginId);

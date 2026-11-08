@@ -5,6 +5,7 @@ end_of_line = lf
 dotnet_style_namespace_match_folder = true:warning
 # C# files
 [*.cs]
+dotnet_diagnostic.IDE1006.severity = error
 
 #### Core EditorConfig Options ####
 

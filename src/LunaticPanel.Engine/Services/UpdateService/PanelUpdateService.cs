@@ -328,7 +328,7 @@ internal class PanelUpdateService : IPanelUpdateService
             if (_autoRestart && _circuitRegistry.GetActiveCircuits().Count <= 1)
             {
                 _crazyReport.ReportInfo("Auto Restart is active and no one is using the panel, therefore let's restart.");
-                await _eventBus.PublishDatalessAsync(PanelKeys.Events.PanelShutdown);
+                await _eventBus.PublishDatalessAsync(PanelKeys.Events.PANEL_SHUTDOWN);
             }
             else if (_autoRestart && _circuitRegistry.GetActiveCircuits().Count > 1)
                 _crazyReport.Report("Auto Restart is enabled but active circuits always prevent auto restart to avoid losing data.");

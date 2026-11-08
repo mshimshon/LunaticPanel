@@ -30,7 +30,7 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
         {
             CircuitRegistry.SelfCircuitRegistration(_id, this);
             EventBus = ServiceProvider.GetRequiredService<IEventBus>();
-            _ = EventBus.PublishDatalessAsync(DashboardKeys.Events.OnFirstRender);
+            _ = EventBus.PublishDatalessAsync(DashboardKeys.Events.ON_FIRST_RENDER);
             _readyToRender = true;
             InvokeAsync(StateHasChanged);
         }

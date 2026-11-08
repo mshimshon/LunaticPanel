@@ -3,11 +3,11 @@
 
 public interface ICrazyReport
 {
-    const string Reset = "\u001b[0m";
-    const string DarkGreen = "\u001b[32m";
-    const string Red = "\u001b[31m";
-    const string DarkCyan = "\u001b[36m";
-    const string DarkYellow = "\u001b[33m";
+    const string RESET = "\u001b[0m";
+    const string DARK_GREEN = "\u001b[32m";
+    const string RED = "\u001b[31m";
+    const string DARK_CYAN = "\u001b[36m";
+    const string DARK_YELLOW = "\u001b[33m";
     void SetModule(string moduleName);
     void SetModule<TClass>(string moduleName) where TClass : class;
     void SetClass<TClass>() where TClass : class;

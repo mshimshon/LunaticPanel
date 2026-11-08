@@ -6,7 +6,7 @@ using LunaticPanel.Engine.Web.Services;
 
 namespace LunaticPanel.Engine.Web.Hooks.Events;
 
-[EventBusKey(PluginKeys.Events.EnablePlugin, ServiceLifetime = EBusLifetime.Scoped)]
+[EventBusKey(PluginKeys.Events.ENABLE_PLUGIN, ServiceLifetime = EBusLifetime.Scoped)]
 internal class EnablePluginEvent : IEventBusHandler
 {
     private readonly IBootstrapFileController _bootstrapFileController;
@@ -22,6 +22,6 @@ internal class EnablePluginEvent : IEventBusHandler
         string id = await evt.ReadAs<string>();
         Console.WriteLine($"Enable Plugin => {id}");
         await _bootstrapFileController.EnablePlugin(id);
-        await _eventBus.PublishDataAsync(PluginKeys.Events.OnPluginEnabled, id);
+        await _eventBus.PublishDataAsync(PluginKeys.Events.ON_PLUGIN_ENABLED, id);
     }
 }

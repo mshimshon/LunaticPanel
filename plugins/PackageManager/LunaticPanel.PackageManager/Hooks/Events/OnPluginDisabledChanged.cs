@@ -5,7 +5,7 @@ using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Hooks.Events;
 
-[EventBusKey(PluginKeys.Events.OnPluginDisabled)]
+[EventBusKey(PluginKeys.Events.ON_PLUGIN_DISABLED)]
 internal class OnPluginDisabledChanged : IEventBusHandler
 {
     private readonly IDispatcher _dispatcher;

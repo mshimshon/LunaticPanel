@@ -9,14 +9,14 @@ using LunaticPanel.Engine.Web.Services;
 
 namespace LunaticPanel.Engine.Web.Hooks.Events.Scheduled;
 
-[EventScheduledBusKey(PanelKeys.Events.ScheduledEvents.AutoUpdateCycle, 1, 0, 0, 0, 0, RunAtStartup = true)]
+[EventScheduledBusKey(PanelKeys.Events.ScheduledEvents.AUTO_UPDATE_CYCLE, 1, 0, 0, 0, 0, RunAtStartup = true)]
 internal class PackageUpdateScheduled : IEventScheduledBusHandler
 {
     private readonly ICrazyReport<PackageUpdateScheduled> _crazyReport;
     private readonly IPanelUpdateService _panelUpdateService;
     private readonly ICircuitRegistry _circuitRegistry;
 
-    private static bool isExecuting = false;
+    private static bool _isExecuting = false;
     private static readonly Lock _lock = new();
     private TimeSpan _configuredTiming = new(1, 0, 0, 0);
     private Version _panelVersion = default!;
@@ -42,7 +42,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
         var result = msg.ReplyWithAction(Exec);
 
 
-        if (isExecuting)
+        if (_isExecuting)
             result.SkipExecution().NextTiming(0, 0, 30);
         else
             result.NextTiming(_configuredTiming);
@@ -53,8 +53,8 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
     {
         lock (_lock)
         {
-            if (isExecuting) return;
-            isExecuting = true;
+            if (_isExecuting) return;
+            _isExecuting = true;
         }
 
         try
@@ -84,7 +84,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
         {
             lock (_lock)
             {
-                isExecuting = false;
+                _isExecuting = false;
             }
         }
 

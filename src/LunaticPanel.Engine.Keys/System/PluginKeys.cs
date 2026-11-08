@@ -4,37 +4,37 @@ public static class PluginKeys
 {
     public static class Queries
     {
-        public const string FetchAll = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchAll)}";
+        public const string FETCH_ALL = $"{LPEngineKeys.QUERYPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FETCH_ALL)}";
         /// <summary>
         /// Return List of BootstrapPluginDescriptor from bootstrap file, loaded from disk every single time.
         /// </summary>
-        public const string FetchBootstrapFile = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchBootstrapFile)}";
+        public const string FETCH_BOOTSTRAP_FILE = $"{LPEngineKeys.QUERYPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FETCH_BOOTSTRAP_FILE)}";
         /// <summary>
         /// Same as FetchBootstrapFile but only return the currently loaded version from host RAM. (Used to compare changes)
         /// </summary>
-        public const string FetchBootstrap = $"{LPEngineKeys.QueryPrefix_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FetchBootstrap)}";
+        public const string FETCH_BOOTSTRAP = $"{LPEngineKeys.QUERYPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Queries)}.{nameof(FETCH_BOOTSTRAP)}";
     }
 
     public static class Events
     {
-        public const string OnInitialize = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnInitialize)}";
-        public const string OnParameterSet = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnParameterSet)}";
-        public const string OnAfterRender = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnAfterRender)}";
+        public const string ON_INITIALIZE = $"{LPEngineKeys.EVENTPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(ON_INITIALIZE)}";
+        public const string ON_PARAMETER_SET = $"{LPEngineKeys.EVENTPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(ON_PARAMETER_SET)}";
+        public const string ON_AFTER_RENDER = $"{LPEngineKeys.EVENTPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(ON_AFTER_RENDER)}";
         /// <summary>
         /// Set Plugin as Enabled for the next startup.
         /// </summary>
-        public const string EnablePlugin = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(EnablePlugin)}";
+        public const string ENABLE_PLUGIN = $"{LPEngineKeys.EVENTPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(ENABLE_PLUGIN)}";
         /// <summary>
         /// Set Plugin as Disabled for the next startup.
         /// </summary>
-        public const string DisablePlugin = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(DisablePlugin)}";
+        public const string DISABLE_PLUGIN = $"{LPEngineKeys.EVENTPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(DISABLE_PLUGIN)}";
         /// <summary>
         /// Called after the Plugin is Enabled (Doesn't called if the plugin was disabled directly into the bootstrap.json)
         /// </summary>
-        public const string OnPluginEnabled = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnPluginEnabled)}";
+        public const string ON_PLUGIN_ENABLED = $"{LPEngineKeys.EVENTPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(ON_PLUGIN_ENABLED)}";
         /// <summary>
         /// Called after the Plugin is Disabled (Doesn't called if the plugin was disabled directly into the bootstrap.json)
         /// </summary>
-        public const string OnPluginDisabled = $"{LPEngineKeys.EventPrefix_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(OnPluginDisabled)}";
+        public const string ON_PLUGIN_DISABLED = $"{LPEngineKeys.EVENTPREFIX_V1}.{nameof(PluginKeys)}.{nameof(Events)}.{nameof(ON_PLUGIN_DISABLED)}";
     }
 }

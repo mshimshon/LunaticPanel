@@ -23,7 +23,7 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         try
         { // _coreMap.MapTo<MenuElementResponse, MenuElementEntity>
             var responses = await _engineBus
-                .Execute(MainMenuKeys.UI.GetElements)
+                .Execute(MainMenuKeys.UI.GET_ELEMENTS)
                 .ReadWithData((response) => _coreMap.MapTo<MenuElementResponse, MenuElementEntity>((response.Data?.GetDataAs<MenuElementResponse>() ?? new())), p => p);
             result = responses
                 .OrderBy(p => p.Data.Position)

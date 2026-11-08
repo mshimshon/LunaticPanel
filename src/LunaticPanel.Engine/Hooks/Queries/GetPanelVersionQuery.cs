@@ -6,7 +6,7 @@ using LunaticPanel.Engine.Keys.System;
 
 namespace LunaticPanel.Engine.Web.Hooks.Queries;
 
-[QueryBusKey(PanelKeys.Queries.GetPanelVersion, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
+[QueryBusKey(PanelKeys.Queries.GET_PANEL_VERSION, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
 internal class GetPanelVersionQuery : IQueryBusHandler
 {
     public Task<QueryBusMessageResponse> HandleAsync(IQueryBusMessage qry)

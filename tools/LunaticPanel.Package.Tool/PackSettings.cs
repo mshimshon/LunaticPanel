@@ -6,8 +6,8 @@ namespace LunaticPanel.Package.Tool;
 internal static class PackSettings
 {
 
-    public static int DotNetVersion = 0;
-    public static string LunaticPanelVersion = default!;
+    public static int dotNetVersion = 0;
+    public static string lunaticPanelVersion = default!;
     //public static void PopulateExclusionDlls()
     //{
     //    var dllExclusion = _blacklistDlls.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -45,7 +45,7 @@ internal static class PackSettings
         Console.WriteLine($"Runtime Dotnet Dir: {runtimeDir}".Cyan());
         try
         {
-            DotNetVersion = int.Parse(Path.GetFileName(runtimeDir).Split('.')[0]); // "10.0.9"
+            dotNetVersion = int.Parse(Path.GetFileName(runtimeDir).Split('.')[0]); // "10.0.9"
 
         }
         catch (Exception ex)
@@ -65,14 +65,14 @@ internal static class PackSettings
         var sdkVersions = Directory.GetDirectories(sdkRoot)
             .Select(dir => Path.GetFileName(Path.TrimEndingDirectorySeparator(dir)))
             .Select(v => v.Split('.').Select(int.Parse).ToArray())
-            .Where(v => v[0] == DotNetVersion)
+            .Where(v => v[0] == dotNetVersion)
                 .OrderByDescending(v => v[0])
                 .ThenByDescending(v => v[1])
                 .ThenByDescending(v => v[2])
             .ToList();
 
         if (sdkVersions.Count <= 0)
-            throw new DotnetSDKNotFoundException($".NET SDK {DotNetVersion} is required to pack");
+            throw new DotnetSDKNotFoundException($".NET SDK {dotNetVersion} is required to pack");
         var selectedSdkVersion = sdkVersions.First();
         var sdkVersion = $"{selectedSdkVersion[0]}.{selectedSdkVersion[1]}.{selectedSdkVersion[2]}";
         Console.WriteLine($"SDK version is: {sdkVersion}".Cyan());

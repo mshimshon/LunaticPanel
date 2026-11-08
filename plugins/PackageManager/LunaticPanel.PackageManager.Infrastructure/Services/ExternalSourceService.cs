@@ -35,7 +35,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
         PropertyNameCaseInsensitive = true,
     };
-    public HttpClient _client;
+    private HttpClient _client;
     private bool _disposedValue;
     private readonly IPluginSystemLocation _pluginSystemLocation;
     public ExternalSourceService(IPluginLocation pluginLocation, ICrazyReport<PackageDownloader> crazyReport, ISafeFileWriter safeFileWriter,

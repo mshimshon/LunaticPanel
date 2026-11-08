@@ -29,7 +29,7 @@ public sealed class QueryBus : IQueryBus
 
     public Task<QueryBusMessageResponse> QueryAsync(IQueryBusMessage qry, CancellationToken cancellationToken = default)
     {
-        if (_pluginInfo != default && qry.isTargetInternalId(_pluginInfo.PluginId))
+        if (_pluginInfo != default && qry.IsTargetInternalId(_pluginInfo.PluginId))
             if (!_pluginInfo.IsTargetInternalKeyRegistered(qry.GetKey()))
             {
                 var ex = new BusKeyNotRegisteredException(qry.GetKey(), _pluginInfo.PluginId);

@@ -6,7 +6,7 @@ namespace LunaticPanel.Core.PluginValidator;
 
 public static class CoreValidatorExt
 {
-    private static readonly string[] CoreAssemblyNames =
+    private static readonly string[] _coreAssemblyNames =
     [
         "LunaticPanel.Core",
         "LunaticPanel.Core.Abstraction",
@@ -22,7 +22,7 @@ public static class CoreValidatorExt
         Assembly pluginAssembly = plugin.GetType().Assembly;
 
         var pluginCoreReferences = pluginAssembly.GetReferencedAssemblies()
-            .Where(r => CoreAssemblyNames.Contains(r.Name, StringComparer.OrdinalIgnoreCase))
+            .Where(r => _coreAssemblyNames.Contains(r.Name, StringComparer.OrdinalIgnoreCase))
             .ToList();
 
         // 2. Validate only if the plugin targets multiple core assemblies

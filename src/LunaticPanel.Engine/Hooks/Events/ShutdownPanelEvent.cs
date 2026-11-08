@@ -4,7 +4,7 @@ using LunaticPanel.Engine.Keys.System;
 
 namespace LunaticPanel.Engine.Web.Hooks.Events;
 
-[EventBusKey(PanelKeys.Events.PanelShutdown)]
+[EventBusKey(PanelKeys.Events.PANEL_SHUTDOWN)]
 internal class ShutdownPanelEvent : IEventBusHandler
 {
     private readonly IPanelControl _panelControl;

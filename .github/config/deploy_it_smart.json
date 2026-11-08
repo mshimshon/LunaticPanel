@@ -1,5 +1,8 @@
 ﻿{
+  "CustomScriptLocation": "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\.github\\scripts\\runners",
+  "UseCustomScriptLoader": false,
   "InitialVersion": "0.0.1",
+  "MasterReleaseBranch": "main",
   "EmptyLogMessage": "This release has no information.",
   "FeatureHeader": "New Features",
   "BreakingHeader": "BREAKING CHANGES",
@@ -9,10 +12,10 @@
   "ThanksHeader": "Special Thanks",
   "Projects": {
     "_": "Lunatic Panel",
-    "tools/LunaticPanel.DebugTool/LunaticPanel.DebugTool.csproj": "Debug Tool",
-    "tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj": "Packing Tool",
-    "tools/LunaticPanel.Package.Server/LunaticPanel.Package.Server.csproj": "LunaPackage Server Lib",
-    "tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj": "LunaPackage Local Server"
+    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.DebugTool\\LunaticPanel.DebugTool.csproj": "Debug Tool",
+    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.Package.Tool\\LunaticPanel.Package.Tool.csproj": "Packing Tool",
+    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.Package.Server\\LunaticPanel.Package.Server.csproj": "LunaPackage Server Lib",
+    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.Package.LocalServer\\LunaticPanel.Package.LocalServer.csproj": "LunaPackage Local Server"
   },
   "TagMarkdown": {
     "@": "[{this}](https://github.com/{this})"

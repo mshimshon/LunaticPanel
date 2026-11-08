@@ -9,7 +9,7 @@ internal static class BusGatewayHelperExt
         => id.StartsWith($"{prefix}.[{pluginId}]", StringComparison.OrdinalIgnoreCase);
 
 
-    public static bool isTargetInternalId(this IBusMessage busMessage, string pluginId)
+    public static bool IsTargetInternalId(this IBusMessage busMessage, string pluginId)
     => CheckIfInternalId("enginekey", busMessage.GetKey(), pluginId) ||
        CheckIfInternalId("eventkey", busMessage.GetKey(), pluginId) ||
        CheckIfInternalId("querykey", busMessage.GetKey(), pluginId);

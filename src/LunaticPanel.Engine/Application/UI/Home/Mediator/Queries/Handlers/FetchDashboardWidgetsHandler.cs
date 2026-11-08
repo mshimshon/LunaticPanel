@@ -25,7 +25,7 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
         { // _coreMap.MapTo<WidgetElementResponse, WidgetElementEntity>
             var responses =
                 await _engineBus
-                .Execute(DashboardKeys.UI.GetWidgets)
+                .Execute(DashboardKeys.UI.GET_WIDGETS)
                 .ReadWithData((EngineBusResponse response) => _coreMap.MapTo<WidgetElementResponse, WidgetElementEntity>(response.Data?.GetDataAs<WidgetElementResponse>() ?? new()),
                 p => p);
             result = responses.OrderBy(p => p.Data.Position).ToList();

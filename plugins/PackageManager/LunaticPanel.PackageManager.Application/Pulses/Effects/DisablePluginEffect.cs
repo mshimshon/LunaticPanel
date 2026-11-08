@@ -23,6 +23,6 @@ internal class DisablePluginEffect : IEffect<DisablePluginAction>
 
     public async Task EffectAsync(DisablePluginAction action, IDispatcher dispatcher)
     {
-        await _eventBus.PublishDataAsync(PluginKeys.Events.DisablePlugin, action.Id);
+        await _eventBus.PublishDataAsync(PluginKeys.Events.DISABLE_PLUGIN, action.Id);
     }
 }

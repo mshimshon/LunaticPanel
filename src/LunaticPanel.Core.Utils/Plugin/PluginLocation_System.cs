@@ -23,9 +23,9 @@ internal partial class PluginLocation : IPluginSystemLocation
     public const string DOWNLOAD_FOLDER_NAME = "download";
     private void InitSystemLocation(string assemblyName)
     {
-        PluginFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxSrvFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
-        PluginEtcFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxEtcFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
-        PluginVarFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LinuxVarFolderName, IPluginLocation.LinuxLibFolderName, IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName));
+        PluginFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LINUX_SRV_FOLDER_NAME, IPluginLocation.LUNATIC_PANEL_FOLDER_NAME, IPluginLocation.LUNATIC_PANEL_PLUGINS_FOLDER_NAME, LinuxAssemblyName));
+        PluginEtcFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LINUX_ETC_FOLDER_NAME, IPluginLocation.LUNATIC_PANEL_FOLDER_NAME, IPluginLocation.LUNATIC_PANEL_PLUGINS_FOLDER_NAME, LinuxAssemblyName));
+        PluginVarFolder = EnsureCreated(Path.Combine(PathSeparator, IPluginLocation.LINUX_VAR_FOLDER_NAME, IPluginLocation.LINUX_LIB_FOLDER_NAME, IPluginLocation.LUNATIC_PANEL_FOLDER_NAME, IPluginLocation.LUNATIC_PANEL_PLUGINS_FOLDER_NAME, LinuxAssemblyName));
         StaticWebContentFolder = Path.Combine(PluginFolder, WEB_FOLDER_NAME);
         DynamicWebContentFolder = Path.Combine(PluginVarFolder, WEB_FOLDER_NAME);
         BashFolder = GetAppBinBase(BASH_FOLDER_NAME);

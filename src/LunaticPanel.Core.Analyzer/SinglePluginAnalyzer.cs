@@ -9,22 +9,22 @@ namespace LunaticPanel.Core.Analyzer;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SinglePluginAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "LP001";
+    public const string DIAGNOSTIC_ID = "LP001";
 
-    private const string Category = "Usage";
-    private const string PluginInterfaceMetadataName = "LunaticPanel.Core.IPlugin";
+    private const string CATEGORY = "Usage";
+    private const string PLUGIN_INTERFACE_METADATA_NAME = "LunaticPanel.Core.IPlugin";
 
-    private static readonly DiagnosticDescriptor Rule =
+    private static readonly DiagnosticDescriptor _rule =
         new DiagnosticDescriptor(
-            DiagnosticId,
+            DIAGNOSTIC_ID,
             "Multiple IPlugin implementations detected",
             "Found {0} implementations of IPlugin across project and references. Only one implementation is allowed: {1}",
-            Category,
+            CATEGORY,
             DiagnosticSeverity.Error,
             isEnabledByDefault: true);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(Rule);
+        ImmutableArray.Create(_rule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -37,7 +37,7 @@ public sealed class SinglePluginAnalyzer : DiagnosticAnalyzer
     {
         var compilation = context.Compilation;
 
-        var pluginInterface = compilation.GetTypeByMetadataName(PluginInterfaceMetadataName);
+        var pluginInterface = compilation.GetTypeByMetadataName(PLUGIN_INTERFACE_METADATA_NAME);
         if (pluginInterface == null)
             return;
 
@@ -65,7 +65,7 @@ public sealed class SinglePluginAnalyzer : DiagnosticAnalyzer
             foreach (var loc in impl.Locations.Where(l => l.IsInSource))
             {
                 var diagnostic = Diagnostic.Create(
-                    Rule,
+                    _rule,
                     loc,
                     all.Count,
                     names);

@@ -16,7 +16,7 @@ namespace LunaticPanel.Engine.Web.Boostrap;
 
 public static class Bootstrap
 {
-    private const string ConfigNameKey = "lunaticpanel";
+    private const string CONFIG_NAME_KEY = "lunaticpanel";
 
     public static string PluginDirectory { get; private set; } = default!;
     public static string ConfigDirectory { get; private set; } = default!;
@@ -211,8 +211,8 @@ public static class Bootstrap
     {
 
 
-        PluginDirectory = Path.Combine(LibraryLocation, ConfigNameKey, "plugins");
-        ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey, "config");
+        PluginDirectory = Path.Combine(LibraryLocation, CONFIG_NAME_KEY, "plugins");
+        ConfigDirectory = Path.Combine(ConfigLocation, CONFIG_NAME_KEY, "config");
         string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
         string rollbacksLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "rollbacks");
         string installedLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "installed");

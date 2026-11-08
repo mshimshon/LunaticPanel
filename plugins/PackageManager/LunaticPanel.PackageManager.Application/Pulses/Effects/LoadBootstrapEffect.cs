@@ -26,7 +26,7 @@ internal class LoadBootstrapEffect : IEffect<LoadBootstrapAction>
     {
         try
         {
-            var queryResponse = await _queryBus.QueryWithoutDataAsync(Queries.FetchBootstrapFile);
+            var queryResponse = await _queryBus.QueryWithoutDataAsync(Queries.FETCH_BOOTSTRAP_FILE);
             var resultObj = queryResponse.Data?.GetData();
             if (resultObj == default || resultObj.GetType() != typeof(JsonArray))
                 throw new Exception("Cannot be null"); // TODO: USE REAL ERROR
