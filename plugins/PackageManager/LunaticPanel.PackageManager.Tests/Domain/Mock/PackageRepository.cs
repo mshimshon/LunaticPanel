@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
+using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Domain.Respositories.Exceptions;
@@ -12,37 +13,16 @@ internal class PackageRepository : IPackageRepository
 
     public Task DeleteAsync(PackageId id, CancellationToken ct = default)
     {
-        LocalPackages = LocalPackages.Where(p => p.Info.Id != id).ToList();
         return Task.CompletedTask;
     }
 
     public Task DisableAsync(PackageId id, CancellationToken ct = default)
     {
-        var package = LocalPackages.SingleOrDefault(p => p.Info.Id == id);
-        if (package == default) return Task.CompletedTask;
-        LocalPackages.Remove(package);
-        LocalPackages.Add(package with
-        {
-            Info = package.Info with
-            {
-                State = PackageManager.Domain.Entities.Enums.PackageState.Disabled
-            }
-        });
         return Task.CompletedTask;
     }
 
     public Task EnableAsync(PackageId id, CancellationToken ct = default)
     {
-        var package = LocalPackages.SingleOrDefault(p => p.Info.Id == id);
-        if (package == default) return Task.CompletedTask;
-        LocalPackages.Remove(package);
-        LocalPackages.Add(package with
-        {
-            Info = package.Info with
-            {
-                State = PackageManager.Domain.Entities.Enums.PackageState.Enabled
-            }
-        });
         return Task.CompletedTask;
     }
 
@@ -59,29 +39,21 @@ internal class PackageRepository : IPackageRepository
         return Task.FromResult(package);
     }
 
-    public Task InstallAsync(PackageEntity package, CancellationToken ct = default)
-    {
-        LocalPackages.Add(package);
-        return Task.CompletedTask;
-    }
+    public Task InstallAsync(PackageEntity package, CancellationToken ct = default) => Task.CompletedTask;
 
-    public Task<IQueryModelResult<PackageInfo>> QueryAsync(IPackageQueryModel queryModel, CancellationToken ct = default)
-        => throw new NotImplementedException();
-
-    public Task UpdateAsync(PackageEntity current, PackageEntity target, CancellationToken ct = default)
+    public async Task<IQueryModelResult<PackageInfo>> QueryAsync(IPackageQueryModel queryModel, CancellationToken ct = default)
     {
-        var package = LocalPackages.SingleOrDefault(p => p.Info.Id == current.Info.Id);
-        if (package == default) return Task.CompletedTask;
-        LocalPackages.Remove(package);
-        LocalPackages.Add(target with
+        var package = await GetAll(ct);
+        var result = new QueryModelResult<PackageInfo>()
         {
-            Info = target.Info with
-            {
-                State = package.Info.State
-            }
-        });
-        return Task.CompletedTask;
+            Position = 0,
+            Result = package.Select(p => p.Info).ToList(),
+            Total = package.Count
+        };
+        return result;
     }
 
-    public Task UpdateAsync(PackageEntity target, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task UpdateAsync(PackageEntity current, PackageEntity target, CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task UpdateAsync(PackageEntity target, CancellationToken ct = default) => Task.CompletedTask;
 }
