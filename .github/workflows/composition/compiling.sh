@@ -22,8 +22,14 @@ fi
 echo "Releasing version: $VERSION"
 OUT="/tmp/artifacts/output";
 BUILD="/tmp/artifacts/build";
+BUILD_TOOL="/tmp/artifacts/tool";
+BUILD_WEB="/tmp/artifacts/web";
+BUILD_LUNAPKG="/tmp/artifacts/lunapackage";
 mkdir -p "$OUT"
 mkdir -p "$BUILD"
+mkdir -p "$BUILD_TOOL"
+mkdir -p "$BUILD_WEB"
+mkdir -p "$BUILD_LUNAPKG"
 
 KEY_PROJECTS=(
   "./src/LunaticPanel.Core.Analyzer/LunaticPanel.Core.Analyzer.csproj"
@@ -46,10 +52,24 @@ for KEY in "${KEY_PROJECTS[@]}"; do
   dotnet pack \
     "$KEY" \
     -c Release \
-    -o "/tmp/artifacts/output" \
+    -o "$OUT" \
     /p:Version=$VERSION
 done
 
+dotnet publish "./tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj" -r linux-x64 -c Release -o "$BUILD_TOOL" /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:FileVersion=$VERSION_NEXT /p:AssemblyVersion=$VERSION_NEXT
+
+dotnet publish ./src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj -c Release -r linux-x64 --self-contained false -o $BUILD_WEB \
+  /p:AssemblyVersion=$VERSION_NEXT \
+  /p:FileVersion=$VERSION_NEXT \
+  /p:InformationalVersion=$VERSION \
+  /p:Version=$VERSION
+
+
+dotnet publish ./tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj -c Release -r linux-x64 --self-contained false -o $BUILD_LUNAPKG \
+  /p:AssemblyVersion=$VERSION_NEXT \
+  /p:FileVersion=$VERSION_NEXT \
+  /p:InformationalVersion=$VERSION \
+  /p:Version=$VERSION
 
 PLUGINS=(
   "./plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
@@ -72,16 +92,17 @@ for KEY in "${PLUGINS[@]}"; do
     /p:FileVersion=$VERSION_NEXT \
     /p:AssemblyVersion=$VERSION_NEXT
 
+
   /tmp/artifacts/tool/LunaticPanel.Package.Tool \
     pack \
     --input "$TARGET_BUILD_DIR" \
-    --output "/tmp/artifacts/output" \
+    --output "$OUT" \
     --version $VERSION
 
-  EXPECTED_PKG="/tmp/artifacts/output/${PROJECT_NAME}.${VERSION}.lpkg"
+  EXPECTED_PKG="$OUT/${PROJECT_NAME}.${VERSION}.lpkg"
 
   if [ -z "$EXPECTED_PKG" ] || [ ! -s "$EXPECTED_PKG" ]; then
-    ls -R /tmp/artifacts/output
+    ls -R $OUT
     echo "❌ Error: Packed file for ${PROJECT_NAME} version ${VERSION} was not generated or is empty!"
     exit 1
   else
@@ -89,4 +110,10 @@ for KEY in "${PLUGINS[@]}"; do
   fi
 done
 
-dotnet test LunaticPanel.slnx --no-build --configuration Release --verbosity normal /p:TreatWarningsAsErrors=false
+echo "$VERSION" > $BUILD_WEB/.version
+echo "$VERSION" > $BUILD_LUNAPKG/.version
+echo "$VERSION" > $OUT/.version
+tar -czf "$OUT/lunaticpanel_$VERSION.tar.gz" -C $BUILD_WEB .
+tar -czf "$OUT/lunapackage_server_$VERSION.tar.gz" -C $BUILD_LUNAPKG .
+tar -czf "$OUT/lunaticpanel_plugins_$VERSION.tar.gz" -C $OUT/ $(cd $OUT && ls *.lpkg)
+echo "$VERSION" > $OUT/stable.txt

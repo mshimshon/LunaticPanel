@@ -1,16 +1,17 @@
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
+using NuGet.Versioning;
 using System;
 
 namespace LunaticPanel.Engine.Web.Services;
 
 public interface IPanelUpdateService
 {
-    Version? Downloaded { get; }
+    NuGetVersion? Downloaded { get; }
 
-    Version? Install { get; }
+    NuGetVersion? Install { get; }
 
-    Version? Installing { get; }
-    Version? Staged { get; }
+    NuGetVersion? Installing { get; }
+    NuGetVersion? Staged { get; }
     Dictionary<string, BootstrapPluginManifest>? PluginUpgradeDownloaded { get; }
     List<string> PreInstalled { get; }
     bool BlockedByPlugin { get; }
@@ -20,7 +21,7 @@ public interface IPanelUpdateService
     /// </summary>
     bool AwaitingForPluginCompatibilityUpdate { get; }
 
-    Task<Version> GetLatestVersion(CancellationToken ct = default);
+    Task<NuGetVersion> GetLatestVersion(CancellationToken ct = default);
     Task InstallUpdateAsync(CancellationToken ct = default);
     Task DownloadUpdateAsync(CancellationToken ct = default);
     Task CheckPluginsAsync(CancellationToken ct = default);

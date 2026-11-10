@@ -44,6 +44,7 @@
 		<Copy SourceFiles="@(PackageFiles)" DestinationFolder="..\..\..\..\nupkgs" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" Condition="'$(BuildingInsideVisualStudio)' == 'true'" />
 	</Target>
 	<ItemGroup>
+    	<PackageReference Include="NuGet.Versioning" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
 	</ItemGroup>

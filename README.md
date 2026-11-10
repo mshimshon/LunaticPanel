@@ -58,7 +58,7 @@ For developers, it provides a clean, decoupled ecosystem to build and distribute
 
 You can adjust the optimization after installation by editing the service file (`/etc/systemd/system/lunaticpanel.service`) directly. The script will never override the service if it already exists.
 
-Change the values to match your desired optimization. See the [.NET GC Documentation](https://microsoft.com) for more details on tuning the garbage collector for your specific use case.
+Change the values to match your desired optimization. See the [.NET GC Documentation](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection) for more details on tuning the garbage collector for your specific use case.
 
 Our core policy is that the panel must always remain accessible, no matter what other services are running alongside it. The panel itself is lightweight, but its eventual footprint depends entirely on the purpose it serves for you.
 

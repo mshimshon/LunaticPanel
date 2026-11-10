@@ -35,7 +35,7 @@ public class MainMenuViewModel
         _dispatcher = dispatcher;
         _panelControl = panelControl;
         panelControl.MenuStateHasChanged += OnUpdate;
-        PanelVersion = panelControl.PanelVersion.ToString(3);
+        PanelVersion = panelControl.PanelVersion;
     }
 
     public async Task LoadAsync()

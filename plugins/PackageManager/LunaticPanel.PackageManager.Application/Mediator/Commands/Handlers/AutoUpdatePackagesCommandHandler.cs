@@ -4,6 +4,7 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Keys;
 using MedihatR;
+using NuGet.Versioning;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
@@ -36,15 +37,16 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
         {
             _crazyReport.Report("Handler Called");
             var snap = _packageUpdateState.State.FoundUpdates.ToList();
-            var currentVersions = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new Version(p.Version));
-            var UpdateVersion = snap.ToDictionary(p => p.Id, p => new Version(p.Version));
-            var UpdatePanelVersion = snap.ToDictionary(p => p.Id, p => new Version(p.PanelVersion));
-            int major = _panelControl.PanelVersion.Major;
+            var currentVersions = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new NuGetVersion(p.Version));
+            var UpdateVersion = snap.ToDictionary(p => p.Id, p => new NuGetVersion(p.Version));
+            var UpdatePanelVersion = snap.ToDictionary(p => p.Id, p => new NuGetVersion(p.PanelVersion));
+            var currentPanelVersion = new NuGetVersion(_panelControl.PanelVersion);
+            int major = currentPanelVersion.Major;
             foreach (var item in snap)
             {
-                Version packagePanelVersion = new Version(item.PanelVersion);
-                Version packageVersion = new Version(item.PanelVersion);
-                Version packageCurrentVersion = currentVersions[item.Id];
+                NuGetVersion packagePanelVersion = new NuGetVersion(item.PanelVersion);
+                NuGetVersion packageVersion = new NuGetVersion(item.PanelVersion);
+                NuGetVersion packageCurrentVersion = currentVersions[item.Id];
                 int currentPackageMajor = packageCurrentVersion.Major;
                 int packagePanelMajor = packagePanelVersion.Major;
                 int packageVersionMajor = packageVersion.Major;
@@ -59,7 +61,7 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
                     continue;
                 }
 
-                if (packagePanelVersion > _panelControl.PanelVersion)
+                if (packagePanelVersion > currentPanelVersion)
                 {
                     _crazyReport.ReportWarning("Cannot Auto Update for {0} the package was compiled against more recent panel {1}.", item.Id, packagePanelVersion);
                     continue;

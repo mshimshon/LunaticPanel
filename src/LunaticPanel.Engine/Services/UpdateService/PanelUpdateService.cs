@@ -2,32 +2,28 @@ using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
-using LunaticPanel.Core.Messaging.EventBus;
-using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
 using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
-using MudBlazor;
-using System;
-using System.Net;
-using System.Text.Json;
+using NuGet.Versioning;
+using System.Reflection;
 
 namespace LunaticPanel.Engine.Web.Services.UpdateService;
 
 internal class PanelUpdateService : IPanelUpdateService
 {
 
-    public Version? Downloaded { get; private set; }
+    public NuGetVersion? Downloaded { get; private set; }
 
-    public Version? Install { get; private set; }
+    public NuGetVersion? Install { get; private set; }
 
     public bool AwaitingForPluginCompatibilityUpdate { get; private set; }
 
     public bool BlockedByPlugin { get; private set; }
 
-    public Version? Installing { get; private set; }
-    public Version? Staged { get; private set; }
+    public NuGetVersion? Installing { get; private set; }
+    public NuGetVersion? Staged { get; private set; }
     public Dictionary<string, BootstrapPluginManifest>? PluginUpgradeDownloaded { get; private set; }
     public List<string> PreInstalled { get; private set; } = new();
     private readonly string _updateEndpoint = "https://update.lunaticpanel.com/release/";
@@ -36,7 +32,7 @@ internal class PanelUpdateService : IPanelUpdateService
     private readonly ICircuitRegistry _circuitRegistry;
     private readonly IEventBus _eventBus;
     private readonly ICrazyReport<PanelUpdateService> _crazyReport;
-    private readonly Version _currentPanelVersion;
+    private readonly NuGetVersion _currentPanelVersion;
     private readonly string _upgradeRootFolder;
     private readonly string _upgradeDownloadFolder;
     private readonly string _upgradeApplyFolder;
@@ -71,7 +67,7 @@ internal class PanelUpdateService : IPanelUpdateService
         _circuitRegistry = circuitRegistry;
         _eventBus = eventBus;
         _crazyReport = crazyReport;
-        _currentPanelVersion = typeof(IPlugin).Assembly.GetName().Version!;
+        _currentPanelVersion = new NuGetVersion(typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
         _upgradeRootFolder = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".upgrade");
         _upgradeDownloadFolder = Path.Combine(_upgradeRootFolder, "download");
         _upgradeApplyFolder = Path.Combine(_upgradeRootFolder, "apply");
@@ -122,7 +118,7 @@ internal class PanelUpdateService : IPanelUpdateService
         }
         PluginUpgradeDownloaded = default;
         AwaitingForPluginCompatibilityUpdate = true;
-        Version versionCache = new Version(File.ReadAllText(lastDownloaded));
+        NuGetVersion versionCache = new NuGetVersion(File.ReadAllText(lastDownloaded));
         if (versionCache <= _currentPanelVersion)
         {
             _crazyReport.Report($"Cached Version {versionCache} lower or equal to current {_currentPanelVersion} Skip CheckPlugins.");
@@ -138,7 +134,7 @@ internal class PanelUpdateService : IPanelUpdateService
         {
             var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default) continue;
-            Version pPanelVersion = new(manifest.PanelVersion);
+            NuGetVersion pPanelVersion = new(manifest.PanelVersion);
             if (pPanelVersion <= versionCache && pPanelVersion.Major == versionCache.Major && !validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
                 File.Copy(item, Path.Combine(_upgradePluginUpgradeFolder, Path.GetFileName(item)), true);
         }
@@ -163,7 +159,7 @@ internal class PanelUpdateService : IPanelUpdateService
                 _crazyReport.ReportWarning($"'{item}' Deleted.");
                 continue;
             }
-            Version pluginPanelVersion = new(manifest.PanelVersion);
+            NuGetVersion pluginPanelVersion = new(manifest.PanelVersion);
             if (_currentPanelVersion.Major != versionCache.Major)
             {
                 _crazyReport.ReportWarning($"Panel version for plugin {manifest.Id} found '{item}' is not the same as the nextPlanned upgrade major {versionCache.Major}.");
@@ -258,7 +254,7 @@ internal class PanelUpdateService : IPanelUpdateService
         ResetFolder(_upgradePluginUpgradeFolder);
         // Send all plugins into plugin upgrade staging folder.
         await ArchiveUtilityExt.ExtractTo(officialPanelPlugins, _upgradePluginUpgradeFolder, ArchiveType.TarGz);
-        await _safeFileWriter.WriteThenCopyFileAsync(lastDownloaded, version!.ToString(3));
+        await _safeFileWriter.WriteThenCopyFileAsync(lastDownloaded, version.ToString());
         Downloaded = version;
         await CheckPluginsAsync(ct);
     }
@@ -284,8 +280,8 @@ internal class PanelUpdateService : IPanelUpdateService
         var applyPreInstalledFolderLocation = EnsureCreated(Path.Combine(_upgradeApplyFolder, "plugin_preinstalled"), true);
         try
         {
-            _crazyReport.ReportInfo($"Panel version {_currentPanelVersion.ToString(3)} backed up ('{backupPanelFile}')");
-            _crazyReport.ReportInfo($"Panel installed plugins for panel {_currentPanelVersion.ToString(3)} backed up ('{backupPluginFile}')");
+            _crazyReport.ReportInfo($"Panel version {_currentPanelVersion} backed up ('{backupPanelFile}')");
+            _crazyReport.ReportInfo($"Panel installed plugins for panel {_currentPanelVersion} backed up ('{backupPluginFile}')");
 
             SafeToUpgrade();
             if (BlockedByPlugin)
@@ -316,10 +312,10 @@ internal class PanelUpdateService : IPanelUpdateService
             ResetFolder(_upgradePluginUpgradeFolder);
             ResetFolder(_upgradeDownloadFolder);
 
-            await _safeFileWriter.WriteThenCopyFileAsync(upgradeVersionCache, Installing.ToString(3));
-            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(binPanelPath, "access.test"), Installing.ToString(3));
-            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_upgradeRootFolder, "access.test"), Installing.ToString(3));
-            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_pluginStageLocationRootFolder, "access.test"), Installing.ToString(3));
+            await _safeFileWriter.WriteThenCopyFileAsync(upgradeVersionCache, Installing.ToString());
+            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(binPanelPath, "access.test"), Installing.ToString());
+            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_upgradeRootFolder, "access.test"), Installing.ToString());
+            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_pluginStageLocationRootFolder, "access.test"), Installing.ToString());
 
             Staged = Installing;
             _crazyReport.ReportInfo($"Auto Restart ? {_autoRestart} ");
@@ -359,7 +355,7 @@ internal class PanelUpdateService : IPanelUpdateService
             Directory.Delete(path, true);
         EnsureCreated(path);
     }
-    public async Task<Version> GetLatestVersion(CancellationToken ct = default)
+    public async Task<NuGetVersion> GetLatestVersion(CancellationToken ct = default)
     {
         using (var client = _httpClientFactory.CreateClient())
         {
@@ -374,7 +370,7 @@ internal class PanelUpdateService : IPanelUpdateService
 
     }
 
-    private async Task<Version?> GetLatestVersion(HttpClient client, CancellationToken ct = default)
+    private async Task<NuGetVersion?> GetLatestVersion(HttpClient client, CancellationToken ct = default)
     {
         var responseStable = await client.GetAsync("stable.txt");
         responseStable.EnsureSuccessStatusCode();
@@ -391,7 +387,7 @@ internal class PanelUpdateService : IPanelUpdateService
 
         //     }
         // }
-        return new Version(versionStableRaw);
+        return new NuGetVersion(versionStableRaw);
     }
     public async Task DownloadFile(HttpClient client, string remoteFile, string targetLocation, CancellationToken ct = default)
     {

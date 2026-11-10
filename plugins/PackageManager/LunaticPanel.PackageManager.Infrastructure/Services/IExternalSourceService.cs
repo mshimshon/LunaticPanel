@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Requests;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
+using NuGet.Versioning;
 
 namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
@@ -13,7 +14,7 @@ public interface IExternalSourceService
     Task<RepositorySourcePayload?> GetPackageCacheSourceForAsync(string id, string packageVersion, CancellationToken ct = default);
     Task<RepositorySourcePayload?> GetPackageSourceForAsync(string id, string packageVersion, CancellationToken ct = default);
     Task<PackageManifestPayload?> FindMostRecentPackage(string id, CancellationToken ct = default);
-    Task<Version[]> FindAllVersionsForAsync(string id, CancellationToken ct = default);
+    Task<NuGetVersion[]> FindAllVersionsForAsync(string id, CancellationToken ct = default);
     Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageManifestPayload>>> SearchAllSourcesAsync(SearchRequest data, CancellationToken ct = default);
     Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default);
     Task<string[]> GetAPIVersionsAsync(RepositorySourcePayload source, CancellationToken ct = default);

@@ -1,51 +1,86 @@
 ﻿{
-  "CustomScriptLocation": "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\.github\\scripts\\runners",
+  "CustomScriptLocationComment": "Relative path to the custom script folder Cross platform supported \\ and / using .NET Path.GetFullPath",
+  "CustomScriptLocation": ".github\\scripts\\runners",
+  "UseCustomScriptLoaderComment": "Default is false for security reasons, only enable if repository is secured as any other scripts.",
   "UseCustomScriptLoader": false,
+  "InitialVersionComment": "Initial Release version when using --isFirstRelease.",
   "InitialVersion": "0.0.1",
+  "MasterReleaseBranchComment": "Remote Master Branch",
   "MasterReleaseBranch": "main",
+  "EmptyLogMessageComment": "When you are not using --autoFailEmptyResult the generator will put that message in empty logs for master and projects.",
   "EmptyLogMessage": "This release has no information.",
+  "HeaderComment": "Headers are the actual printed head section of the final changelog markdown.",
   "FeatureHeader": "New Features",
-  "BreakingHeader": "BREAKING CHANGES",
+  "FeatureImportantHeader": "New Features (Important)",
+  "FeatureBreakingHeader": "New Features (Breaking)",
+  "SecurityHeader": "Security Patches",
+  "SecurityImportantHeader": "Security (Critical)",
+  "SecurityBreakingHeader": "Security (Breaking)",
   "FixHeader": "Fixes",
+  "FixImportantHeader": "Fixes (Critical)",
+  "FixBreakingHeader": "Fixes (Breaking)",
   "NoteHeader": "Notes",
+  "NoteImportantHeader": "Notes (Important)",
+  "NoteBreakingHeader": "Notes (Breaking)",
   "SponsorHeader": "Release Sponsors",
+  "SponsorImportantHeader": "The Super Duper Release Sponsors \uD83C\uDFC6",
   "ThanksHeader": "Special Thanks",
+  "ThanksImportantHeader": "Super Special Thanks \uD83D\uDC96",
+  "ProjectsComment": "Relative path to a file any file which will be known as project and its friendly name for changelog printing. (_ = root master log/project, do not remove)",
   "Projects": {
     "_": "Lunatic Panel",
-    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.DebugTool\\LunaticPanel.DebugTool.csproj": "Debug Tool",
-    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.Package.Tool\\LunaticPanel.Package.Tool.csproj": "Packing Tool",
-    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.Package.Server\\LunaticPanel.Package.Server.csproj": "LunaPackage Server Lib",
-    "C:\\Users\\Administrator\\source\\repos\\LunaticPanel\\tools\\LunaticPanel.Package.LocalServer\\LunaticPanel.Package.LocalServer.csproj": "LunaPackage Local Server"
+    "tools\\LunaticPanel.DebugTool\\LunaticPanel.DebugTool.csproj": "Debug Tool",
+    "tools\\LunaticPanel.DebugTool\\LunaticPanel.Package.Tool.csproj": "Packing Tool",
+    "tools\\LunaticPanel.DebugTool\\LunaticPanel.Package.Server\\LunaticPanel.Package.Server.csproj": "LunaPackage Server Lib",
+    "tools\\LunaticPanel.DebugTool\\LunaticPanel.Package.LocalServer\\LunaticPanel.Package.LocalServer.csproj": "LunaPackage Local Server"
   },
+  "TagMarkdownExamplesComment": "Following are examples in commit message you use then as such {SOCIAL MEDIA;USERNAME OR ID;Display Name}",
+  "TagMarkdownExamples": {
+    "\\{gh;([^;]\u002B);([^}]\u002B)\\}": "[{gp:2}](https://github.com/{gp:1})",
+    "\\{lkdin;([^;]\u002B);([^}]\u002B)\\}": "[{gp:2}](https://www.linkedin.com/in/{gp:1})",
+    "\\{fbk;([^;]\u002B);([^}]\u002B)\\}": "[{gp:2}](https://www.facebook.com/profile.php?id={gp:1})",
+    "\\{steam;([^;]\u002B);([^}]\u002B)\\}": "[{gp:2}](https://steamcommunity.com/id/{gp:1})",
+    "\\{discord_user;([^;]\u002B);([^}]\u002B)\\}": "[{gp:2}](https://discord.com/users/{gp:1})",
+    "\\{discord;([^;]\u002B);([^}]\u002B)\\}": "[{gp:2}](https://discord.gg/{gp:1})"
+  },
+  "TagMarkdownComment": "Those are the post processing filtering, using regex to group and map to Markdown with ability to extract groups like so \u0027XXXXX\u0027 -\u003E \u0027[Visit {gp:1} At MyProfile](https://myprofile.com/{gp:0})\u0027",
   "TagMarkdown": {
-    "@": "[{this}](https://github.com/{this})"
+    "\\{gh;([^;]\u002B);([^}]\u002B)\\}": "[{gp:2}](https://github.com/{gp:1})"
   },
+  "TokensComment": "You can add or remove tokens for each sections for you aren\u0027t using standard... each token will be used as such in commit \u0027token:\u0027, \u0027token!:\u0027 or \u0027token~:\u0027 you do not need to include \u0027!\u0027 nor \u0027~\u0027 ",
+  "TokensComment2": "\u0027!\u0027, \u0027~\u0027 are included as code standard of this tool ! = Breaking Change Bump Major, ~ = Important Change but not breaking code bump normally and no symbol = regular change no special attention. ",
   "ReleaseFeatureTokens": [
     "feat"
+  ],
+  "ReleaseSecurityTokens": [
+    "sec"
   ],
   "ReleaseFixTokens": [
     "fix"
   ],
-  "ReleaseBreakingTokens": [
-    "feat!",
-    "break"
-  ],
   "ReleaseNoteTokens": [
     "note"
   ],
+  "ReleaseSponsorComment": "\u0027!\u0027 are not doing anything for sponsor or thank but \u0027~\u0027 does set as more important.",
   "ReleaseSponsorTokens": [
     "sponsor"
   ],
   "ReleaseThanksTokens": [
     "thank"
   ],
+  "ReleaseDirtyTokensComment": "Those dirty token aren\u0027t meant to be push remotely, if pushed dev will have to do manually reset to clear it before pushing finished work... those are meant to be local the tool clear them up instantly post-commit.",
   "ReleaseDirtyTokens": [
     "wip"
   ],
+  "ReleaseNoTriggerTokensComment": "Another special token is the skipci~: which if configured correctly makes the action skip, this is design for early stage or lax rules direct main push.",
   "ReleaseNoTriggerTokens": [
     "trace!"
   ],
-  "ReleaseNoLogTokens": [
-    "trace"
-  ]
+  "PatchRolloverMinorComment": "Design to define how many patches is allowed until the patch count is so high that is just count towards minor bump (Max 10000)",
+  "PatchRolloverMinor": 10000,
+  "MinorRolloverMajorMinorComment": "Design to define how many minors is allowed until the minors count is so high that is just count towards major bump (Max 10000)",
+  "MinorRolloverMajor": 10000,
+  "RolloverNoteComment": "the rollover is exponentional thus why the limit of 10K... meaning if minor to major threshold is 10 and patch to minor is 2 then patch count at 20 will rollover to major.",
+  "ActWorkflowBuilderComment": "The Act Workflow builder is a simple merging tool to allow you to break your CICD into multiple files and merge them be making a creator builder.",
+  "ActWorkflowBuilder": {}
 }

@@ -16,6 +16,7 @@
 
   </PropertyGroup>
 	<ItemGroup>
+    	<PackageReference Include="NuGet.Versioning" />
 		<PackageReference Include="McMaster.NETCore.Plugins" />
 	</ItemGroup>
 	<ItemGroup>

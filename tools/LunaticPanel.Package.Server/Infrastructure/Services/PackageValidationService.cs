@@ -6,6 +6,7 @@ using LunaticPanel.Package.Server.Application.Services;
 using LunaticPanel.Package.Server.Infrastructure.Exceptions;
 using LunaticPanel.Package.Server.Infrastructure.Payloads;
 using LunaticPanel.Package.Server.Infrastructure.Payloads.Responses;
+using NuGet.Versioning;
 using Octokit;
 using System.Formats.Tar;
 using System.IO.Compression;
@@ -219,13 +220,13 @@ internal sealed class PackageValidationService : IPackageValidatorService
             {
                 var match = Regex.Match(p.TagName, _versionRegexPattern, RegexOptions.IgnoreCase);
                 if (!match.Success) return null;
-                return new { Release = p, Version = new Version(match.Groups["version"].Value) };
+                return new { Release = p, Version = new NuGetVersion(match.Groups["version"].Value) };
             })
             .Where(p => p != null)
             .ToList();
         if (parsed.Count <= 0)
             throw new PackageToolNotFoundException(panelMajor);
-        Version panelVersion = new Version(panelMajor);
+        NuGetVersion panelVersion = new NuGetVersion(panelMajor);
         var matchingMajor = parsed
             .Where(x => x!.Version == panelVersion)
             .OrderByDescending(x => x!.Version)
@@ -240,7 +241,7 @@ internal sealed class PackageValidationService : IPackageValidatorService
         if (asset == null)
             throw new PackageToolNotFoundException(panelMajor);
 
-        return new($"{matchingMajor.Version.Major}.{matchingMajor.Version.Minor}.{matchingMajor.Version.Build}", asset.BrowserDownloadUrl);
+        return new(matchingMajor.Version.ToString(), asset.BrowserDownloadUrl);
     }
     private async Task DownloadAndInstallTool(string target, string toolVersion, CancellationToken ct = default)
     {

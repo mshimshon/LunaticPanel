@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.PluginValidator.Exceptions;
+using NuGet.Versioning;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
@@ -34,6 +35,35 @@ public static class LibraryValidatorExt
         return reader.ReadSerializedString();
     }
 
+
+
+    private static KeyValuePair<ManifestMeta?, string?> GetMeta(MetadataReader reader, CustomAttribute customAttribute)
+    {
+        var container = reader.GetMemberReference((MemberReferenceHandle)customAttribute.Constructor).Parent;
+        var typeRef = reader.GetTypeReference((TypeReferenceHandle)container);
+        var name = reader.GetString(typeRef.Name);
+        var info = new Dictionary<ManifestMeta, string?>();
+        var valueReader = reader.GetBlobReader(customAttribute.Value);
+        var value = ReadStringArg(valueReader);
+        switch (name)
+        {
+            case "AssemblyProductAttribute":
+                return new(ManifestMeta.Product, value);
+            case "AssemblyDescriptionAttribute":
+                return new(ManifestMeta.Description, value);
+            case "AssemblyCompanyAttribute":
+                return new(ManifestMeta.Company, value);
+            case "AssemblyTitleAttribute":
+                return new(ManifestMeta.Title, value);
+            case "AssemblyInformationalVersionAttribute":
+                return new(ManifestMeta.Version, value);
+            case "AssemblyFileVersionAttribute":
+                return new(ManifestMeta.FileVersion, value);
+            case "AssemblyCopyrightAttribute":
+                return new(ManifestMeta.Copyright, value);
+        }
+        return new(null, null);
+    }
     public static Dictionary<ManifestMeta, string?> ExtractMetadata(string dll)
     {
         Console.WriteLine("Extracting Metadata");
@@ -48,8 +78,6 @@ public static class LibraryValidatorExt
         if (!reader.IsAssembly)
             throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' is not a managed assembly.");
 
-        if (!reader.IsAssembly)
-            throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' is not a managed assembly.");
         var info = new Dictionary<ManifestMeta, string?>();
         foreach (ManifestMeta metaKey in Enum.GetValues(typeof(ManifestMeta)))
             info[metaKey] = null;
@@ -58,76 +86,30 @@ public static class LibraryValidatorExt
         var asmName = reader.GetString(asmDef.Name);
         info[ManifestMeta.Id] = asmName;
         info[ManifestMeta.AssemblyVersion] = asmVersion.ToString();
-        foreach (var handle in reader.CustomAttributes)
-        {
-            var attr = reader.GetCustomAttribute(handle);
-            var ctor = attr.Constructor;
-
-            if (ctor.Kind != HandleKind.MemberReference)
-                continue;
-
-            var memberRef = reader.GetMemberReference((MemberReferenceHandle)ctor);
-            var container = memberRef.Parent;
-
-            if (container.Kind != HandleKind.TypeReference)
-                continue;
-
-            var typeRef = reader.GetTypeReference((TypeReferenceHandle)container);
-            var name = reader.GetString(typeRef.Name);
-            var ns = reader.GetString(typeRef.Namespace);
-
-            if (ns != "System.Reflection")
-                continue;
-
-            var valueReader = reader.GetBlobReader(attr.Value);
-
-            switch (name)
+        var attrMeta = reader.CustomAttributes
+            .Select(reader.GetCustomAttribute)
+            .Where(p => p.Constructor.Kind == HandleKind.MemberReference).Where(p =>
             {
-                case "AssemblyProductAttribute":
-                    info[ManifestMeta.Product] = ReadStringArg(valueReader);
-                    break;
-                case "AssemblyDescriptionAttribute":
-                    info[ManifestMeta.Description] = ReadStringArg(valueReader);
-                    break;
-
-                case "AssemblyCompanyAttribute":
-                    info[ManifestMeta.Company] = ReadStringArg(valueReader);
-                    break;
-
-                case "AssemblyTitleAttribute":
-                    info[ManifestMeta.Title] = ReadStringArg(valueReader);
-                    break;
-
-                case "AssemblyInformationalVersionAttribute":
-                    info[ManifestMeta.Version] = ReadStringArg(valueReader);
-                    break;
-
-                case "AssemblyFileVersionAttribute":
-                    info[ManifestMeta.FileVersion] = ReadStringArg(valueReader);
-                    break;
-                case "AssemblyCopyrightAttribute":
-                    info[ManifestMeta.Copyright] = ReadStringArg(valueReader);
-                    break;
-            }
-        }
+                var memberRef = reader.GetMemberReference((MemberReferenceHandle)p.Constructor);
+                var container = memberRef.Parent;
+                return container.Kind == HandleKind.TypeReference;
+            }).Where(p =>
+            {
+                var container = reader.GetMemberReference((MemberReferenceHandle)p.Constructor).Parent;
+                var typeRef = reader.GetTypeReference((TypeReferenceHandle)container);
+                var ns = reader.GetString(typeRef.Namespace);
+                return ns == "System.Reflection";
+            })
+            .Select(p => GetMeta(reader, p))
+            .Where(p => p.Key != null)
+            .ToDictionary(p => p.Key!.Value, p => p.Value);
+        foreach (var item in attrMeta)
+            info[item.Key] = item.Value;
         Console.WriteLine("Extracting Metadata Completed");
 
         return info;
     }
-    public static Version ReadAssemblyVersion(string dll)
-    {
-        using var stream = File.OpenRead(dll);
-        using var pe = new PEReader(stream);
-        if (!pe.HasMetadata)
-            throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' has no metadata.");
 
-        var reader = pe.GetMetadataReader();
-
-        if (!reader.IsAssembly)
-            throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' is not a managed assembly.");
-        var def = reader.GetAssemblyDefinition();
-        return def.Version;
-    }
     public static IEnumerable<(string Name, Version Version)> ReadReferences(string path)
     {
         using var stream = File.OpenRead(path);
@@ -201,7 +183,20 @@ public static class LibraryValidatorExt
         }
         return count;
     }
+    public static Version ReadAssemblyVersion(string dll)
+    {
+        using var stream = File.OpenRead(dll);
+        using var pe = new PEReader(stream);
+        if (!pe.HasMetadata)
+            throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' has no metadata.");
 
+        var reader = pe.GetMetadataReader();
+
+        if (!reader.IsAssembly)
+            throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' is not a managed assembly.");
+        var def = reader.GetAssemblyDefinition();
+        return def.Version;
+    }
     public static Version? GetReferencedAssemblyVersion(string dll, string assembly)
     {
         using var stream = File.OpenRead(dll);
@@ -216,6 +211,7 @@ public static class LibraryValidatorExt
 
         foreach (var handle in reader.AssemblyReferences)
         {
+
             var reference = reader.GetAssemblyReference(handle);
             var name = reader.GetString(reference.Name);
 
@@ -227,7 +223,6 @@ public static class LibraryValidatorExt
 
         return null;
     }
-
 
     public static bool IsPluginDllValid(string dll)
     {
@@ -266,7 +261,7 @@ public static class LibraryValidatorExt
     public static void RunPluginDllValidator(string dll)
     {
         Console.WriteLine("RunPluginDllValidator");
-        var meta = LibraryValidatorExt.ExtractMetadata(dll);
+        var meta = ExtractMetadata(dll);
 
         var pluginId = meta[ManifestMeta.Id];
         if (pluginId == default)
@@ -277,27 +272,21 @@ public static class LibraryValidatorExt
         var company = meta[ManifestMeta.Company];
         if (company == default)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.Company.ToString(), $"'{dll}' company not found.");
-        string? version = meta[ManifestMeta.Version]?.Split('+', '-')[0];
-        if (version == default)
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' version tag not found.");
-        string[] versionSplit = version.Split('.');
-        if (versionSplit.Length != 3)
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' version tag '{version}' doesn't respect strict 'major.minor.patch' format.");
-        var tVersion = new Version(version);
 
-        var asmVersion = meta[ManifestMeta.AssemblyVersion]?.Split('+', '-')[0];
-        if (asmVersion == default)
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.AssemblyVersion.ToString(), $"'{dll}' AssemblyVersion tag not found.");
-        var tAsmVersion = new Version(asmVersion);
-        if (tAsmVersion.ToString(3) != tVersion.ToString(3) && tAsmVersion.Revision <= 0)
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' AssemblyFileVersion tag '{tAsmVersion.ToString(4)}' is not same as '{tVersion.ToString(4)}'.");
+        string? version = meta[ManifestMeta.Version] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' version tag not found.");
+        var tVersion = new NuGetVersion(version);
+        if (tVersion.Revision > 0)
+            throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' revision version is unsupported.");
 
-        var fileVersion = meta[ManifestMeta.FileVersion]?.Split('+', '-')[0];
-        if (fileVersion == default)
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' AssemblyFileVersion tag not found.");
-        var tFileVersion = new Version(fileVersion);
-        if (tFileVersion.ToString(3) != tVersion.ToString(3) && tFileVersion.Revision <= 0)
-            throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' AssemblyFileVersion tag '{tFileVersion.ToString(4)}' is not same as '{tVersion.ToString(4)}'.");
+        var asmVersion = meta[ManifestMeta.AssemblyVersion] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.AssemblyVersion.ToString(), $"'{dll}' AssemblyVersion tag not found."); ;
+        var tAsmVersion = new NuGetVersion(asmVersion);
+        if (tAsmVersion.Major != tVersion.Major || tAsmVersion.Revision > 0 || tAsmVersion.Minor != 0 || tAsmVersion.Patch != 0)
+            throw new PluginMetadataExtractionMalformedException(ManifestMeta.AssemblyVersion.ToString(), $"'{dll}' AssemblyFileVersion tag '{tAsmVersion.Major}.0.0.0' is not same as '{tVersion.Major}.0.0.0'.");
+
+        var fileVersion = meta[ManifestMeta.FileVersion] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag not found.");
+        var tFileVersion = new NuGetVersion(fileVersion);
+        if (tFileVersion.Version == tVersion.Version)
+            throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag '{tFileVersion.Version}' must be equal to '{tVersion.Version}'.");
 
 
         int pluginEntryImplementations = CountIPluginImplementations(dll);
@@ -310,17 +299,6 @@ public static class LibraryValidatorExt
             MatchReferenceAssemblyVersion(dll, "LunaticPanel.Core.Abstraction", item, false);
         foreach (var item in CoreDependencies.RequiredCoreAssemblies)
             MatchReferenceAssemblyVersion(dll, "LunaticPanel.Core.Abstraction", item, true);
-
-        Version? corePluginVersion = GetReferencedAssemblyVersion(dll, "LunaticPanel.Core.Abstraction");
-        if (corePluginVersion == default)
-            throw new PluginCoreVersionFailedException("Failed to extract core plugin version.");
-        var currentCoreVersion = typeof(IPlugin).Assembly.GetName().Version;
-        if (currentCoreVersion == default)
-            throw new PluginCoreVersionFailedException("Failed to extract core current version.");
-        if (currentCoreVersion.Major != corePluginVersion.Major)
-            throw new PluginCoreVersionFailedException($"Plugin was compiled with panel v{corePluginVersion.Major} and the current panel version is v{currentCoreVersion.Major}.");
-        if (currentCoreVersion < corePluginVersion)
-            throw new PluginCoreVersionFailedException($"Tool SDK is binding panel v{currentCoreVersion} and the plugin is bounded to outdated v{corePluginVersion}.");
 
 
         Console.WriteLine("Validator Success");

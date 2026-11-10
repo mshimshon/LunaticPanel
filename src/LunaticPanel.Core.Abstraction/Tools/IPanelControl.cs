@@ -1,8 +1,10 @@
-﻿namespace LunaticPanel.Core.Abstraction.Tools;
+﻿using NuGet.Versioning;
+
+namespace LunaticPanel.Core.Abstraction.Tools;
 
 public interface IPanelControl
 {
-    Version PanelVersion { get; }
+    string PanelVersion { get; }
     Task DashboardRender();
     Task MenuRender();
     Task Shutdown();

@@ -18,30 +18,32 @@ else
 fi
 
 echo "Releasing version: $VERSION"
-OUTPUT="/tmp/artifacts/output"
 
-echo "Checking directory: $OUTPUT"
+echo "Checking directory: /tmp/artifacts/output"
 
 # Define array of expected filenames
 ALLOWED_FILES=(
-  "LunaticPanel.Core.Analyzer.$VERSION.nupkg"
-  "LunaticPanel.Core.Abstraction.$VERSION.nupkg"
-  "LunaticPanel.Core.PluginValidator.$VERSION.nupkg"
-  "LunaticPanel.Core.$VERSION.nupkg"
-  "LunaticPanel.Core.Extensions.$VERSION.nupkg"
-  "LunaticPanel.Core.Utils.Abstraction.$VERSION.nupkg"
-  "LunaticPanel.Core.Utils.$VERSION.nupkg"
-  "LunaticPanel.Package.Server.$VERSION.nupkg"
-  "LunaticPanel.Package.Tool.$VERSION.nupkg"
-  "LunaticPanel.PackageManager.Keys.$VERSION.nupkg"
-  "LunaticPanel.Engine.Keys.$VERSION.nupkg"
-  "GameHost.Keys.$VERSION.nupkg"
-  "_.$VERSION.md"
-  "build.env"
+  "/tmp/artifacts/output/LunaticPanel.Core.Analyzer.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Core.Abstraction.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Core.PluginValidator.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Core.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Core.Extensions.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Core.Utils.Abstraction.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Core.Utils.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Package.Server.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Package.Tool.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.PackageManager.Keys.$VERSION.nupkg"
+  "/tmp/artifacts/output/LunaticPanel.Engine.Keys.$VERSION.nupkg"
+  "/tmp/artifacts/output/_.$VERSION.md"
+  "/tmp/artifacts/output/build.env"
+  "/tmp/artifacts/output/lunaticpanel_$VERSION.tar.gz"
+  "/tmp/artifacts/output/lunapackage_server_$VERSION.tar.gz"
+  "/tmp/artifacts/output/lunaticpanel_plugins_$VERSION.tar.gz"
+  "/tmp/artifacts/output/stable.txt"
 )
 # Fail immediately if a required file is missing
 for file in "${ALLOWED_FILES[@]}"; do
-  if [ ! -f "$OUTPUT/$file" ]; then
+  if [ ! -f "$file" ]; then
     echo "❌ Error: Required file missing -> $file"
     echo "🚨 Validation failed!"
     exit 1
@@ -49,6 +51,6 @@ for file in "${ALLOWED_FILES[@]}"; do
 done
 
 # Optional: List contents only if everything up to this point passed
-ls "$OUTPUT"
+ls "/tmp/artifacts/output"
 
 echo "✅ Validation passed successfully! Match complete."

@@ -4,6 +4,7 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Keys;
 using MedihatR;
+using NuGet.Versioning;
 using StatePulse.Net;
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
@@ -29,9 +30,9 @@ internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<Periodi
         try
         {
             _crazyReport.Report("Handler Called");
-            var snap = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new Version(p.Version));
+            var snap = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new NuGetVersion(p.Version));
             var result = await _medihater.Send(new GetPackagesLatestVersionQuery(snap.Select(p => p.Key)), ct);
-            var updates = result.Where(p => new Version(p.Version) > snap[p.Id]).ToList();
+            var updates = result.Where(p => new NuGetVersion(p.Version) > snap[p.Id]).ToList();
             return updates;
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

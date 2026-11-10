@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    	<PackageReference Include="NuGet.Versioning" />
     <PackageReference Include="MediHater" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="StatePulse.Net" />

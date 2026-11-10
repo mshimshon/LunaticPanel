@@ -13,6 +13,7 @@ using LunaticPanel.PackageManager.Infrastructure.Services.Payloads;
 using LunaticPanel.PackageManager.Infrastructure.Services.Payloads.Mapping;
 using LunaticPanel.PackageManager.Keys;
 using Microsoft.Extensions.DependencyInjection;
+using NuGet.Versioning;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -105,17 +106,17 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         else
             return await GetPackageInfoForFromLocalAsync(id, version, source.ToInfrastructurePayload(), ct);
     }
-    public async Task<Version[]> FindAllVersionsForAsync(string id, CancellationToken ct = default)
+    public async Task<NuGetVersion[]> FindAllVersionsForAsync(string id, CancellationToken ct = default)
     {
         if (!File.Exists(_sourceFile))
-            return Array.Empty<Version>();
+            return Array.Empty<NuGetVersion>();
         string sourceJson = File.ReadAllText(_sourceFile);
         List<ExternalSourceRepositoryPayload>? configSources = JsonSerializer.Deserialize<List<ExternalSourceRepositoryPayload>>(sourceJson, _jsonSerializerOptions);
         if (configSources == default)
             throw new SourceCorruptedException();
         if (configSources.Count <= 0)
             throw new SourceEmptyException();
-        List<Version> result = new();
+        List<NuGetVersion> result = new();
         foreach (var item in configSources)
         {
             if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
@@ -130,7 +131,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         }
         return result.ToArray();
     }
-    public async Task<Version[]> GetVersionsForAsync(string id, RepositorySourcePayload source, CancellationToken ct = default)
+    public async Task<NuGetVersion[]> GetVersionsForAsync(string id, RepositorySourcePayload source, CancellationToken ct = default)
     {
         if (source.SourceType == RepositorySourceTypePayload.Remote)
             return await GetRemoteVersionsAsync(id, source.ToInfrastructurePayload(), ct);
@@ -192,8 +193,8 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         var versions = await GetPackageInfoFromLocalAsync(packageId, source);
         if (versions == null || !versions.Any())
             return default;
-        var lastVersion = versions.Max(p => new Version(p.Version))!;
-        return versions.FirstOrDefault(p => new Version(p.Version) == lastVersion);
+        var lastVersion = versions.Max(p => new NuGetVersion(p.Version))!;
+        return versions.FirstOrDefault(p => new NuGetVersion(p.Version) == lastVersion);
     }
 
     public async Task<PackageManifestPayload?> FindMostRecentPackage(string id, CancellationToken ct = default)
@@ -219,8 +220,8 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
             if (package == default) continue;
             if (result != default)
             {
-                var currentV = new Version(result.Version);
-                var nextV = new Version(package.Version);
+                var currentV = new NuGetVersion(result.Version);
+                var nextV = new NuGetVersion(package.Version);
                 if (currentV > nextV)
                     continue;
             }
@@ -265,7 +266,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
 
 
 
-    private async Task<Version[]> GetRemoteVersionsAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+    private async Task<NuGetVersion[]> GetRemoteVersionsAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     {
         var relative = "lpkg/v1/package/info";
         var apiEndpoint = source.Source.EndsWith("/") ? $"{source.Source}{relative}" : $"/{source.Source}/{relative}";
@@ -276,7 +277,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         var manifest = JsonSerializer.Deserialize<List<PluginManifestExtPayload>>(content, _jsonSerializerOptions);
         if (manifest == default)
             throw new Exception(""); // TODO: THROW Deserialize Error
-        return manifest.Select(p => new Version(p.Version)).ToArray();
+        return manifest.Select(p => new NuGetVersion(p.Version)).ToArray();
     }
 
     private async Task<PluginManifestExtPayload?> GetRemotePackageInfoAsync(string id, string version, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
@@ -303,8 +304,8 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
     private async Task<IEnumerable<PluginManifestExtPayload>> GetPackageInfoFromLocalAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
     => GetLocalFileNamesFor(id, source).Select(ReadManifestFromArchive);
 
-    private async Task<Version[]> GetVersionsForFromLocalAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
-        => GetLocalFileNamesFor(id, source).Select(ReadManifestFromArchive).Select(p => new Version(p.Version)).ToArray();
+    private async Task<NuGetVersion[]> GetVersionsForFromLocalAsync(string id, ExternalSourceRepositoryPayload source, CancellationToken ct = default)
+        => GetLocalFileNamesFor(id, source).Select(ReadManifestFromArchive).Select(p => new NuGetVersion(p.Version)).ToArray();
     public async Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default)
     {
         if (source.SourceType == RepositorySourceTypePayload.Remote)

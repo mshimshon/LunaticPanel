@@ -6,6 +6,8 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.Engine.Web.Services;
+using NuGet.Versioning;
+using System.Reflection;
 
 namespace LunaticPanel.Engine.Web.Hooks.Events.Scheduled;
 
@@ -19,7 +21,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
     private static bool _isExecuting = false;
     private static readonly Lock _lock = new();
     private TimeSpan _configuredTiming = new(1, 0, 0, 0);
-    private Version _panelVersion = default!;
+    private NuGetVersion _panelVersion = default!;
     public PackageUpdateScheduled(ICrazyReport<PackageUpdateScheduled> crazyReport, IPanelUpdateService panelUpdateService, ICircuitRegistry circuitRegistry)
     {
         // PackageUpdateState
@@ -28,7 +30,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
         _circuitRegistry = circuitRegistry;
 
         _crazyReport.SetModule("Scheduler");
-        _panelVersion = typeof(IPlugin).Assembly.GetName().Version!;
+        _panelVersion = new(typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
         string? hoursCheck = Environment.GetEnvironmentVariable("LP_UPDATE_HOURS");
         string? minutesCheck = Environment.GetEnvironmentVariable("LP_UPDATE_MINUTES");
         if (int.TryParse(hoursCheck, out var hours))

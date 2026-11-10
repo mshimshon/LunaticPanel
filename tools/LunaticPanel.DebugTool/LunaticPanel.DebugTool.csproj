@@ -38,6 +38,7 @@
   <ItemGroup>
 	  <PackageReference Include="CliWrap" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    	<PackageReference Include="NuGet.Versioning" />
 	  <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 

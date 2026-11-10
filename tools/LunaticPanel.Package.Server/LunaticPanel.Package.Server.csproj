@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <PackageReference Include="MaksimShimshon.Mediator" />
+    	<PackageReference Include="NuGet.Versioning" />
     <PackageReference Include="Octokit.Reactive" />
   </ItemGroup>
 

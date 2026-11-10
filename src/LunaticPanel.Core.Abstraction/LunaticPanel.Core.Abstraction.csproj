@@ -45,6 +45,7 @@
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
 	</PropertyGroup>
 	<ItemGroup>
+    	<PackageReference Include="NuGet.Versioning" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" />
 	</ItemGroup>
 

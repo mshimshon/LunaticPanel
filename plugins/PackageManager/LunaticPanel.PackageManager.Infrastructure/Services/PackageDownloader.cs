@@ -53,7 +53,7 @@ internal class PackageDownloader : IPackageDownloader
     public async Task<IEnumerable<string>> GetVersionsAsync(string packageId, CancellationToken ct = default)
     {
         var result = await _sourceService.FindAllVersionsForAsync(packageId);
-        return result.Select(p => p.ToString(3));
+        return result.Select(p => p.ToString());
     }
 
     public async Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default)
