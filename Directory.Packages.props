@@ -16,7 +16,7 @@
     <PackageVersion Include="DotNetCore.CAP.Dashboard" Version="10.0.2" />
     <PackageVersion Include="DotNetCore.CAP.InMemoryStorage" Version="10.0.2" />
     <PackageVersion Include="DotNetCore.CAP.OpenTelemetry" Version="10.0.2" />
-    <PackageVersion Include="MaksimShimshon.Mediator" Version="1.1.1" />
+    <PackageVersion Include="MaksimShimshon.Mediator" Version="1.2.0" />
     <PackageVersion Include="McMaster.NETCore.Plugins" Version="2.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.13" />
     <PackageVersion Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.3.13" />

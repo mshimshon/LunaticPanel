@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Services;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
@@ -12,7 +12,7 @@ internal class GetPackageVersionsHandler : IRequestHandler<GetPackageVersionsQue
     {
         _repositorySourceService = repositorySourceService;
     }
-    public async Task<ICollection<string>> Handle(GetPackageVersionsQuery request, CancellationToken ct = default)
+    public async Task<ICollection<string>> HandleAsync(GetPackageVersionsQuery request, CancellationToken ct = default)
     {
         try
         {

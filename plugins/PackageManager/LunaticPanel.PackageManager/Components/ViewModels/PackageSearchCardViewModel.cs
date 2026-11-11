@@ -6,7 +6,7 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;
@@ -14,7 +14,7 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchCardViewModel
 {
     private readonly IStatePulse _statePulse;
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     private readonly ICrazyReport<PackageSearchCardViewModel> _crazyReport;
 
     public PackageManagerDiskState ManagerState => _statePulse.StateOf<PackageManagerDiskState>(() => this, UpdateChanges);
@@ -24,10 +24,10 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
     public bool IsInstalled { get; set; }
     public bool IsPendingUpdate { get; set; }
     public bool IsDeleted { get; set; }
-    public PackageSearchCardViewModel(IStatePulse statePulse, IMedihater medihater, ICrazyReport<PackageSearchCardViewModel> crazyReport)
+    public PackageSearchCardViewModel(IStatePulse statePulse, IMediator mediator, ICrazyReport<PackageSearchCardViewModel> crazyReport)
     {
         _statePulse = statePulse;
-        _medihater = medihater;
+        _mediator = mediator;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
@@ -45,7 +45,7 @@ internal class PackageSearchCardViewModel : WidgetViewModelBase, IPackageSearchC
         try
         {
             IsLoading = true;
-            var result = await _medihater.Send(new GetPackagesLatestVersionQuery([Data.Id]));
+            var result = await _mediator.ExecuteAsync(new GetPackagesLatestVersionQuery([Data.Id]));
             if (result.Count <= 0)
                 throw new HostCodedException("NotFound", "Cannot find package.");
             var target = result.First();

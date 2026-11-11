@@ -3,7 +3,7 @@ using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using NuGet.Versioning;
 using StatePulse.Net;
 
@@ -12,18 +12,18 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePackagesCommand>
 {
     private readonly IPanelControl _panelControl;
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     private readonly IStateAccessor<PackageUpdateState> _packageUpdateState;
     private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState;
     private readonly ICrazyReport<AutoUpdatePackagesCommandHandler> _crazyReport;
 
-    public AutoUpdatePackagesCommandHandler(IPanelControl panelControl, IMedihater medihater,
+    public AutoUpdatePackagesCommandHandler(IPanelControl panelControl, IMediator mediator,
         IStateAccessor<PackageUpdateState> packageUpdateState,
         IStateAccessor<PackageManagerDiskState> packageManagerDiskState,
         ICrazyReport<AutoUpdatePackagesCommandHandler> crazyReport)
     {
         _panelControl = panelControl;
-        _medihater = medihater;
+        _mediator = mediator;
         _packageUpdateState = packageUpdateState;
         _packageManagerDiskState = packageManagerDiskState;
         _crazyReport = crazyReport;
@@ -31,7 +31,7 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
         _crazyReport.Report("Initialized Class");
     }
 
-    public async Task Handle(AutoUpdatePackagesCommand request, CancellationToken ct = default)
+    public async Task HandleAsync(AutoUpdatePackagesCommand request, CancellationToken ct = default)
     {
         try
         {
@@ -66,7 +66,7 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
                     _crazyReport.ReportWarning("Cannot Auto Update for {0} the package was compiled against more recent panel {1}.", item.Id, packagePanelVersion);
                     continue;
                 }
-                await _medihater.Send(new PackageUpdateCommand(item), ct);
+                await _mediator.ExecuteAsync(new PackageUpdateCommand(item), ct);
             }
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
@@ -75,4 +75,5 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
             throw new HostUnkownException();
         }
     }
+
 }

@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.PackageManager.Application.Mediator.Queries;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 using System.Text.RegularExpressions;
 
@@ -8,11 +8,11 @@ namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
 internal class SearchRemotePackageEffect : IEffect<SearchRemotePackageAction>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
 
-    public SearchRemotePackageEffect(IMedihater medihater)
+    public SearchRemotePackageEffect(IMediator mediator)
     {
-        _medihater = medihater;
+        _mediator = mediator;
     }
     private readonly string _regexValidation = @"/^[a-zA-Z0-9 .]*$/";
     public async Task EffectAsync(SearchRemotePackageAction action, IDispatcher dispatcher)
@@ -29,7 +29,7 @@ internal class SearchRemotePackageEffect : IEffect<SearchRemotePackageAction>
                 Sources = action.Sources
             };
             if (dispatcher.IsCancellationRequested) return;
-            var packages = await _medihater.Send(data, dispatcher.CancelToken);
+            var packages = await _mediator.ExecuteAsync(data, dispatcher.CancelToken);
             if (dispatcher.IsCancellationRequested) return;
             await dispatcher.Prepare<SearchRemotePackageDoneAction>()
                 .With(p => p.Result, packages)

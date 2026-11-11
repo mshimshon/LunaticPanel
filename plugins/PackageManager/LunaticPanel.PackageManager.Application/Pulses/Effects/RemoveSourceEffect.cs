@@ -2,19 +2,19 @@
 using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
 internal class RemoveSourceEffect : IEffect<RemoveSourceAction>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     private readonly ICrazyReport<RemoveSourceEffect> _crazyReport;
 
-    public RemoveSourceEffect(IMedihater medihater, ICrazyReport<RemoveSourceEffect> crazyReport)
+    public RemoveSourceEffect(IMediator mediator, ICrazyReport<RemoveSourceEffect> crazyReport)
     {
-        _medihater = medihater;
+        _mediator = mediator;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
@@ -23,7 +23,7 @@ internal class RemoveSourceEffect : IEffect<RemoveSourceAction>
         try
         {
             _crazyReport.Report("Removing {0}", action.Source.Source);
-            await _medihater.Send(new RepositorySourceRemoveCommand(action.Source), dispatcher.CancelToken);
+            await _mediator.ExecuteAsync(new RepositorySourceRemoveCommand(action.Source), dispatcher.CancelToken);
             _crazyReport.Report("{0} was removed", action.Source.Source);
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<RemoveSourceDoneAction>().DispatchAsync();

@@ -20,7 +20,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using StatePulse.Net;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using LunaticPanel.PackageManager.Application.Pulses;
 using LunaticPanel.PackageManager.Application.Mediator;
 
@@ -73,7 +73,7 @@ If the mediator related to the StatePulse action is a Command
 ```csharp
 using LunaticPanel.PackageManager.Application.Mediator;
 using LunaticPanel.PackageManager.Application.Mediator.Commands;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.PackageManager.Tests.Mediator;
@@ -81,12 +81,12 @@ namespace LunaticPanel.PackageManager.Tests.Mediator;
 public class [FeatureName][FeatureMediator]Tests
 {
     private readonly IServiceProvider _scope;
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     public [FeatureName][FeatureMediator]Tests()
     {
         IServiceCollection services = new ServiceCollection();
         // TODO: Register Mocked Services.
-        // 
+        //
         services.AddMedihaterServices();
         services.AddApplicationMediator();
         _scope = services.BuildServiceProvider().CreateScope().ServiceProvider;
@@ -99,7 +99,7 @@ public class [FeatureName][FeatureMediator]Tests
         var action = new [FeatureName][FeatureMediator]();
         try
         {
-            await _medihater.Send(action);
+            await _mediator.ExecuteAsync(action);
             Assert.True(true);
         }
         catch (Exception)
@@ -112,7 +112,7 @@ public class [FeatureName][FeatureMediator]Tests
     public async Task  [FeatureName][FeatureMediator]_ErrorShouldFailExecution()
     {
         var action = new DisableSourceCommand();
-        await Assert.ThrowsAsync<Exception>(async () => await _medihater.Send(action));
+        await Assert.ThrowsAsync<Exception>(async () => await _mediator.ExecuteAsync(action));
     }
 }
 

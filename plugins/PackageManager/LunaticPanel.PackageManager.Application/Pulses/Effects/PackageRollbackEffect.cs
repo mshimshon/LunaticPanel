@@ -3,23 +3,23 @@ using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
 internal class PackageRollbackEffect : IEffect<PackageRollbackAction>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     private readonly IStateAccessor<PackageManagerDiskEditorState> _packageManagerDiskEditorState;
     private readonly ICrazyReport<PackageRollbackEffect> _crazyReport;
 
-    public PackageRollbackEffect(IMedihater medihater, IStateAccessor<PackageManagerDiskEditorState> packageManagerDiskEditorState, ICrazyReport<PackageRollbackEffect> crazyReport)
+    public PackageRollbackEffect(IMediator mediator, IStateAccessor<PackageManagerDiskEditorState> packageManagerDiskEditorState, ICrazyReport<PackageRollbackEffect> crazyReport)
     {
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
         _crazyReport.Report("Initialized Class");
-        _medihater = medihater;
+        _mediator = mediator;
         _packageManagerDiskEditorState = packageManagerDiskEditorState;
     }
 
@@ -28,7 +28,7 @@ internal class PackageRollbackEffect : IEffect<PackageRollbackAction>
         try
         {
             _crazyReport.Report("Executing Effect");
-            await _medihater.Send(new PackageRollbackCommand(action.Package), dispatcher.CancelToken);
+            await _mediator.ExecuteAsync(new PackageRollbackCommand(action.Package), dispatcher.CancelToken);
             var newPendingRollbacks = _packageManagerDiskEditorState.State.PendingRollbacks.ToList();
             newPendingRollbacks.Add(action.Package);
             await dispatcher.Prepare<PackageRollbackDoneAction>()

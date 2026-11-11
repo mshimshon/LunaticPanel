@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 using LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LunaticPanel.PackageManager.Application.Mediator;
@@ -9,29 +9,29 @@ internal static class RegisterServiceExt
 {
     public static void AddApplicationMediator(this IServiceCollection services)
     {
-        services.AddMedihaterHandler<GetDiskPackagesHandler>();
-        services.AddMedihaterHandler<RepositorySourceRemoveHandler>();
-        services.AddMedihaterHandler<RepositorySourceEnableHandler>();
-        services.AddMedihaterHandler<RepositorySourceDisableHandler>();
-        services.AddMedihaterHandler<RepositorySourceAddHandler>();
-        services.AddMedihaterHandler<PackageUpdateHandler>();
-        services.AddMedihaterHandler<PackageRemoveHandler>();
-        services.AddMedihaterHandler<PackageInstallHandler>();
-        services.AddMedihaterHandler<PackageEnableHandler>();
-        services.AddMedihaterHandler<PackageDisableHandler>();
-        services.AddMedihaterHandler<SearchPackagesHandler>();
-        services.AddMedihaterHandler<SearchRepositoryHandler>();
-        services.AddMedihaterHandler<GetPackagesLatestVersionHandler>();
-        services.AddMedihaterHandler<GetPackageVersionsHandler>();
-        services.AddMedihaterHandler<GetSourcesHandler>();
-        services.AddMedihaterHandler<DisableSourceCommandHandler>();
-        services.AddMedihaterHandler<EnableSourceCommandHandler>();
-        services.AddMedihaterHandler<MoveDownSourceCommandHandler>();
-        services.AddMedihaterHandler<MoveUpSourceCommandHandler>();
-        services.AddMedihaterHandler<PeriodicCheckPackageUpdatesQueryHandler>();
-        services.AddMedihaterHandler<AutoUpdatePackagesCommandHandler>();
-        services.AddMedihaterHandler<PackageCancelInstallCommandHandler>();
-        services.AddMedihaterHandler<PackageRollbackCommandHandler>();
+        services.AddScoped<GetDiskPackagesHandler>();
+        services.AddScoped<RepositorySourceRemoveHandler>();
+        services.AddScoped<RepositorySourceEnableHandler>();
+        services.AddScoped<RepositorySourceDisableHandler>();
+        services.AddScoped<RepositorySourceAddHandler>();
+        services.AddScoped<PackageUpdateHandler>();
+        services.AddScoped<PackageRemoveHandler>();
+        services.AddScoped<PackageInstallHandler>();
+        services.AddScoped<PackageEnableHandler>();
+        services.AddScoped<PackageDisableHandler>();
+        services.AddScoped<SearchPackagesHandler>();
+        services.AddScoped<SearchRepositoryHandler>();
+        services.AddScoped<GetPackagesLatestVersionHandler>();
+        services.AddScoped<GetPackageVersionsHandler>();
+        services.AddScoped<GetSourcesHandler>();
+        services.AddScoped<DisableSourceCommandHandler>();
+        services.AddScoped<EnableSourceCommandHandler>();
+        services.AddScoped<MoveDownSourceCommandHandler>();
+        services.AddScoped<MoveUpSourceCommandHandler>();
+        services.AddScoped<PeriodicCheckPackageUpdatesQueryHandler>();
+        services.AddScoped<AutoUpdatePackagesCommandHandler>();
+        services.AddScoped<PackageCancelInstallCommandHandler>();
+        services.AddScoped<PackageRollbackCommandHandler>();
         // AI APPEND ABOVE
     }
 }

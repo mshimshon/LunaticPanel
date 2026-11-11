@@ -3,7 +3,7 @@ using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -20,7 +20,7 @@ internal class PackageInstallHandler : IRequestHandler<PackageInstallCommand>
         _packageRepository = packageRepository;
         _packageFileReader = packageFileReader;
     }
-    public async Task Handle(PackageInstallCommand command,
+    public async Task HandleAsync(PackageInstallCommand command,
         CancellationToken ct = default)
     {
         try

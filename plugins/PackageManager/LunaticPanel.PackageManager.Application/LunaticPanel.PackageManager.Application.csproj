@@ -9,7 +9,7 @@
 
   <ItemGroup>
     	<PackageReference Include="NuGet.Versioning" />
-    <PackageReference Include="MediHater" />
+    <PackageReference Include="MaksimShimshon.Mediator" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="StatePulse.Net" />
   </ItemGroup>

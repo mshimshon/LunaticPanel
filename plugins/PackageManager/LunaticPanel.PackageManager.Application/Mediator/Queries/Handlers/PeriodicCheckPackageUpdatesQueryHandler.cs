@@ -3,21 +3,21 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using NuGet.Versioning;
 using StatePulse.Net;
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
 internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<PeriodicCheckPackageUpdatesQuery, ICollection<PackageManifestPayload>>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState;
     private readonly ICrazyReport<PeriodicCheckPackageUpdatesQueryHandler> _crazyReport;
 
-    public PeriodicCheckPackageUpdatesQueryHandler(IMedihater medihater, IStateAccessor<PackageManagerDiskState> packageManagerDiskState,
+    public PeriodicCheckPackageUpdatesQueryHandler(IMediator mediator, IStateAccessor<PackageManagerDiskState> packageManagerDiskState,
         ICrazyReport<PeriodicCheckPackageUpdatesQueryHandler> crazyReport)
     {
-        _medihater = medihater;
+        _mediator = mediator;
         _packageManagerDiskState = packageManagerDiskState;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
@@ -25,13 +25,13 @@ internal class PeriodicCheckPackageUpdatesQueryHandler : IRequestHandler<Periodi
 
     }
 
-    public async Task<ICollection<PackageManifestPayload>> Handle(PeriodicCheckPackageUpdatesQuery request, CancellationToken ct = default)
+    public async Task<ICollection<PackageManifestPayload>> HandleAsync(PeriodicCheckPackageUpdatesQuery request, CancellationToken ct = default)
     {
         try
         {
             _crazyReport.Report("Handler Called");
             var snap = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new NuGetVersion(p.Version));
-            var result = await _medihater.Send(new GetPackagesLatestVersionQuery(snap.Select(p => p.Key)), ct);
+            var result = await _mediator.ExecuteAsync(new GetPackagesLatestVersionQuery(snap.Select(p => p.Key)), ct);
             var updates = result.Where(p => new NuGetVersion(p.Version) > snap[p.Id]).ToList();
             return updates;
             //TODO: HANDLE DOMAIN EXCEPTIONS

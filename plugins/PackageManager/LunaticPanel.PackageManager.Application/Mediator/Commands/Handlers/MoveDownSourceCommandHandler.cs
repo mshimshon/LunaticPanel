@@ -2,7 +2,7 @@ using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
 internal class MoveDownSourceCommandHandler : IRequestHandler<MoveDownSourceCommand>
@@ -19,7 +19,7 @@ internal class MoveDownSourceCommandHandler : IRequestHandler<MoveDownSourceComm
 
     }
 
-    public async Task Handle(MoveDownSourceCommand request, CancellationToken ct = default)
+    public async Task HandleAsync(MoveDownSourceCommand request, CancellationToken ct = default)
     {
         try
         {

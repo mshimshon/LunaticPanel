@@ -1,23 +1,23 @@
 ﻿using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
 internal class AddSourceEffect : IEffect<AddSourceAction>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
 
-    public AddSourceEffect(IMedihater medihater)
+    public AddSourceEffect(IMediator mediator)
     {
-        _medihater = medihater;
+        _mediator = mediator;
     }
     public async Task EffectAsync(AddSourceAction action, IDispatcher dispatcher)
     {
         try
         {
-            await _medihater.Send(new RepositorySourceAddCommand(action.Source), dispatcher.CancelToken);
+            await _mediator.ExecuteAsync(new RepositorySourceAddCommand(action.Source), dispatcher.CancelToken);
             await dispatcher.Prepare<LoadSourcesAction>().Await().DispatchAsync();
             await dispatcher.Prepare<AddSourceDoneAction>().DispatchAsync();
         }

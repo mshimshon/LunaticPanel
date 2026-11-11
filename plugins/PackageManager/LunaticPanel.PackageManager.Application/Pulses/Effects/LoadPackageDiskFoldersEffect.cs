@@ -2,19 +2,19 @@
 using LunaticPanel.PackageManager.Application.Mediator.Queries;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
 internal class LoadPackageDiskFoldersEffect : IEffect<LoadPackageDiskFoldersAction>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     private readonly ICrazyReport<LoadPackageDiskFoldersAction> _crazyReport;
 
-    public LoadPackageDiskFoldersEffect(IMedihater medihater, ICrazyReport<LoadPackageDiskFoldersAction> crazyReport)
+    public LoadPackageDiskFoldersEffect(IMediator mediator, ICrazyReport<LoadPackageDiskFoldersAction> crazyReport)
     {
-        _medihater = medihater;
+        _mediator = mediator;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
@@ -23,7 +23,7 @@ internal class LoadPackageDiskFoldersEffect : IEffect<LoadPackageDiskFoldersActi
     {
         try
         {
-            var result = await _medihater.Send(new GetDiskPackagesQuery(), dispatcher.CancelToken);
+            var result = await _mediator.ExecuteAsync(new GetDiskPackagesQuery(), dispatcher.CancelToken);
             await dispatcher.Prepare<LoadPackageDiskFoldersDoneAction>()
                 .With(p => p.AvailableRollbacks, result.AvailableRollbacks)
                 .With(p => p.Installed, result.Installed)

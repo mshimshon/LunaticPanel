@@ -1,25 +1,25 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Mediator.Queries;
 using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Pulses.Effects;
 
 internal class LoadSourcesEffect : IEffect<LoadSourcesAction>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
 
-    public LoadSourcesEffect(IMedihater medihater)
+    public LoadSourcesEffect(IMediator mediator)
     {
-        _medihater = medihater;
+        _mediator = mediator;
     }
     public async Task EffectAsync(LoadSourcesAction action, IDispatcher dispatcher)
     {
         ICollection<Payloads.RepositorySourcePayload>? result = default;
         try
         {
-            result = await _medihater.Send(new GetSourcesQuery(), dispatcher.CancelToken);
+            result = await _mediator.ExecuteAsync(new GetSourcesQuery(), dispatcher.CancelToken);
         }
         catch (HostCodedException)
         { throw; }

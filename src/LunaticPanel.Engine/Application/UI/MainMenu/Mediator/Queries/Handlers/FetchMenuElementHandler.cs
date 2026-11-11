@@ -4,7 +4,7 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Dto.Responses;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using LunaticPanel.Engine.Keys.UI;
-using MedihatR;
+using MaksimShimshon.Mediator;
 namespace LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Handlers;
 
 internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, List<EngineBusMsgResponseWithData<MenuElementEntity>>>

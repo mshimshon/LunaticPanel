@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries;
 

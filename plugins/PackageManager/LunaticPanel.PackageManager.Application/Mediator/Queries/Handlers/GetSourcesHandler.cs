@@ -4,7 +4,7 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
@@ -19,7 +19,7 @@ internal class GetSourcesHandler : IRequestHandler<GetSourcesQuery, ICollection<
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
-    public async Task<ICollection<RepositorySourcePayload>> Handle(GetSourcesQuery request, CancellationToken cancellationToken)
+    public async Task<ICollection<RepositorySourcePayload>> HandleAsync(GetSourcesQuery request, CancellationToken cancellationToken)
     {
         try
         {

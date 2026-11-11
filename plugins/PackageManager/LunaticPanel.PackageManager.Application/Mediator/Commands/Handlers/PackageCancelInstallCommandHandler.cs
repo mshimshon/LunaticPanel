@@ -2,7 +2,7 @@ using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -20,7 +20,7 @@ internal class PackageCancelInstallCommandHandler : IRequestHandler<PackageCance
         _crazyReport.Report("Initialized Class");
     }
 
-    public async Task Handle(PackageCancelInstallCommand request, CancellationToken ct = default)
+    public async Task HandleAsync(PackageCancelInstallCommand request, CancellationToken ct = default)
     {
         try
         {

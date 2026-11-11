@@ -23,7 +23,7 @@ using LunaticPanel.Engine.Web.Services;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using LunaticPanel.Engine.Web.Services.PanelControl;
 using LunaticPanel.Engine.Web.Services.UpdateService;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;

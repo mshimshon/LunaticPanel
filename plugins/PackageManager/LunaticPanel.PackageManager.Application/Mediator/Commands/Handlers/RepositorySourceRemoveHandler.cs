@@ -1,9 +1,9 @@
-﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -19,7 +19,7 @@ internal class RepositorySourceRemoveHandler : IRequestHandler<RepositorySourceR
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
         _crazyReport.Report("Initialized Class");
     }
-    public async Task Handle(RepositorySourceRemoveCommand command, CancellationToken ct = default)
+    public async Task HandleAsync(RepositorySourceRemoveCommand command, CancellationToken ct = default)
     {
         try
         {

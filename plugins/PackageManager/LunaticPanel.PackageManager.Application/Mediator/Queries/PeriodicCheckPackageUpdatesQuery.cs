@@ -1,5 +1,5 @@
 using LunaticPanel.PackageManager.Application.Payloads;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries;
 

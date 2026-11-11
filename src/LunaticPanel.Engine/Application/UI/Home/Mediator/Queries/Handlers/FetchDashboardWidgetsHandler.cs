@@ -4,7 +4,7 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Keys.UI;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Handlers;
 

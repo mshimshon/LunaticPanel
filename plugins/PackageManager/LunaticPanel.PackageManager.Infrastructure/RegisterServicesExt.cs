@@ -4,7 +4,7 @@ using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Infrastructure.Repositories;
 using LunaticPanel.PackageManager.Infrastructure.Services;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Infrastructure;
@@ -13,7 +13,7 @@ public static class RegisterServicesExt
 {
     public static void AddInfrasctructureServices(this IPluginServiceCollection services)
     {
-        services.Services.AddMedihaterServices();
+        services.Services.AddMediatorService();
         services.AddApplicationServices();
         services.Services.AddStatePulseServices(p =>
         {
