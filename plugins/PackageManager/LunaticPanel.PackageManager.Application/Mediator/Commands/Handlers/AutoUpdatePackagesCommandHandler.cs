@@ -17,7 +17,9 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
     private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState;
     private readonly ICrazyReport<AutoUpdatePackagesCommandHandler> _crazyReport;
 
-    public AutoUpdatePackagesCommandHandler(IPanelControl panelControl, IMediator mediator,
+    public AutoUpdatePackagesCommandHandler(
+        IPanelControl panelControl,
+        IMediator mediator,
         IStateAccessor<PackageUpdateState> packageUpdateState,
         IStateAccessor<PackageManagerDiskState> packageManagerDiskState,
         ICrazyReport<AutoUpdatePackagesCommandHandler> crazyReport)
@@ -45,7 +47,7 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
             foreach (var item in snap)
             {
                 NuGetVersion packagePanelVersion = new NuGetVersion(item.PanelVersion);
-                NuGetVersion packageVersion = new NuGetVersion(item.PanelVersion);
+                NuGetVersion packageVersion = new NuGetVersion(item.Version);
                 NuGetVersion packageCurrentVersion = currentVersions[item.Id];
                 int currentPackageMajor = packageCurrentVersion.Major;
                 int packagePanelMajor = packagePanelVersion.Major;

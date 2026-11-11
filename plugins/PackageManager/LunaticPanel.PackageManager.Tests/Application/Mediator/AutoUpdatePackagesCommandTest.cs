@@ -16,8 +16,8 @@ public class AutoUpdatePackagesCommandTest
     private readonly IPanelControl _panelControl = new PanelControl();
     private readonly IStateAccessor<PackageUpdateState> _packageUpdateState = StateAccessor<PackageUpdateState>.CreateState();
     private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState = StateAccessor<PackageManagerDiskState>.CreateState();
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ICrazyReport _crazyReport = new CrazyReport<AutoUpdatePackagesCommandTest>();
+    private readonly ICrazyReport<AutoUpdatePackagesCommandHandler> _crazyReport = new CrazyReport<AutoUpdatePackagesCommandHandler>();
+    private readonly IMediator _mediator;
     public AutoUpdatePackagesCommandTest()
     {
         IServiceCollection services = new ServiceCollection();
@@ -27,13 +27,16 @@ public class AutoUpdatePackagesCommandTest
         services.AddScoped((sp) => _packageManagerDiskState);
         services.AddScoped((sp) => _crazyReport);
         services.BuildMediatorRouting();
-        _serviceProvider = services.BuildServiceProvider().CreateScope().ServiceProvider;
+        var sp = services.BuildServiceProvider().CreateScope().ServiceProvider;
+        _mediator = sp.GetRequiredService<IMediator>();
+
     }
 
     [Fact]
-    public void Command_MapsCorrectly()
+    public async Task Command_MapsCorrectly()
     {
-        new AutoUpdatePackagesCommandHandler(_panelControl, );
+        var handler = new AutoUpdatePackagesCommandHandler(_panelControl, _mediator, _packageUpdateState, _packageManagerDiskState, _crazyReport);
+        await handler.HandleAsync();
         Assert.Collection(respositorySourceQueryModel.RepositorySourceTypes,
             p => Assert.True(p == RepositorySourceType.Local),
             p => Assert.True(p == RepositorySourceType.Remote)
