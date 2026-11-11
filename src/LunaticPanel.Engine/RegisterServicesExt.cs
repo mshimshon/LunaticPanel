@@ -62,13 +62,7 @@ public static class RegisterServicesExt
                     typeof(Infrastructure.RegisterServicesExt).Assembly,
                 ];
         });
-        services.AddMedihaterServices(o =>
-        {
-            o.ScanAssemblies = [
-                typeof(RegisterServicesExt).Assembly,
-                typeof(Infrastructure.RegisterServicesExt).Assembly,
-             ];
-        });
+        services.AddMediatorService();
 
         services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
         services.AddSingleton<IEventBusRegistry>((sp) => _eventBusRegistry);
@@ -99,6 +93,9 @@ public static class RegisterServicesExt
         }, typeof(RegisterServicesExt).Assembly);
 
         services.AddHostRedirectedServices();
+
+        // Last, Esthablish Mediator Routing for every registered handler types.
+        services.BuildMediatorRouting();
         return services;
     }
 
@@ -131,6 +128,7 @@ public static class RegisterServicesExt
     }
     public static async Task RuntimeHostStartup(this IServiceProvider services)
     {
+
         var evtSchService = services.GetRequiredService<IEventScheduler>();
         var schEventRegistry = services.GetRequiredService<IEventScheduledBusRegistry>();
         foreach (var d in schEventRegistry.GetAllAvailable())

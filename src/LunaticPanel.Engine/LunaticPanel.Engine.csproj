@@ -31,7 +31,7 @@
 	<PackageReference Include="McMaster.NETCore.Plugins" />
 	<PackageReference Include="MudBlazor" />
 	<PackageReference Include="StatePulse.Net" />
-	<PackageReference Include="MediHater" />
+	<PackageReference Include="MaksimShimshon.Mediator" />
 	<PackageReference Include="Microsoft.AspNetCore.Components.Web" />
 </ItemGroup>
 

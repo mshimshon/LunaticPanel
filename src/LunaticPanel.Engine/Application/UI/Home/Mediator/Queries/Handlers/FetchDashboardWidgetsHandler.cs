@@ -18,7 +18,7 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
         _engineBus = engineBus;
         _coreMap = coreMap;
     }
-    public async Task<List<EngineBusMsgResponseWithData<WidgetElementEntity>>?> Handle(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
+    public async Task<List<EngineBusMsgResponseWithData<WidgetElementEntity>>?> HandleAsync(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
     {
         List<EngineBusMsgResponseWithData<WidgetElementEntity>> result = new List<EngineBusMsgResponseWithData<WidgetElementEntity>>();
         try

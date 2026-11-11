@@ -17,7 +17,7 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         _coreMap = coreMap;
         _engineBus = engineBus;
     }
-    public async Task<List<EngineBusMsgResponseWithData<MenuElementEntity>>> Handle(FetchMenuElementQuery request, CancellationToken cancellationToken)
+    public async Task<List<EngineBusMsgResponseWithData<MenuElementEntity>>> HandleAsync(FetchMenuElementQuery request, CancellationToken cancellationToken)
     {
         List<EngineBusMsgResponseWithData<MenuElementEntity>> result = new();
         try
