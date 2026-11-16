@@ -4,22 +4,22 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
 internal class GetSourcesHandler : IRequestHandler<GetSourcesQuery, ICollection<RepositorySourcePayload>>
 {
     private readonly ISourceRepository _sourceRepository;
-    private readonly ICrazyReport<SearchRepositoryHandler> _crazyReport;
+    private readonly ICrazyReport<GetSourcesHandler> _crazyReport;
 
-    public GetSourcesHandler(ISourceRepository sourceRepository, ICrazyReport<SearchRepositoryHandler> crazyReport)
+    public GetSourcesHandler(ISourceRepository sourceRepository, ICrazyReport<GetSourcesHandler> crazyReport)
     {
         _sourceRepository = sourceRepository;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
-    public async Task<ICollection<RepositorySourcePayload>> Handle(GetSourcesQuery request, CancellationToken cancellationToken)
+    public async Task<ICollection<RepositorySourcePayload>> HandleAsync(GetSourcesQuery request, CancellationToken cancellationToken)
     {
         try
         {

@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
-using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Keys;
@@ -10,7 +10,7 @@ namespace LunaticPanel.PackageManager.Infrastructure.Services;
 
 internal class SourceOrderingService : ISourceOrderingService
 {
-    private readonly ISafeFileWriter _safeFileWriter;
+    private readonly IAtomicFileSystem _atomicFileSystem;
     private readonly ISourceFileService _sourceFileProvider;
     private readonly string _sourceFile;
     private JsonSerializerOptions _jsonSerializerOptions = new()
@@ -19,9 +19,9 @@ internal class SourceOrderingService : ISourceOrderingService
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
 
-    public SourceOrderingService(ISafeFileWriter safeFileWriter, IPluginLocation pluginLocation, ISourceFileService sourceFileProvider)
+    public SourceOrderingService(IAtomicFileSystem AtomicFileSystem, IPluginLocation pluginLocation, ISourceFileService sourceFileProvider)
     {
-        _safeFileWriter = safeFileWriter;
+        _atomicFileSystem = AtomicFileSystem;
         _sourceFileProvider = sourceFileProvider;
         _sourceFile = _sourceFile = pluginLocation.GetConfigFor(LPPackageManagerKeys.MODULE_NAME, "sources.json");
         if (!File.Exists(_sourceFile))
@@ -29,7 +29,7 @@ internal class SourceOrderingService : ISourceOrderingService
     }
     public async Task MoveDownAsync(RepositorySourcePayload sourcePayload, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, content =>
+        await _atomicFileSystem.WriteAtomicAsync(_sourceFile, content =>
         {
 
 
@@ -50,7 +50,7 @@ internal class SourceOrderingService : ISourceOrderingService
     public Task MoveLastAsync(RepositorySourcePayload sourcePayload, CancellationToken ct = default) => throw new NotImplementedException();
     public async Task MoveUpAsync(RepositorySourcePayload sourcePayload, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, content =>
+        await _atomicFileSystem.WriteAtomicAsync(_sourceFile, content =>
         {
 
 

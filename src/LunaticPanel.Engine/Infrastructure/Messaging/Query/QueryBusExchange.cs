@@ -16,7 +16,6 @@ internal class QueryBusExchange : IQueryBusExchange
     }
     public bool AnyListenerFor(string key)
     {
-        key = key.ToLower();
         var result = _queryBusReceiver.DoYouListenTo(key);
         if (result) return result;
         foreach (var item in _circuitRegistry.GetPluginContexts())

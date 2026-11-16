@@ -7,6 +7,7 @@ using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Abstraction.Tools;
+using LunaticPanel.Core.Abstraction.Tools.EventScheduler;
 using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Messaging;
 using LunaticPanel.Core.Messaging.EngineBus;
@@ -21,7 +22,8 @@ using LunaticPanel.Engine.Web.Pages.Dashboard;
 using LunaticPanel.Engine.Web.Services;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using LunaticPanel.Engine.Web.Services.PanelControl;
-using MedihatR;
+using LunaticPanel.Engine.Web.Services.UpdateService;
+using MaksimShimshon.Mediator;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
@@ -40,6 +42,8 @@ public static class RegisterServicesExt
         services.AddLinuxCommandUtilityService();
         services.AddPluginLocationUtilityService("lunaticpanel");
         services.AddSafeFileWriterUtilityService();
+        services.AddScoped<IPanelUpdateService, PanelUpdateService>();
+        services.AddHttpClient();
         services.AddScoped<HostExceptionHandler>();
         services.AddScoped<MainMenuViewModel>();
         services.AddScoped<MainLayoutViewModel>();
@@ -58,13 +62,7 @@ public static class RegisterServicesExt
                     typeof(Infrastructure.RegisterServicesExt).Assembly,
                 ];
         });
-        services.AddMedihaterServices(o =>
-        {
-            o.ScanAssemblies = [
-                typeof(RegisterServicesExt).Assembly,
-                typeof(Infrastructure.RegisterServicesExt).Assembly,
-             ];
-        });
+        services.AddMediatorService();
 
         services.AddSingleton<IEngineBusRegistry>((sp) => _engineBusRegistry);
         services.AddSingleton<IEventBusRegistry>((sp) => _eventBusRegistry);
@@ -95,6 +93,9 @@ public static class RegisterServicesExt
         }, typeof(RegisterServicesExt).Assembly);
 
         services.AddHostRedirectedServices();
+
+        // Last, Esthablish Mediator Routing for every registered handler types.
+        services.BuildMediatorRouting();
         return services;
     }
 
@@ -125,7 +126,23 @@ public static class RegisterServicesExt
 
         return services;
     }
+    public static async Task RuntimeHostStartup(this IServiceProvider services)
+    {
 
+        var evtSchService = services.GetRequiredService<IEventScheduler>();
+        var schEventRegistry = services.GetRequiredService<IEventScheduledBusRegistry>();
+        foreach (var d in schEventRegistry.GetAllAvailable())
+        {
+            if (!d.ScheduleAtStartup) continue;
+            var t = new EventScheduleObject(d.Key, d.Timing)
+            {
+                RunOnceOnly = d.RunOnlyOnce
+            };
+
+            evtSchService.Register(t, d.RunAtStartup);
+        }
+
+    }
     public static async Task RuntimeStartupBeforePluginsAsync(this IServiceProvider services)
     {
         await services.EngineInfrastructureRuntimeBeforePlugins();

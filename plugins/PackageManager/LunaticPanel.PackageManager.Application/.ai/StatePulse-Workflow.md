@@ -46,22 +46,22 @@ public sealed record [FeatureName]DoneAction : IAction
 
 using [RootMediatorNamespace].[MediatorRealmNamespace];
 using [RootPulseNamespace].Actions;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace [RootPulseNamespace].Effects;
 
 internal class [FeatureName]Effect : IEffect<[FeatureName]Action>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
     private readonly ICrazyReport<[FeatureName]Effect> _crazyReport;
 
-    public [FeatureName]Effect(IMedihater medihater, ICrazyReport<[FeatureName]Effect> crazyReport)
+    public [FeatureName]Effect(IMediator mediator, ICrazyReport<[FeatureName]Effect> crazyReport)
     {
         _crazyReport = crazyReport;
         _crazyReport.SetModule([KeyClass].MODULE_NAME);
         _crazyReport.Report("Initialized Class");
-        _medihater = medihater;
+        _mediator = mediator;
     }
     public async Task EffectAsync([FeatureName]Action action, IDispatcher dispatcher)
     {
@@ -72,12 +72,12 @@ internal class [FeatureName]Effect : IEffect<[FeatureName]Action>
 
             {AI_DO}
                 USE IF REQUESTED PROMPT DOES NOT SPECIFY A RETURN TYPE
-            await _medihater.Send(new [FeatureName][MediatorRealm](), dispatcher.CancelToken);
+            await _mediator.ExecuteAsync(new [FeatureName][MediatorRealm](), dispatcher.CancelToken);
             await dispatcher.Prepare<[FeatureName]DoneAction>().DispatchAsync();
             {/AI_DO}
             {AI_DO}
                 USE IF REQUESTED PROMPT DOES SPECIFY A RETURN TYPE
-            [ReturnType] result = await _medihater.Send(new [FeatureName][MediatorRealm](), dispatcher.CancelToken);
+            [ReturnType] result = await _mediator.ExecuteAsync(new [FeatureName][MediatorRealm](), dispatcher.CancelToken);
             await dispatcher.Prepare<[FeatureName]DoneAction>().With(p=>p.ReturnValue, result).DispatchAsync();
             {/AI_DO}
         }
@@ -103,7 +103,7 @@ namespace [RootPulseNamespace].Reducers;
 internal class [FeatureName]Reducer : IReducer<[BoundState], [FeatureName]Action>
 {
     public [BoundState] Reduce([BoundState] state, [FeatureName]Action action)
-        => state with { 
+        => state with {
 
         };
 }
@@ -121,8 +121,8 @@ namespace [RootPulseNamespace].Reducers;
 internal class [FeatureName]DoneReducer : IReducer<[BoundState], [FeatureName]DoneAction>
 {
     public [BoundState] Reduce([BoundState] state, [FeatureName]DoneAction action)
-        => state with { 
-            
+        => state with {
+
         };
 }
 
@@ -135,7 +135,7 @@ internal class [FeatureName]DoneReducer : IReducer<[BoundState], [FeatureName]Do
 
 ### 6. Mediator/[MediatorRealmNamespace]/[FeatureName][MediatorRealm].cs
 ```csharp
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace [RootMediatorNamespace].[MediatorRealmNamespace];
 
@@ -151,10 +151,10 @@ public sealed record [FeatureName][MediatorRealm]()
 using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using [RootNamespace].Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 namespace [RootMediatorNamespace].[MediatorRealmNamespace].Handlers;
 
-internal class [FeatureName][MediatorRealm]Handler : {AI_DO} USE IF REQUESTED PROMPT DOES NOT SPECIFY RETURN TYPE USE  'IRequestHandler<[FeatureName][MediatorRealm]>' otherwise use 'IRequestHandler<[FeatureName][MediatorRealm], [ReturnType]>'{/AI_DO} 
+internal class [FeatureName][MediatorRealm]Handler : {AI_DO} USE IF REQUESTED PROMPT DOES NOT SPECIFY RETURN TYPE USE  'IRequestHandler<[FeatureName][MediatorRealm]>' otherwise use 'IRequestHandler<[FeatureName][MediatorRealm], [ReturnType]>'{/AI_DO}
 {
     private readonly ICrazyReport<[FeatureName][MediatorRealm]Handler> _crazyReport;
 

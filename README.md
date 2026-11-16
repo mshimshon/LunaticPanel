@@ -3,8 +3,30 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mshimshon/LunaticPanel/blob/main/LICENSE)
 [![NuGet Version](https://img.shields.io/nuget/v/LunaticPanel.Core)](https://www.nuget.org/packages/LunaticPanel.Core)
 [![](https://img.shields.io/nuget/dt/LunaticPanel.Core?label=Downloads)](https://www.nuget.org/packages/LunaticPanel.Core)
-[![Build](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml)
+[![Preview](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_preview.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_preview.yml)
+[![Stable](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_release.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_release.yml)
 [![Deploy](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml)
+
+# ⚠️ WARNING: NOT PRODUCTION READY
+
+## 🧔 Shimshon says DON'T BE STUPID 😉 ❤️❤️
+### ...or Delilah might crop your locks and hack your system into oblivion.
+
+Anything below version `1.0.0` is a digital danger zone. There is absolutely **no guarantee of stability**.
+
+Expect:
+* Complete, ground-up rewrites
+* Total architectural overhauls
+* Random breakages
+* Code instability explosions so violent you aren't Schwarzenegger enough to handle them!
+
+The official policy remains brutal but honest: **anything pre-1.0.0 is fair game for breaking changes without warning and without apologies.**
+
+Proceed at your own risk, or prepare for the chaos! 🔥
+
+*P.S. If anything goes to shit, just blame Justin!* 🤷‍♂️
+
+---
 
 # Lunatic Panel
 
@@ -37,7 +59,7 @@ For developers, it provides a clean, decoupled ecosystem to build and distribute
 
 You can adjust the optimization after installation by editing the service file (`/etc/systemd/system/lunaticpanel.service`) directly. The script will never override the service if it already exists.
 
-Change the values to match your desired optimization. See the [.NET GC Documentation](https://microsoft.com) for more details on tuning the garbage collector for your specific use case.
+Change the values to match your desired optimization. See the [.NET GC Documentation](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection) for more details on tuning the garbage collector for your specific use case.
 
 Our core policy is that the panel must always remain accessible, no matter what other services are running alongside it. The panel itself is lightweight, but its eventual footprint depends entirely on the purpose it serves for you.
 
@@ -111,7 +133,7 @@ http://localhost:10002/
 To pack and test your own packages install the official global command-line utility:
 
 ```bash
-dotnet tool install --global LunaticPanel.Packages.Tool
+dotnet tool install --global LunaticPanel.Package.Tool
 ```
 
 ## Developing Plugins

@@ -1,9 +1,10 @@
 using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
-using LunaticPanel.PackageManager.Application.Pulses.States;
+using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
+using NuGet.Versioning;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
@@ -11,60 +12,53 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePackagesCommand>
 {
     private readonly IPanelControl _panelControl;
-    private readonly IMedihater _medihater;
-    private readonly IStateAccessor<PackageUpdateState> _packageUpdateState;
-    private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState;
+    private readonly IMediator _mediator;
     private readonly ICrazyReport<AutoUpdatePackagesCommandHandler> _crazyReport;
 
-    public AutoUpdatePackagesCommandHandler(IPanelControl panelControl, IMedihater medihater,
-        IStateAccessor<PackageUpdateState> packageUpdateState,
-        IStateAccessor<PackageManagerDiskState> packageManagerDiskState,
+    public AutoUpdatePackagesCommandHandler(
+        IPanelControl panelControl,
+        IMediator mediator,
         ICrazyReport<AutoUpdatePackagesCommandHandler> crazyReport)
     {
         _panelControl = panelControl;
-        _medihater = medihater;
-        _packageUpdateState = packageUpdateState;
-        _packageManagerDiskState = packageManagerDiskState;
+        _mediator = mediator;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
         _crazyReport.Report("Initialized Class");
     }
+    // CreatePackage("panel.notifications.slack", "Slack Notifications", "4.2.4", "2.0.0"),
+    public static bool Validation(PackageManifestPayload payload, NuGetVersion currentPanelVersion, ICrazyReport? crazyReport)
+    {
+        NuGetVersion packagePanelVersion = NuGetVersion.Parse(payload.PanelVersion);
+        int packagePanelMajor = packagePanelVersion.Major;
+        int panelMajor = currentPanelVersion.Major;
+        if (packagePanelMajor != panelMajor)
+        {
 
-    public async Task Handle(AutoUpdatePackagesCommand request, CancellationToken ct = default)
+            crazyReport.SafeReportWarning("Cannot Auto Update for {0} due to Panel Major Mismatch", payload.Id);
+            return false;
+        }
+
+        if (packagePanelVersion > currentPanelVersion)
+        {
+            crazyReport.SafeReportWarning("Cannot Auto Update for {0} the package was compiled against more recent panel {1}.", payload.Id, packagePanelVersion);
+            return false;
+        }
+        return true;
+    }
+    public async Task HandleAsync(AutoUpdatePackagesCommand request, CancellationToken ct = default)
     {
         try
         {
             _crazyReport.Report("Handler Called");
-            var snap = _packageUpdateState.State.FoundUpdates.ToList();
-            var currentVersions = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => new Version(p.Version));
-            var UpdateVersion = snap.ToDictionary(p => p.Id, p => new Version(p.Version));
-            var UpdatePanelVersion = snap.ToDictionary(p => p.Id, p => new Version(p.PanelVersion));
-            int major = _panelControl.PanelVersion.Major;
+            var snap = request.FoundUpdates.ToList();
+            var currentVersions = request.InstalledPackageVersions.ToDictionary(p => p.Key, p => NuGetVersion.Parse(p.Value));
+            var currentPanelVersion = NuGetVersion.Parse(_panelControl.PanelVersion);
             foreach (var item in snap)
             {
-                Version packagePanelVersion = new Version(item.PanelVersion);
-                Version packageVersion = new Version(item.PanelVersion);
-                Version packageCurrentVersion = currentVersions[item.Id];
-                int currentPackageMajor = packageCurrentVersion.Major;
-                int packagePanelMajor = packagePanelVersion.Major;
-                int packageVersionMajor = packageVersion.Major;
-                if (packagePanelMajor != major)
-                {
-                    _crazyReport.ReportWarning("Cannot Auto Update for {0} due to Panel Major Mismatch", item.Id);
-                    continue;
-                }
-                if (packageVersionMajor != currentPackageMajor)
-                {
-                    _crazyReport.ReportWarning("Cannot Auto Update for {0} due to Major Version Mismatch", item.Id);
-                    continue;
-                }
-
-                if (packagePanelVersion > _panelControl.PanelVersion)
-                {
-                    _crazyReport.ReportWarning("Cannot Auto Update for {0} the package was compiled against more recent panel {1}.", item.Id, packagePanelVersion);
-                    continue;
-                }
-                await _medihater.Send(new PackageUpdateCommand(item), ct);
+                bool skip = !Validation(item, currentPanelVersion, _crazyReport);
+                if (skip) continue;
+                await _mediator.ExecuteAsync(new PackageUpdateCommand(item), ct);
             }
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }
@@ -73,4 +67,5 @@ internal class AutoUpdatePackagesCommandHandler : IRequestHandler<AutoUpdatePack
             throw new HostUnkownException();
         }
     }
+
 }

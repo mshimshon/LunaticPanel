@@ -2,7 +2,7 @@
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.Respositories;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -16,7 +16,7 @@ internal class PackageRemoveHandler : IRequestHandler<PackageRemoveCommand>
         _packageRepository = packageRepository;
         _crazyReport = crazyReport;
     }
-    public async Task Handle(PackageRemoveCommand command, CancellationToken ct = default)
+    public async Task HandleAsync(PackageRemoveCommand command, CancellationToken ct = default)
     {
         try
         {

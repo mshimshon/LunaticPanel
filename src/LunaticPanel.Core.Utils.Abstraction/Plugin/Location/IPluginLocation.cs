@@ -24,13 +24,13 @@ public interface IPluginLocation : IPluginSystemLocation, IPluginUserLocation, I
     /// </summary>
     string PluginVarFolder { get; }
 
-    const string LunaticPanelFolderName = "lunaticpanel";
-    const string LunaticPanelPluginsFolderName = "plugins";
-    const string LinuxUsrFolderName = "usr";
-    const string LinuxSrvFolderName = "srv";
-    const string LinuxLibFolderName = "lib";
-    const string LinuxEtcFolderName = "etc";
-    const string LinuxVarFolderName = "var";
+    const string LUNATIC_PANEL_FOLDER_NAME = "lunaticpanel";
+    const string LUNATIC_PANEL_PLUGINS_FOLDER_NAME = "plugins";
+    const string LINUX_USR_FOLDER_NAME = "usr";
+    const string LINUX_SRV_FOLDER_NAME = "srv";
+    const string LINUX_LIB_FOLDER_NAME = "lib";
+    const string LINUX_ETC_FOLDER_NAME = "etc";
+    const string LINUX_VAR_FOLDER_NAME = "var";
 
     string EnsureCreated(string path);
     string ArgumentsToString(params string[] args);

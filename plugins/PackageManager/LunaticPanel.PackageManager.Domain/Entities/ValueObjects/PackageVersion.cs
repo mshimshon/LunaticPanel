@@ -1,52 +1,24 @@
 ﻿using LunaticPanel.PackageManager.Domain.Entities.Exceptions;
+using System.Text.RegularExpressions;
 
 namespace LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 
-public sealed record PackageVersion : IComparable<PackageVersion>
+public sealed record PackageVersion
 {
-    private readonly Version _version;
     public string Value { get; }
+    private static readonly Regex _regexValidator = new(@"^\d+\.\d+\.\d+(-[A-Za-z0-9\-]+\.\d+)?$", RegexOptions.Compiled);
 
     public PackageVersion(int major) : this(major, 0, 0) { }
     public PackageVersion(int major, int minor) : this(major, minor, 0) { }
 
-    public PackageVersion(int major, int minor, int patch)
+    public PackageVersion(int major, int minor, int patch) : this($"{major}.{minor}.{patch}")
     {
-        _version = new Version(major, minor, patch);
-        Value = _version.ToString();
     }
 
     public PackageVersion(string version)
     {
-
-        var split = version.Split('+')[0].Split('.');
-        if (split.Length == 1)
-            _version = new Version(int.Parse(split[0]), 0, 0);
-        else if (split.Length == 2)
-            _version = new Version(int.Parse(split[0]), int.Parse(split[1]), 0);
-        else if (split.Length == 3)
-            _version = new Version(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
-        else
+        if (!_regexValidator.IsMatch(version))
             throw new PackageVersionInvalidException(version);
-        Value = _version!.ToString();
+        Value = version;
     }
-
-    public int CompareTo(PackageVersion? other)
-    {
-        if (other is null) return 1;
-        return _version.CompareTo(other._version);
-    }
-
-    public static bool operator >(PackageVersion left, PackageVersion right)
-        => left.CompareTo(right) > 0;
-
-    public static bool operator <(PackageVersion left, PackageVersion right)
-        => left.CompareTo(right) < 0;
-
-    public static bool operator >=(PackageVersion left, PackageVersion right)
-        => left.CompareTo(right) >= 0;
-
-    public static bool operator <=(PackageVersion left, PackageVersion right)
-        => left.CompareTo(right) <= 0;
-
 }

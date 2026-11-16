@@ -5,8 +5,8 @@ namespace LunaticPanel.Core.Messaging.EngineBus;
 
 public sealed class EngineBusRegistry : IEngineBusRegistry
 {
-    private readonly Dictionary<string, List<EngineBusHandlerDescriptor>> _internalRegistryEventTypes = new();
-    private readonly object _lock = new();
+    private readonly Dictionary<string, List<EngineBusHandlerDescriptor>> _internalRegistryEventTypes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Lock _lock = new();
 
     public IReadOnlyList<EngineBusHandlerDescriptor> GetAllAvailable()
     {
@@ -27,7 +27,6 @@ public sealed class EngineBusRegistry : IEngineBusRegistry
 
     public IReadOnlyList<EngineBusHandlerDescriptor> GetRegistryFor(string id)
     {
-        id = id.ToLower();
         lock (_lock)
         {
             if (_internalRegistryEventTypes.ContainsKey(id))
@@ -46,7 +45,6 @@ public sealed class EngineBusRegistry : IEngineBusRegistry
 
     public void Register(string id, BusHandlerDescriptor handlerEntity)
     {
-        id = id.ToLower();
 
         lock (_lock)
         {

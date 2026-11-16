@@ -1,11 +1,11 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.PackageManager.Application.Pulses.Actions;
+using LunaticPanel.PackageManager.Pulses.Actions;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Hooks.Events;
 
-[EventBusKey(PluginKeys.Events.OnPluginEnabled)]
+[EventBusKey(PluginKeys.Events.ON_PLUGIN_ENABLED)]
 internal class OnPluginEnabledChanged : IEventBusHandler
 {
     private readonly IDispatcher _dispatcher;

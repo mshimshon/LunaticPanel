@@ -6,7 +6,7 @@ using LunaticPanel.Engine.Web.Services;
 
 namespace LunaticPanel.Engine.Web.Hooks.Events;
 
-[EventBusKey(PluginKeys.Events.DisablePlugin, ServiceLifetime = EBusLifetime.Scoped)]
+[EventBusKey(PluginKeys.Events.DISABLE_PLUGIN, ServiceLifetime = EBusLifetime.Scoped)]
 internal class DisablePluginEvent : IEventBusHandler
 {
     private readonly IBootstrapFileController _bootstrapFileController;
@@ -23,6 +23,6 @@ internal class DisablePluginEvent : IEventBusHandler
         string id = await evt.ReadAs<string>();
         Console.WriteLine($"Disable Plugin => {id}");
         await _bootstrapFileController.DisablePlugin(id);
-        await _eventBus.PublishDataAsync(PluginKeys.Events.OnPluginDisabled, id);
+        await _eventBus.PublishDataAsync(PluginKeys.Events.ON_PLUGIN_DISABLED, id);
     }
 }

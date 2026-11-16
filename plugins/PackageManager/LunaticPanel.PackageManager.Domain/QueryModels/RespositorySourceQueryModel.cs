@@ -10,6 +10,19 @@ public sealed record RespositorySourceQueryModel : QueryModel, IRespositorySourc
     public IReadOnlyList<RepositorySourceType> RepositorySourceTypes => _repositorySourceTypes.AsReadOnly();
 
     private readonly List<string> _keywords = new List<string>();
+
+    public RespositorySourceQueryModel()
+    {
+    }
+
+    public RespositorySourceQueryModel(int position) : base(position)
+    {
+    }
+
+    public RespositorySourceQueryModel(int position, int maxResult) : base(position, maxResult)
+    {
+    }
+
     public IReadOnlyList<string> Keywords => _keywords.AsReadOnly();
 
     public RespositorySourceQueryModel FilterBySourceType(params RepositorySourceType[] repositorySourceTypes)

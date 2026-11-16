@@ -84,7 +84,13 @@ internal sealed class DeploymentService
 
         if (!_skipStep)
         {
-            bool distroInstallRequired = !Configuration.SkipSubSystemRebuild || !File.Exists(_operatingSystemImgFile);
+            bool distroInstallRequired = Configuration.SkipSubSystemRebuild || !File.Exists(_operatingSystemImgFile);
+
+            if (Configuration.DebugMode)
+            {
+                System.Console.WriteLine($"Should Rebuild SubSystem? {Configuration.SkipSubSystemRebuild}");
+                System.Console.WriteLine($"Is Distro Missing ? {!File.Exists(_operatingSystemImgFile)}");
+            }
             if (debianExist && distroInstallRequired)
             {
                 Console.Out.WriteLine("We require to destroy 'Debian' distro currently on your WSL.");
@@ -113,6 +119,14 @@ internal sealed class DeploymentService
                     await DestroyAsync(_deployEnvironmentName);
                 }
             }
+
+            if (Configuration.DebugMode)
+            {
+                System.Console.WriteLine($"Should Rebuild Services ? {Configuration.SkipServiceRebuild}");
+                System.Console.WriteLine($"Is Distro Missing ? {!File.Exists(_serviceInstalledFile)}");
+                System.Console.WriteLine($"Is Fresh Run ? {isFresh}");
+            }
+
             bool serviceInstallRequired = !Configuration.SkipServiceRebuild || !File.Exists(_serviceInstalledFile) || isFresh;
 
 
@@ -255,7 +269,7 @@ internal sealed class DeploymentService
                 if (File.Exists(finalizeFrom))
                     if (pp.Archive == "zip")
                         await ArchiveExt.CreateZipAsync(finalizeFrom, tmpArchivePath, ct);
-                    else if (pp.Archive == "zip")
+                    else if (pp.Archive == "tar.gz")
                         await ArchiveExt.CreateFileTarGzAsync(finalizeFrom, tmpArchivePath, ct);
                     else throw new Exception($"{pp.Archive} not supported format.");
                 else if (Directory.Exists(finalizeFrom))
@@ -522,8 +536,12 @@ internal sealed class DeploymentService
         }
         if (Configuration.OpenShell)
             serviceShown.Add(ShowShellAsync(_deployEnvironmentName));
-        await WaitForCtrlCAsync();
-        await CleanUp(serviceShown);
+        if (!Configuration.ExitAtLaunch)
+        {
+            await WaitForCtrlCAsync();
+            await CleanUp(serviceShown);
+        }
+
     }
 
     private async Task CleanUp(List<Process> processes)
@@ -557,7 +575,9 @@ internal sealed class DeploymentService
     }
     private async Task SubsystemConfigure(CancellationToken ct = default)
     {
-        await RunAsync("Debian", "echo -e '[boot]\nsystemd=true' > /etc/wsl.conf");
+        string wslTmpFile = Path.GetTempFileName();
+        File.WriteAllText(wslTmpFile, "[boot]\nsystemd=true\n[user]\ndefault=root");
+        await CopyFileAsync("Debian", wslTmpFile, "/etc/wsl.conf");
         await ShudownAsync("Debian");
         await StartAsync("Debian");
         var deps = _systemDependencies.Union(Configuration.Compose.Apt).ToArray();
@@ -568,13 +588,8 @@ internal sealed class DeploymentService
         Console.Out.WriteLine($"Random Username ({username}) and Password ({password}) generated.");
         await RunAsync("Debian", $"useradd -m {username}");
         await RunAsync("Debian", $"printf '%s:%s\n' '{username}' '{password}' | chpasswd");
-        await RunAsync("Debian", $"printf '[user]\ndefault=%s\n' 'root' >> /etc/wsl.conf");
-        // Grant passwordless sudo execution rights to the lpcli_debug user
-        // Ensure the new configuration file has the strict permissions required by Linux
         await RunAsync("Debian", "sysctl -w kernel.yama.ptrace_scope=0");
         Console.Out.WriteLine($"Debian WSL Configure.");
-
-        await ShudownAsync("Debian");
     }
 
     private async Task DeployServicesAsync(CancellationToken ct = default)

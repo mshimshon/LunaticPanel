@@ -43,6 +43,11 @@ public sealed record PackageQueryModel : QueryModel, IPackageQueryModel
     }
 
     private List<string> _keywords = new List<string>();
+
+    public PackageQueryModel() : base() { }
+    public PackageQueryModel(int position) : base(position) { }
+    public PackageQueryModel(int position, int maxResult) : base(position, maxResult) { }
+
     public IReadOnlyList<string> Keywords => _keywords.AsReadOnly();
     public PackageQueryModel SearchByKeywords(string keywords)
     {

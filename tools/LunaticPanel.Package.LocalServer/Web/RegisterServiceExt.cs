@@ -5,6 +5,7 @@ using LunaticPanel.Package.LocalServer.Infrastructure.Services.ValidationQueueSy
 using LunaticPanel.Package.Server;
 using LunaticPanel.Package.Server.Web.Payloads.Enums;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Versioning;
 
 namespace LunaticPanel.Package.LocalServer.Web;
 
@@ -17,6 +18,7 @@ public static class RegisterServiceExt
     }
     public static async Task UseLocalServerAPIEndpoints(this WebApplication app)
     {
+
         app.UseLunaPackage();
         await app.UseLocalServerInfrastructure();
         app.EnableLunaPackageCodedError();

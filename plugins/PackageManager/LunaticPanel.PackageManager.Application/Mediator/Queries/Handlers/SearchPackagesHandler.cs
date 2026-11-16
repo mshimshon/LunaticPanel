@@ -5,7 +5,7 @@ using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Domain.QueryCriterias;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 using LunaticPanel.PackageManager.Domain.Respositories;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
@@ -18,7 +18,7 @@ internal class SearchPackagesHandler : IRequestHandler<SearchPackageQuery, Searc
     {
         _packageRepository = packageRepository;
     }
-    public async Task<SearchResponse<PackageInfoPayload>> Handle(
+    public async Task<SearchResponse<PackageInfoPayload>> HandleAsync(
         SearchPackageQuery query,
         CancellationToken ct = default)
     {

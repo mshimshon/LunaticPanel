@@ -1,8 +1,10 @@
-﻿namespace LunaticPanel.Engine.Domain.Plugin.ValueObjects;
+﻿using NuGet.Versioning;
+
+namespace LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 
 public sealed record PluginIdentity(
         string PackageId,
-        Version PakageVersion,
+        NuGetVersion PakageVersion,
         string DisplayName,
         string? Author = default,
         string? CompanyName = default,

@@ -5,7 +5,7 @@ using LunaticPanel.Engine.Web.Boostrap;
 
 namespace LunaticPanel.Engine.Web.Hooks.Queries;
 
-[QueryBusKey(PluginKeys.Queries.FetchBootstrap, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
+[QueryBusKey(PluginKeys.Queries.FETCH_BOOTSTRAP, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
 internal class GetBootstrapQuery : IQueryBusHandler
 {
     public async Task<QueryBusMessageResponse> HandleAsync(IQueryBusMessage qry)

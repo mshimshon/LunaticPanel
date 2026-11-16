@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Respositories;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -13,7 +13,7 @@ internal class RepositorySourceAddHandler : IRequestHandler<RepositorySourceAddC
     {
         _sourceRepository = sourceRepository;
     }
-    public async Task Handle(RepositorySourceAddCommand command, CancellationToken ct = default)
+    public async Task HandleAsync(RepositorySourceAddCommand command, CancellationToken ct = default)
     {
         try
         {

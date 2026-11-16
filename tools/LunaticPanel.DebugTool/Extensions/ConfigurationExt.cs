@@ -24,12 +24,9 @@ internal static class ConfigurationExt
         Console.WriteLine($"lpcli --auto-kill | Automatically kill processes opened at the deploy time when CTRL+C.");
         Console.WriteLine($"lpcli --snap \"name\" | start executing steps from the snapshot step in compose.");
     }
-    private static void ValidateParameters(string[] args)
+    private static void ValidateParameters(string[] args, string workingDir)
     {
         PrintHelp();
-        string workingDir = Environment.CurrentDirectory;
-        if (args.Length > 0 && Directory.Exists(args[0]))
-            workingDir = args[0];
         string ymlExt = Path.Combine(workingDir, "lpcli-compose.yml");
         string yamlExt = Path.Combine(workingDir, "lpcli-compose.yaml");
         bool foundLocalYML = File.Exists(ymlExt) || File.Exists(yamlExt);
@@ -59,9 +56,11 @@ internal static class ConfigurationExt
     public static ConfigurationPayload GenerateConfiguration(string[] args)
     {
         string workingDir = Environment.CurrentDirectory;
-        if (args.Length > 0 && Directory.Exists(args[0]))
-            workingDir = args[0];
-        ValidateParameters(args);
+        if (args.Length > 0 && (args[0].EndsWith("lpcli-compose.yml") || args[0].EndsWith("lpcli-compose.yaml")))
+            if (File.Exists(Path.GetFullPath(args[0])))
+                workingDir = Path.GetDirectoryName(args[0])!;
+        System.Console.WriteLine($"Working Directory Set To: '{workingDir}'");
+        ValidateParameters(args, workingDir);
         foreach (var item in args)
         {
             Console.Out.WriteLine($"Parameter: {item}");
@@ -77,6 +76,7 @@ internal static class ConfigurationExt
             DebugMode = DebugMode,
             Snap = snap,
             OpenOnly = targetedOpens,
+            ExitAtLaunch = args.HasFlag("--close-cli"),
             AutoKill = args.HasFlag("--auto-kill"),
             NoOpen = args.HasFlag("--no-open"),
             OpenShell = args.HasFlag("--open-shell"),
@@ -88,6 +88,8 @@ internal static class ConfigurationExt
             NoInteraction = args.HasFlag("--no-interaction"),
 
         };
+
+
         PrintDebug = result.PrintDebug;
 
         result = result with

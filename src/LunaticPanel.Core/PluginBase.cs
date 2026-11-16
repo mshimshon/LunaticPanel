@@ -53,7 +53,7 @@ public abstract class PluginBase : IPlugin
     public string PluginId => _pluginId;
     public IReadOnlyList<string> Keys { get; private set; } = new List<string>();
 
-    private readonly static Dictionary<string, List<string>> _pluginKeys = new();
+    private readonly static Dictionary<string, List<string>> _pluginKeys = new(StringComparer.OrdinalIgnoreCase);
     private readonly static object _pluginKeysLock = new object();
     private bool _hasStarted;
     private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors = default!;
@@ -78,10 +78,9 @@ public abstract class PluginBase : IPlugin
     /// </summary>
     protected void DisableBusFeature(string key)
     {
-        key = key.ToLower();
         _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors
-            .Where(p => !string.Equals(key, p.Key, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+          .Where(p => !string.Equals(key, p.Key, StringComparison.OrdinalIgnoreCase))
+          .ToList();
         lock (_pluginKeysLock)
         {
             if (_pluginKeys.ContainsKey(PluginId))

@@ -17,7 +17,7 @@ internal partial class PluginLocation : IPluginUserLocation
 
     private void InitUserLocation(string assemblyName)
     {
-        UserPluginFolderFormat = Path.Combine(PathSeparator, HOME_FOLDER_NAME, "{0}", IPluginLocation.LunaticPanelFolderName, IPluginLocation.LunaticPanelPluginsFolderName, LinuxAssemblyName);
+        UserPluginFolderFormat = Path.Combine(PathSeparator, HOME_FOLDER_NAME, "{0}", IPluginLocation.LUNATIC_PANEL_FOLDER_NAME, IPluginLocation.LUNATIC_PANEL_PLUGINS_FOLDER_NAME, LinuxAssemblyName);
         UserDownloadFolderFormat = Path.Combine(UserPluginFolderFormat, DOWNLOAD_FOLDER_NAME);
         UserConfigFolderFormat = Path.Combine(UserPluginFolderFormat, CONFIG_FOLDER_NAME);
         UserBashFolderFormat = Path.Combine(UserPluginFolderFormat, BASH_FOLDER_NAME);

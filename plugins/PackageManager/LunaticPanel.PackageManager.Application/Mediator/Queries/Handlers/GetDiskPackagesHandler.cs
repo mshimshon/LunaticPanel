@@ -4,7 +4,7 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 
@@ -20,7 +20,7 @@ internal class GetDiskPackagesHandler : IRequestHandler<GetDiskPackagesQuery, Di
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
     //TODO: Implement
-    public async Task<DiskPackagesPayload> Handle(GetDiskPackagesQuery request, CancellationToken cancellationToken)
+    public async Task<DiskPackagesPayload> HandleAsync(GetDiskPackagesQuery request, CancellationToken cancellationToken)
     {
         try
         {

@@ -9,7 +9,7 @@ namespace LunaticPanel.Engine.Web.Services.Circuit;
 public sealed class CircuitRegistry : ICircuitRegistry
 {
     private static List<CircuitHostIdentity> _circuits = new();
-    private static readonly object _lock = new();
+    private static readonly Lock _lock = new();
     private readonly IPluginRegistry _pluginRegistry;
     private readonly IServiceProvider _hostSP;
     private static Dictionary<PluginContextIdentifier, IPluginContextService> PluginContexts { get; } = new();
@@ -18,7 +18,7 @@ public sealed class CircuitRegistry : ICircuitRegistry
     private CircuitHostIdentity _currentCircuit = default!;
     public CircuitIdentity CurrentCircuit => _currentCircuit;
     private MainLayout? _app;
-    private static readonly object _lockPluginContexts = new();
+    private static readonly Lock _lockPluginContexts = new();
     public CircuitRegistry(IPluginRegistry pluginRegistry, IServiceProvider hostSP)
     {
         _pluginRegistry = pluginRegistry;

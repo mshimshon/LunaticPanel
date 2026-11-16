@@ -5,6 +5,7 @@ namespace LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 public sealed class QueryBusMessage : IQueryBusMessage
 {
     private readonly MessageKey _messageKey;
+    public MessageKey Key => _messageKey;
 
     public Guid TargetCircuit { get; init; }
     public BusMessageData? Data { get; }
@@ -19,6 +20,7 @@ public sealed class QueryBusMessage : IQueryBusMessage
     }
 
     public string GetKey() => $"{_messageKey}";
+
 
     public BusMessageData? GetData() => Data;
     public Guid GetMessageId() => Id;

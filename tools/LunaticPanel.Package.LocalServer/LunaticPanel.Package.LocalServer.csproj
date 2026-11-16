@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+    <Configurations>Debug;Release</Configurations>
 	  <Version>$(GlobalVersion)</Version>
 	  <Company>$(GlobalCompany)</Company>
 	  <Copyright>$(GlobalCopyright)</Copyright>
@@ -18,6 +18,7 @@
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="NuGet.Versioning" />
   </ItemGroup>
 
   <ItemGroup>

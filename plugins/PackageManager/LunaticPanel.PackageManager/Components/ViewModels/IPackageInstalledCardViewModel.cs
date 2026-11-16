@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Enums;
-using LunaticPanel.PackageManager.Application.Pulses.States;
+using LunaticPanel.PackageManager.Pulses.States;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;
 

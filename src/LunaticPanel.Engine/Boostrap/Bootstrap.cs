@@ -10,12 +10,13 @@ using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using System.Text.Json;
 using static LunaticPanel.Engine.Web.Boostrap.Plugin.BootstrapPlugins;
+using static LunaticPanel.Engine.Web.Boostrap.BootstrapPanelUpdates;
 using static LunaticPanel.Engine.Web.Boostrap.Plugin.BootstrapPluginsValidator;
 namespace LunaticPanel.Engine.Web.Boostrap;
 
 public static class Bootstrap
 {
-    private const string ConfigNameKey = "lunaticpanel";
+    private const string CONFIG_NAME_KEY = "lunaticpanel";
 
     public static string PluginDirectory { get; private set; } = default!;
     public static string ConfigDirectory { get; private set; } = default!;
@@ -28,17 +29,21 @@ public static class Bootstrap
         UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
         UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
 
-    public static void BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
+    public static async Task BootstrapBuilder(IServiceCollection services, IConfiguration configuration)
     {
         LibraryLocation = "/srv";
         ConfigLocation = "/var/lib";
-
+        await ApplyPanelUpdate(); // Perform Pending Update of the panel
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
+        DetectUpdates();
+        DetectDelete();
+        DetectRollbacks();
+        DetectInstalled();
         ProcessDeletePlugins();
         ProcessPreinstalledPlugins();
-        // Order Matter for Flow
         DetectRuntimePlugins(); // Check What's in the runtime folder.
+        RestoreMissingRuntimesFromInstalled();
         ApplyUpdates(); // Add/Update plugins
         DetectRuntimePlugins(); // Reload what's in the runtime folder.
         DetectPlugins();
@@ -174,6 +179,7 @@ public static class Bootstrap
             await InitializeActivePlugin(plugin, webApp, masterSp, configuration, crazyReport);
 
         await masterSp.RuntimeStartupAfterPluginsAsync();
+        await masterSp.RuntimeHostStartup();
     }
 
     private static void LoadConfiguration()
@@ -205,11 +211,11 @@ public static class Bootstrap
     {
 
 
-        PluginDirectory = Path.Combine(LibraryLocation, ConfigNameKey, "plugins");
-        ConfigDirectory = Path.Combine(ConfigLocation, ConfigNameKey, "config");
-        string applyLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
-        string rollbacksLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
-        string installedLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
+        PluginDirectory = Path.Combine(LibraryLocation, CONFIG_NAME_KEY, "plugins");
+        ConfigDirectory = Path.Combine(ConfigLocation, CONFIG_NAME_KEY, "config");
+        string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
+        string rollbacksLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "rollbacks");
+        string installedLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "installed");
         EnsurePathCreated(PluginDirectory, ConfigDirectory, applyLocation, rollbacksLocation, installedLocation);
 
     }

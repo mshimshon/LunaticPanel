@@ -3,7 +3,7 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -20,7 +20,7 @@ internal class EnableSourceCommandHandler : IRequestHandler<EnableSourceCommand>
         _crazyReport.Report("Initialized Class");
     }
 
-    public async Task Handle(EnableSourceCommand request, CancellationToken ct = default)
+    public async Task HandleAsync(EnableSourceCommand request, CancellationToken ct = default)
     {
         try
         {

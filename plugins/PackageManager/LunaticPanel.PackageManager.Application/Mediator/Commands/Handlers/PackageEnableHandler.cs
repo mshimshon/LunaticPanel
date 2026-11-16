@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Domain.Respositories;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -12,7 +12,7 @@ internal class PackageEnableHandler : IRequestHandler<PackageEnableCommand>
     {
         _packageRepository = packageRepository;
     }
-    public async Task Handle(PackageEnableCommand command, CancellationToken ct = default)
+    public async Task HandleAsync(PackageEnableCommand command, CancellationToken ct = default)
     {
         try
         {

@@ -5,7 +5,7 @@ using LunaticPanel.PackageManager.Shared;
 
 namespace LunaticPanel.PackageManager.Hooks.UserInterface;
 
-[EngineBusKey(MainMenuKeys.UI.GetElements)]
+[EngineBusKey(MainMenuKeys.UI.GET_ELEMENTS)]
 public class MenuMainPageElementHook : IEngineBusHandler
 {
 

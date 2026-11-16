@@ -1,4 +1,6 @@
-﻿using LunaticPanel.Core.Abstraction.Tools;
+﻿using LunaticPanel.Core.Abstraction.Plugin;
+using LunaticPanel.Core.Abstraction.Tools;
+using NuGet.Versioning;
 using System.Reflection;
 
 namespace LunaticPanel.Engine.Web.Services.PanelControl;
@@ -11,10 +13,10 @@ public class PanelControl : IPanelControl, IHostControl
 
     public Guid Id { get; } = Guid.NewGuid();
 
-    public Version PanelVersion { get; }
+    public string PanelVersion { get; }
     public PanelControl()
     {
-        PanelVersion = Assembly.GetExecutingAssembly().GetName().Version!;
+        PanelVersion = typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
     }
     public async Task DashboardRender()
     {

@@ -3,7 +3,7 @@ using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
-using LunaticPanel.PackageManager.Application.Pulses.Actions;
+using LunaticPanel.PackageManager.Pulses;
 using LunaticPanel.PackageManager.Components.ViewModels;
 using LunaticPanel.PackageManager.Infrastructure;
 using LunaticPanel.PackageManager.Keys;
@@ -11,10 +11,11 @@ using LunaticPanel.PackageManager.Pages;
 using LunaticPanel.PackageManager.Pages.ViewModels;
 using Microsoft.Extensions.Configuration;
 using StatePulse.Net;
+using LunaticPanel.PackageManager.Pulses.Actions;
 
 namespace LunaticPanel.PackageManager;
 /*
- *  - Be able to local packages from local folder /etc/LunaticPanel/plugins/LunaticPanel_PackageManager/.local 
+ *  - Be able to local packages from local folder /etc/LunaticPanel/plugins/LunaticPanel_PackageManager/.local
  *  - Be able to load all custom .local nuget packages in memory to query with local active.
  *  - You select or define nuget sources
     <dependencies>
@@ -23,7 +24,7 @@ namespace LunaticPanel.PackageManager;
         <dependency id="YourPanel.SDK" version="1.0.0" />
       </group>
     </dependencies>
- *  
+ *
  */
 public class PluginEntry : PluginBase, IPlugin
 {
@@ -47,6 +48,7 @@ public class PluginEntry : PluginBase, IPlugin
         services.AddTransient<ISourceManagerCardViewModel, SourceManagerCardViewModel>();
         services.AddTransient<ISourceAddFormViewModel, SourceAddFormViewModel>();
         services.AddInfrasctructureServices();
+        services.Services.AddPulseServices();
         services.EnableStatePulse();
 
     }

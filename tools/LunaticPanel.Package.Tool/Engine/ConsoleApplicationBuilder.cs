@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core.Extensions;
 using LunaticPanel.Package.Tool.Payloads;
 using Microsoft.Extensions.DependencyInjection;
+using NuGet.Versioning;
 using System.Reflection;
 
 namespace LunaticPanel.Package.Tool.Engine;
@@ -15,12 +16,12 @@ public sealed class ConsoleApplicationBuilder
         Services = new ServiceCollection();
         _args = args;
         Console.WriteLine($"ARGS = {string.Join(' ', args)}");
-        var sdkVersion = typeof(PluginManifestPayload).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion!.Split('+')[0];
+        var sdkVersion = typeof(PluginManifestPayload).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         Console.Out.WriteLine($"sdkVersion:{sdkVersion}".Magenta());
-        var sdkVersionObj = new Version(sdkVersion!);
-        PackSettings.LunaticPanelVersion = $"{sdkVersionObj.Major}.{sdkVersionObj.Minor}.{sdkVersionObj.Build}";
+        var sdkVersionObj = NuGetVersion.Parse(sdkVersion!);
+        PackSettings.lunaticPanelVersion = $"{sdkVersionObj}";
         var rootTmp = Path.GetTempPath();
-        var cleanFolder = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{PackSettings.LunaticPanelVersion}");
+        var cleanFolder = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{PackSettings.lunaticPanelVersion}");
         if (Directory.Exists(cleanFolder))
             foreach (var item in Directory.GetDirectories(cleanFolder))
             {

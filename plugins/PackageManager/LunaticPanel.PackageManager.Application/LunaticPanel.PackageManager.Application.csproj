@@ -4,11 +4,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediHater" />
+    	<PackageReference Include="NuGet.Versioning" />
+    <PackageReference Include="MaksimShimshon.Mediator" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="StatePulse.Net" />
   </ItemGroup>
@@ -23,9 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-	<None Include=".ai\**\*" CopyToOutputDirectory="Never" />
+	  <None Include=".ai\**\*" CopyToOutputDirectory="Never" />
 	  <InternalsVisibleTo Include="LunaticPanel.PackageManager.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
-
 
 </Project>

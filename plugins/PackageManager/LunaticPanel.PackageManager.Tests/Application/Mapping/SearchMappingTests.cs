@@ -9,7 +9,7 @@ namespace LunaticPanel.PackageManager.Tests.Application.Mapping;
 
 public class SearchMappingTests
 {
-    public static PackageInfoPayload RepositoryMock = new PackageInfoPayload()
+    public static PackageInfoPayload repositoryMock = new PackageInfoPayload()
     {
         PackageId = "TEST.ID",
         Name = "TEST PACKAGE",
@@ -28,7 +28,7 @@ public class SearchMappingTests
     {
         var response = new SearchResponse<PackageInfoPayload>
         {
-            Result = new List<PackageInfoPayload> { RepositoryMock },
+            Result = new List<PackageInfoPayload> { repositoryMock },
             TotalResults = 1,
             Position = 100
         };
@@ -55,7 +55,7 @@ public class SearchMappingTests
         var result = response.ToApplicationSearchResponse(p => p.ToApplicationPayload());
 
         Assert.Single(result.Result);
-        Assert.Equal(RepositoryMock, result.Result.First());
+        Assert.Equal(repositoryMock, result.Result.First());
         Assert.Equal(1, result.TotalResults);
         Assert.Equal(100, result.Position);
     }

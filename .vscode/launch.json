@@ -1,0 +1,97 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach Panel (Running)",
+            "type": "coreclr",
+            "request": "attach",
+            "processName": "LunaticPanel.Hybrid.Web",
+            "requireExactSource": false,
+            "sourceLinkOptions": {
+                "*": {
+                    "enabled": false
+                }
+            },
+            "logging": {
+                "moduleLoad": true,
+                "diagnosticsLog": {
+                    "debugEngineAPITracing": "all",
+                    "protocolMessages": true
+                }
+            },
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}",
+                "pipeProgram": "wsl.exe",
+                "pipeArgs": [
+                    "-d",
+                    "lpcli_deploy",
+                    "-u",
+                    "root"
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "/opt/vsdbg/vsdbg"
+            }
+        },
+        {
+            "name": "Debug Panel (Complete)",
+            "type": "coreclr",
+            "preLaunchTask": "Deploying Dev Envrionement (Full Rebuild)",
+            "postDebugTask": "Shutdown WSL",
+            "request": "attach",
+            "processName": "LunaticPanel.Hybrid.Web",
+            "requireExactSource": false,
+            "sourceLinkOptions": {
+                "*": {
+                    "enabled": false
+                }
+            },
+            "logging": {
+                "moduleLoad": true,
+                "diagnosticsLog": {
+                    "debugEngineAPITracing": "all",
+                    "protocolMessages": true
+                }
+            },
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}",
+                "pipeProgram": "wsl.exe",
+                "pipeArgs": [
+                    "-d",
+                    "lpcli_deploy",
+                    "-u",
+                    "root"
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "/opt/vsdbg/vsdbg"
+            }
+        },
+        {
+            "name": "Debug Panel (Fast)",
+            "type": "coreclr",
+            "preLaunchTask": "Deploying Dev Envrionement (Partial Rebuild)",
+            "postDebugTask": "Shutdown WSL",
+            "request": "attach",
+            "processName": "LunaticPanel.Hybrid.Web",
+            "requireExactSource": false,
+            "logging": {
+                "moduleLoad": true,
+                "diagnosticsLog": {
+                    "debugEngineAPITracing": "all",
+                    "protocolMessages": true
+                }
+            },
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}",
+                "pipeProgram": "wsl.exe",
+                "pipeArgs": [
+                    "-d",
+                    "lpcli_deploy",
+                    "-u",
+                    "root"
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "/opt/vsdbg/vsdbg"
+            }
+        },
+    ]
+}

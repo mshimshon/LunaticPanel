@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Engine.Plugin.Entities;
 using McMaster.NETCore.Plugins;
+using NuGet.Versioning;
 using System.Reflection;
 
 namespace LunaticPanel.Engine.Plugin;
@@ -97,11 +98,7 @@ public static class PluginScannerExt
 
             var asmName = pluginEntryType!.Assembly.GetName().Name!;
             var entryPointTypeName = pluginEntryType.FullName!;
-            var asmVersion = pluginEntryType!.Assembly.GetName().Version;
-
-            Version? version = default;
-            if (asmVersion != default)
-                version = new(asmVersion.Major, asmVersion.Minor, asmVersion.Build);
+            var version = NuGetVersion.Parse(pluginEntryType!.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
             tmpLoader.Dispose();
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -117,7 +114,7 @@ public static class PluginScannerExt
                 }
             );
             return new PluginScannedEntity(PluginId: asmName,
-                Version: asmVersion ?? new Version(1, 0, 0, 0),
+                Version: version ?? NuGetVersion.Parse("1.0.0"),
                 Loader: new PluginLoaderInfo(permanentLoader),
                 PluginEntryLocationType: entryPointTypeName, Location: dllFile);
         }
@@ -141,3 +138,5 @@ public static class PluginScannerExt
     }
 
 }
+
+

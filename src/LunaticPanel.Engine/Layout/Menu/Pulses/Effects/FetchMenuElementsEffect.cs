@@ -1,21 +1,21 @@
 ﻿using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries;
 using LunaticPanel.Engine.Web.Layout.Menu.Pulses.Actions;
-using MedihatR;
+using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Web.Layout.Menu.Pulses.Effects;
 
 public class FetchMenuElementsEffect : IEffect<FetchMenuElementsAction>
 {
-    private readonly IMedihater _medihater;
+    private readonly IMediator _mediator;
 
-    public FetchMenuElementsEffect(IMedihater medihater)
+    public FetchMenuElementsEffect(IMediator mediator)
     {
-        _medihater = medihater;
+        _mediator = mediator;
     }
     public async Task EffectAsync(FetchMenuElementsAction action, IDispatcher dispatcher)
     {
-        var result = await _medihater.Send(new FetchMenuElementQuery());
+        var result = await _mediator.ExecuteAsync(new FetchMenuElementQuery());
         await dispatcher.Prepare<FetchedMenuElementsAction>().With(p => p.MenuElements, result).DispatchAsync();
     }
 }

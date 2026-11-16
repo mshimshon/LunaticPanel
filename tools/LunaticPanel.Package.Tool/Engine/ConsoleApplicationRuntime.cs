@@ -30,7 +30,8 @@ public sealed class ConsoleApplicationRuntime
             .WithPackCommands()
             .WithUnPackCommands()
             .WithValidateCommands()
-            .WithInfoCommands().WithPushCommands();
+            .WithInfoCommands().WithPushCommands()
+            .WithVersionCommand();
 
 
         var cmdParsed = rootCommand.Parse(args);

@@ -9,7 +9,7 @@ public sealed record MessageKey
     private readonly string[] _allowedPrefixes = [];
     public MessageKey(string fullname)
     {
-        _fullname = fullname.ToLower();
+        _fullname = fullname;
         if (!MessageKeyValidator.ValidateAllowedCharacters(fullname))
             throw new BusKeySchemticAllowedCharactersViolationException(fullname);
         if (!MessageKeyValidator.ValidatePrefix(fullname))
@@ -23,4 +23,6 @@ public sealed record MessageKey
     public MessageKey(string prefix, Func<string> plugin, string version, string action) : this(prefix, plugin(), version, action) { }
     public MessageKey(string prefix, Func<string> plugin, string action) : this(prefix, plugin(), action) { }
     public override string ToString() => _fullname;
+    public bool SameAs(MessageKey other) => Equals(other.ToString());
+    public bool SameAs(string key) => _fullname.Equals(key, StringComparison.OrdinalIgnoreCase);
 }

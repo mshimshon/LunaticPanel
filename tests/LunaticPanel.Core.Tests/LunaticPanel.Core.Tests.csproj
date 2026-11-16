@@ -5,14 +5,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+	  <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
+
     <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    	<PackageReference Include="NuGet.Versioning" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
@@ -28,7 +30,7 @@
 	<ItemGroup Condition="'$(BuildingInsideVisualStudio)' != 'true'">
 		<PackageReference Include="xunit.v3.mtp-off" />
 	</ItemGroup>
-	
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
     <ProjectReference Include="..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />

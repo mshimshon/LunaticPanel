@@ -4,7 +4,7 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Keys.UI;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Handlers;
 
@@ -18,14 +18,14 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
         _engineBus = engineBus;
         _coreMap = coreMap;
     }
-    public async Task<List<EngineBusMsgResponseWithData<WidgetElementEntity>>?> Handle(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
+    public async Task<List<EngineBusMsgResponseWithData<WidgetElementEntity>>?> HandleAsync(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
     {
         List<EngineBusMsgResponseWithData<WidgetElementEntity>> result = new List<EngineBusMsgResponseWithData<WidgetElementEntity>>();
         try
         { // _coreMap.MapTo<WidgetElementResponse, WidgetElementEntity>
             var responses =
                 await _engineBus
-                .Execute(DashboardKeys.UI.GetWidgets)
+                .Execute(DashboardKeys.UI.GET_WIDGETS)
                 .ReadWithData((EngineBusResponse response) => _coreMap.MapTo<WidgetElementResponse, WidgetElementEntity>(response.Data?.GetDataAs<WidgetElementResponse>() ?? new()),
                 p => p);
             result = responses.OrderBy(p => p.Data.Position).ToList();

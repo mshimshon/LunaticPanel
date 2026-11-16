@@ -2,7 +2,7 @@ using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Keys;
-using MedihatR;
+using MaksimShimshon.Mediator;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 
@@ -19,7 +19,7 @@ internal class PackageRollbackCommandHandler : IRequestHandler<PackageRollbackCo
         _crazyReport.Report("Initialized Class");
     }
 
-    public async Task Handle(PackageRollbackCommand request, CancellationToken ct = default)
+    public async Task HandleAsync(PackageRollbackCommand request, CancellationToken ct = default)
     {
         try
         {

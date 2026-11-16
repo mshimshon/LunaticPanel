@@ -15,7 +15,7 @@
 		<Description>Lunatic Panel Development Tool for Plugins</Description>
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-		<Configurations>Debug;Release;</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -39,6 +39,7 @@
   <ItemGroup>
     <PackageReference Include="McMaster.NETCore.Plugins" />
     <PackageReference Include="System.CommandLine" />
+    	<PackageReference Include="NuGet.Versioning" />
 	  <PackageReference Include="MudBlazor" />
   </ItemGroup>
 

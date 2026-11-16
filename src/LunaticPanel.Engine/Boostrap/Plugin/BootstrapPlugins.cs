@@ -7,6 +7,7 @@ using LunaticPanel.Engine.Domain.Plugin.ValueObjects;
 using LunaticPanel.Engine.Infrastructure.Plugin;
 using LunaticPanel.Engine.Plugin;
 using Microsoft.Extensions.Configuration;
+using NuGet.Versioning;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
@@ -39,7 +40,7 @@ internal static class BootstrapPlugins
         string preinstall = Path.Combine(Environment.CurrentDirectory, "plugins_preinstalled");
         Console.WriteLine($"Checking for Pre-Installed Plugins {preinstall}");
         if (!Directory.Exists(preinstall)) return;
-        string applyLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
+        string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
         string[] packages = Directory.GetFiles(preinstall, "*.lpkg", SearchOption.TopDirectoryOnly);
         foreach (var item in packages)
         {
@@ -94,7 +95,7 @@ internal static class BootstrapPlugins
     public static void DetectDelete()
     {
         Delete.Clear();
-        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "delete");
+        string location = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "delete");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -112,7 +113,7 @@ internal static class BootstrapPlugins
     public static void DetectUpdates()
     {
         ToApplyUpdates.Clear();
-        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
+        string location = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -124,15 +125,28 @@ internal static class BootstrapPlugins
             ToApplyUpdates[item] = manifest;
         }
     }
+    public static void RestoreMissingRuntimesFromInstalled()
+    {
+        DetectUpdates();
 
+        string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
+        foreach (var shouldBeInstalled in Installed)
+            if (!Runtimes.Any(p => p.Value.Id == shouldBeInstalled.Value.Id) && !ToApplyUpdates.Any(p => p.Value.Id == shouldBeInstalled.Value.Id))
+                File.Move(shouldBeInstalled.Key, Path.Combine(applyLocation, Path.GetFileName(shouldBeInstalled.Key)), true);
+
+        DetectUpdates();
+        DetectDelete();
+        DetectRollbacks();
+        DetectInstalled();
+    }
     public static void ApplyUpdates()
     {
-        string applyLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "apply");
-        string rollbacksLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
-        string installedLocation = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
+        string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");
+        string rollbacksLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "rollbacks");
+        string installedLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "installed");
         var asm = typeof(IPlugin).Assembly;
-        var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion.Split('-', '+')[0];
-        Version currentPanelVersion = new(info);
+        var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+        NuGetVersion currentPanelVersion = new(info);
         // Check for Package Id in Installed
         // Check for Package Id in Rollbacks
         // Check for Package Version in Installed
@@ -145,7 +159,7 @@ internal static class BootstrapPlugins
             var installed = Installed.FirstOrDefault(p => p.Value.Id == toApply.Value.Id);
             var hasRollback = Rollbacks.Any(p => p.Value.Id == toApply.Value.Id);
             var hasInstalled = Installed.Any(p => p.Value.Id == toApply.Value.Id);
-            Version pluginPanelVersion = new Version(toApply.Value.PanelVersion);
+            NuGetVersion pluginPanelVersion = NuGetVersion.Parse(toApply.Value.PanelVersion);
             if (pluginPanelVersion > currentPanelVersion)
             {
                 Console.Error.WriteLine($"The {toApply.Value.Id} v{toApply.Value.Version} was compiled using panel version {pluginPanelVersion} therefore it's not compatible with {currentPanelVersion}. (Removing)");
@@ -179,7 +193,7 @@ internal static class BootstrapPlugins
     public static void DetectRollbacks()
     {
         Rollbacks.Clear();
-        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "rollbacks");
+        string location = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "rollbacks");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -195,7 +209,7 @@ internal static class BootstrapPlugins
     public static void DetectInstalled()
     {
         Installed.Clear();
-        string location = Path.Combine("var", "lib", "lunaticpanel", ".plugins", "installed");
+        string location = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "installed");
         if (!Directory.Exists(location))
             Directory.CreateDirectory(location);
         string[] packages = Directory.GetFiles(location, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -246,11 +260,7 @@ internal static class BootstrapPlugins
             input.CopyTo(output);
         }
     }
-    private static string ConvertVersionToMajorMinorPatch(string version)
-    {
-        var v = new Version(version.Split('-', '+')[0]);
-        return v.ToString(3);
-    }
+
     public static void DetectRuntimePlugins()
     {
         var result = PluginScannerExt.ScanAndFindPlugins(PluginDirectory, [], DependencySettings.ScanSharedFrameworkNames());
@@ -322,19 +332,19 @@ internal static class BootstrapPlugins
                 Console.WriteLine($"Plugin description missing for '{dll}', skipping.");
                 continue;
             }
-            if (ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.Version]!) != manifest.Version)
+            if (metadata[ManifestMeta.Version] != manifest.Version)
             {
-                Console.WriteLine($"Plugin Version ({ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.Version]!)} != {manifest.Version}) corrupted for '{dll}', skipping.");
+                Console.WriteLine($"Plugin Version ({metadata[ManifestMeta.Version]} != {manifest.Version}) corrupted for '{dll}', skipping.");
                 continue;
             }
 
-            if (ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.FileVersion]!) != manifest.Version)
+            if (metadata[ManifestMeta.FileVersion] != manifest.Version)
             {
                 Console.WriteLine($"Plugin FileVersion ({metadata[ManifestMeta.FileVersion]} != {manifest.Version}) corrupted for '{dll}', skipping.");
                 continue;
             }
 
-            if (ConvertVersionToMajorMinorPatch(metadata[ManifestMeta.AssemblyVersion]!) != manifest.Version)
+            if (metadata[ManifestMeta.AssemblyVersion] != manifest.Version)
             {
                 Console.WriteLine($"Plugin AssemblyVersion ({metadata[ManifestMeta.AssemblyVersion]} != {manifest.Version}) corrupted for '{dll}', skipping.");
                 continue;
@@ -443,7 +453,7 @@ internal static class BootstrapPlugins
     {
         Configuration.KnownPlugins.Add(
             plugin.FailedToLoadMapping(failure.Message, failure.OccurredAt)
-                  .DisablePluginMapping()
+            .DisablePluginMapping()
         );
     }
 

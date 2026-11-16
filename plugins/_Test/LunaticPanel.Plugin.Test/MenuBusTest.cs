@@ -4,7 +4,7 @@ using LunaticPanel.Engine.Keys.UI;
 
 namespace LunaticPanel.Plugin.Test;
 
-[EngineBusKey(MainMenuKeys.UI.GetElements)]
+[EngineBusKey(MainMenuKeys.UI.GET_ELEMENTS)]
 public class MenuBusTest : IEngineBusHandler
 {
     private readonly MyService _myService;
@@ -17,7 +17,7 @@ public class MenuBusTest : IEngineBusHandler
     }
     public Task<EngineBusResponse> HandleAsync(IEngineBusMessage engineBusMessage)
     {
-        _ = _engineBus.Execute(DashboardKeys.UI.GetWidgets);
+        _ = _engineBus.Execute(DashboardKeys.UI.GET_WIDGETS);
         _ = _engineBus.Execute("");
         return Task.FromResult(new EngineBusResponse(typeof(Menu), new MenuElementResponse() { Position = 10 }));
     }

@@ -4,7 +4,7 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Dto.Responses;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using LunaticPanel.Engine.Keys.UI;
-using MedihatR;
+using MaksimShimshon.Mediator;
 namespace LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Handlers;
 
 internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, List<EngineBusMsgResponseWithData<MenuElementEntity>>>
@@ -17,13 +17,13 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         _coreMap = coreMap;
         _engineBus = engineBus;
     }
-    public async Task<List<EngineBusMsgResponseWithData<MenuElementEntity>>> Handle(FetchMenuElementQuery request, CancellationToken cancellationToken)
+    public async Task<List<EngineBusMsgResponseWithData<MenuElementEntity>>> HandleAsync(FetchMenuElementQuery request, CancellationToken cancellationToken)
     {
         List<EngineBusMsgResponseWithData<MenuElementEntity>> result = new();
         try
         { // _coreMap.MapTo<MenuElementResponse, MenuElementEntity>
             var responses = await _engineBus
-                .Execute(MainMenuKeys.UI.GetElements)
+                .Execute(MainMenuKeys.UI.GET_ELEMENTS)
                 .ReadWithData((response) => _coreMap.MapTo<MenuElementResponse, MenuElementEntity>((response.Data?.GetDataAs<MenuElementResponse>() ?? new())), p => p);
             result = responses
                 .OrderBy(p => p.Data.Position)

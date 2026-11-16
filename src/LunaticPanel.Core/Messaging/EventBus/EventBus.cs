@@ -25,7 +25,7 @@ public sealed class EventBus : IEventBus
 
     public Task PublishAsync(IEventBusMessage evt, CancellationToken cancellationToken = default)
     {
-        if (_pluginInfo != default && evt.isTargetInternalId(_pluginInfo.PluginId))
+        if (_pluginInfo != default && evt.IsTargetInternalId(_pluginInfo.PluginId))
             if (!_pluginInfo.IsTargetInternalKeyRegistered(evt.GetKey()))
             {
                 var ex = new BusKeyNotRegisteredException(evt.GetKey(), _pluginInfo.PluginId);

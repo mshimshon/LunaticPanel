@@ -5,6 +5,7 @@ namespace LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 public sealed class EventScheduledBusMessage : IEventScheduledBusMessage
 {
     private readonly MessageKey _messageKey;
+    public MessageKey Key => _messageKey;
 
     public BusMessageData? Data { get; }
     public bool EnableTicker { get; init; }

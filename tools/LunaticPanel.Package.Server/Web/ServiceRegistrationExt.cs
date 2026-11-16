@@ -26,15 +26,15 @@ public static class ServiceRegistrationExt
         app.Services.AddInfrastructureLayerServices();
     }
 
-    internal static HashSet<string> APIs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    internal static HashSet<string> _aPIs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 
     private static void AddEndpointsVersion1(this WebApplication app)
     {
 
         var version = "v1";
-        if (APIs.Contains(version)) return;
-        APIs.Add(version);
+        if (_aPIs.Contains(version)) return;
+        _aPIs.Add(version);
         var v1Group = app.MapGroup($"/lpkg/{version}");
         v1Group.MapGet("/package/push", ([FromBody] ManifestPayload data, [FromServices] IMediator mediator)
             => mediator.ExecuteAsync(new GetUploadAccessQuery(data)));
@@ -64,20 +64,20 @@ public static class ServiceRegistrationExt
     internal static void AddEndpoints(this WebApplication app)
     {
         app.AddEndpointsVersion1();
-        app.MapGet("/lpkg/versions", () => APIs);
+        app.MapGet("/lpkg/versions", () => _aPIs);
     }
 
 
-    public static Dictionary<Type, Func<object, CodedExceptionPayload>> _customException = new();
-    public static Dictionary<Type, Func<object, CodedExceptionPayload>> _internalException = new();
+    public static Dictionary<Type, Func<object, CodedExceptionPayload>> customException = new();
+    public static Dictionary<Type, Func<object, CodedExceptionPayload>> internalException = new();
     internal static void UseExceptionHandlerFor<TException>(this WebApplication app, Func<TException, CodedExceptionPayload> onErrorFound)
         where TException : Exception
     {
         Type exceptionType = typeof(TException);
-        if (_customException.ContainsKey(exceptionType))
+        if (customException.ContainsKey(exceptionType))
             return;
 
-        _customException[exceptionType] = (e) =>
+        customException[exceptionType] = (e) =>
         {
             return onErrorFound.Invoke((TException)e);
         };
@@ -88,10 +88,10 @@ public static class ServiceRegistrationExt
         where TException : Exception
     {
         Type exceptionType = typeof(TException);
-        if (_internalException.ContainsKey(exceptionType))
+        if (internalException.ContainsKey(exceptionType))
             return;
 
-        _internalException[exceptionType] = (e) =>
+        internalException[exceptionType] = (e) =>
         {
             return onErrorFound.Invoke((TException)e);
         };
@@ -109,14 +109,14 @@ public static class ServiceRegistrationExt
     private static CodedExceptionPayload GenerateCodedException(Exception ex)
     {
         var exType = ex.GetType();
-        var testList = _customException;
-        foreach (var kv in _customException)
+        var testList = customException;
+        foreach (var kv in customException)
         {
             var baseType = kv.Key;
             if (baseType.IsAssignableFrom(exType))
                 return kv.Value.Invoke(ex);
         }
-        foreach (var kv in _internalException)
+        foreach (var kv in internalException)
         {
             var baseType = kv.Key;
             if (baseType.IsAssignableFrom(exType))

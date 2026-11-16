@@ -79,8 +79,8 @@ internal static class PluginUtilitiesExt
             Copyright = copyright,
             Description = description,
             Version = version,
-            PanelVersion = PackSettings.LunaticPanelVersion.ToString(),
-            DotnetVersion = PackSettings.DotNetVersion.ToString(),
+            PanelVersion = PackSettings.lunaticPanelVersion.ToString(),
+            DotnetVersion = PackSettings.dotNetVersion.ToString(),
             PluginEntryFile = Path.GetFileName(dll)
         };
 

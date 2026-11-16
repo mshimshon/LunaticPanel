@@ -6,7 +6,7 @@ using LunaticPanel.Engine.Keys.System;
 
 namespace LunaticPanel.Engine.Application.Messaging.API.Queries.Handlers;
 
-[QueryBusKey(BusKeys.Queries.FetchAvailableBuses)]
+[QueryBusKey(BusKeys.Queries.FETCH_AVAILABLE_BUSES)]
 internal class FetchBusAvailableKeysHandler : IQueryBusHandler
 {
     private readonly IEngineBusRegistry _engineBusRegistry;

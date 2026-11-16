@@ -1,9 +1,10 @@
 using LunaticPanel.PackageManager.Application.Payloads;
-using MedihatR;
+using MaksimShimshon.Mediator;
+using NuGet.Versioning;
 
 namespace LunaticPanel.PackageManager.Application.Mediator.Queries;
 
-public sealed record PeriodicCheckPackageUpdatesQuery()
+public sealed record PeriodicCheckPackageUpdatesQuery(IDictionary<string, NuGetVersion> InstalledPackages)
     : IRequest<ICollection<PackageManifestPayload>>
 {
 }

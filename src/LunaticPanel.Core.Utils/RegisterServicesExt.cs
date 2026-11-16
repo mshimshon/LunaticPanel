@@ -1,10 +1,12 @@
-﻿using LunaticPanel.Core.Utils.Abstraction.FileWatcher;
+﻿using LunaticPanel.Core.Utils.Abstraction.IO;
+using LunaticPanel.Core.Utils.Abstraction.FileWatcher;
 using LunaticPanel.Core.Utils.Abstraction.FileWatcher.Enums;
 using LunaticPanel.Core.Utils.Abstraction.LinuxCommand;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
-using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+
 using LunaticPanel.Core.Utils.FileWatcher;
+using LunaticPanel.Core.Utils.IO;
 using LunaticPanel.Core.Utils.LinuxCommand;
 using LunaticPanel.Core.Utils.Logging;
 using LunaticPanel.Core.Utils.Plugin;
@@ -46,9 +48,8 @@ public static class RegisterServicesExt
 
     public static void AddSafeFileWriterUtilityService(this IServiceCollection services)
     {
-        services.AddScoped<ISafeFileWriter, SafeFileWriter.SafeFileWriter>();
+        services.AddScoped<IAtomicFileSystem, AtomicFileSystem>();
     }
-
     public static void AddFileWatcherFactoryUtilityService(this IServiceCollection services)
     {
         services.AddScoped<IFileWatcherSystemFactory, FileWatcherSystemFactory>();

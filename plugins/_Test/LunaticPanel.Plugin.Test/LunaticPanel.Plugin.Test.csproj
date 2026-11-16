@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<EnableRazorComponents>true</EnableRazorComponents>
 	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-	  <Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+	  <Configurations>Debug;Release</Configurations>
 	  <Title>$(AssemblyName)</Title>
 	  <Version>$(GlobalVersion)</Version>
 	  <Company>$(GlobalCompany)</Company>

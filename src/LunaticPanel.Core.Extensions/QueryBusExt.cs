@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+﻿using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 
 namespace LunaticPanel.Core.Extensions;
 
@@ -9,7 +10,7 @@ public static class QueryBusExt
         return Task.FromResult(new QueryBusMessageResponse(data != default ? new(data) : default));
     }
     public static async Task<QueryBusMessageResponse> QueryWithoutDataAsync(this IQueryBus qryBus, string key)
-    => await qryBus.QueryAsync(new QueryBusMessage(new(key)));
+    => await qryBus.QueryAsync(new QueryBusMessage(new MessageKey(key)));
     public static async Task<QueryBusMessageResponse> QueryWithDataAsync(this IQueryBus qryBus, string key, object data)
         => await qryBus.QueryAsync(new QueryBusMessage(new(key), data));
 

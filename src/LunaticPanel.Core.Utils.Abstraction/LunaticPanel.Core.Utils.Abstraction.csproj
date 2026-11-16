@@ -11,11 +11,15 @@
 		<Description>Lunatic Panel Core Plugin Utility Abstraction Services.</Description>
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-		<Configurations>Debug;Release;</Configurations>
+		<Configurations>Debug;Release</Configurations>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 	</PropertyGroup>
+	<ItemGroup>
+    	<PackageReference Include="NuGet.Versioning" />
+
+	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\..\LICENSE.md">
 			<Pack>True</Pack>

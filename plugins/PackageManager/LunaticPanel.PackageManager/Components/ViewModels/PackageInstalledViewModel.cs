@@ -3,8 +3,8 @@ using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.PackageManager.Application.Payloads;
-using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using LunaticPanel.PackageManager.Application.Pulses.States;
+using LunaticPanel.PackageManager.Pulses.Actions;
+using LunaticPanel.PackageManager.Pulses.States;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;
@@ -43,7 +43,7 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
         InstalledPackageCount = PackageManagerState.Installed.Count();
         _result = PackageManagerState.Installed.ToList();
         RestartRequired = false;
-        // Add Newly Installed 
+        // Add Newly Installed
         foreach (var item in PackageManagerState.PendingUpdates)
             if (!_result.Any(p => p.Info.PackageId == item.Info.PackageId))
             {
@@ -74,6 +74,6 @@ internal class PackageInstalledViewModel : WidgetViewModelBase, IPackageInstalle
 
     public async Task RestartPanel()
     {
-        await _eventBus.PublishDatalessAsync(PanelKeys.Events.PanelShutdown);
+        await _eventBus.PublishDatalessAsync(PanelKeys.Events.PANEL_SHUTDOWN);
     }
 }

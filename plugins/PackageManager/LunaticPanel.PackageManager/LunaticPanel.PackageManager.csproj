@@ -13,7 +13,7 @@
 		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<Configurations>Debug;Release;PipelineStart;PipelineStop</Configurations>
+		<Configurations>Debug;Release</Configurations>
 
 	</PropertyGroup>
 
@@ -22,6 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+    	<PackageReference Include="NuGet.Versioning" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" PrivateAssets="false" />
 		<PackageReference Include="MudBlazor" PrivateAssets="false" />
 	</ItemGroup>
@@ -41,5 +42,9 @@
 	  <Folder Include="Hooks\Queries\" />
 	  <Folder Include="Services\" />
 	</ItemGroup>
-
+  <ItemGroup>
+	  <None Include=".ai\**\*" CopyToOutputDirectory="Never" />
+	  <InternalsVisibleTo Include="LunaticPanel.PackageManager.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
 </Project>
