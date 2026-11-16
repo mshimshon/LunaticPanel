@@ -159,7 +159,7 @@ internal static class BootstrapPlugins
             var installed = Installed.FirstOrDefault(p => p.Value.Id == toApply.Value.Id);
             var hasRollback = Rollbacks.Any(p => p.Value.Id == toApply.Value.Id);
             var hasInstalled = Installed.Any(p => p.Value.Id == toApply.Value.Id);
-            NuGetVersion pluginPanelVersion = new NuGetVersion(toApply.Value.PanelVersion);
+            NuGetVersion pluginPanelVersion = NuGetVersion.Parse(toApply.Value.PanelVersion);
             if (pluginPanelVersion > currentPanelVersion)
             {
                 Console.Error.WriteLine($"The {toApply.Value.Id} v{toApply.Value.Version} was compiled using panel version {pluginPanelVersion} therefore it's not compatible with {currentPanelVersion}. (Removing)");

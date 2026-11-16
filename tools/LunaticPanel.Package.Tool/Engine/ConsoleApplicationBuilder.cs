@@ -18,7 +18,7 @@ public sealed class ConsoleApplicationBuilder
         Console.WriteLine($"ARGS = {string.Join(' ', args)}");
         var sdkVersion = typeof(PluginManifestPayload).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         Console.Out.WriteLine($"sdkVersion:{sdkVersion}".Magenta());
-        var sdkVersionObj = new NuGetVersion(sdkVersion!);
+        var sdkVersionObj = NuGetVersion.Parse(sdkVersion!);
         PackSettings.lunaticPanelVersion = $"{sdkVersionObj}";
         var rootTmp = Path.GetTempPath();
         var cleanFolder = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{PackSettings.lunaticPanelVersion}");

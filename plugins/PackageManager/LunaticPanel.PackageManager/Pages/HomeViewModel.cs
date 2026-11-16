@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
-using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Pages.ViewModels;
+using LunaticPanel.PackageManager.Pulses.States;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Pages;

@@ -2,7 +2,7 @@ name: Release
 
 on:
   workflow_run:
-    workflows: ["Build"] # 👈 Put the EXACT name of your build workflow here
+    workflows: ["Preview", "Stable"] # 👈 Put the EXACT name of your build workflow here
     types:
       - completed
   workflow_dispatch: # Keeps your manual trigger working
@@ -66,8 +66,13 @@ jobs:
           cp /tmp/artifacts/output/lunaticpanel_${{ steps.release_version.outputs.release_version }}.tar.gz /tmp/artifacts/cdn
           cp /tmp/artifacts/output/lunapackage_server_${{ steps.release_version.outputs.release_version }}.tar.gz /tmp/artifacts/cdn
           cp /tmp/artifacts/output/lunaticpanel_plugins_${{ steps.release_version.outputs.release_version }}.tar.gz /tmp/artifacts/cdn
-          cp /tmp/artifacts/output/stable.txt /tmp/artifacts/cdn
+          if [ -f /tmp/artifacts/output/stable.txt ]; then
+              cp /tmp/artifacts/output/stable.txt /tmp/artifacts/cdn/
+          fi
 
+          if [ -f /tmp/artifacts/output/preview.txt ]; then
+              cp /tmp/artifacts/output/preview.txt /tmp/artifacts/cdn/
+          fi
 
       - name: NuGet login (OIDC → temp API key)
         if: ${{ !env.ACT }}

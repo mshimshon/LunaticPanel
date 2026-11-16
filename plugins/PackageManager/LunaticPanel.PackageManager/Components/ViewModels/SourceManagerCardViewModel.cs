@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Payloads;
-using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Infrastructure.Services;
+using LunaticPanel.PackageManager.Pulses.Actions;
+using LunaticPanel.PackageManager.Pulses.States;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;

@@ -274,17 +274,17 @@ public static class LibraryValidatorExt
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.Company.ToString(), $"'{dll}' company not found.");
 
         string? version = meta[ManifestMeta.Version] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' version tag not found.");
-        var tVersion = new NuGetVersion(version);
+        var tVersion = NuGetVersion.Parse(version);
         if (tVersion.Revision > 0)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.Version.ToString(), $"'{dll}' revision version is unsupported.");
 
         var asmVersion = meta[ManifestMeta.AssemblyVersion] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.AssemblyVersion.ToString(), $"'{dll}' AssemblyVersion tag not found."); ;
-        var tAsmVersion = new NuGetVersion(asmVersion);
+        var tAsmVersion = NuGetVersion.Parse(asmVersion);
         if (tAsmVersion.Major != tVersion.Major || tAsmVersion.Revision > 0 || tAsmVersion.Minor != 0 || tAsmVersion.Patch != 0)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.AssemblyVersion.ToString(), $"'{dll}' AssemblyFileVersion tag '{tAsmVersion.Major}.0.0.0' is not same as '{tVersion.Major}.0.0.0'.");
 
         var fileVersion = meta[ManifestMeta.FileVersion] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag not found.");
-        var tFileVersion = new NuGetVersion(fileVersion);
+        var tFileVersion = NuGetVersion.Parse(fileVersion);
         if (tFileVersion.Version == tVersion.Version)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag '{tFileVersion.Version}' must be equal to '{tVersion.Version}'.");
 

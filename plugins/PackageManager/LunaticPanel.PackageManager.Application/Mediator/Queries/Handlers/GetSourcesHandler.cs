@@ -11,9 +11,9 @@ namespace LunaticPanel.PackageManager.Application.Mediator.Queries.Handlers;
 internal class GetSourcesHandler : IRequestHandler<GetSourcesQuery, ICollection<RepositorySourcePayload>>
 {
     private readonly ISourceRepository _sourceRepository;
-    private readonly ICrazyReport<SearchRepositoryHandler> _crazyReport;
+    private readonly ICrazyReport<GetSourcesHandler> _crazyReport;
 
-    public GetSourcesHandler(ISourceRepository sourceRepository, ICrazyReport<SearchRepositoryHandler> crazyReport)
+    public GetSourcesHandler(ISourceRepository sourceRepository, ICrazyReport<GetSourcesHandler> crazyReport)
     {
         _sourceRepository = sourceRepository;
         _crazyReport = crazyReport;

@@ -18,7 +18,7 @@ internal class RepositorySourceDisableHandler : IRequestHandler<RepositorySource
         try
         {
             var source = command.Source.ToDomainEntity();
-            await _sourceRepository.EnableAsync(source, ct);
+            await _sourceRepository.DisableAsync(source, ct);
 
             //TODO: HANDLE DOMAIN EXCEPTIONS
         }

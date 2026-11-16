@@ -98,7 +98,7 @@ public static class PluginScannerExt
 
             var asmName = pluginEntryType!.Assembly.GetName().Name!;
             var entryPointTypeName = pluginEntryType.FullName!;
-            var version = new NuGetVersion(pluginEntryType!.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
+            var version = NuGetVersion.Parse(pluginEntryType!.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
             tmpLoader.Dispose();
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -114,7 +114,7 @@ public static class PluginScannerExt
                 }
             );
             return new PluginScannedEntity(PluginId: asmName,
-                Version: version ?? new NuGetVersion(1, 0, 0, 0),
+                Version: version ?? NuGetVersion.Parse("1.0.0"),
                 Loader: new PluginLoaderInfo(permanentLoader),
                 PluginEntryLocationType: entryPointTypeName, Location: dllFile);
         }

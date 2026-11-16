@@ -6,8 +6,8 @@ namespace LunaticPanel.Core.Messaging.EventBus;
 
 public sealed class EventBusRegistry : IEventBusRegistry
 {
-    private readonly Dictionary<string, List<EventBusHandlerDescriptor>> _internalRegistryEventTypes = new();
-    private readonly object _lock = new();
+    private readonly Dictionary<string, List<EventBusHandlerDescriptor>> _internalRegistryEventTypes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Lock _lock = new();
 
     public IReadOnlyList<EventBusHandlerDescriptor> GetAllAvailable()
     {
@@ -28,7 +28,7 @@ public sealed class EventBusRegistry : IEventBusRegistry
 
     public IReadOnlyList<EventBusHandlerDescriptor> GetRegistryFor(string id)
     {
-        id = id.ToLower();
+
         lock (_lock)
         {
             if (_internalRegistryEventTypes.ContainsKey(id))
@@ -47,7 +47,6 @@ public sealed class EventBusRegistry : IEventBusRegistry
 
     public void Register(string id, BusHandlerDescriptor handlerEntity)
     {
-        id = id.ToLower();
         var attr = handlerEntity.HandlerType.GetCustomAttribute<EventBusKeyAttribute>(inherit: false);
         if (attr == default)
             throw new InvalidOperationException($"Type {handlerEntity.HandlerType.FullName} MUST implements {nameof(EventBusKeyAttribute)}.");

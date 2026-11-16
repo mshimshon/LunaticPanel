@@ -226,6 +226,6 @@ public class MessageKeyValidationTests
         var messageKey = new MessageKey(inputKey);
 
         // Assert
-        Assert.Equal(inputKey.ToLower(), messageKey.ToString());
+        Assert.True(messageKey.SameAs(inputKey));
     }
 }

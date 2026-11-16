@@ -220,13 +220,13 @@ internal sealed class PackageValidationService : IPackageValidatorService
             {
                 var match = Regex.Match(p.TagName, _versionRegexPattern, RegexOptions.IgnoreCase);
                 if (!match.Success) return null;
-                return new { Release = p, Version = new NuGetVersion(match.Groups["version"].Value) };
+                return new { Release = p, Version = NuGetVersion.Parse(match.Groups["version"].Value) };
             })
             .Where(p => p != null)
             .ToList();
         if (parsed.Count <= 0)
             throw new PackageToolNotFoundException(panelMajor);
-        NuGetVersion panelVersion = new NuGetVersion(panelMajor);
+        NuGetVersion panelVersion = NuGetVersion.Parse(panelMajor);
         var matchingMajor = parsed
             .Where(x => x!.Version == panelVersion)
             .OrderByDescending(x => x!.Version)

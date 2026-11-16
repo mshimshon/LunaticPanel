@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
-using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Requests;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
@@ -13,7 +13,7 @@ internal class PackageDownloader : IPackageDownloader
     private readonly IExternalSourceService _sourceService;
     private readonly string _packageCache;
     public PackageDownloader(IPluginLocation pluginLocation, ICrazyReport<PackageDownloader> crazyReport,
-        ISafeFileWriter safeFileWriter, IExternalSourceService sourceService)
+        IAtomicFileSystem AtomicFileSystem, IExternalSourceService sourceService)
     {
         _crazyReport = crazyReport;
         _sourceService = sourceService;

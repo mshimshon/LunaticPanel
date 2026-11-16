@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
-using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entities;
@@ -32,15 +32,15 @@ internal class HostDiskPackageService : IHostDiskPackageService
 
     private const string PLUGIN_LOCATION = "/srv/lunaticpanel/plugins/";
     private const string BOOTSTRAP_PLUGIN_LOCATION_FMT = PLUGIN_LOCATION + "{0}";
-    private readonly ISafeFileWriter _safeFileWriter;
+    private readonly IAtomicFileSystem _atomicFileSystem;
     private JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    public HostDiskPackageService(IPluginLocation pluginLocation, ISafeFileWriter safeFileWriter, ICrazyReport<HostDiskPackageService> crazyReport)
+    public HostDiskPackageService(IPluginLocation pluginLocation, IAtomicFileSystem AtomicFileSystem, ICrazyReport<HostDiskPackageService> crazyReport)
     {
-        _safeFileWriter = safeFileWriter;
+        _atomicFileSystem = AtomicFileSystem;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
         _crazyReport.Report($"Checking if '{BOOTSTRAP_LOCATION}' exist");
@@ -132,7 +132,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
         File.Move(file, output);
         return Task.CompletedTask;
         //TODO: CLEAR COMMENTED CODE.
-        //await _safeFileWriter.WriteThenCopyFileAsync(BOOTSTRAP_LOCATION, (content) =>
+        //await _atomicFileSystem.WriteAtomicAsync(BOOTSTRAP_LOCATION, (content) =>
         //{
         //    string pluginFolder = string.Format(BOOTSTRAP_PLUGIN_LOCATION_FMT, id.Value.Replace('.', '_').ToLower());
         //    var bootstrap = Loadbootstrap(content);
@@ -147,7 +147,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
     }
     public async Task DisableAsync(PackageId id, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(BOOTSTRAP_LOCATION, (content) =>
+        await _atomicFileSystem.WriteAtomicAsync(BOOTSTRAP_LOCATION, (content) =>
         {
             var bootstrap = Loadbootstrap(content);
             var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
@@ -169,7 +169,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
     }
     public async Task EnableAsync(PackageId id, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(BOOTSTRAP_LOCATION, (content) =>
+        await _atomicFileSystem.WriteAtomicAsync(BOOTSTRAP_LOCATION, (content) =>
         {
             var bootstrap = Loadbootstrap(content);
             var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);

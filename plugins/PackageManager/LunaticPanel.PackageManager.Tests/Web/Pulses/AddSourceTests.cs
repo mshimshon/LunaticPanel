@@ -1,0 +1,76 @@
+using LunaticPanel.Core.Abstraction.Tools;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.PackageManager.Application.Mediator.Commands;
+using LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
+using LunaticPanel.PackageManager.Pulses.States;
+using LunaticPanel.PackageManager.Tests.Application.Mock;
+using StatePulse.Net;
+using System;
+using LunaticPanel.Core.Utils.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using MaksimShimshon.Mediator;
+using NuGet.Versioning;
+using LunaticPanel.PackageManager.Application.Payloads;
+using NSubstitute;
+using NSubstitute.Extensions;
+using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using NSubstitute.ExceptionExtensions;
+using LunaticPanel.PackageManager.Pulses.Effects;
+using LunaticPanel.PackageManager.Pulses.Actions;
+using LunaticPanel.PackageManager.Application.Payloads.Enums;
+using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Application.Payloads.Mapping;
+using LunaticPanel.PackageManager.Application.Mediator.Queries;
+namespace LunaticPanel.PackageManager.Tests.Application.Pulses;
+
+public class AddSourceTests : PulsesBaseTests
+{
+    private readonly IDispatcher _dispatcher;
+    private readonly IServiceProvider _sp;
+    private RepositorySourceState State => _sp.GetRequiredService<IStateAccessor<RepositorySourceState>>().State;
+    public AddSourceTests() : base()
+    {
+        _dispatcher = Substitute.For<IDispatcher>();
+        _dispatcher.CancelToken.Returns(TestContext.Current.CancellationToken);
+        _sp = _services.BuildServiceProvider();
+        _dispatcher = _sp.GetRequiredService<IDispatcher>();
+    }
+    private readonly ICollection<RepositorySourceEntity> _packageSources =
+      [
+            PackageExt.CreateRepositorySourceEntity("Source A", "http://sss.com/", PackageManager.Domain.Entities.Enums.RepositorySourceType.Remote, PackageManager.Domain.Entities.Enums.RepositorySourceState.Enabled),
+            PackageExt.CreateRepositorySourceEntity("Source B", "http://sss3.com/", PackageManager.Domain.Entities.Enums.RepositorySourceType.Remote, PackageManager.Domain.Entities.Enums.RepositorySourceState.Disabled),
+      ];
+
+
+    [Fact]
+    public async Task AddSourceEffect_ShouldPass()
+    {
+        var payloads = _packageSources.Select(p => p.ToApplicationPayload()).ToList();
+        _mediator.ExecuteAsync(Arg.Any<GetSourcesQuery>(), Arg.Any<CancellationToken>()).Returns(payloads);
+        var action = new AddSourceAction()
+        {
+            Source = PackageExt.CreatePackageSource("Source", "/tmp/local", RepositorySourceTypePayload.Local, RepositorySourceStatePayload.Enabled)
+        };
+        await _dispatcher.Prepared(action).Await().DispatchAsync(TestContext.Current.CancellationToken);
+        await _mediator.Received().ExecuteAsync(Arg.Any<RepositorySourceAddCommand>(), Arg.Any<CancellationToken>());
+        Assert.Equivalent(payloads, State.Sources);
+    }
+
+    [Fact]
+    public async Task AddSourceEffect_ShouldThrow()
+    {
+        var payloads = _packageSources.ToList().Select(p => p.ToApplicationPayload()).ToList();
+        _mediator.ExecuteAsync(Arg.Any<GetSourcesQuery>(), Arg.Any<CancellationToken>()).Returns(payloads);
+        var action = new AddSourceAction()
+        {
+            Source = PackageExt.CreatePackageSource("Source", "/tmp/local", RepositorySourceTypePayload.Local, RepositorySourceStatePayload.Enabled)
+        };
+        _mediator.ExecuteAsync(Arg.Any<RepositorySourceAddCommand>(), Arg.Any<CancellationToken>()).Throws(new Exception("Random Error"));
+        var handler = _dispatcher.Prepared(action).Await().DispatchAsync(TestContext.Current.CancellationToken);
+        await Assert.ThrowsAsync<HostUnkownException>(() => handler);
+
+    }
+
+
+}

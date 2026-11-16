@@ -3,8 +3,8 @@ using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.PackageManager.Application.Payloads;
-using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using LunaticPanel.PackageManager.Application.Pulses.States;
+using LunaticPanel.PackageManager.Pulses.Actions;
+using LunaticPanel.PackageManager.Pulses.States;
 using StatePulse.Net;
 
 namespace LunaticPanel.PackageManager.Components.ViewModels;

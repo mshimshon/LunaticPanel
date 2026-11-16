@@ -20,7 +20,6 @@ internal class EventBusExchange : IEventBusExchange
 
     public bool AnyListenerFor(string key)
     {
-        key = key.ToLower();
         var result = _eventBusReceiver.DoYouListenTo(key);
         if (result) return result;
         foreach (var item in _circuitRegistry.GetPluginContexts())

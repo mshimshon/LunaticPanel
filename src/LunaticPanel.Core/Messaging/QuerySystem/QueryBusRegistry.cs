@@ -6,8 +6,8 @@ namespace LunaticPanel.Core.Messaging.QuerySystem;
 
 public sealed class QueryBusRegistry : IQueryBusRegistry
 {
-    private readonly Dictionary<string, QueryBusHandlerDescriptor> _internalRegistryEventTypes = new();
-    private readonly object _lock = new();
+    private readonly Dictionary<string, QueryBusHandlerDescriptor> _internalRegistryEventTypes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Lock _lock = new();
 
     public IReadOnlyList<QueryBusHandlerDescriptor> GetAllAvailable()
     {
@@ -27,7 +27,7 @@ public sealed class QueryBusRegistry : IQueryBusRegistry
 
     public QueryBusHandlerDescriptor? GetRegistryFor(string id)
     {
-        id = id.ToLower();
+
         lock (_lock)
         {
             if (_internalRegistryEventTypes.ContainsKey(id))
@@ -46,7 +46,7 @@ public sealed class QueryBusRegistry : IQueryBusRegistry
 
     public void Register(string id, BusHandlerDescriptor handlerEntity)
     {
-        id = id.ToLower();
+
 
         lock (_lock)
         {

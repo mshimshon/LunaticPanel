@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+﻿using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.Engine.Domain.Plugin.Enums;
 using LunaticPanel.Engine.Web.Boostrap;
 using System.Text.Json;
@@ -7,12 +7,12 @@ namespace LunaticPanel.Engine.Web.Services;
 
 internal class BootstrapFileController : IBootstrapFileController
 {
-    private readonly ISafeFileWriter _safeFileWriter;
+    private readonly IAtomicFileSystem _atomicFileSystem;
     private readonly string _bootstrapLocation = Path.Combine(Bootstrap.ConfigDirectory, "bootstrap.json");
 
-    public BootstrapFileController(ISafeFileWriter safeFileWriter)
+    public BootstrapFileController(IAtomicFileSystem AtomicFileSystem)
     {
-        _safeFileWriter = safeFileWriter;
+        _atomicFileSystem = AtomicFileSystem;
     }
     public async Task DisablePlugin(string id, CancellationToken ct = default)
         => await UpdateStateAsync(id, PluginStartupState.Disabled, ct);
@@ -52,7 +52,7 @@ internal class BootstrapFileController : IBootstrapFileController
     }
     private async Task UpdateStateAsync(string id, PluginStartupState startupState, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(_bootstrapLocation, p =>
+        await _atomicFileSystem.WriteAtomicAsync(_bootstrapLocation, p =>
         {
             var bootstrap = JsonSerializer.Deserialize<BootstrapConfiguration>(p)!;
             var knownPlugins = bootstrap.KnownPlugins.ToList();

@@ -6,7 +6,7 @@ namespace LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 public sealed record PackagePanelVersion
 {
     public string Value { get; }
-    private static readonly Regex _regexValidator = new(@"^\d+\.\d+\.\d+(-[0-9A-Za-z\-\.]+)?$", RegexOptions.Compiled);
+    private static readonly Regex _regexValidator = new(@"^\d+\.\d+\.\d+(-[A-Za-z0-9\-]+\.\d+)?$", RegexOptions.Compiled);
 
     public PackagePanelVersion(int major) : this(major, 0, 0) { }
     public PackagePanelVersion(int major, int minor) : this(major, minor, 0) { }

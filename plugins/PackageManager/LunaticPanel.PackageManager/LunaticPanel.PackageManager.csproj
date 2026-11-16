@@ -42,5 +42,9 @@
 	  <Folder Include="Hooks\Queries\" />
 	  <Folder Include="Services\" />
 	</ItemGroup>
-
+  <ItemGroup>
+	  <None Include=".ai\**\*" CopyToOutputDirectory="Never" />
+	  <InternalsVisibleTo Include="LunaticPanel.PackageManager.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
 </Project>

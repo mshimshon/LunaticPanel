@@ -1,6 +1,6 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
-using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Keys;
@@ -17,13 +17,13 @@ internal class SourceFileService : ISourceFileService
         PropertyNameCaseInsensitive = true,
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    private readonly ISafeFileWriter _safeFileWriter;
+    private readonly IAtomicFileSystem _atomicFileSystem;
     private readonly ICrazyReport<SourceFileService> _crazyReport;
 
-    public SourceFileService(IPluginLocation pluginLocation, ISafeFileWriter safeFileWriter, ICrazyReport<SourceFileService> crazyReport)
+    public SourceFileService(IPluginLocation pluginLocation, IAtomicFileSystem AtomicFileSystem, ICrazyReport<SourceFileService> crazyReport)
     {
         _sourceFile = pluginLocation.GetConfigFor(LPPackageManagerKeys.MODULE_NAME, "sources.json");
-        _safeFileWriter = safeFileWriter;
+        _atomicFileSystem = AtomicFileSystem;
         _crazyReport = crazyReport;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
     }
@@ -46,7 +46,7 @@ internal class SourceFileService : ISourceFileService
         if (File.Exists(_sourceFile))
         {
             _crazyReport.ReportInfo("Reading Package Source from File '{0}'", _sourceFile);
-            string jsonStr = File.ReadAllText(_sourceFile);
+            string jsonStr = await _atomicFileSystem.ReadAllTextAsync(_sourceFile);
             if (!string.IsNullOrWhiteSpace(jsonStr))
             {
                 List<RepositorySourcePayload>? sources = JsonSerializer.Deserialize<List<RepositorySourcePayload>>(jsonStr, _serializerOptions);
@@ -59,7 +59,7 @@ internal class SourceFileService : ISourceFileService
         try
         {
 
-            await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, JsonSerializer.Serialize(_defaultSources, _serializerOptions), ct);
+            await _atomicFileSystem.WriteAtomicAsync(_sourceFile, JsonSerializer.Serialize(_defaultSources, _serializerOptions), ct);
             _crazyReport.ReportSuccess("'{0}' was created.", _sourceFile);
 
         }
@@ -73,7 +73,7 @@ internal class SourceFileService : ISourceFileService
     public async Task<ICollection<RepositorySourcePayload>> SaveSourcesAsync(List<RepositorySourcePayload> sourcePayloads, CancellationToken ct = default)
     {
         string sources = JsonSerializer.Serialize(sourcePayloads, _serializerOptions);
-        await File.WriteAllTextAsync(_sourceFile, sources);
+        await _atomicFileSystem.WriteAtomicAsync(_sourceFile, sources);
         return await GetSourcesAsync(ct);
     }
 }

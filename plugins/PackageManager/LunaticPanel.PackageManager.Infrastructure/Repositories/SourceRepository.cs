@@ -1,5 +1,5 @@
-﻿using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
-using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+﻿using LunaticPanel.Core.Utils.Abstraction.IO;
+using LunaticPanel.Core.Utils.Abstraction.Plugin.Location;
 using LunaticPanel.PackageManager.Application.Payloads.Enums;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Services;
@@ -15,7 +15,7 @@ namespace LunaticPanel.PackageManager.Infrastructure.Repositories;
 
 internal class SourceRepository : ISourceRepository
 {
-    private readonly ISafeFileWriter _safeFileWriter;
+    private readonly IAtomicFileSystem _atomicFileSystem;
     private readonly ISourceFileService _sourceFileProvider;
     private readonly string _sourceFile;
     private JsonSerializerOptions _jsonSerializerOptions = new()
@@ -24,16 +24,16 @@ internal class SourceRepository : ISourceRepository
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
 
-    public SourceRepository(ISafeFileWriter safeFileWriter, IPluginLocation pluginLocation, ISourceFileService sourceFileProvider)
+    public SourceRepository(IAtomicFileSystem AtomicFileSystem, IPluginLocation pluginLocation, ISourceFileService sourceFileProvider)
     {
-        _safeFileWriter = safeFileWriter;
+        _atomicFileSystem = AtomicFileSystem;
         _sourceFileProvider = sourceFileProvider;
-        _sourceFile = _sourceFile = pluginLocation.GetConfigFor(LPPackageManagerKeys.MODULE_NAME, "sources.json");
+        _sourceFile = pluginLocation.GetConfigFor(LPPackageManagerKeys.MODULE_NAME, "sources.json");
     }
 
     public async Task AddAsync(RepositorySourceEntity repositorySource, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, content =>
+        await _atomicFileSystem.WriteAtomicAsync(_sourceFile, content =>
         {
             var registryTask = _sourceFileProvider.GetSourcesAsync(ct);
             var registry = registryTask.Result.ToList();
@@ -47,7 +47,7 @@ internal class SourceRepository : ISourceRepository
 
     public async Task DisableAsync(RepositorySourceEntity repositorySource, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, content =>
+        await _atomicFileSystem.WriteAtomicAsync(_sourceFile, content =>
         {
             var registryTask = _sourceFileProvider.GetSourcesAsync(ct);
             List<Application.Payloads.RepositorySourcePayload>? registry = registryTask.Result.ToList();
@@ -68,7 +68,7 @@ internal class SourceRepository : ISourceRepository
 
     public async Task EnableAsync(RepositorySourceEntity repositorySource, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, content =>
+        await _atomicFileSystem.WriteAtomicAsync(_sourceFile, content =>
         {
             var registryTask = _sourceFileProvider.GetSourcesAsync(ct);
             List<Application.Payloads.RepositorySourcePayload>? registry = registryTask.Result.ToList();
@@ -94,7 +94,7 @@ internal class SourceRepository : ISourceRepository
     }
     public async Task RemoveAsync(RepositorySourceEntity repositorySource, CancellationToken ct = default)
     {
-        await _safeFileWriter.WriteThenCopyFileAsync(_sourceFile, content =>
+        await _atomicFileSystem.WriteAtomicAsync(_sourceFile, content =>
         {
             var registryTask = _sourceFileProvider.GetSourcesAsync(ct);
             List<Application.Payloads.RepositorySourcePayload>? registry = registryTask.Result.ToList();

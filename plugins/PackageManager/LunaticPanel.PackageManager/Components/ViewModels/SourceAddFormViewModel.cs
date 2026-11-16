@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Core.Abstraction.Widgets;
+﻿using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.Enums;
@@ -57,12 +58,6 @@ internal class SourceAddFormViewModel : WidgetViewModelBase, ISourceAddFormViewM
         {
             new RepositorySourceRemote(value);
             SourceType = RepositorySourceType.Remote;
-        }
-        catch (RepositorySourceRemoteNotUrlException)
-        {
-            if (!Directory.Exists(value))
-                return "Location is not a valid URL nor a valid path.";
-            SourceType = RepositorySourceType.Local;
         }
         catch (Exception ex)
         {

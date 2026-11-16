@@ -3,7 +3,7 @@ using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
-using LunaticPanel.Core.Utils.Abstraction.SafeFileWriter;
+using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using NuGet.Versioning;
@@ -28,7 +28,7 @@ internal class PanelUpdateService : IPanelUpdateService
     public List<string> PreInstalled { get; private set; } = new();
     private readonly string _updateEndpoint = "https://update.lunaticpanel.com/release/";
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ISafeFileWriter _safeFileWriter;
+    private readonly IAtomicFileSystem _atomicFileSystem;
     private readonly ICircuitRegistry _circuitRegistry;
     private readonly IEventBus _eventBus;
     private readonly ICrazyReport<PanelUpdateService> _crazyReport;
@@ -58,16 +58,16 @@ internal class PanelUpdateService : IPanelUpdateService
     }
     public PanelUpdateService(
         IHttpClientFactory httpClientFactory,
-        ISafeFileWriter safeFileWriter, ICircuitRegistry circuitRegistry,
+        IAtomicFileSystem AtomicFileSystem, ICircuitRegistry circuitRegistry,
         IEventBus eventBus,
         ICrazyReport<PanelUpdateService> crazyReport)
     {
         _httpClientFactory = httpClientFactory;
-        _safeFileWriter = safeFileWriter;
+        _atomicFileSystem = AtomicFileSystem;
         _circuitRegistry = circuitRegistry;
         _eventBus = eventBus;
         _crazyReport = crazyReport;
-        _currentPanelVersion = new NuGetVersion(typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
+        _currentPanelVersion = NuGetVersion.Parse(typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
         _upgradeRootFolder = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".upgrade");
         _upgradeDownloadFolder = Path.Combine(_upgradeRootFolder, "download");
         _upgradeApplyFolder = Path.Combine(_upgradeRootFolder, "apply");
@@ -118,7 +118,7 @@ internal class PanelUpdateService : IPanelUpdateService
         }
         PluginUpgradeDownloaded = default;
         AwaitingForPluginCompatibilityUpdate = true;
-        NuGetVersion versionCache = new NuGetVersion(File.ReadAllText(lastDownloaded));
+        NuGetVersion versionCache = NuGetVersion.Parse(File.ReadAllText(lastDownloaded));
         if (versionCache <= _currentPanelVersion)
         {
             _crazyReport.Report($"Cached Version {versionCache} lower or equal to current {_currentPanelVersion} Skip CheckPlugins.");
@@ -254,7 +254,7 @@ internal class PanelUpdateService : IPanelUpdateService
         ResetFolder(_upgradePluginUpgradeFolder);
         // Send all plugins into plugin upgrade staging folder.
         await ArchiveUtilityExt.ExtractTo(officialPanelPlugins, _upgradePluginUpgradeFolder, ArchiveType.TarGz);
-        await _safeFileWriter.WriteThenCopyFileAsync(lastDownloaded, version.ToString());
+        await _atomicFileSystem.WriteAtomicAsync(lastDownloaded, version.ToString());
         Downloaded = version;
         await CheckPluginsAsync(ct);
     }
@@ -312,10 +312,10 @@ internal class PanelUpdateService : IPanelUpdateService
             ResetFolder(_upgradePluginUpgradeFolder);
             ResetFolder(_upgradeDownloadFolder);
 
-            await _safeFileWriter.WriteThenCopyFileAsync(upgradeVersionCache, Installing.ToString());
-            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(binPanelPath, "access.test"), Installing.ToString());
-            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_upgradeRootFolder, "access.test"), Installing.ToString());
-            await _safeFileWriter.WriteThenCopyFileAsync(Path.Combine(_pluginStageLocationRootFolder, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(upgradeVersionCache, Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Path.Combine(binPanelPath, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Path.Combine(_upgradeRootFolder, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Path.Combine(_pluginStageLocationRootFolder, "access.test"), Installing.ToString());
 
             Staged = Installing;
             _crazyReport.ReportInfo($"Auto Restart ? {_autoRestart} ");
@@ -387,7 +387,7 @@ internal class PanelUpdateService : IPanelUpdateService
 
         //     }
         // }
-        return new NuGetVersion(versionStableRaw);
+        return NuGetVersion.Parse(versionStableRaw);
     }
     public async Task DownloadFile(HttpClient client, string remoteFile, string targetLocation, CancellationToken ct = default)
     {

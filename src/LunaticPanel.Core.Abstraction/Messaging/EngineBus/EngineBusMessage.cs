@@ -8,6 +8,7 @@ public sealed class EngineBusMessage : IEngineBusMessage
     private readonly Guid _messageId;
     private Guid? _circuitId;
     private readonly MessageKey _messageKey;
+    public MessageKey Key => _messageKey;
 
     //private readonly RenderFragment _renderFragment;
 

@@ -3,9 +3,9 @@ using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Mediator.Queries;
 using LunaticPanel.PackageManager.Application.Payloads;
-using LunaticPanel.PackageManager.Application.Pulses.Actions;
-using LunaticPanel.PackageManager.Application.Pulses.States;
 using LunaticPanel.PackageManager.Keys;
+using LunaticPanel.PackageManager.Pulses.Actions;
+using LunaticPanel.PackageManager.Pulses.States;
 using MaksimShimshon.Mediator;
 using StatePulse.Net;
 

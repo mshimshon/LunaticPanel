@@ -2,7 +2,7 @@ using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
-using LunaticPanel.PackageManager.Application.Pulses.States;
+using LunaticPanel.PackageManager.Pulses.States;
 using LunaticPanel.PackageManager.Tests.Application.Mock;
 using StatePulse.Net;
 using System;
@@ -11,59 +11,159 @@ using Microsoft.Extensions.DependencyInjection;
 using MaksimShimshon.Mediator;
 using NuGet.Versioning;
 using LunaticPanel.PackageManager.Application.Payloads;
+using NSubstitute;
+using NSubstitute.Extensions;
+using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using NSubstitute.ExceptionExtensions;
 namespace LunaticPanel.PackageManager.Tests.Application.Mediator;
 
 public class AutoUpdatePackagesCommandTest
 {
-    public AutoUpdatePackagesCommandTest() { }
+    private readonly IPanelControl _panelControl;
+    private readonly IMediator _mediator;
+    private readonly IStateAccessor<PackageUpdateState> _packageUpdateState;
+    private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState;
+    private readonly ICrazyReport<AutoUpdatePackagesCommandHandler> _crazyReport;
 
-    [Fact]
-    public void Validation_ShouldReturnFalse_WhenPanelMajorVersionMismatch()
+
+    private readonly AutoUpdatePackagesCommandHandler _handler;
+    public AutoUpdatePackagesCommandTest()
     {
-        // Arrange
-        var payload = new PackageManifestPayload
-        {
-            Id = "TestPackage",
-            Version = "1.2.3",
-            PanelVersion = "2.0.0"
-        };
+        _panelControl = Substitute.For<IPanelControl>();
+        _mediator = Substitute.For<IMediator>();
 
-        var currentVersion = new NuGetVersion("1.0.0");
-        var currentPanelVersion = new NuGetVersion("1.5.0");
+        _packageUpdateState =
+            Substitute.For<IStateAccessor<PackageUpdateState>>();
 
+        _packageManagerDiskState =
+            Substitute.For<IStateAccessor<PackageManagerDiskState>>();
 
-        // Act
-        var result = AutoUpdatePackagesCommandHandler.Validation(
-            payload,
-            currentVersion,
-            currentPanelVersion, null);
+        _crazyReport =
+            Substitute.For<ICrazyReport<AutoUpdatePackagesCommandHandler>>();
 
-        // Assert
-        Assert.False(result);
+        _handler = new AutoUpdatePackagesCommandHandler(
+            _panelControl,
+            _mediator,
+            _crazyReport);
+
     }
 
     [Fact]
-    public void Validation_ShouldReturnFalse_WhenPackageMajorVersionMismatch()
+    public async Task Pipeline_NoPackagesShouldUpdate()
     {
-        // Arrange
-        var payload = new PackageManifestPayload
+        IEnumerable<PackageManifestPayload> _updateFound = [
+            PackageExt.CreatePackageManifest("panel.auth.azure", "Azure Authentication", "2.4.1-beta.3",  "5.1.0"),
+            PackageExt.CreatePackageManifest("panel.monitoring.health", "Health Monitoring", "1.8.0-rc.1",  "5.1.0"),
+            PackageExt.CreatePackageManifest("panel.backup.agent", "Backup Agent", "3.0.0-alpha.7",  "5.2.0"),
+            PackageExt.CreatePackageManifest("panel.notifications.slack", "Slack Notifications", "4.2.5-preview.12",  "5.1.2"),
+            PackageExt.CreatePackageManifest("panel.analytics.reports", "Analytics Reports", "1.0.0-nightly.45",  "5.2.0-preview.1")
+        ];
+        var updateState = new PackageUpdateState() { FoundUpdates = _updateFound };
+        IEnumerable<PackagePayload> _installedPackages = [
+            PackageExt.CreatePackage("panel.auth.azure", "Azure Authentication", "2.4.0", "5.1.0"),
+            PackageExt.CreatePackage("panel.monitoring.health", "Health Monitoring", "1.7.0",  "5.1.0"),
+            PackageExt.CreatePackage("panel.backup.agent", "Backup Agent", "2.9.0",  "5.2.0"),
+            PackageExt.CreatePackage("panel.notifications.slack", "Slack Notifications", "4.2.4", "5.1.2"),
+            PackageExt.CreatePackage("panel.analytics.reports", "Analytics Reports", "0.9.0",  "5.2.0-preview.1")
+        ];
+        var diskState = new PackageManagerDiskState()
         {
-            Id = "TestPackage",
-            Version = "2.0.0",
-            PanelVersion = "1.0.0"
+            Installed = _installedPackages,
+            IsInitialized = true,
         };
+        _panelControl.PanelVersion.Returns("2.0.0");
+        _packageUpdateState.State.Returns(updateState);
+        _packageManagerDiskState.State.Returns(diskState);
+        var currentlyInstalledVersions = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => p.Version);
+        var foundUpdates = _packageUpdateState.State.FoundUpdates.ToList();
+        await _handler.HandleAsync(new AutoUpdatePackagesCommand(foundUpdates, currentlyInstalledVersions), TestContext.Current.CancellationToken);
 
-        var currentVersion = new NuGetVersion("1.0.0");
-        var currentPanelVersion = new NuGetVersion("1.0.0");
-
-        // Act
-        var result = AutoUpdatePackagesCommandHandler.Validation(
-            payload,
-            currentVersion,
-            currentPanelVersion, null);
 
         // Assert
-        Assert.False(result);
+        await _mediator.Received(0)
+            .ExecuteAsync(
+                Arg.Any<PackageUpdateCommand>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Pipeline_OnePackagesShouldUpdate()
+    {
+        IEnumerable<PackageManifestPayload> _updateFound =
+        [
+            PackageExt.CreatePackageManifest("panel.auth.azure", "Azure Authentication", "2.4.1-beta.3",  "5.1.0"),
+            PackageExt.CreatePackageManifest("panel.monitoring.health", "Health Monitoring", "1.8.0-rc.1",  "5.1.0"),
+            PackageExt.CreatePackageManifest("panel.backup.agent", "Backup Agent", "3.0.0-alpha.7",  "5.2.0"),
+            PackageExt.CreatePackageManifest("panel.notifications.slack", "Slack Notifications", "4.2.5-preview.12",  "5.1.2"),
+            PackageExt.CreatePackageManifest("panel.analytics.reports", "Analytics Reports", "1.0.0-nightly.45",  "2.0.0-preview.1")
+        ];
+        var updateState = new PackageUpdateState() { FoundUpdates = _updateFound };
+        IEnumerable<PackagePayload> _installedPackages =
+        [
+            PackageExt.CreatePackage("panel.auth.azure", "Azure Authentication", "2.4.0", "5.1.0"),
+            PackageExt.CreatePackage("panel.monitoring.health", "Health Monitoring", "1.7.0",  "5.1.0"),
+            PackageExt.CreatePackage("panel.backup.agent", "Backup Agent", "2.9.0",  "5.2.0"),
+            PackageExt.CreatePackage("panel.notifications.slack", "Slack Notifications", "4.2.4", "2.0.0"),
+            PackageExt.CreatePackage("panel.analytics.reports", "Analytics Reports", "0.9.0",  "5.2.0-preview.1")
+        ];
+        var diskState = new PackageManagerDiskState()
+        {
+            Installed = _installedPackages,
+            IsInitialized = true,
+        };
+        _panelControl.PanelVersion.Returns("2.0.0");
+        _packageUpdateState.State.Returns(updateState);
+        _packageManagerDiskState.State.Returns(diskState);
+        var currentlyInstalledVersions = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => p.Version);
+        var foundUpdates = _packageUpdateState.State.FoundUpdates.ToList();
+        await _handler.HandleAsync(new AutoUpdatePackagesCommand(foundUpdates, currentlyInstalledVersions), TestContext.Current.CancellationToken);
+
+
+        // Assert
+        await _mediator.Received(1)
+            .ExecuteAsync(
+                Arg.Any<PackageUpdateCommand>(),
+                Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Pipeline_HandlingReThrow()
+    {
+        IEnumerable<PackageManifestPayload> _updateFound =
+        [
+            PackageExt.CreatePackageManifest("panel.analytics.reports", "Analytics Reports", "1.0.0-nightly.45",  "2.2.0-preview.1"),
+            PackageExt.CreatePackageManifest("panel.auth.azure", "Azure Authentication", "2.4.1-beta.3",  "5.1.0"),
+            PackageExt.CreatePackageManifest("panel.monitoring.health", "Health Monitoring", "1.8.0-rc.1",  "5.1.0"),
+            PackageExt.CreatePackageManifest("panel.backup.agent", "Backup Agent", "3.0.0-alpha.7",  "5.2.0"),
+            PackageExt.CreatePackageManifest("panel.notifications.slack", "Slack Notifications", "4.2.5-preview.12",  "5.1.2")
+        ];
+        var updateState = new PackageUpdateState() { FoundUpdates = _updateFound };
+        IEnumerable<PackagePayload> _installedPackages =
+        [
+            PackageExt.CreatePackage("panel.auth.azure", "Azure Authentication", "2.4.0", "5.1.0"),
+            PackageExt.CreatePackage("panel.monitoring.health", "Health Monitoring", "1.7.0",  "5.1.0"),
+            PackageExt.CreatePackage("panel.backup.agent", "Backup Agent", "2.9.0",  "5.2.0"),
+            PackageExt.CreatePackage("panel.notifications.slack", "Slack Notifications", "4.2.4", "2.0.0"),
+            PackageExt.CreatePackage("panel.analytics.reports", "Analytics Reports", "0.9.0",  "5.2.0-preview.1")
+        ];
+        var diskState = new PackageManagerDiskState()
+        {
+            Installed = _installedPackages,
+            IsInitialized = true,
+        };
+        _panelControl.PanelVersion.Returns("2.2.0");
+        _packageUpdateState.State.Returns(updateState);
+        _packageManagerDiskState.State.Returns(diskState);
+        _mediator.ExecuteAsync(
+        Arg.Any<PackageUpdateCommand>(),
+        Arg.Any<CancellationToken>()).Throws(new Exception("Boom"));
+        var currentlyInstalledVersions = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => p.Version);
+        var foundUpdates = _packageUpdateState.State.FoundUpdates.ToList();
+        var handler = _handler.HandleAsync(new AutoUpdatePackagesCommand(foundUpdates, currentlyInstalledVersions), TestContext.Current.CancellationToken);
+
+        await Assert.ThrowsAsync<HostUnkownException>(() => handler);
+
     }
 
     [Theory]
@@ -94,8 +194,7 @@ public class AutoUpdatePackagesCommandTest
         // Act
         var result = AutoUpdatePackagesCommandHandler.Validation(
             payload,
-            new NuGetVersion(currentVersion),
-            new NuGetVersion(currentPanelVersion),
+            NuGetVersion.Parse(currentPanelVersion),
             null);
 
         // Assert
@@ -134,8 +233,7 @@ public class AutoUpdatePackagesCommandTest
         // Act
         var result = AutoUpdatePackagesCommandHandler.Validation(
             payload,
-            new NuGetVersion(currentVersion),
-            new NuGetVersion(currentPanelVersion),
+            NuGetVersion.Parse(currentPanelVersion),
             null);
 
         // Assert
@@ -172,8 +270,7 @@ public class AutoUpdatePackagesCommandTest
         // Act
         var result = AutoUpdatePackagesCommandHandler.Validation(
             payload,
-            new NuGetVersion(currentVersion),
-            new NuGetVersion(currentPanelVersion),
+            NuGetVersion.Parse(currentPanelVersion),
             null);
 
         // Assert

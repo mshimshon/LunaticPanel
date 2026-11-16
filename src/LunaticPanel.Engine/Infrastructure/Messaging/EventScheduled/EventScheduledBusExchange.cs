@@ -19,7 +19,6 @@ internal class EventScheduledBusExchange : IEventScheduledBusExchange
 
     public bool AnyListenerFor(string key)
     {
-        key = key.ToLower();
         var result = _eventScheduledBusReceiver.DoYouListenTo(key);
         if (result) return result;
         foreach (var item in _circuitRegistry.GetPluginContexts())
