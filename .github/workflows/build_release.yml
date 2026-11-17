@@ -78,6 +78,7 @@ jobs:
         shell: bash
         run: |
           depitsmart GetCurrentReleaseVersionRunner --ghOutput
+          HEAD_REF=$"${{ github.event.pull_request.head.ref }}"
           if [ "$HEAD_REF" = "main-dev" ]; then
             echo "Releasing Next Stable from Main Development"
             depitsmart CalculateNextReleaseVersionRunner --ghOutput
@@ -86,7 +87,8 @@ jobs:
             depitsmart CalculateNextReleaseVersionRunner --ghOutput --patchStableOnly
           fi
 
-      - name: Building Release
+      - name: Building Shipping Release DeployItSmart ;)
+        shell: bash
         run: bash -e .github/workflows/composition/compile_output.sh
         env:
           VERSION_NEXT: ${{ steps.version_control.outputs.version_next }}
@@ -95,6 +97,7 @@ jobs:
       - name: Generate Release Notes
         shell: bash
         run: |
+          HEAD_REF=$"${{ github.event.pull_request.head.ref }}"
           if [ "$HEAD_REF" = "main-dev" ]; then
             depitsmart GenerateChangeLogRunner --output "/tmp/artifacts/output"  --linkCommits
           else

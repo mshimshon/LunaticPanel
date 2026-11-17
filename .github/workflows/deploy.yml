@@ -21,7 +21,6 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       id-token: write
-      actions: write
       contents: write
 
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
@@ -31,20 +30,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-assets
-          path: /tmp/artifacts/output
-          run-id: ${{ !env.ACT && github.event.workflow_run.id || '' }}
-          github-token: ${{ !env.ACT && secrets.GITHUB_TOKEN || '' }}
+          path: /tmp/artifacts/output # where ever you saved the output.
+          run-id: ${{ !env.ACT && github.event.workflow_run.id || '' }} # Empty if running ACT
+          github-token: ${{ !env.ACT && secrets.GITHUB_TOKEN || '' }} # Empty if running ACT
 
+      # Load the export variables
       - name: Load Variables into Outputs
         id: version_control
         shell: bash
         run: |
           ls -laR /tmp/artifacts || echo "no /tmp/artifacts"
-          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/artifacts/output/build.env | tr -d '\r' >> "$GITHUB_OUTPUT"
+          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/artifacts/output/build.env | tr -d '\r' >> "$GITHUB_OUTPUT"w
 
       - name: Use the Passed Versions
-        id: release_version
         shell: bash
+        id: release_version
         run: |
           if [ "${{ steps.version_control.outputs.trigger_branch }}" = "main-dev" ]; then
               echo "This is a Preview Release";
@@ -60,62 +60,51 @@ jobs:
               echo "release_version=${{ steps.version_control.outputs.version_next }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Preparing CDN Files
-        run: |
-          mkdir -p /tmp/artifacts/cdn
-          cp /tmp/artifacts/output/lunaticpanel_${{ steps.release_version.outputs.release_version }}.tar.gz /tmp/artifacts/cdn
-          cp /tmp/artifacts/output/lunapackage_server_${{ steps.release_version.outputs.release_version }}.tar.gz /tmp/artifacts/cdn
-          cp /tmp/artifacts/output/lunaticpanel_plugins_${{ steps.release_version.outputs.release_version }}.tar.gz /tmp/artifacts/cdn
-          if [ -f /tmp/artifacts/output/stable.txt ]; then
-              cp /tmp/artifacts/output/stable.txt /tmp/artifacts/cdn/
-          fi
-
-          if [ -f /tmp/artifacts/output/preview.txt ]; then
-              cp /tmp/artifacts/output/preview.txt /tmp/artifacts/cdn/
-          fi
+      - name: Checkout triggering branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.version_control.outputs.trigger_branch }}
+          fetch-depth: 0
 
       - name: NuGet login (OIDC → temp API key)
-        if: ${{ !env.ACT }}
         uses: NuGet/login@v1
         id: login
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      - name: Create GitHub Release
+      - name: Create Release Tag
         if: ${{ !env.ACT }}
+        run: |
+          SHA=$(git rev-parse HEAD) || exit 1
+          echo "Pushing ${{ steps.version_control.outputs.trigger_branch }} v${{ steps.version_control.outputs.version_next }} $SHA"
+          git tag "v${{ steps.version_control.outputs.version_next }}" "$SHA"
+          git push origin "v${{ steps.version_control.outputs.version_next }}" || exit 1
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.release_version.outputs.release_version }}
-          body_path: "/tmp/artifacts/output/_.${{ steps.release_version.outputs.release_version }}.md"
-          prerelease: ${{ steps.version_control.outputs.trigger_branch == 'main-dev' }}
-          fail_on_unmatched_files: true
+          tag_name: v${{ steps.version_control.outputs.version_next }}
+          body_path: "/tmp/artifacts/output/changelog.md"
           files: |
-            /tmp/artifacts/output/*.nupkg
-            /tmp/artifacts/output/*.tar.gz
+            /tmp/artifacts/output/*.*
 
-      - name: Upload to Cloudflare R2
-        if: ${{ !env.ACT }}
-        uses: ryand56/r2-upload-action@v1
-        with:
-          r2-account-id: ${{ secrets.CF_R2_ACCOUNT_ID }}
-          r2-access-key-id: ${{ secrets.CF_R2_ACCESS_ID }}
-          r2-secret-access-key: ${{ secrets.CF_R2_SECRET_KEY }}
-          r2-bucket: 'lunaticpanel'
-          source-dir: '/tmp/artifacts/cdn' # The folder you want to upload
-          destination-dir: 'release'
 
       - name: Push all NuGet packages with retry
-        if: ${{ !env.ACT }}
         uses: nick-invision/retry@v2
         with:
           timeout_minutes: 30
           max_attempts: 10
           retry_wait_seconds: 10
           command: |
+            set -eu
+            VERSION="${{ steps.version_control.outputs.version_next }}"
+
             for PKG in /tmp/artifacts/output/*.nupkg; do
               echo "Pushing $PKG"
-              dotnet nuget push "$PKG" \
-                --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+
+              dotnet nuget push \
+                "$PKG" \
+                --api-key ${{ steps.login.outputs.NUGET_API_KEY }} \
                 --source https://api.nuget.org/v3/index.json \
                 --skip-duplicate || exit 1
             done

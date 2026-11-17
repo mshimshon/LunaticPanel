@@ -45,6 +45,7 @@ public static class LibraryValidatorExt
         var info = new Dictionary<ManifestMeta, string?>();
         var valueReader = reader.GetBlobReader(customAttribute.Value);
         var value = ReadStringArg(valueReader);
+        // System.Console.WriteLine($"{name}={value}");
         switch (name)
         {
             case "AssemblyProductAttribute":
@@ -285,7 +286,7 @@ public static class LibraryValidatorExt
 
         var fileVersion = meta[ManifestMeta.FileVersion] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag not found.");
         var tFileVersion = NuGetVersion.Parse(fileVersion);
-        if (tFileVersion.Version == tVersion.Version)
+        if (tFileVersion.Version != tVersion.Version)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag '{tFileVersion.Version}' must be equal to '{tVersion.Version}'.");
 
 

@@ -45,6 +45,7 @@ internal static class PluginUtilitiesExt
         var meta = LibraryValidatorExt.ExtractMetadata(dll);
         foreach (var item in meta)
             Console.Out.WriteLine($"{item.Key}:{item.Value}".Cyan());
+
         Console.Out.WriteLine($"Extract Manifest".Cyan());
         Console.Out.WriteLine($"Extracting Manifest Information for {dll}".Cyan());
         var pluginId = meta[ManifestMeta.Id];
@@ -62,7 +63,7 @@ internal static class PluginUtilitiesExt
 
         var title = meta[ManifestMeta.Title];
         Console.Out.WriteLine($"title:{title}".Magenta());
-        var version = meta[ManifestMeta.Version]!.Split('-', '+')[0];
+        var version = meta[ManifestMeta.Version]!.Split('+')[0];
         Console.Out.WriteLine($"version:{version}".Magenta());
         if (version == default)
             throw new PluginVersionNotFoundException(pluginId);

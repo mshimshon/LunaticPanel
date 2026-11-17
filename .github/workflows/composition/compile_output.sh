@@ -45,23 +45,17 @@ for KEY in "${KEY_PROJECTS[@]}"; do
     "$KEY" \
     -c Release \
     -o "$OUT" \
-    /p:Version=$VERSION
+    /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:FileVersion=$VERSION_NS /p:AssemblyVersion=$MAJOR_ZERO_ZERO
 done
 
-dotnet publish "./tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj" -r linux-x64 -c Release -o "$BUILD_TOOL" /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:FileVersion=$VERSION_NEXT /p:AssemblyVersion=$VERSION_NEXT
+dotnet publish "./tools/LunaticPanel.Package.Tool/LunaticPanel.Package.Tool.csproj" -r linux-x64 -c Release -o "$BUILD_TOOL" /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:FileVersion=$VERSION_NS /p:AssemblyVersion=$MAJOR_ZERO_ZERO
 
 dotnet publish ./src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj -c Release -r linux-x64 --self-contained false -o $BUILD_WEB \
-  /p:AssemblyVersion=$VERSION_NEXT \
-  /p:FileVersion=$VERSION_NEXT \
-  /p:InformationalVersion=$VERSION \
-  /p:Version=$VERSION
+  /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:FileVersion=$VERSION_NS /p:AssemblyVersion=$MAJOR_ZERO_ZERO
 
 
 dotnet publish ./tools/LunaticPanel.Package.LocalServer/LunaticPanel.Package.LocalServer.csproj -c Release -r linux-x64 --self-contained false -o $BUILD_LUNAPKG \
-  /p:AssemblyVersion=$VERSION_NEXT \
-  /p:FileVersion=$VERSION_NEXT \
-  /p:InformationalVersion=$VERSION \
-  /p:Version=$VERSION
+  /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:FileVersion=$VERSION_NS /p:AssemblyVersion=$MAJOR_ZERO_ZERO
 
 PLUGINS=(
   "./plugins/PackageManager/LunaticPanel.PackageManager/LunaticPanel.PackageManager.csproj"
@@ -79,10 +73,7 @@ for KEY in "${PLUGINS[@]}"; do
     -r linux-x64 \
     -c Release \
     -o "$TARGET_BUILD_DIR" \
-    /p:InformationalVersion=$VERSION \
-    /p:Version=$VERSION \
-    /p:FileVersion=$VERSION_NEXT \
-    /p:AssemblyVersion=$VERSION_NEXT
+    /p:InformationalVersion=$VERSION /p:Version=$VERSION /p:FileVersion=$VERSION_NS /p:AssemblyVersion=$MAJOR_ZERO_ZERO
 
 
   /tmp/artifacts/tool/LunaticPanel.Package.Tool \

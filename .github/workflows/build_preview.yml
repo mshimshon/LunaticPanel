@@ -21,7 +21,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # 👈 This forces GitHub to pull ALL history and tags
-
+      - run: |
+          apt-get update
+          apt-get install -y libicu-dev
       - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -42,7 +44,8 @@ jobs:
           depitsmart GetCurrentPreReleaseVersionRunner --ghOutput
           depitsmart CalculateNextReleaseVersionRunner --ghOutput --previewMode
 
-      - name: Building Preview ;)
+      - name: Building Shipping Release DeployItSmart ;)
+        shell: bash
         run: bash -e .github/workflows/composition/compile_output.sh
         env:
           VERSION_NEXT: ${{ steps.version_control.outputs.version_next_preview }}
