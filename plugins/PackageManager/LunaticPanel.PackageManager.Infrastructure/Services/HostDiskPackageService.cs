@@ -52,7 +52,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
         _installedLocation = Path.Combine(tempRoot, "installed");
         _rollbackLocation = Path.Combine(tempRoot, "rollbacks");
         _deleteLocation = Path.Combine(tempRoot, "delete");
-        _preInstalledFolder = Path.Combine(Environment.CurrentDirectory, "plugins_preinstalled");
+        _preInstalledFolder = Path.Combine(Environment.CurrentDirectory, "plugins");
 
         _sourceCached = pluginLocation.GetAppDataBase(".pkg_source_cache");
         _sourceApiCached = pluginLocation.GetAppDataBase(".pkg_api_cache");

@@ -32,12 +32,12 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
-    <ProjectReference Include="..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Core.Abstraction\LunaticPanel.Core.Abstraction.csproj" />
+    <ProjectReference Include="..\..\src\LunaticPanel.Core\LunaticPanel.Core.csproj" />
   </ItemGroup>
 
 </Project>

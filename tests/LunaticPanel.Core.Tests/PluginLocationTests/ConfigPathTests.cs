@@ -16,7 +16,7 @@ public class ConfigPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetAppBinBase();
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly");
         Assert.Equal(path, correctPath);
     }
 
@@ -25,7 +25,7 @@ public class ConfigPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetAppBinBase("MyModule", "my", "sub", "folder");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins",
+        var correctPath = Path.Combine(BashPathTests._baseRuntime,
             "test_assembly", "MyModule", "my", "sub", "folder");
         Assert.Equal(path, correctPath);
     }
@@ -37,7 +37,9 @@ public class ConfigPathTests
     {
         //etc/
         var path = _pluginConfiguration.GetAppDataBase();
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", "plugins", "test_assembly");
+        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib",
+            "lunaticpanel", "plugins", "test_assembly"
+            );
         Assert.Equal(path, correctPath);
     }
 

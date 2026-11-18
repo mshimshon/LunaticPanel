@@ -55,6 +55,7 @@
   <Folder Name="/Tests/">
     <Project Path="plugins/PackageManager/LunaticPanel.PackageManager.Tests/LunaticPanel.PackageManager.Tests.csproj" Id="cf692e7a-3b50-45a2-82f7-6d26ce077a0a" />
     <Project Path="tests/LunaticPanel.Core.Tests/LunaticPanel.Core.Tests.csproj" Id="5b01a88a-6915-470d-be3d-48e586e4d2a7" />
+    <Project Path="tests/LunaticPanel.Engine.Tests/LunaticPanel.Engine.Tests.csproj" />
     <Project Path="tests/LunaticPanel.Package.Server.Tests/LunaticPanel.Package.Server.Tests.csproj" Id="aebc0d94-f668-4d4e-8765-bf786211755c" />
   </Folder>
 

@@ -1,7 +1,6 @@
 ﻿using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Plugin.Entities;
 using LunaticPanel.Engine.Plugin.Validation;
 using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Exceptions.ValidateExceptions;

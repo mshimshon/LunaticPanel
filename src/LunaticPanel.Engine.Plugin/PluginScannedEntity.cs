@@ -1,6 +1,6 @@
 ﻿using NuGet.Versioning;
 
-namespace LunaticPanel.Engine.Plugin.Entities;
+namespace LunaticPanel.Engine.Plugin;
 
 public record PluginScannedEntity(
     string PluginId,

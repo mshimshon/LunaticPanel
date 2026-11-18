@@ -8,6 +8,7 @@ using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using NuGet.Versioning;
 using System.Reflection;
+using LunaticPanel.Engine.Plugin;
 
 namespace LunaticPanel.Engine.Web.Services.UpdateService;
 
@@ -24,7 +25,7 @@ internal class PanelUpdateService : IPanelUpdateService
 
     public NuGetVersion? Installing { get; private set; }
     public NuGetVersion? Staged { get; private set; }
-    public Dictionary<string, BootstrapPluginManifest>? PluginUpgradeDownloaded { get; private set; }
+    public Dictionary<string, PluginManifestEntity>? PluginUpgradeDownloaded { get; private set; }
     public List<string> PreInstalled { get; private set; } = new();
     private readonly string _updateEndpoint = "https://update.lunaticpanel.com/release/";
     private readonly IHttpClientFactory _httpClientFactory;
@@ -79,7 +80,7 @@ internal class PanelUpdateService : IPanelUpdateService
         _pluginDeleteLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "delete");
         _pluginRollbackLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "rollbacks");
         _pluginInstalledLocationFolder = Path.Combine(_pluginStageLocationRootFolder, "installed");
-        _binPreinstalledPlugins = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins_preinstalled");
+        _binPreinstalledPlugins = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins");
         if (bool.TryParse(Environment.GetEnvironmentVariable("LP_UPGRADE_AUTO_RESTART"), out var autoRestart))
             _autoRestart = autoRestart;
 
@@ -127,12 +128,12 @@ internal class PanelUpdateService : IPanelUpdateService
         }
         string[] installed = Directory.GetFiles(_pluginInstalledLocationFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
         string[] plugins = Directory.GetFiles(_upgradePluginUpgradeFolder, "*.lpkg", SearchOption.TopDirectoryOnly);
-        Dictionary<string, BootstrapPluginManifest> validForNextUpgrade = new();
+        Dictionary<string, PluginManifestEntity> validForNextUpgrade = new();
 
 
         foreach (var item in installed)
         {
-            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+            var manifest = await ArchiveUtilityExt.ReadJson<PluginManifestEntity>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default) continue;
             NuGetVersion pPanelVersion = new(manifest.PanelVersion);
             if (pPanelVersion <= versionCache && pPanelVersion.Major == versionCache.Major && !validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
@@ -144,7 +145,7 @@ internal class PanelUpdateService : IPanelUpdateService
 
         foreach (var item in plugins)
         {
-            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+            var manifest = await ArchiveUtilityExt.ReadJson<PluginManifestEntity>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default)
             {
                 _crazyReport.ReportWarning($"'{item}' failed to extract manifest.");
@@ -190,7 +191,7 @@ internal class PanelUpdateService : IPanelUpdateService
 
             foreach (var item in preinstalled)
             {
-                var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+                var manifest = await ArchiveUtilityExt.ReadJson<PluginManifestEntity>(item, "manifest.json", ArchiveType.LunaPackage);
                 if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
                 PreInstalled.Add(manifest.Id);
             }
@@ -200,7 +201,7 @@ internal class PanelUpdateService : IPanelUpdateService
         bool nextFlag = false;
         foreach (var item in installed)
         {
-            var manifest = await ArchiveUtilityExt.ReadJson<BootstrapPluginManifest>(item, "manifest.json", ArchiveType.LunaPackage);
+            var manifest = await ArchiveUtilityExt.ReadJson<PluginManifestEntity>(item, "manifest.json", ArchiveType.LunaPackage);
             if (manifest == default) throw new Exception($"Manifest failed to read from lunapackage file. '{item}'");
 
 

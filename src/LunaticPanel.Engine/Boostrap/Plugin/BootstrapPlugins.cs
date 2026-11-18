@@ -37,7 +37,7 @@ internal static class BootstrapPlugins
     public static void ProcessPreinstalledPlugins()
     {
         DetectUpdates();
-        string preinstall = Path.Combine(Environment.CurrentDirectory, "plugins_preinstalled");
+        string preinstall = Path.Combine(Environment.CurrentDirectory, "plugins");
         Console.WriteLine($"Checking for Pre-Installed Plugins {preinstall}");
         if (!Directory.Exists(preinstall)) return;
         string applyLocation = Path.Combine($"{Path.DirectorySeparatorChar}", "var", "lib", "lunaticpanel", ".plugins", "apply");

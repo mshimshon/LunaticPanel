@@ -1,3 +1,4 @@
+using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using NuGet.Versioning;
 using System;
@@ -12,7 +13,7 @@ public interface IPanelUpdateService
 
     NuGetVersion? Installing { get; }
     NuGetVersion? Staged { get; }
-    Dictionary<string, BootstrapPluginManifest>? PluginUpgradeDownloaded { get; }
+    Dictionary<string, PluginManifestEntity>? PluginUpgradeDownloaded { get; }
     List<string> PreInstalled { get; }
     bool BlockedByPlugin { get; }
 

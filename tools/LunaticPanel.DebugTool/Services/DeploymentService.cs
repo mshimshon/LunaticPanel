@@ -384,8 +384,8 @@ internal sealed class DeploymentService
         // /usr/lib/lunaticpanel/plugins
         //await CopyDirAsync(_deployEnvironmentName, cliLpkgDir, $"/srv/lunaticpanel/plugins/{linuxFolder}");
         ///var/lib/lunatic_panel_package/lpkgs
-        await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/srv/lunaticpanel/plugins_preinstalled/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
-        //await RunAsync(_deployEnvironmentName, $"ls /srv/lunaticpanel/plugins_preinstalled/");
+        await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/srv/lunaticpanel/plugins/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
+        //await RunAsync(_deployEnvironmentName, $"ls /srv/lunaticpanel/plugins/");
         await CopyFileAsync(_deployEnvironmentName, clilpkgLocal, $"/var/lib/lunaticpanel_lpkg_localserver/lpkgs/awaiting/{manifestExternalPayload.Id}.{manifestExternalPayload.Version}.lpkg");
 
 

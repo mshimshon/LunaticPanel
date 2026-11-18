@@ -51,6 +51,9 @@
 </ItemGroup>
 
 
-
+  <ItemGroup>
+	<InternalsVisibleTo Include="LunaticPanel.Engine.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
 
 </Project>

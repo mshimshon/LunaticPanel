@@ -25,7 +25,9 @@ public interface IPluginLocation : IPluginSystemLocation, IPluginUserLocation, I
     string PluginVarFolder { get; }
 
     const string LUNATIC_PANEL_FOLDER_NAME = "lunaticpanel";
+    const string LUNATIC_PANEL_PLUGINS_CACHE_FOLDER_NAME = ".plugins";
     const string LUNATIC_PANEL_PLUGINS_FOLDER_NAME = "plugins";
+    const string LUNATIC_PANEL_PLUGINS_CACHE_RUNTIME_FOLDER_NAME = "runtime";
     const string LINUX_USR_FOLDER_NAME = "usr";
     const string LINUX_SRV_FOLDER_NAME = "srv";
     const string LINUX_LIB_FOLDER_NAME = "lib";
