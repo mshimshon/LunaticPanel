@@ -3,7 +3,7 @@ using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using System;
 
-namespace LunaticPanel.Engine.Web.Bootstraper;
+namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
 
 public class PluginDiscoveryLocation
 {

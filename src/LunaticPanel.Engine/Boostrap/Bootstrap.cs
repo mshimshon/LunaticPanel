@@ -33,9 +33,11 @@ public static class Bootstrap
     {
         LibraryLocation = "/srv";
         ConfigLocation = "/var/lib";
+        // REBUILT
         await ApplyPanelUpdate(); // Perform Pending Update of the panel
         // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
         DefinePath(configuration);
+
         DetectUpdates();
         DetectDelete();
         DetectRollbacks();

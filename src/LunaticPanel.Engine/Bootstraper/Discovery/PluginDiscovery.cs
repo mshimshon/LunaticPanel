@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace LunaticPanel.Engine.Web.Bootstraper;
+namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
 
 public class PluginDiscovery : IPluginDiscovery
 {

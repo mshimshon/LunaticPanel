@@ -2,6 +2,7 @@ using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Tests.Extensions;
 using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Web.Bootstraper.Discovery;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
