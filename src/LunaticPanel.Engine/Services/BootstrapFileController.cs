@@ -8,7 +8,7 @@ namespace LunaticPanel.Engine.Web.Services;
 internal class BootstrapFileController : IBootstrapFileController
 {
     private readonly IAtomicFileSystem _atomicFileSystem;
-    private readonly string _bootstrapLocation = Path.Combine(Bootstrap.ConfigDirectory, "bootstrap.json");
+    private readonly string _bootstrapLocation = Path.Combine(Bootstrap.ConfigDirectory, IBootstrapFileController.bootstrapFile);
 
     public BootstrapFileController(IAtomicFileSystem AtomicFileSystem)
     {

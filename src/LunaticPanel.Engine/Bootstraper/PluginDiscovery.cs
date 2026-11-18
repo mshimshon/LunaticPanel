@@ -2,22 +2,37 @@ using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Web.Boostrap.Plugin;
+using LunaticPanel.Engine.Web.Services;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 
 namespace LunaticPanel.Engine.Web.Bootstraper;
 
-public class PluginDiscovery
+public class PluginDiscovery : IPluginDiscovery
 {
     internal readonly PluginDiscoveryLocation _locator;
+    internal List<IPluginReference> _loadedPlugins = new();
+    internal List<BootstrapStatusEntity> _bootstrapState = new();
     internal List<PluginManifestEntity> _preInstalled = new();
-    internal List<PluginManifestEntity> _runtimes = new();
+    internal List<string> _runtimeTargets = new();
     internal List<PluginManifestEntity> _toApplyUpdates = new();
     internal List<PluginManifestEntity> _installed = new();
     internal List<PluginManifestEntity> _delete = new();
     internal List<PluginManifestEntity> _rollbacks = new();
     internal readonly NuGetVersion _currentPanelVersion;
+
+    public IReadOnlyList<IPluginReference> LoadedPlugins => _loadedPlugins;
+    public IReadOnlyList<BootstrapStatusEntity> BootstrapState => _bootstrapState;
+    public IReadOnlyList<PluginManifestEntity> PreInstalled => _preInstalled;
+    public IReadOnlyList<string> RuntimeTargets => _runtimeTargets;
+    public IReadOnlyList<PluginManifestEntity> ToApplyUpdates => _toApplyUpdates;
+    public IReadOnlyList<PluginManifestEntity> Installed => _installed;
+    public IReadOnlyList<PluginManifestEntity> Delete => _delete;
+    public IReadOnlyList<PluginManifestEntity> Rollbacks => _rollbacks;
+
     public PluginDiscovery(PluginDiscoveryLocation locator)
     {
         _locator = locator;
@@ -25,11 +40,35 @@ public class PluginDiscovery
         _currentPanelVersion = NuGetVersion.Parse(version);
     }
 
-    /*
-     - Scan Folder in Runtime
-     - Remove All MisMatched/Missing Plugin from Install from Runtime
-     - Load Each Plugins Normally
-    */
+
+    internal void LoadBootstrapState()
+    {
+        var filename = IBootstrapFileController.bootstrapFile;
+        var bootstrapFile = Path.Combine(_locator.PluginBootstrapStateLocation, filename);
+        if (File.Exists(filename))
+        {
+            var json = File.ReadAllText(bootstrapFile);
+            _bootstrapState = JsonSerializer.Deserialize<List<BootstrapStatusEntity>>(json)!;
+        }
+
+    }
+
+    internal void SaveBootstrapState()
+    {
+        var filename = IBootstrapFileController.bootstrapFile;
+        var bootstrapFile = Path.Combine(_locator.PluginBootstrapStateLocation, filename);
+        var json = JsonSerializer.Serialize(_bootstrapState)!;
+        File.WriteAllText(bootstrapFile, json, Encoding.UTF8);
+    }
+
+    public void Commit_All()
+    {
+        Commit_Delete();
+        Commit_PreInstalled();
+        Commit_Apply();
+        Commit_Install();
+        Commit_Runtime();
+    }
     public List<PluginManifestEntity> DiscoverPackages(string path)
     {
         string[] packages = Directory.GetFiles(path, "*.lpkg", SearchOption.TopDirectoryOnly);
@@ -235,7 +274,6 @@ public class PluginDiscovery
 
     public void Commit_Runtime()
     {
-
         var dirRuntime = _locator.PluginLifecycleRuntimeLocation;
         string[] runtimeDirs = Directory.GetDirectories(dirRuntime);
         foreach (var toSeal in runtimeDirs)
@@ -244,10 +282,47 @@ public class PluginDiscovery
             var runtimeManifest = PluginScannerExt.ParseManifest(File.ReadAllText(runtimeManifestFile));
             var installed = _installed.SingleOrDefault(p => p.Id.Equals(runtimeManifest.Id, StringComparison.OrdinalIgnoreCase));
             if (installed != default)
+            {
+                _runtimeTargets.Add(toSeal);
                 continue;
+            }
             System.Console.WriteLine($"No longer installed {runtimeManifest.Id}, Removing ('{toSeal}').".Red());
             Directory.Delete(toSeal, true);
         }
+    }
+
+
+    public void Load_Runtime()
+    {
+        LoadBootstrapState();
+        foreach (var toLoad in _runtimeTargets)
+        {
+            var runtimeManifestFile = Path.Combine(toLoad, "manifest.json");
+            var manifestContent = File.ReadAllText(runtimeManifestFile);
+            var runtimeManifest = PluginScannerExt.ParseManifest(manifestContent);
+            var lastState = _bootstrapState.SingleOrDefault(p => p.Id.Equals(runtimeManifest.Id, StringComparison.OrdinalIgnoreCase));
+            if (lastState == default)
+                _bootstrapState.Add(new BootstrapStatusEntity(runtimeManifest, BootstrapStartupState.Disabled, null));
+            if (lastState == default || lastState.StartupState == BootstrapStartupState.Disabled)
+            {
+                System.Console.WriteLine($"{runtimeManifest.Id} is disabled at startup.".Red());
+                continue;
+            }
+
+            try
+            {
+                var reference = PluginScannerExt.LoadPLugin(toLoad, [], DependencySettings.ScanSharedFrameworkNames());
+                _loadedPlugins.Add(reference);
+            }
+            catch (System.Exception ex)
+            {
+                var currentState = lastState with { Failure = ex.Message };
+                _bootstrapState.Remove(lastState);
+                _bootstrapState.Add(currentState);
+                continue;
+            }
+        }
+        SaveBootstrapState();
     }
 
 }

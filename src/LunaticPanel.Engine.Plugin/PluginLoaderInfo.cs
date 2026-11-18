@@ -20,6 +20,7 @@ internal class PluginLoaderInfo : IPluginLoader
         return _loaded;
     }
 
+
     public void Unload()
     {
         _pluginLoader.Dispose();

@@ -33,4 +33,5 @@ public sealed record PluginManifestEntity
     public string PanelVersion { get; set; } = default!;
     public string DotnetVersion { get; set; } = default!;
     public string PluginEntryFile { get; set; } = default!;
+    public string EntryClass { get; set; } = default!;
 }

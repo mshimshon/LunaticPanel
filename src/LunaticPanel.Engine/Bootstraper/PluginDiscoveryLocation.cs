@@ -9,6 +9,7 @@ public class PluginDiscoveryLocation
 {
     public string PluginLifecycleLocation { get; private set; } = default!;
     public string PluginLifecyclePreInstalledLocation { get; private set; } = default!;
+    public string PluginBootstrapStateLocation { get; private set; } = default!;
     public string PluginLifecycleRuntimeLocation { get; private set; } = default!;
     public string PluginLifecycleApplyLocation { get; private set; } = default!;
     public string PluginLifecycleDeleteLocation { get; private set; } = default!;
@@ -39,6 +40,7 @@ public class PluginDiscoveryLocation
         string baseLoc = Path.Combine("var", "lib", "lunaticpanel", ".plugins");
         PluginLifecycleLocation = PathCombine(baseLoc);
         PluginLifecyclePreInstalledLocation = PathCombine("srv", "lunaticpanel", "plugins");
+        PluginBootstrapStateLocation = PathCombine("var", "lib", "lunaticpanel", "config");
         PluginLifecycleRuntimeLocation = PathCombine(baseLoc, "runtime");
         PluginLifecycleApplyLocation = PathCombine(baseLoc, "apply");
         PluginLifecycleDeleteLocation = PathCombine(baseLoc, "delete");

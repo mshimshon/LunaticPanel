@@ -57,7 +57,48 @@ public static class PluginScannerExt
         }
         return default;
     }
+    /// <summary>
+    /// Specify plugin runtime root, it will read manifest and load up the plugin reference safely or throw.
+    /// </summary>
+    public static IPluginReference LoadPLugin(string pluginRoot, Type[] sharedType, AssemblyName[] sharedAssemblies)
+    {
+        PluginLoader? permanentLoader = default;
+        try
+        {
 
+            var manifestFile = Path.Combine(pluginRoot, "manifest.json");
+            var manifest = ParseManifest(File.ReadAllText(manifestFile));
+            var entryFile = Path.Combine(pluginRoot, manifest.PluginEntryFile);
+            var entryClass = manifest.EntryClass;
+            permanentLoader = PluginLoader.CreateFromAssemblyFile(entryFile, sharedTypes: sharedType,
+               c =>
+               {
+                   c.IsUnloadable = true;
+                   foreach (var item in sharedAssemblies)
+                       c.SharedAssemblies.Add(item);
+               }
+           );
+            var pluginLoaderInfo = new PluginReferenceEntity(manifest, permanentLoader);
+            pluginLoaderInfo.Load();
+            return pluginLoaderInfo;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            if (permanentLoader != default && permanentLoader.IsUnloadable)
+            {
+                permanentLoader.Dispose();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+
+
+        }
+    }
     public static PluginScannedEntity? LoadPluginInformation(string dllFile, Type[] sharedType, AssemblyName[] sharedAssemblies)
     {
         PluginLoader? tmpLoader = default;

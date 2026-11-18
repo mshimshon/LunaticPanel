@@ -49,6 +49,29 @@ public class PluginDiscoveryTests : IDisposable
 
 
 
+    [Fact]
+    public void Load_Runtime_ShouldFail()
+    {
+        string id = "Package.Core";
+        string version = "1.0.0";
+        var panelTarget = _pluginDiscovery._currentPanelVersion;
+        var panelTargetString = panelTarget.ToString();
+        var manifest = PackageExt.CreateFakePackage(id, id, version, panelTargetString, _pluginDiscoveryLocation.PluginLifecycleApplyLocation);
+        var manifest2 = PackageExt.CreateFakePackage("Package1.Core1", id, version, panelTargetString, _pluginDiscoveryLocation.PluginLifecycleApplyLocation);
+        _pluginDiscovery.Commit_All();
+        _pluginDiscovery._bootstrapState.Add(new BootstrapStatusEntity(manifest, BootstrapStartupState.Disabled, null));
+        _pluginDiscovery._bootstrapState.Add(new BootstrapStatusEntity(manifest2, BootstrapStartupState.Enabled, null));
+        _pluginDiscovery.SaveBootstrapState();
+        _pluginDiscovery.Load_Runtime();
+        _pluginDiscovery.LoadBootstrapState();
+        var currentState1 = _pluginDiscovery._bootstrapState.Single(p => p.Id == manifest.Id);
+        var currentState2 = _pluginDiscovery._bootstrapState.Single(p => p.Id == manifest2.Id);
+        Assert.True(currentState1.StartupState == BootstrapStartupState.Disabled);
+        Assert.True(currentState2.StartupState == BootstrapStartupState.Enabled);
+        Assert.True(currentState1.Failure == default);
+        Assert.True(currentState2.Failure != default);
+
+    }
 
     [Theory]
     [InlineData("Package.Core", "1.0.0", 0)]
@@ -292,6 +315,13 @@ public class PluginDiscoveryTests : IDisposable
         Assert.True(File.Exists(manifest.PackageFileLocation));
         Assert.True(File.Exists(manifest2.PackageFileLocation));
         Assert.False(File.Exists(manifest3.PackageFileLocation));
+        var runtimeEntryPoints = new List<string>()
+        {
+            expectedDestination1,
+            expectedDestination2,
+        };
+
+        Assert.Equivalent(runtimeEntryPoints, _pluginDiscovery._runtimeTargets);
     }
 
 

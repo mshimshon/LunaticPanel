@@ -27,7 +27,7 @@ public static class PackageExt
         Copyright = "© Contoso",
         PanelVersion = panelVersion,
         DotnetVersion = "8.0.12",
-        PluginEntryFile = "Package.dll"
+        PluginEntryFile = $"{id}.dll"
     };
     public static PluginManifestEntity CreateFakePackage(string id,
     string title,

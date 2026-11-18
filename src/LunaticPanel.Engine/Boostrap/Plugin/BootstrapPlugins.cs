@@ -238,7 +238,6 @@ internal static class BootstrapPlugins
         return result;
     }
 
-
     private static void ExtractZipToRoot(string zipPath, string targetRoot)
     {
         Directory.CreateDirectory(targetRoot);
