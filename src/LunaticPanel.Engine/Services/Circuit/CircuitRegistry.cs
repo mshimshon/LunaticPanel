@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Application.Circuit.Contracts;
-using LunaticPanel.Engine.Application.Plugin;
+using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Web.Layout;
 
 namespace LunaticPanel.Engine.Web.Services.Circuit;
@@ -46,7 +46,7 @@ public sealed class CircuitRegistry : ICircuitRegistry
             };
             _circuits.Add(_currentCircuit);
         }
-        var plugins = _pluginRegistry.GetAll();
+        var plugins = _pluginRegistry.ActivePlugins;
         foreach (var item in plugins)
         {
             lock (_lockPluginContexts)
@@ -55,8 +55,8 @@ public sealed class CircuitRegistry : ICircuitRegistry
                 {
                     HostServiceProvider = _hostSP,
                     CircuitId = id,
-                    PluginId = item.Plugin.Identity.PackageId.ToLower(),
-                    Entry = item.Entry,
+                    PluginId = item.Manifest.Id.ToLower(),
+                    Entry = item.Plugin,
                     IsMaster =
                     _currentCircuit.IsMaster
                 };

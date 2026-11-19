@@ -1,11 +1,14 @@
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Tests.Extensions;
-using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Web.Bootstraper.Engine;
 using LunaticPanel.Engine.Web.Bootstraper.Discovery;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
+using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Web.Bootstraper.Discovery.Services;
 
 namespace LunaticPanel.Engine.Tests.Bootstraper;
 
@@ -16,29 +19,21 @@ public class NoParallelCollection { }
 public class PluginDiscoveryTests : IDisposable
 {
     private readonly PluginDiscoveryLocation _pluginDiscoveryLocation;
+    private readonly PluginStateController _pluginStateController;
     private readonly NuGetVersion _panelMinorDiff;
     private readonly NuGetVersion _panelMajorDiff;
     private readonly PluginDiscovery _pluginDiscovery;
-    private readonly string _tmpRoot;
+
     private bool _disposedValue;
 
     public PluginDiscoveryTests()
     {
 
         _pluginDiscoveryLocation = new PluginDiscoveryLocation();
-        if (!OperatingSystem.IsWindows())
-            _tmpRoot = $"{Path.DirectorySeparatorChar}";
-
-        else
-        {
-            _tmpRoot = Path.Combine(Path.GetTempPath(), "lunaticpanel", "linux");
-            if (Directory.Exists(_tmpRoot))
-            {
-                Directory.Delete(_tmpRoot, true);
-            }
-        }
+        _pluginStateController = new PluginStateController();
         _pluginDiscoveryLocation.Initialize();
-        _pluginDiscovery = new PluginDiscovery(_pluginDiscoveryLocation);
+
+        _pluginDiscovery = new PluginDiscovery(_pluginDiscoveryLocation, _pluginStateController);
 
 
         var currentPanel = _pluginDiscovery._currentPanelVersion;
@@ -51,7 +46,7 @@ public class PluginDiscoveryTests : IDisposable
 
 
     [Fact]
-    public void Load_Runtime_ShouldFail()
+    public async Task Load_Runtime_ShouldFail()
     {
         string id = "Package.Core";
         string version = "1.0.0";
@@ -62,9 +57,9 @@ public class PluginDiscoveryTests : IDisposable
         _pluginDiscovery.Commit_All();
         _pluginDiscovery._bootstrapState.Add(new BootstrapStatusEntity(manifest, BootstrapStartupState.Disabled, null));
         _pluginDiscovery._bootstrapState.Add(new BootstrapStatusEntity(manifest2, BootstrapStartupState.Enabled, null));
-        _pluginDiscovery.SaveBootstrapState();
+        await _pluginStateController.SaveAsync(_pluginDiscovery._bootstrapState, TestContext.Current.CancellationToken);
         _pluginDiscovery.Load_Runtime();
-        _pluginDiscovery.LoadBootstrapState();
+        _pluginDiscovery._bootstrapState = await _pluginStateController.LoadFile(TestContext.Current.CancellationToken);
         var currentState1 = _pluginDiscovery._bootstrapState.Single(p => p.Id == manifest.Id);
         var currentState2 = _pluginDiscovery._bootstrapState.Single(p => p.Id == manifest2.Id);
         Assert.True(currentState1.StartupState == BootstrapStartupState.Disabled);
@@ -279,14 +274,14 @@ public class PluginDiscoveryTests : IDisposable
     public void TargetFolderLocations_ShouldPass()
     {
 
-        var expectedBaseLocation = Path.Combine(_tmpRoot, "var", "lib", "lunaticpanel", ".plugins");
+        var expectedBaseLocation = Pathf.Combine(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", ".plugins");
         Assert.Equal(expectedBaseLocation, _pluginDiscoveryLocation.PluginLifecycleLocation);
         Assert.Equal(Path.Combine(expectedBaseLocation, "apply"), _pluginDiscoveryLocation.PluginLifecycleApplyLocation);
         Assert.Equal(Path.Combine(expectedBaseLocation, "delete"), _pluginDiscoveryLocation.PluginLifecycleDeleteLocation);
         Assert.Equal(Path.Combine(expectedBaseLocation, "rollbacks"), _pluginDiscoveryLocation.PluginLifecycleRollbackLocation);
         Assert.Equal(Path.Combine(expectedBaseLocation, "installed"), _pluginDiscoveryLocation.PluginLifecycleInstalledLocation);
         Assert.Equal(Path.Combine(expectedBaseLocation, "runtime"), _pluginDiscoveryLocation.PluginLifecycleRuntimeLocation);
-        var expectedPreinstallLocation = Path.Combine(_tmpRoot, "srv", "lunaticpanel", "plugins");
+        var expectedPreinstallLocation = Pathf.Combine(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel", "plugins");
         Assert.Equal(expectedPreinstallLocation, _pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
     }
 

@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core;
 using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys;
@@ -16,7 +17,7 @@ public partial class PluginEntry : PluginBase, IPlugin
             DisableBusFeature("");
     }
 
-    public override string[] GetMyPackageKeys()
+    public override MessageKey[] GetMyPackageKeys()
         => typeof(LPEngineKeys).Assembly.ScanKeyPackageForKeys();
 
 

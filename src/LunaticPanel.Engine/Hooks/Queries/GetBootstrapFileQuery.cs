@@ -18,6 +18,6 @@ internal class GetBootstrapFileQuery : IQueryBusHandler
     {
         Console.WriteLine("Loading Bootstrap File");
         var result = await _bootstrapFileController.LoadFile();
-        return await qry.ReplyWith(result.KnownPlugins);
+        return await qry.ReplyWith(result);
     }
 }

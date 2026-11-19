@@ -5,7 +5,7 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.Engine.Web.Boostrap.Plugin;
+
 using NuGet.Versioning;
 using System.Reflection;
 using LunaticPanel.Engine.Plugin;
@@ -224,7 +224,9 @@ internal class PanelUpdateService : IPanelUpdateService
             BlockedByPlugin = true;
         }
         else
+        {
             BlockedByPlugin = false;
+        }
     }
     public async Task DownloadUpdateAsync(CancellationToken ct = default)
     {

@@ -17,6 +17,7 @@ using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils;
 using LunaticPanel.Engine.Infrastructure;
 using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Web.Bootstraper.Engine;
 using LunaticPanel.Engine.Web.Layout;
 using LunaticPanel.Engine.Web.Layout.Menu;
 using LunaticPanel.Engine.Web.Pages.Dashboard;
@@ -40,7 +41,7 @@ public static class RegisterServicesExt
     public static IBootstrap BuildBootstrap(this WebApplicationBuilder builder)
     {
         builder.Services.AddLunaticPanelServices();
-        return new Bootstraper.Bootstraper(builder.Services, builder.Configuration);
+        return new Bootstraper.Engine.Bootstraper(builder.Services, builder.Configuration);
     }
     public static IServiceCollection AddLunaticPanelServices(this IServiceCollection services)
     {

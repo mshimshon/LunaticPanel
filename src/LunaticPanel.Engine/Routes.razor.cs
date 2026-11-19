@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using LunaticPanel.Engine.Web.Bootstraper;
+using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Engine.Web;
 
 public partial class Routes : ComponentBase
 {
+    [Inject] public IBootstrap Bootstrap { get; set; } = default!;
     protected override void OnInitialized()
     {
         try

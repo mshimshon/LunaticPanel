@@ -1,9 +1,12 @@
 using LunaticPanel.Core.Abstraction.DependencyInjection;
+using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
-using LunaticPanel.Engine.Application.Plugin;
+using LunaticPanel.Core.Utils.IO;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Web.Bootstraper.Configurator;
+using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Web.Bootstraper.Discovery;
+using LunaticPanel.Engine.Web.Bootstraper.Discovery.Services;
+using LunaticPanel.Engine.Web.Services;
 using LunaticPanel.Engine.Web.Services.Circuit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -11,37 +14,46 @@ using Microsoft.Extensions.FileProviders;
 using System;
 using System.Reflection;
 
-namespace LunaticPanel.Engine.Web.Bootstraper;
+namespace LunaticPanel.Engine.Web.Bootstraper.Engine;
 
-public class Bootstraper : IBootstrap, IDisposable
+public class Bootstraper : IBootstrap, IPluginRegistry, IDisposable
 {
     private readonly PluginDiscoveryLocation _discoveryLocation;
-    public IPluginDiscoveryLocator DiscoveryLocation => _discoveryLocation;
+
     private readonly PluginDiscovery _pluginDiscovery;
-    public IPluginDiscovery PluginDiscovery => _pluginDiscovery;
+
     private readonly UpdateDiscoveryLocation _upgradeLocation;
-    public IUpdateDiscoveryLocator UpgradeLocation => _upgradeLocation;
-
     private readonly UpdateDiscovery _upgradeDiscovery;
-
-    public UpdateDiscovery UpgradeDiscovery => _upgradeDiscovery;
     private List<Assembly> _additionalAssemblies = new();
-    public IReadOnlyList<Assembly> AdditionalAssemblies => _additionalAssemblies;
     private List<PluginLifespanController> _activePlugins = new();
+    private List<HostRedirectionService> _redirectHostService;
+    private bool _disposedValue = false;
+    public IPluginDiscoveryLocator DiscoveryLocation => _discoveryLocation;
+    public IUpdateDiscoveryLocator UpgradeLocation => _upgradeLocation;
+    public IPluginDiscovery PluginDiscovery => _pluginDiscovery;
+
+    public IUpdateDiscovery UpgradeDiscovery => _upgradeDiscovery;
+    public IReadOnlyList<Assembly> AdditionalAssemblies => _additionalAssemblies;
     public IReadOnlyList<IPluginLifespanController> ActivePlugins => _activePlugins;
     private IServiceCollection _services;
     private IConfiguration _configuration;
-    private List<HostRedirectionService> _redirectHostService;
-    private bool _disposedValue = false;
 
     public IReadOnlyList<HostRedirectionService> RedirectHostService => _redirectHostService;
     private IServiceScope _masterScope = default!;
 
     public IServiceProvider MasterSp { get; private set; } = default!;
+
+    public IReadOnlyList<BootstrapStatusEntity> KnownPlugins => PluginDiscovery.BootstrapState;
+
+    public IReadOnlyDictionary<string, string> FailedPlugins { get; private set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    private IPluginStateController _pluginStateController;
     internal Bootstraper(IServiceCollection services, IConfiguration configuration)
     {
+        _pluginStateController = new PluginStateController();
+        services.AddSingleton<IBootstrap>((sp) => this);
+        services.AddSingleton<IPluginRegistry>((sp) => this);
         _discoveryLocation = new PluginDiscoveryLocation();
-        _pluginDiscovery = new PluginDiscovery(DiscoveryLocation);
+        _pluginDiscovery = new PluginDiscovery(DiscoveryLocation, _pluginStateController);
         _upgradeLocation = new UpdateDiscoveryLocation();
         _upgradeDiscovery = new UpdateDiscovery(UpgradeLocation, DiscoveryLocation);
         _services = services;
@@ -73,6 +85,7 @@ public class Bootstraper : IBootstrap, IDisposable
         }
         PluginDiscovery.Commit_All();
         _activePlugins = PluginDiscovery.LoadedPlugins.Select(p => BindController(p, webApp, MasterSp)).ToList();
+        FailedPlugins = _pluginDiscovery.BootstrapState.Where(p => p.Failure != default).ToDictionary(p => p.Manifest.Id, p => p.Failure!, StringComparer.OrdinalIgnoreCase);
 
         // Set Assembly for Blazor
         _additionalAssemblies =
@@ -158,4 +171,7 @@ public class Bootstraper : IBootstrap, IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    public IPluginLifespanController GetById(string id) => ActivePlugins.Single(p => p.Manifest.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+    public IPluginLifespanController? GetByIdOrDefault(string id) => ActivePlugins.SingleOrDefault(p => p.Manifest.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
 }

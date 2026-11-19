@@ -1,9 +1,10 @@
 using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Plugin;
+using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Logging;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Web.Boostrap.Plugin;
+
 using LunaticPanel.Engine.Web.Bootstraper.Discovery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System;
 
-namespace LunaticPanel.Engine.Web.Bootstraper.Configurator;
+namespace LunaticPanel.Engine.Web.Bootstraper.Engine;
 
 public class PluginLifespanController : IPluginLifespanController
 {
@@ -33,7 +34,8 @@ public class PluginLifespanController : IPluginLifespanController
     public string PluginVarDir { get; }
     public string AssetStaticDir { get; }
     public string AssetDynamicDir { get; }
-
+    private UnixFileMode _publicReadPermission = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
     public PluginLifespanController(IPluginReference pluginReference,
         IPluginDiscoveryLocator pluginDiscoveryLocation,
         IPluginDiscovery pluginDiscovery,
@@ -56,9 +58,9 @@ public class PluginLifespanController : IPluginLifespanController
         _hostPluginServices = hostPluginServices;
 
         PluginDir = Path.Combine(_pluginDiscoveryLocation.PluginLifecycleRuntimeLocation, Manifest.FolderId);
-        AssetStaticDir = EnsureCreatedPublicRead(Path.Combine(PluginDir, "wwwroot"));
-        PluginVarDir = PathCombine("var", "lib", "lunaticpanel", "plugins", Manifest.FolderId);
-        AssetDynamicDir = EnsureCreatedPublicRead(Path.Combine(PluginVarDir, "wwwroot"));
+        AssetStaticDir = Pathf.CombineEnsureCreated(_publicReadPermission, PluginDir, "wwwroot");
+        PluginVarDir = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", "plugins", Manifest.FolderId);
+        AssetDynamicDir = Pathf.CombineEnsureCreated(_publicReadPermission, PluginVarDir, "wwwroot");
 
         Configure();
     }
@@ -66,27 +68,7 @@ public class PluginLifespanController : IPluginLifespanController
     {
 
     }
-    private string EnsureCreatedPublicRead(string path)
-    {
-        if (!Directory.Exists(path))
-            if (OperatingSystem.IsLinux())
-                Directory.CreateDirectory(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                    UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
-            else
-                Directory.CreateDirectory(path);
-        return path;
-    }
-    private string PathCombine(params string[] parts)
-    {
-        string path = Path.Combine([$"{Path.DirectorySeparatorChar}", .. parts]);
-        if (OperatingSystem.IsWindows()) // Note: This is only for testing esp unit tests.. fallback normally as targeted linux.
-        {
-            path = Path.Combine([Path.GetTempPath(), "lunaticpanel", "linux", .. parts]);
-        }
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-        return path;
-    }
+
     public void ConfigureStaticAssets()
     {
         var dynamicContentOption = new StaticFileOptions

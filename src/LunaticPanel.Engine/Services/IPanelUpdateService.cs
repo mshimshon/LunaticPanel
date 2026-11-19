@@ -1,5 +1,5 @@
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Web.Boostrap.Plugin;
+
 using NuGet.Versioning;
 using System;
 

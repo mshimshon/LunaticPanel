@@ -1,6 +1,6 @@
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Web.Boostrap.Plugin;
+
 using System;
 
 namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
@@ -16,32 +16,8 @@ public class UpdateDiscoveryLocation : IUpdateDiscoveryLocator
     public string RuntimeBackupRoot { get; private set; } = default!;
     public string UpgradePluginCache { get; private set; } = default!;
 
-    internal string PathCombine(params string[] parts)
-    {
-        string path = Path.Combine([$"{Path.DirectorySeparatorChar}", .. parts]);
-        // Note: This is only for testing esp unit tests.. fallback normally as targeted linux.
-        if (OperatingSystem.IsWindows())
-        {
-            path = Path.Combine([Path.GetTempPath(), "lunaticpanel", "linux", .. parts]);
-        }
-        EnsureCreate(path);
-        return path;
-    }
 
-    internal string EnsureCreate(params string[] parts)
-    {
-        string path = Path.Combine(parts);
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-        return path;
-    }
 
-    internal string EnsureCreate(string path)
-    {
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-        return path;
-    }
 
     public UpdateDiscoveryLocation()
     {
@@ -49,15 +25,15 @@ public class UpdateDiscoveryLocation : IUpdateDiscoveryLocator
     }
     public void Initialize()
     {
-        BinaryPathRoot = PathCombine("srv", "lunaticpanel");
-        VarLibRoot = PathCombine("var", "lib", "lunaticpanel");
-        UpgradeRoot = EnsureCreate(VarLibRoot, ".upgrade");
+        BinaryPathRoot = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel");
+        VarLibRoot = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel");
+        UpgradeRoot = Pathf.CombineEnsureCreated(VarLibRoot, ".upgrade");
 
-        UpgradePluginCache = EnsureCreate(UpgradeRoot, "plugins");
-        UpgradeReadyApply = EnsureCreate(UpgradeRoot, "apply");
-        UpgradePluginInstalled = EnsureCreate(UpgradeRoot, "apply", "installed");
-        UpgradePluginPreinstalled = EnsureCreate(UpgradeRoot, "apply", "preinstalled");
-        RuntimeBackupRoot = PathCombine("lunaticpanel", "upgrade_backup");
+        UpgradePluginCache = Pathf.CombineEnsureCreated(UpgradeRoot, "plugins");
+        UpgradeReadyApply = Pathf.CombineEnsureCreated(UpgradeRoot, "apply");
+        UpgradePluginInstalled = Pathf.CombineEnsureCreated(UpgradeRoot, "apply", "installed");
+        UpgradePluginPreinstalled = Pathf.CombineEnsureCreated(UpgradeRoot, "apply", "preinstalled");
+        RuntimeBackupRoot = Pathf.CombineEnsureCreated(VarLibRoot, "upgrade_backup");
     }
 
 

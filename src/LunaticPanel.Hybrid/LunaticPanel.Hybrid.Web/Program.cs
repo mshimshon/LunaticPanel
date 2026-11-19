@@ -1,6 +1,6 @@
 using LunaticPanel.Engine.Web;
-using LunaticPanel.Engine.Web.Boostrap;
 using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Web.Bootstraper.Engine;
 using MudBlazor;
 using System.Diagnostics;
 using App = LunaticPanel.Hybrid.Web.App;
@@ -51,7 +51,7 @@ app.UseAntiforgery();
 app.UseStatusCodePagesWithRedirects("/errors/{0}");
 app.MapRazorComponents<App>()
 .AddInteractiveServerRenderMode()
-.AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
+.AddAdditionalAssemblies([.. boostraper.AdditionalAssemblies]);
 
 
 

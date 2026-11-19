@@ -78,8 +78,9 @@ public abstract class PluginBase : IPlugin
     /// 2. Remove if available from Self Available Key List and Return the new list.
     /// disabling handlers for external events has no ramification for others only for ourselves
     /// </summary>
-    protected void DisableBusFeature(MessageKey key)
+    protected void DisableBusFeature(string fullname)
     {
+        MessageKey key = MessageKey.Create(fullname);
         _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors.Where(p => !key.SameAs(p.Key)).ToList();
         lock (_pluginKeysLock)
         {

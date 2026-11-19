@@ -1,7 +1,6 @@
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using LunaticPanel.Engine.Web.Services;
 using NuGet.Versioning;
 using System;
@@ -14,6 +13,7 @@ namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
 public class PluginDiscovery : IPluginDiscovery, IDisposable
 {
     internal readonly IPluginDiscoveryLocator _locator;
+    private readonly IPluginStateController _pluginStateController;
     internal List<IPluginReference> _loadedPlugins = new();
     internal List<BootstrapStatusEntity> _bootstrapState = new();
     internal List<PluginManifestEntity> _preInstalled = new();
@@ -34,33 +34,15 @@ public class PluginDiscovery : IPluginDiscovery, IDisposable
     public IReadOnlyList<PluginManifestEntity> Delete => _delete;
     public IReadOnlyList<PluginManifestEntity> Rollbacks => _rollbacks;
 
-    public PluginDiscovery(IPluginDiscoveryLocator locator)
+    internal PluginDiscovery(IPluginDiscoveryLocator locator, IPluginStateController pluginStateController)
     {
         _locator = locator;
+        _pluginStateController = pluginStateController;
         var version = typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion!;
         _currentPanelVersion = NuGetVersion.Parse(version);
     }
 
 
-    internal void LoadBootstrapState()
-    {
-        var filename = IBootstrapFileController.bootstrapFile;
-        var bootstrapFile = Path.Combine(_locator.PluginBootstrapStateLocation, filename);
-        if (File.Exists(filename))
-        {
-            var json = File.ReadAllText(bootstrapFile);
-            _bootstrapState = JsonSerializer.Deserialize<List<BootstrapStatusEntity>>(json)!;
-        }
-
-    }
-
-    internal void SaveBootstrapState()
-    {
-        var filename = IBootstrapFileController.bootstrapFile;
-        var bootstrapFile = Path.Combine(_locator.PluginBootstrapStateLocation, filename);
-        var json = JsonSerializer.Serialize(_bootstrapState)!;
-        File.WriteAllText(bootstrapFile, json, Encoding.UTF8);
-    }
 
     public void Commit_All()
     {
@@ -295,7 +277,7 @@ public class PluginDiscovery : IPluginDiscovery, IDisposable
 
     public void Load_Runtime()
     {
-        LoadBootstrapState();
+        _bootstrapState = _pluginStateController.LoadFile().GetAwaiter().GetResult();
         foreach (var toLoad in _runtimeTargets)
         {
             var runtimeManifestFile = Path.Combine(toLoad, "manifest.json");
@@ -323,7 +305,7 @@ public class PluginDiscovery : IPluginDiscovery, IDisposable
                 continue;
             }
         }
-        SaveBootstrapState();
+        _pluginStateController.SaveAsync(_bootstrapState).GetAwaiter().GetResult();
     }
 
     protected virtual void Dispose(bool disposing)

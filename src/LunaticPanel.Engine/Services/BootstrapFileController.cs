@@ -1,6 +1,6 @@
-﻿using LunaticPanel.Core.Utils.Abstraction.IO;
-using LunaticPanel.Engine.Domain.Plugin.Enums;
-using LunaticPanel.Engine.Web.Boostrap;
+﻿using LunaticPanel.Core.Extensions;
+using LunaticPanel.Core.Utils.Abstraction.IO;
+using LunaticPanel.Engine.Web.Bootstraper;
 using System.Text.Json;
 
 namespace LunaticPanel.Engine.Web.Services;
@@ -8,24 +8,26 @@ namespace LunaticPanel.Engine.Web.Services;
 internal class BootstrapFileController : IBootstrapFileController
 {
     private readonly IAtomicFileSystem _atomicFileSystem;
-    private readonly string _bootstrapLocation = Path.Combine(Bootstrap.ConfigDirectory, IBootstrapFileController.bootstrapFile);
+    private readonly string _bootstrapLocation;
+
 
     public BootstrapFileController(IAtomicFileSystem AtomicFileSystem)
     {
+        _bootstrapLocation = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", IBootstrapFileController.BootstrapFilename);
         _atomicFileSystem = AtomicFileSystem;
     }
     public async Task DisablePlugin(string id, CancellationToken ct = default)
-        => await UpdateStateAsync(id, PluginStartupState.Disabled, ct);
+        => await UpdateStateAsync(id, BootstrapStartupState.Disabled, ct);
     public async Task EnablePlugin(string id, CancellationToken ct = default)
-        => await UpdateStateAsync(id, PluginStartupState.Enabled, ct);
-    public async Task<BootstrapConfiguration> LoadFile(CancellationToken ct)
+        => await UpdateStateAsync(id, BootstrapStartupState.Enabled, ct);
+    public async Task<List<BootstrapStatusEntity>> LoadFile(CancellationToken ct)
     {
         FileStream? fs = await WaitForLockAsync(_bootstrapLocation, ct);
         using StreamReader reader = new StreamReader(fs);
-        var json = await File.ReadAllTextAsync(_bootstrapLocation, ct);
+        var json = await _atomicFileSystem.ReadAllTextAsync(_bootstrapLocation, ct);
         reader.Close();
         fs.Close();
-        return JsonSerializer.Deserialize<BootstrapConfiguration>(json)!;
+        return JsonSerializer.Deserialize<List<BootstrapStatusEntity>>(json)!;
     }
 
     private async Task<FileStream> WaitForLockAsync(string file, CancellationToken ct = default)
@@ -50,31 +52,19 @@ internal class BootstrapFileController : IBootstrapFileController
             }
         }
     }
-    private async Task UpdateStateAsync(string id, PluginStartupState startupState, CancellationToken ct = default)
+    private async Task UpdateStateAsync(string id, BootstrapStartupState startupState, CancellationToken ct = default)
     {
         await _atomicFileSystem.WriteAtomicAsync(_bootstrapLocation, p =>
         {
-            var bootstrap = JsonSerializer.Deserialize<BootstrapConfiguration>(p)!;
-            var knownPlugins = bootstrap.KnownPlugins.ToList();
-            var entity = knownPlugins.FirstOrDefault(p => p.Entity.Identity.PackageId == id);
+            var knownPlugins = JsonSerializer.Deserialize<List<BootstrapStatusEntity>>(p)!;
+            var entity = knownPlugins.FirstOrDefault(p => p.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
             if (entity == default) return p;
             knownPlugins.Remove(entity);
             knownPlugins.Add(entity with
             {
-                Entity = entity.Entity with
-                {
-                    Lifecycle = entity.Entity.Lifecycle with
-                    {
-                        StartupState = startupState
-                    }
-                }
+                StartupState = startupState
             });
-            bootstrap = bootstrap with
-            {
-                KnownPlugins = knownPlugins
-            };
-            return JsonSerializer.Serialize(bootstrap)!;
-
+            return JsonSerializer.Serialize(knownPlugins)!;
         });
     }
 }

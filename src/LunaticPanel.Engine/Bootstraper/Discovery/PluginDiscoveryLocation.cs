@@ -1,6 +1,5 @@
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Web.Boostrap.Plugin;
 using System;
 
 namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
@@ -17,19 +16,6 @@ public class PluginDiscoveryLocation : IPluginDiscoveryLocator
     public string PluginLifecycleDeleteLocation { get; private set; } = default!;
     public string PluginLifecycleRollbackLocation { get; private set; } = default!;
     public string PluginLifecycleInstalledLocation { get; private set; } = default!;
-    internal string PathCombine(params string[] parts)
-    {
-        string path = Path.Combine([$"{Path.DirectorySeparatorChar}", .. parts]);
-        // Note: This is only for testing esp unit tests.. fallback normally as targeted linux.
-        if (OperatingSystem.IsWindows())
-        {
-            path = Path.Combine([Path.GetTempPath(), "lunaticpanel", "linux", .. parts]);
-        }
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-        return path;
-    }
-
     public PluginDiscoveryLocation()
     {
 
@@ -37,15 +23,15 @@ public class PluginDiscoveryLocation : IPluginDiscoveryLocator
     }
     public void Initialize()
     {
-        string baseLoc = Path.Combine("var", "lib", "lunaticpanel", ".plugins");
-        PluginLifecycleLocation = PathCombine(baseLoc);
-        PluginLifecyclePreInstalledLocation = PathCombine("srv", "lunaticpanel", "plugins");
-        PluginBootstrapStateLocation = PathCombine("var", "lib", "lunaticpanel", "config");
-        PluginLifecycleRuntimeLocation = PathCombine(baseLoc, "runtime");
-        PluginLifecycleApplyLocation = PathCombine(baseLoc, "apply");
-        PluginLifecycleDeleteLocation = PathCombine(baseLoc, "delete");
-        PluginLifecycleRollbackLocation = PathCombine(baseLoc, "rollbacks");
-        PluginLifecycleInstalledLocation = PathCombine(baseLoc, "installed");
+        string baseLoc = Path.Combine(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", ".plugins");
+        PluginLifecycleLocation = Pathf.CombineEnsureCreated(baseLoc);
+        PluginLifecyclePreInstalledLocation = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel", "plugins");
+        PluginBootstrapStateLocation = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", "config");
+        PluginLifecycleRuntimeLocation = Pathf.CombineEnsureCreated(baseLoc, "runtime");
+        PluginLifecycleApplyLocation = Pathf.CombineEnsureCreated(baseLoc, "apply");
+        PluginLifecycleDeleteLocation = Pathf.CombineEnsureCreated(baseLoc, "delete");
+        PluginLifecycleRollbackLocation = Pathf.CombineEnsureCreated(baseLoc, "rollbacks");
+        PluginLifecycleInstalledLocation = Pathf.CombineEnsureCreated(baseLoc, "installed");
     }
 
 

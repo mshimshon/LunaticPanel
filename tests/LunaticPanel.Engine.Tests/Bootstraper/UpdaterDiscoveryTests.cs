@@ -2,7 +2,7 @@ using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Tests.Extensions;
-using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Web.Bootstraper.Engine;
 using LunaticPanel.Engine.Web.Bootstraper.Discovery;
 using NuGet.Versioning;
 using System;
@@ -18,23 +18,13 @@ public class UpdaterDiscoveryTests : IDisposable
     private readonly UpdateDiscovery _updateDiscovery;
     private readonly PluginDiscoveryLocation _pluginDiscoveryLocation;
     private readonly UpdateDiscoveryLocation _updateDiscoveryLocation;
-    private readonly string _tmpRoot;
     private bool _disposedValue;
-
+    private string _fakePanelRoot = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "tmp", "lunaticpanel", "xunit", "fakePanel");
     public UpdaterDiscoveryTests()
     {
 
         _updateDiscoveryLocation = new UpdateDiscoveryLocation();
-        if (OperatingSystem.IsLinux())
-            _tmpRoot = $"{Path.DirectorySeparatorChar}";
-        else
-        {
-            _tmpRoot = Path.Combine(Path.GetTempPath(), "lunaticpanel", "linux");
-            if (Directory.Exists(_tmpRoot))
-            {
-                Directory.Delete(_tmpRoot, true);
-            }
-        }
+
         _updateDiscoveryLocation.Initialize();
         _pluginDiscoveryLocation = new PluginDiscoveryLocation();
         _pluginDiscoveryLocation.Initialize();
@@ -50,18 +40,17 @@ public class UpdaterDiscoveryTests : IDisposable
         var filename1 = Path.GetFileName(file1);
         var file2 = Path.GetTempFileName();
         var filename2 = Path.GetFileName(file2);
-        var panel = Path.Combine(_tmpRoot, "fakePanel");
-        Directory.CreateDirectory(panel);
-        File.Move(file1, Path.Combine(panel, filename1));
+
+        File.Move(file1, Pathf.Combine(_fakePanelRoot, filename1));
 
         // Simulate Content for Existing Panel
         PackageExt.CreateFakePackage("My.Plugin2", "whatever", "1.0.0", "10.0.0", _pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
-        File.Move(file2, Path.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2));
+        File.Move(file2, Pathf.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2));
 
-        var panelFile = Path.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
-        await ArchiveUtilityExt.PackTarGz(panel, panelFile);
+        var panelFile = Pathf.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
+        await ArchiveUtilityExt.PackTarGz(_fakePanelRoot, panelFile);
         // Create Version File Mark
-        var version = Path.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "version.txt");
+        var version = Pathf.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "version.txt");
         File.WriteAllText(version, "1.0.0");
         var mark1 = Path.GetTempFileName();
         File.Copy(mark1, _updateDiscovery.AccessBinMark);
@@ -109,18 +98,16 @@ public class UpdaterDiscoveryTests : IDisposable
         var filename1 = Path.GetFileName(file1);
         var file2 = Path.GetTempFileName();
         var filename2 = Path.GetFileName(file2);
-        var panel = Path.Combine(_tmpRoot, "fakePanel");
-        Directory.CreateDirectory(panel);
-        File.Move(file1, Path.Combine(panel, filename1));
+        File.Move(file1, Pathf.Combine(_fakePanelRoot, filename1));
 
         // Simulate Content for Existing Panel
         PackageExt.CreateFakePackage("My.Plugin2", "whatever", "1.0.0-beta.1", "10.0.0", _pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
-        File.Move(file2, Path.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2));
+        File.Move(file2, Pathf.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2));
 
-        var panelFile = Path.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
-        await ArchiveUtilityExt.PackTarGz(panel, panelFile, TestContext.Current.CancellationToken);
+        var panelFile = Pathf.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
+        await ArchiveUtilityExt.PackTarGz(_fakePanelRoot, panelFile, TestContext.Current.CancellationToken);
         // Create Version File Mark
-        var version = Path.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "version.txt");
+        var version = Pathf.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "version.txt");
         File.WriteAllText(version, "1.0.0");
         var mark1 = Path.GetTempFileName();
         File.Copy(mark1, _updateDiscovery.AccessBinMark);
@@ -131,10 +118,10 @@ public class UpdaterDiscoveryTests : IDisposable
         var userInstalled = PackageExt.CreateFakePackage("My.Plugin", "whatever", "1.0.0", "10.0.0", _updateDiscoveryLocation.UpgradePluginInstalled);
         await _updateDiscovery.StartUpgrade();
 
-        var expectedInstalledFile = Path.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename1);
-        var expectedPreInstalledPlugin = Path.Combine(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation, preinstalled.PackageFileName);
-        var expectedApplyPlugin1 = Path.Combine(_pluginDiscoveryLocation.PluginLifecycleApplyLocation, preinstalled.PackageFileName);
-        var expectedApplyPlugin2 = Path.Combine(_pluginDiscoveryLocation.PluginLifecycleApplyLocation, userInstalled.PackageFileName);
+        var expectedInstalledFile = Pathf.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename1);
+        var expectedPreInstalledPlugin = Pathf.Combine(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation, preinstalled.PackageFileName);
+        var expectedApplyPlugin1 = Pathf.Combine(_pluginDiscoveryLocation.PluginLifecycleApplyLocation, preinstalled.PackageFileName);
+        var expectedApplyPlugin2 = Pathf.Combine(_pluginDiscoveryLocation.PluginLifecycleApplyLocation, userInstalled.PackageFileName);
         Assert.True(File.Exists(expectedInstalledFile));
         Assert.True(File.Exists(expectedPreInstalledPlugin));
         Assert.True(File.Exists(expectedApplyPlugin1));
@@ -150,15 +137,15 @@ public class UpdaterDiscoveryTests : IDisposable
 
         // Simulate Content for Existing Panel
         var plugin0 = PackageExt.CreateFakePackage("My.Plugin2", "whatever", "1.0.0-beta.1", "10.0.0", _pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
-        File.Move(file2, Path.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2));
+        File.Move(file2, Pathf.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2));
         var plugin1 = PackageExt.CreateFakePackage("My.Plugin2", "whatever", "1.0.0", "10.0.0", _pluginDiscoveryLocation.PluginLifecycleInstalledLocation);
 
 
         await _updateDiscovery.BackUpCurrentPanel();
 
-        var expectedInstalledPlugin = Path.Combine(_pluginDiscoveryLocation.PluginLifecycleInstalledLocation, plugin1.PackageFileName);
-        var expectedPreInstalledPlugin = Path.Combine(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation, plugin0.PackageFileName);
-        var expectedBinFile = Path.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2);
+        var expectedInstalledPlugin = Pathf.Combine(_pluginDiscoveryLocation.PluginLifecycleInstalledLocation, plugin1.PackageFileName);
+        var expectedPreInstalledPlugin = Pathf.Combine(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation, plugin0.PackageFileName);
+        var expectedBinFile = Pathf.Combine(_updateDiscoveryLocation.BinaryPathRoot, filename2);
         Assert.True(File.Exists(expectedInstalledPlugin));
         Assert.True(File.Exists(expectedPreInstalledPlugin));
         Assert.True(File.Exists(expectedBinFile));
@@ -179,22 +166,23 @@ public class UpdaterDiscoveryTests : IDisposable
     [Fact]
     public void UpgradeFileLocations_ShouldPass()
     {
-        var expectedBinary = Path.Combine(_tmpRoot, "srv", "lunaticpanel");
-        var expectedVarLibRoot = Path.Combine(_tmpRoot, "var", "lib", "lunaticpanel");
-        var expectedPluginRoot = Path.Combine(expectedVarLibRoot, ".plugins");
-        var expectedUpgradeRoot = Path.Combine(expectedVarLibRoot, ".upgrade");
-        var expectedUpgradeReadyApply = Path.Combine(expectedUpgradeRoot, "apply");
 
-        var expectedUpgradeMarkerFile = Path.Combine(expectedUpgradeReadyApply, "version.txt");
+        var expectedBinary = Pathf.Combine(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel");
+        var expectedVarLibRoot = Pathf.Combine(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel");
+        var expectedPluginRoot = Pathf.Combine(expectedVarLibRoot, ".plugins");
+        var expectedUpgradeRoot = Pathf.Combine(expectedVarLibRoot, ".upgrade");
+        var expectedUpgradeReadyApply = Pathf.Combine(expectedUpgradeRoot, "apply");
+
+        var expectedUpgradeMarkerFile = Pathf.Combine(expectedUpgradeReadyApply, "version.txt");
         Assert.Equal(expectedUpgradeMarkerFile, _updateDiscovery.UpgradeMarkerFile);
 
-        var expectedAccessBinMark = Path.Combine(expectedBinary, "access.test");
+        var expectedAccessBinMark = Pathf.Combine(expectedBinary, "access.test");
         Assert.Equal(expectedAccessBinMark, _updateDiscovery.AccessBinMark);
 
-        var expectedAccessUpgradeRootAccessMark = Path.Combine(expectedUpgradeRoot, "access.test");
+        var expectedAccessUpgradeRootAccessMark = Pathf.Combine(expectedUpgradeRoot, "access.test");
         Assert.Equal(expectedAccessUpgradeRootAccessMark, _updateDiscovery.AccessUpgradeRootAccessMark);
 
-        var expectedAccessPluginRootMark = Path.Combine(expectedPluginRoot, "access.test");
+        var expectedAccessPluginRootMark = Pathf.Combine(expectedPluginRoot, "access.test");
         Assert.Equal(expectedAccessPluginRootMark, _updateDiscovery.AccessPluginRootMark);
 
     }
@@ -202,28 +190,28 @@ public class UpdaterDiscoveryTests : IDisposable
     [Fact]
     public void TargetFolderLocations_ShouldPass()
     {
-        var expectedBinary = Path.Combine(_tmpRoot, "srv", "lunaticpanel");
+        var expectedBinary = Pathf.Combine(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel");
         Assert.Equal(expectedBinary, _updateDiscoveryLocation.BinaryPathRoot);
 
-        var expectedVarLibRoot = Path.Combine(_tmpRoot, "var", "lib", "lunaticpanel");
+        var expectedVarLibRoot = Pathf.Combine(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel");
         Assert.Equal(expectedVarLibRoot, _updateDiscoveryLocation.VarLibRoot);
 
-        var expectedUpgradeRoot = Path.Combine(expectedVarLibRoot, ".upgrade");
+        var expectedUpgradeRoot = Pathf.Combine(expectedVarLibRoot, ".upgrade");
         Assert.Equal(expectedUpgradeRoot, _updateDiscoveryLocation.UpgradeRoot);
 
-        var expectedUpgradePluginCache = Path.Combine(expectedUpgradeRoot, "plugins");
+        var expectedUpgradePluginCache = Pathf.Combine(expectedUpgradeRoot, "plugins");
         Assert.Equal(expectedUpgradePluginCache, _updateDiscoveryLocation.UpgradePluginCache);
 
-        var expectedUpgradePluginInstalled = Path.Combine(expectedUpgradeRoot, "apply", "installed");
+        var expectedUpgradePluginInstalled = Pathf.Combine(expectedUpgradeRoot, "apply", "installed");
         Assert.Equal(expectedUpgradePluginInstalled, _updateDiscoveryLocation.UpgradePluginInstalled);
 
-        var expectedUpgradePluginPreinstalled = Path.Combine(expectedUpgradeRoot, "apply", "preinstalled");
+        var expectedUpgradePluginPreinstalled = Pathf.Combine(expectedUpgradeRoot, "apply", "preinstalled");
         Assert.Equal(expectedUpgradePluginPreinstalled, _updateDiscoveryLocation.UpgradePluginPreinstalled);
 
-        var expectedUpgradeReadyApply = Path.Combine(expectedUpgradeRoot, "apply");
+        var expectedUpgradeReadyApply = Pathf.Combine(expectedUpgradeRoot, "apply");
         Assert.Equal(expectedUpgradeReadyApply, _updateDiscoveryLocation.UpgradeReadyApply);
 
-        var expectedRuntimeBackupRoot = Path.Combine(_tmpRoot, "lunaticpanel", "upgrade_backup");
+        var expectedRuntimeBackupRoot = Pathf.Combine(expectedVarLibRoot, "upgrade_backup");
         Assert.Equal(expectedRuntimeBackupRoot, _updateDiscoveryLocation.RuntimeBackupRoot);
     }
 
