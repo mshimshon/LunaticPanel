@@ -2,6 +2,7 @@
 
 using McMaster.NETCore.Plugins;
 using NuGet.Versioning;
+using System.ComponentModel;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
@@ -80,6 +81,14 @@ public static class PluginScannerExt
            );
             var pluginLoaderInfo = new PluginReferenceEntity(manifest, permanentLoader);
             pluginLoaderInfo.Load();
+            // Perform Internal Blazor Validation
+            var validationResult = pluginLoaderInfo.Entry.PerformValidation();
+            if (validationResult.Any(p => !p.Passed))
+            {
+                foreach (var error in validationResult.Where(p => !p.Passed).SelectMany(p => p.Errors!))
+                    System.Console.WriteLine($"[ERROR]::{error.Origin} :: {error.Message}");
+                throw new Exception("Plugin Internal Validation Failure, See log.");
+            }
             return pluginLoaderInfo;
         }
         catch (Exception)

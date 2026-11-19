@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Diagnostic.Messages;
+using LunaticPanel.Core.Abstraction.Messaging.Common;
 using Microsoft.Extensions.Configuration;
 
 namespace LunaticPanel.Core.Abstraction.Plugin;
@@ -12,7 +13,7 @@ public interface IPlugin : IPluginInfo
     void OnCircuitEnd(CircuitIdentity circuit);
     IPluginContextService GetContext(Guid circuitId);
     void AddHostRedirectedServices(params HostRedirectionService[] serviceTypes);
-    IReadOnlyList<string> CheckDependencyGracefully(Func<string, bool> isBusAvailable);
+    IReadOnlyList<MessageKey> CheckDependencyGracefully(Func<string, bool> isBusAvailable);
 
     IReadOnlyCollection<PluginValidationResult> PerformValidation();
 

@@ -1,4 +1,6 @@
+using LunaticPanel.Engine.Web;
 using LunaticPanel.Engine.Web.Boostrap;
+using LunaticPanel.Engine.Web.Bootstraper;
 using MudBlazor;
 using System.Diagnostics;
 using App = LunaticPanel.Hybrid.Web.App;
@@ -22,17 +24,20 @@ if (waitForDebugger)
     Debugger.Break();
 
 }
+
 builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddCircuitOptions(o => o.DetailedErrors = true);
 builder.WebHost.UseKestrel();
 builder.Services.AddHttpContextAccessor();
 
-await Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
-
+IBootstrap boostraper = builder.BuildBootstrap();
 WebApplication app = builder.Build();
 
+await boostraper.SetupAsync(app, app.Services);
 app.UseStaticFiles();
 app.MapStaticAssets();
-await Bootstrap.BootstrapRunAsync(app, app.Services, app.Configuration);
+await boostraper.RunAsync(app.Services);
+
+// await Bootstrap.BootstrapRunAsync(app, app.Services, app.Configuration);
 
 if (!app.Environment.IsDevelopment())
 {

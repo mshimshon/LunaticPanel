@@ -26,7 +26,7 @@ public class PluginDiscoveryTests : IDisposable
     {
 
         _pluginDiscoveryLocation = new PluginDiscoveryLocation();
-        if (_pluginDiscoveryLocation.IsLinux)
+        if (!OperatingSystem.IsWindows())
             _tmpRoot = $"{Path.DirectorySeparatorChar}";
 
         else

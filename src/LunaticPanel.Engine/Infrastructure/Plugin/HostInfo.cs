@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Core.Abstraction.Plugin;
+﻿using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys;
 
@@ -8,11 +9,11 @@ internal class HostInfo : IPluginInfo
 {
     public string PluginId => "LunaticPanel";
 
-    public IReadOnlyList<string> Keys { get; }
+    public IReadOnlyList<MessageKey> Keys { get; }
     public HostInfo()
     {
-        var keys = typeof(LPEngineKeys).Assembly.ScanKeyPackageForKeys().Select(p => p.ToLower()).ToList();
-        Console.WriteLine("HOSTINFO -> " + string.Join(',', keys));
+        var keys = typeof(LPEngineKeys).Assembly.ScanKeyPackageForKeys().ToList();
+        Console.WriteLine("HOSTINFO -> " + string.Join(',', keys.Select(p => p.ToString())));
         Keys = keys;
     }
 }

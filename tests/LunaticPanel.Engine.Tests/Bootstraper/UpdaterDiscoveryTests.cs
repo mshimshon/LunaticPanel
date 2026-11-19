@@ -25,7 +25,7 @@ public class UpdaterDiscoveryTests : IDisposable
     {
 
         _updateDiscoveryLocation = new UpdateDiscoveryLocation();
-        if (_updateDiscoveryLocation.IsLinux)
+        if (OperatingSystem.IsLinux())
             _tmpRoot = $"{Path.DirectorySeparatorChar}";
         else
         {

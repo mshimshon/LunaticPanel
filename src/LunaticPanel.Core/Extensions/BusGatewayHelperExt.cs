@@ -15,5 +15,5 @@ internal static class BusGatewayHelperExt
        CheckIfInternalId("querykey", busMessage.GetKey(), pluginId);
 
     public static bool IsTargetInternalKeyRegistered(this IPluginInfo pluginInfo, string id)
-        => pluginInfo.Keys.Contains(id.ToLower());
+        => pluginInfo.Keys.Contains(MessageKey.Create(id));
 }

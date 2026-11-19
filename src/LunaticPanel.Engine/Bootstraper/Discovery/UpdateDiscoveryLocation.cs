@@ -5,7 +5,7 @@ using System;
 
 namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
 
-public class UpdateDiscoveryLocation
+public class UpdateDiscoveryLocation : IUpdateDiscoveryLocator
 {
     public string BinaryPathRoot { get; private set; } = default!;
     public string VarLibRoot { get; private set; } = default!;
@@ -16,12 +16,11 @@ public class UpdateDiscoveryLocation
     public string RuntimeBackupRoot { get; private set; } = default!;
     public string UpgradePluginCache { get; private set; } = default!;
 
-    public bool IsLinux => OperatingSystem.IsLinux();
-    public bool IsWindows => OperatingSystem.IsWindows();
     internal string PathCombine(params string[] parts)
     {
         string path = Path.Combine([$"{Path.DirectorySeparatorChar}", .. parts]);
-        if (IsWindows)
+        // Note: This is only for testing esp unit tests.. fallback normally as targeted linux.
+        if (OperatingSystem.IsWindows())
         {
             path = Path.Combine([Path.GetTempPath(), "lunaticpanel", "linux", .. parts]);
         }

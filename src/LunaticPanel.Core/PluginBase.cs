@@ -52,9 +52,9 @@ public abstract class PluginBase : IPlugin
     protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
-    public IReadOnlyList<string> Keys { get; private set; } = new List<string>();
+    public IReadOnlyList<MessageKey> Keys { get; private set; } = new List<MessageKey>();
 
-    private readonly static Dictionary<string, List<string>> _pluginKeys = new(StringComparer.OrdinalIgnoreCase);
+    private readonly static Dictionary<string, List<MessageKey>> _pluginKeys = new(StringComparer.OrdinalIgnoreCase);
     private readonly static object _pluginKeysLock = new object();
     private bool _hasStarted;
     private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors = default!;
@@ -70,7 +70,7 @@ public abstract class PluginBase : IPlugin
     /// typeof(BaseInfo).Assembly.ScanKeyPackageForKeys();
     /// </summary>
     /// <returns></returns>
-    public abstract string[] GetMyPackageKeys();
+    public abstract MessageKey[] GetMyPackageKeys();
 
     /// <summary>
     /// Two Parts
@@ -78,16 +78,14 @@ public abstract class PluginBase : IPlugin
     /// 2. Remove if available from Self Available Key List and Return the new list.
     /// disabling handlers for external events has no ramification for others only for ourselves
     /// </summary>
-    protected void DisableBusFeature(string key)
+    protected void DisableBusFeature(MessageKey key)
     {
-        _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors
-          .Where(p => !string.Equals(key, p.Key, StringComparison.OrdinalIgnoreCase))
-          .ToList();
+        _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors.Where(p => !key.SameAs(p.Key)).ToList();
         lock (_pluginKeysLock)
         {
             if (_pluginKeys.ContainsKey(PluginId))
             {
-                _pluginKeys[PluginId] = _pluginKeys[PluginId].Where(p => !string.Equals(key, p, StringComparison.OrdinalIgnoreCase)).ToList();
+                _pluginKeys[PluginId] = _pluginKeys[PluginId].Where(p => !key.SameAs(p)).ToList();
                 Keys = _pluginKeys[PluginId].AsReadOnly();
                 CrazyReportConsole.Report($"{PluginId} disabled feature {key}");
 
@@ -95,7 +93,7 @@ public abstract class PluginBase : IPlugin
         }
     }
 
-    public IReadOnlyList<string> CheckDependencyGracefully(Func<string, bool> isBusAvailable)
+    public IReadOnlyList<MessageKey> CheckDependencyGracefully(Func<string, bool> isBusAvailable)
     {
         CheckFeatureDegradation(isBusAvailable);
         return Keys;
@@ -296,7 +294,7 @@ public abstract class PluginBase : IPlugin
         {
             if (!_pluginKeys.ContainsKey(PluginId))
             {
-                var keys = GetMyPackageKeys().Select(p => p.ToLower()).ToList();
+                var keys = GetMyPackageKeys().ToList();
                 CrazyReportConsole.Report($"{PluginId} found {keys.Count} Bus Keys");
                 _pluginKeys[PluginId] = keys;
                 Keys = _pluginKeys[PluginId].AsReadOnly();
@@ -453,6 +451,7 @@ public abstract class PluginBase : IPlugin
     /// relies on additional Razor Class Libraries or other internal assemblies,
     /// they should be added to the returned array alongside the primary assembly.
     /// </summary>
+    [Obsolete("Only the IPlugin's implementing assembly is allow as additional assembly, unused")]
     protected virtual Assembly[] GetPluginInternalAssemblies() { return [GetType().Assembly]; }
 
     /// <summary>

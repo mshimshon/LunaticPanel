@@ -34,37 +34,38 @@ public static class Bootstrap
         LibraryLocation = "/srv";
         ConfigLocation = "/var/lib";
         // REBUILT
-        await ApplyPanelUpdate(); // Perform Pending Update of the panel
-        // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
-        DefinePath(configuration);
+        // await ApplyPanelUpdate(); // Perform Pending Update of the panel
+        // // ORDER MATTERS, IT AFFECTS PLUGIN DISABLING CAPABILITIES DURING BOOTUP.
+        // DefinePath(configuration);
 
-        DetectUpdates();
-        DetectDelete();
-        DetectRollbacks();
-        DetectInstalled();
-        ProcessDeletePlugins();
-        ProcessPreinstalledPlugins();
-        DetectRuntimePlugins(); // Check What's in the runtime folder.
-        RestoreMissingRuntimesFromInstalled();
-        ApplyUpdates(); // Add/Update plugins
-        DetectRuntimePlugins(); // Reload what's in the runtime folder.
-        DetectPlugins();
-        LoadConfiguration();
+        // DetectUpdates();
+        // DetectDelete();
+        // DetectRollbacks();
+        // DetectInstalled();
+        // ProcessDeletePlugins();
+        // ProcessPreinstalledPlugins();
+        // DetectRuntimePlugins(); // Check What's in the runtime folder.
+        // RestoreMissingRuntimesFromInstalled();
+        // ApplyUpdates(); // Add/Update plugins
+        // DetectRuntimePlugins(); // Reload what's in the runtime folder.
+        // DetectPlugins();
+        // LoadConfiguration();
 
 
-        services.AddLunaticPanelServices();
-        services.ProcessPlugins(configuration);
-        EnsurePluginValidatedBlazor();
-        SaveConfiguration();
+        // services.AddLunaticPanelServices(); // DONE
+        // services.ProcessPlugins(configuration);
+        // EnsurePluginValidatedBlazor(); // DONE
+        // SaveConfiguration();
 
 
     }
 
     private static async Task ConfigureActivePlugin(BootstrapPluginDescriptor plugin, WebApplication webApp, IServiceProvider masterSp, IConfiguration configuration, ICrazyReport crazyReport)
     {
+        // TODO: REVIEW
         var pluginRegistry = masterSp.GetRequiredService<IPluginRegistry>();
-
         pluginRegistry.Register(new(plugin.EntryPoint!, plugin.Entity));
+
         string linuxName = plugin.Entity.Identity.PackageId.Replace('.', '_').ToLower();
         string dynamicWwwRoot = $"/var/lib/lunaticpanel/plugins/{linuxName}/wwwroot";
         if (!Directory.Exists(dynamicWwwRoot) && OperatingSystem.IsLinux())
@@ -116,14 +117,11 @@ public static class Bootstrap
         do
         {
             restart = false;
-            var knownKeys = Configuration.ActivePlugins
-                .ToDictionary(p => p, p => p.EntryPoint!.Keys.Select(p => p.ToLower()));
-            var mergedKeys = Configuration.ActivePlugins
-                .SelectMany(p => p.EntryPoint!.Keys)
-                .Select(p => p.ToLower());
+            var knownKeys = Configuration.ActivePlugins.ToDictionary(p => p, p => p.EntryPoint!.Keys);
+            var mergedKeys = Configuration.ActivePlugins.SelectMany(p => p.EntryPoint!.Keys);
             foreach (BootstrapPluginDescriptor plugin in Configuration.ActivePlugins)
             {
-                var newKeys = plugin.EntryPoint!.CheckDependencyGracefully(p => mergedKeys.Contains(p.ToLower()));
+                var newKeys = plugin.EntryPoint!.CheckDependencyGracefully(p => mergedKeys.Any(x => x.SameAs(p)));
                 var cnt = newKeys.Count - knownKeys[plugin].Count();
                 restart = cnt != 0;
                 if (restart)

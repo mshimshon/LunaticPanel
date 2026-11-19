@@ -5,10 +5,10 @@ using System.Reflection;
 
 namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
 
-public class UpdateDiscovery
+public class UpdateDiscovery : IUpdateDiscovery
 {
-    private readonly UpdateDiscoveryLocation _updateDiscoveryLocation;
-    private readonly PluginDiscoveryLocation _pluginDiscoveryLocation;
+    private readonly IUpdateDiscoveryLocator _updateDiscoveryLocation;
+    private readonly IPluginDiscoveryLocator _pluginDiscoveryLocation;
     internal string _upgradeMarkerFile;
     public string UpgradeMarkerFile => _upgradeMarkerFile;
 
@@ -27,12 +27,14 @@ public class UpdateDiscovery
     public string AccessUpgradeRootAccessMark => _accessUpgradeRootAccessMark;
 
     internal string _accessPluginRootMark;
+    private bool _disposedValue;
+
     public string AccessPluginRootMark => _accessPluginRootMark;
     public NuGetVersion? UpgradeTo { get; set; }
 
     public UpdateDiscovery(
-        UpdateDiscoveryLocation updateDiscoveryLocation,
-        PluginDiscoveryLocation pluginDiscoveryLocation)
+        IUpdateDiscoveryLocator updateDiscoveryLocation,
+        IPluginDiscoveryLocator pluginDiscoveryLocation)
     {
         _updateDiscoveryLocation = updateDiscoveryLocation;
         _pluginDiscoveryLocation = pluginDiscoveryLocation;
@@ -261,4 +263,6 @@ public class UpdateDiscovery
         System.Console.WriteLine("Restore Success.".Green());
 
     }
+
+
 }

@@ -16,6 +16,7 @@ using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils;
 using LunaticPanel.Engine.Infrastructure;
+using LunaticPanel.Engine.Web.Bootstraper;
 using LunaticPanel.Engine.Web.Layout;
 using LunaticPanel.Engine.Web.Layout.Menu;
 using LunaticPanel.Engine.Web.Pages.Dashboard;
@@ -24,6 +25,7 @@ using LunaticPanel.Engine.Web.Services.Circuit;
 using LunaticPanel.Engine.Web.Services.PanelControl;
 using LunaticPanel.Engine.Web.Services.UpdateService;
 using MaksimShimshon.Mediator;
+using Microsoft.AspNetCore.Builder;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
@@ -35,6 +37,11 @@ public static class RegisterServicesExt
     private readonly static EventBusRegistry _eventBusRegistry = new();
     private readonly static EventScheduledBusRegistry _eventScheduledBusRegistry = new();
     private readonly static QueryBusRegistry _queryBusRegistry = new();
+    public static IBootstrap BuildBootstrap(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddLunaticPanelServices();
+        return new Bootstraper.Bootstraper(builder.Services, builder.Configuration);
+    }
     public static IServiceCollection AddLunaticPanelServices(this IServiceCollection services)
     {
         services.AddEngineInfrastructure();

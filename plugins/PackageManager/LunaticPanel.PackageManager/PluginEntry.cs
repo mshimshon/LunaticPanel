@@ -12,6 +12,7 @@ using LunaticPanel.PackageManager.Pages.ViewModels;
 using Microsoft.Extensions.Configuration;
 using StatePulse.Net;
 using LunaticPanel.PackageManager.Pulses.Actions;
+using LunaticPanel.Core.Abstraction.Messaging.Common;
 
 namespace LunaticPanel.PackageManager;
 /*
@@ -33,7 +34,7 @@ public class PluginEntry : PluginBase, IPlugin
 
     }
 
-    public override string[] GetMyPackageKeys()
+    public override MessageKey[] GetMyPackageKeys()
         => typeof(LPPackageManagerKeys).Assembly.ScanKeyPackageForKeys();
 
     protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)

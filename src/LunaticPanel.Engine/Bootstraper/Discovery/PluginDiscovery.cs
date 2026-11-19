@@ -11,9 +11,9 @@ using System.Text.Json;
 
 namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
 
-public class PluginDiscovery : IPluginDiscovery
+public class PluginDiscovery : IPluginDiscovery, IDisposable
 {
-    internal readonly PluginDiscoveryLocation _locator;
+    internal readonly IPluginDiscoveryLocator _locator;
     internal List<IPluginReference> _loadedPlugins = new();
     internal List<BootstrapStatusEntity> _bootstrapState = new();
     internal List<PluginManifestEntity> _preInstalled = new();
@@ -22,6 +22,7 @@ public class PluginDiscovery : IPluginDiscovery
     internal List<PluginManifestEntity> _installed = new();
     internal List<PluginManifestEntity> _delete = new();
     internal List<PluginManifestEntity> _rollbacks = new();
+    private bool _disposedValue;
     internal readonly NuGetVersion _currentPanelVersion;
 
     public IReadOnlyList<IPluginReference> LoadedPlugins => _loadedPlugins;
@@ -33,7 +34,7 @@ public class PluginDiscovery : IPluginDiscovery
     public IReadOnlyList<PluginManifestEntity> Delete => _delete;
     public IReadOnlyList<PluginManifestEntity> Rollbacks => _rollbacks;
 
-    public PluginDiscovery(PluginDiscoveryLocation locator)
+    public PluginDiscovery(IPluginDiscoveryLocator locator)
     {
         _locator = locator;
         var version = typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion!;
@@ -325,4 +326,39 @@ public class PluginDiscovery : IPluginDiscovery
         SaveBootstrapState();
     }
 
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                foreach (var item in _loadedPlugins)
+                    item.Unload();
+
+            }
+
+            _bootstrapState = new();
+            _preInstalled = new();
+            _runtimeTargets = new();
+            _toApplyUpdates = new();
+            _installed = new();
+            _delete = new();
+            _rollbacks = new();
+            _disposedValue = true;
+        }
+    }
+
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~PluginDiscovery()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 }

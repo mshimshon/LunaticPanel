@@ -5,8 +5,10 @@ using System;
 
 namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
 
-public class PluginDiscoveryLocation
+public class PluginDiscoveryLocation : IPluginDiscoveryLocator
 {
+
+
     public string PluginLifecycleLocation { get; private set; } = default!;
     public string PluginLifecyclePreInstalledLocation { get; private set; } = default!;
     public string PluginBootstrapStateLocation { get; private set; } = default!;
@@ -15,13 +17,11 @@ public class PluginDiscoveryLocation
     public string PluginLifecycleDeleteLocation { get; private set; } = default!;
     public string PluginLifecycleRollbackLocation { get; private set; } = default!;
     public string PluginLifecycleInstalledLocation { get; private set; } = default!;
-
-    public bool IsLinux => OperatingSystem.IsLinux();
-    public bool IsWindows => OperatingSystem.IsWindows();
     internal string PathCombine(params string[] parts)
     {
         string path = Path.Combine([$"{Path.DirectorySeparatorChar}", .. parts]);
-        if (IsWindows)
+        // Note: This is only for testing esp unit tests.. fallback normally as targeted linux.
+        if (OperatingSystem.IsWindows())
         {
             path = Path.Combine([Path.GetTempPath(), "lunaticpanel", "linux", .. parts]);
         }
