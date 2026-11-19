@@ -1,8 +1,8 @@
 ﻿using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Bootstraper;
 using System.Reflection.Metadata;
 
-namespace LunaticPanel.Engine.Web.Services;
+namespace LunaticPanel.Engine.Services;
 
 internal interface IBootstrapFileController
 {

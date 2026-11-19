@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Web.EntityModels.UI.Menu;
+namespace LunaticPanel.Engine.EntityModels.UI.Menu;
 
 internal sealed record MenuElementModel
 {

@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
-using LunaticPanel.Engine.Web.Extensions;
+using LunaticPanel.Engine.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
-namespace LunaticPanel.Engine.Web.Pages.Dashboard;
+namespace LunaticPanel.Engine.Pages.Dashboard;
 
 public partial class Dashboard : ComponentBase, IAsyncDisposable
 {

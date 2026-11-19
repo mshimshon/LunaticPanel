@@ -1,7 +1,7 @@
-﻿using LunaticPanel.Engine.Web.Services.PanelControl;
+﻿using LunaticPanel.Engine.Services.PanelControl;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Layout;
+namespace LunaticPanel.Engine.Layout;
 
 public class MainLayoutViewModel : IDisposable
 {

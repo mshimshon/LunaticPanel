@@ -1,5 +1,6 @@
 using LunaticPanel.DebugTool.Extensions;
 using LunaticPanel.DebugTool.Payloads;
+using NuGet.Versioning;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -176,6 +177,7 @@ internal sealed class DeploymentService
         foreach (var pp in Configuration.Compose.PostProcessing)
         {
 
+                NuGetVersion? ppVersion = pp.Version != default ? NuGetVersion.Parse(pp.Version) : default;
             string? finalizeFrom = string.Empty;
             string? targetTo = string.Empty;
             if (_skipStep && !string.IsNullOrWhiteSpace(pp.Snap) && pp.Snap == Configuration.Snap)
@@ -198,7 +200,8 @@ internal sealed class DeploymentService
             else if (!string.IsNullOrWhiteSpace(pp.DotnetProject) && !string.IsNullOrWhiteSpace(pp.PublishTo))
             {
                 Configuration.PrintDebug($"[PostProcessing]::Detected Dotnet Project to publish.");
-                await PublishProjectAsync(pp.DotnetProject!, true);
+
+                await PublishProjectAsync(pp.DotnetProject!, true, ppVersion);
                 string filename = Path.GetFileNameWithoutExtension(pp.DotnetProject);
                 var cliPublishTmp = Path.Combine(_tempLocation, "publish");
                 finalizeFrom = Path.Combine(cliPublishTmp, filename);
@@ -218,7 +221,7 @@ internal sealed class DeploymentService
             else if (!string.IsNullOrWhiteSpace(pp.DotnetProject) && !string.IsNullOrWhiteSpace(pp.PluginPackTo))
             {
                 Configuration.PrintDebug($"[PostProcessing]::Detected Dotnet Project to Pack as LPKG.");
-                await PublishProjectAsync(pp.DotnetProject!, false);
+                await PublishProjectAsync(pp.DotnetProject!, false, ppVersion);
                 string filename = Path.GetFileNameWithoutExtension(pp.DotnetProject);
                 var cliPublishTmp = Path.Combine(_tempLocation, "publish");
                 var buildLocation = Path.Combine(cliPublishTmp, filename);
@@ -318,8 +321,8 @@ internal sealed class DeploymentService
             }
             else if (!_skipStep && !string.IsNullOrWhiteSpace(plugin.Snap))
             {
-                Configuration.PrintDebug($"[Plugin]::Snapshot Step Creating...");
-                string bootstrapProgressFile = Path.Combine(_tempLocation, "snapshots", $"{plugin.Snap}_bootstrap.json");
+                Configuration.PrintDebug("[Plugin]::Snapshot Step Creating...");
+                var bootstrapProgressFile = Path.Combine(_tempLocation, "snapshots", $"{plugin.Snap}_bootstrap.json");
                 if (File.Exists(bootstrapProgressFile))
                     File.Delete(bootstrapProgressFile);
                 File.WriteAllText(bootstrapProgressFile, JsonSerializer.Serialize(bootstrapDefinition));
@@ -328,7 +331,8 @@ internal sealed class DeploymentService
             }
             else if (!string.IsNullOrWhiteSpace(plugin.DotnetProject))
             {
-                await PublishProjectAsync(plugin.DotnetProject, false);
+                NuGetVersion? pluginVersion = plugin.Version != default ? NuGetVersion.Parse(plugin.Version) : default;
+                await PublishProjectAsync(plugin.DotnetProject, false, pluginVersion);
                 var manifestTmp = await PackProjectAsync(plugin, ct);
                 await InstallPluginInSubSystem(plugin, manifestTmp, ct);
 
@@ -338,7 +342,7 @@ internal sealed class DeploymentService
             }
 
         }
-        await BuildAndPublishBootstrap(bootstrapDefinition);
+        await BuildAndPublishBootstrap(bootstrapDefinition, ct);
     }
     private JsonObject BuildBootstrapManifestFrom(PluginComposePayload csproj, PackToolPluginManifestExternalPayload manifestExternalPayload)
     {
@@ -663,7 +667,9 @@ internal sealed class DeploymentService
 
     private async Task PublishDotnetService(ServiceComposePayload serviceComposePayload)
     {
-        await PublishProjectAsync(serviceComposePayload.DotnetProject!, true);
+                NuGetVersion? version = serviceComposePayload.Version != default ? NuGetVersion.Parse(serviceComposePayload.Version) : default;
+
+        await PublishProjectAsync(serviceComposePayload.DotnetProject!, true, version);
     }
 
     private async Task CopyDotnetServices(ServiceComposePayload serviceComposePayload)

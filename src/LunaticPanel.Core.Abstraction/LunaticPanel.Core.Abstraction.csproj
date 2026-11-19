@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
 	<Title>$(AssemblyName)</Title>
 	<Version>$(GlobalVersion)</Version>
+  	<InformationalVersion>$(GlobalVersion)</InformationalVersion>
+  	<FileVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch)</FileVersion>
+  	<AssemblyVersion>$(VersionMajor).0.0</AssemblyVersion>
 	<Company>$(GlobalCompany)</Company>
 	<Copyright>$(GlobalCopyright)</Copyright>
 	<Authors>$(GlobalAuthors)</Authors>
@@ -31,19 +34,7 @@
 		  <PackagePath>\</PackagePath>
 	  </None>
   </ItemGroup>
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Title>$(AssemblyName)</Title>
-		<Version>$(GlobalVersion)</Version>
-		<Company>$(GlobalCompany)</Company>
-		<Copyright>$(GlobalCopyright)</Copyright>
-		<Authors>$(GlobalAuthors)</Authors>
-		<Description>Core Package for Lunatic Panel's PLugin</Description>
-		<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/mshimshon/LunaticPanel</RepositoryUrl>
-	</PropertyGroup>
+
 	<ItemGroup>
     	<PackageReference Include="NuGet.Versioning" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" />

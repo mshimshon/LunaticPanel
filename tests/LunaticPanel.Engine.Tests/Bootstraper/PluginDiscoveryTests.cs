@@ -1,14 +1,14 @@
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Tests.Extensions;
-using LunaticPanel.Engine.Web.Bootstraper.Engine;
-using LunaticPanel.Engine.Web.Bootstraper.Discovery;
+using LunaticPanel.Engine.Bootstraper.Engine;
+using LunaticPanel.Engine.Bootstraper.Discovery;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
-using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Bootstraper;
 using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Web.Bootstraper.Discovery.Services;
+using LunaticPanel.Engine.Bootstraper.Discovery.Services;
 
 namespace LunaticPanel.Engine.Tests.Bootstraper;
 

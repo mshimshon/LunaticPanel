@@ -3,7 +3,7 @@ using LunaticPanel.Core.Abstraction.Tools;
 using NuGet.Versioning;
 using System.Reflection;
 
-namespace LunaticPanel.Engine.Web.Services.PanelControl;
+namespace LunaticPanel.Engine.Services.PanelControl;
 
 public class PanelControl : IPanelControl, IHostControl
 {

@@ -3,7 +3,7 @@ using LunaticPanel.Engine.Plugin;
 
 using System;
 
-namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
+namespace LunaticPanel.Engine.Bootstraper.Discovery;
 
 public class UpdateDiscoveryLocation : IUpdateDiscoveryLocator
 {

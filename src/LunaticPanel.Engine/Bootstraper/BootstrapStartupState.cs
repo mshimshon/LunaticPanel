@@ -1,4 +1,4 @@
-namespace LunaticPanel.Engine.Web.Bootstraper;
+namespace LunaticPanel.Engine.Bootstraper;
 
 public enum BootstrapStartupState
 {

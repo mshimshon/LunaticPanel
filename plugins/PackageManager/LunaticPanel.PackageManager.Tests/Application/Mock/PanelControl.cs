@@ -1,7 +1,7 @@
 using LunaticPanel.Core.Abstraction.Tools;
 using System;
 
-namespace LunaticPanel.PackageManager.Tests.Application.Mock;
+namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mock;
 
 public class PanelControl : IPanelControl
 {

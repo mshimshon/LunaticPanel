@@ -1,9 +1,9 @@
-﻿using LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Actions;
-using LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.States;
-using LunaticPanel.Engine.Web.Services.PanelControl;
+﻿using LunaticPanel.Engine.Pages.Dashboard.Pulses.Actions;
+using LunaticPanel.Engine.Pages.Dashboard.Pulses.States;
+using LunaticPanel.Engine.Services.PanelControl;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Pages.Dashboard;
+namespace LunaticPanel.Engine.Pages.Dashboard;
 
 public class DashboardViewModel : IDisposable
 {

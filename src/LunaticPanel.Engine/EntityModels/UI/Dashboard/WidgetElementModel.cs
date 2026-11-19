@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Engine.Domain.UI.Dashboard.Enums;
 using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Web.EntityModels.UI.Dashboard;
+namespace LunaticPanel.Engine.EntityModels.UI.Dashboard;
 
 internal sealed record WidgetElementModel
 {

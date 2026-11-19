@@ -9,6 +9,9 @@
 	<ToolCommandName>lpcli</ToolCommandName>
 	<Title>$(AssemblyName)</Title>
 	<Version>$(GlobalVersion)</Version>
+  	<InformationalVersion>$(GlobalVersion)</InformationalVersion>
+  	<FileVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch)</FileVersion>
+  	<AssemblyVersion>$(VersionMajor).0.0</AssemblyVersion>
 	<Company>Maksim Shimshon</Company>
 	<Copyright>Maksim Shimshon © 2026</Copyright>
 	<Authors>Maksim Shimshon</Authors>

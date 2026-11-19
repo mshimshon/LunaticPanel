@@ -3,7 +3,7 @@ using LunaticPanel.Engine.Plugin;
 using NuGet.Versioning;
 using System;
 
-namespace LunaticPanel.Engine.Web.Services;
+namespace LunaticPanel.Engine.Services;
 
 public interface IPanelUpdateService
 {

@@ -1,6 +1,6 @@
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 
-namespace LunaticPanel.PackageManager.Tests.Application.Mock;
+namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mock;
 
 public class CrazyReport<T> : ICrazyReport<T>
 {

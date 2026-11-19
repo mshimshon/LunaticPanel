@@ -16,21 +16,21 @@ using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils;
 using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Web.Bootstraper;
-using LunaticPanel.Engine.Web.Bootstraper.Engine;
-using LunaticPanel.Engine.Web.Layout;
-using LunaticPanel.Engine.Web.Layout.Menu;
-using LunaticPanel.Engine.Web.Pages.Dashboard;
-using LunaticPanel.Engine.Web.Services;
-using LunaticPanel.Engine.Web.Services.Circuit;
-using LunaticPanel.Engine.Web.Services.PanelControl;
-using LunaticPanel.Engine.Web.Services.UpdateService;
+using LunaticPanel.Engine.Bootstraper;
+using LunaticPanel.Engine.Bootstraper.Engine;
+using LunaticPanel.Engine.Layout;
+using LunaticPanel.Engine.Layout.Menu;
+using LunaticPanel.Engine.Pages.Dashboard;
+using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Services.Circuit;
+using LunaticPanel.Engine.Services.PanelControl;
+using LunaticPanel.Engine.Services.UpdateService;
 using MaksimShimshon.Mediator;
 using Microsoft.AspNetCore.Builder;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
-namespace LunaticPanel.Engine.Web;
+namespace LunaticPanel.Engine;
 
 public static class RegisterServicesExt
 {

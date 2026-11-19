@@ -2,7 +2,7 @@
 using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Mapping;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
-using LunaticPanel.PackageManager.Domain.QueryCriterias;
+using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using MaksimShimshon.Mediator;

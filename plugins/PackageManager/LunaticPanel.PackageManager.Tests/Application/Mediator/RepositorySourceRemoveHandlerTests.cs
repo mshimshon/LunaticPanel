@@ -7,11 +7,11 @@ using LunaticPanel.PackageManager.Pulses.States;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
 
-using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 
-namespace LunaticPanel.PackageManager.Tests.Application.Mediator;
+namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator;
 
 public class RepositorySourceRemoveHandlerTests
 {

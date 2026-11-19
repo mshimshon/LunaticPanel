@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Engine.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Web.Pages.Debugging;
+namespace LunaticPanel.Engine.Pages.Debugging;
 
 public partial class PluginDebug : ComponentBase
 {

@@ -1,7 +1,7 @@
-﻿using LunaticPanel.Engine.Web.Bootstraper;
+﻿using LunaticPanel.Engine.Bootstraper;
 using Microsoft.AspNetCore.Components;
 
-namespace LunaticPanel.Engine.Web;
+namespace LunaticPanel.Engine;
 
 public partial class Routes : ComponentBase
 {

@@ -1,9 +1,9 @@
-﻿using LunaticPanel.Engine.Web.Bootstraper;
+﻿using LunaticPanel.Engine.Bootstraper;
 using NuGet.Versioning;
 using System.Security.Cryptography.X509Certificates;
 
 
-namespace LunaticPanel.Engine.Web.Hooks.Queries.Payloads.Responses;
+namespace LunaticPanel.Engine.Hooks.Queries.Payloads.Responses;
 
 public record PluginInfoResponse(string Id, NuGetVersion Version, NuGetVersion PanelVersion, BootstrapStartupState Bootup)
 {

@@ -4,17 +4,17 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.IO;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Web.Bootstraper.Discovery;
-using LunaticPanel.Engine.Web.Bootstraper.Discovery.Services;
-using LunaticPanel.Engine.Web.Services;
-using LunaticPanel.Engine.Web.Services.Circuit;
+using LunaticPanel.Engine.Bootstraper.Discovery;
+using LunaticPanel.Engine.Bootstraper.Discovery.Services;
+using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Services.Circuit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Reflection;
 
-namespace LunaticPanel.Engine.Web.Bootstraper.Engine;
+namespace LunaticPanel.Engine.Bootstraper.Engine;
 
 public class Bootstraper : IBootstrap, IPluginRegistry, IDisposable
 {

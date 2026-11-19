@@ -3,11 +3,11 @@ using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Web.Bootstraper;
-using LunaticPanel.Engine.Web.Hooks.Queries.Payloads.Responses;
+using LunaticPanel.Engine.Bootstraper;
+using LunaticPanel.Engine.Hooks.Queries.Payloads.Responses;
 
 
-namespace LunaticPanel.Engine.Web.Hooks.Queries;
+namespace LunaticPanel.Engine.Hooks.Queries;
 
 [QueryBusKey(PluginKeys.Queries.FETCH_ALL)]
 internal class FetchPluginsQuery : IQueryBusHandler

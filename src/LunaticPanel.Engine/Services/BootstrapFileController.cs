@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.IO;
-using LunaticPanel.Engine.Web.Bootstraper;
+using LunaticPanel.Engine.Bootstraper;
 using System.Text.Json;
 
-namespace LunaticPanel.Engine.Web.Services;
+namespace LunaticPanel.Engine.Services;
 
 internal class BootstrapFileController : IBootstrapFileController
 {

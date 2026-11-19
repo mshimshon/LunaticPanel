@@ -1,7 +1,7 @@
 using LunaticPanel.Engine.Plugin;
 using NuGet.Versioning;
 
-namespace LunaticPanel.Engine.Web.Bootstraper;
+namespace LunaticPanel.Engine.Bootstraper;
 
 public sealed record BootstrapStatusEntity
 {

@@ -10,7 +10,7 @@ using NuGet.Versioning;
 using System.Reflection;
 using LunaticPanel.Engine.Plugin;
 
-namespace LunaticPanel.Engine.Web.Services.UpdateService;
+namespace LunaticPanel.Engine.Services.UpdateService;
 
 internal class PanelUpdateService : IPanelUpdateService
 {

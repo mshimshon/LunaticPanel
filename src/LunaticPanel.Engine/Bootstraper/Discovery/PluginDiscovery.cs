@@ -1,14 +1,14 @@
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Web.Services;
+using LunaticPanel.Engine.Services;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 
-namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
+namespace LunaticPanel.Engine.Bootstraper.Discovery;
 
 public class PluginDiscovery : IPluginDiscovery, IDisposable
 {

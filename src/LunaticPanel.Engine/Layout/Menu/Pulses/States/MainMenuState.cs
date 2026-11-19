@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Layout.Menu.Pulses.States;
+namespace LunaticPanel.Engine.Layout.Menu.Pulses.States;
 
 public record MainMenuState : IStateFeature
 {

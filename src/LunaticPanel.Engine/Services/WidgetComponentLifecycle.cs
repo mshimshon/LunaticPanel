@@ -1,10 +1,10 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Engine.Application.Pulses.Actions;
 using LunaticPanel.Engine.Application.Pulses.States;
-using LunaticPanel.Engine.Web.Services.Circuit;
+using LunaticPanel.Engine.Services.Circuit;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Services;
+namespace LunaticPanel.Engine.Services;
 
 internal class WidgetComponentLifecycle : IWidgetComponentLifecycle
 {

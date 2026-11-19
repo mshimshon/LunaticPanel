@@ -4,7 +4,7 @@ using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys.System;
 
-namespace LunaticPanel.Engine.Web.Hooks.Queries;
+namespace LunaticPanel.Engine.Hooks.Queries;
 
 [QueryBusKey(PanelKeys.Queries.GET_PANEL_VERSION, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
 internal class GetPanelVersionQuery : IQueryBusHandler

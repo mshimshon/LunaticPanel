@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<coverage line-rate="0.24458483754512636" branch-rate="0.06339990710636322" version="1.9" timestamp="1795125020" lines-covered="2439" lines-valid="9972" branches-covered="273" branches-valid="4306">
+<coverage line-rate="0.24458483754512636" branch-rate="0.06339990710636322" version="1.9" timestamp="1795128854" lines-covered="2439" lines-valid="9972" branches-covered="273" branches-valid="4306">
   <sources>
-    <source>c:/Users/Administrator/source/repos/LunaticPanel/</source>
-    <source>c:/Users/Administrator/source/repos/LunaticPanel/src/</source>
-    <source>C:/Users/Administrator/source/repos/LunaticPanel/src/</source>
     <source>C:/Users/Administrator/source/repos/LunaticPanel/</source>
+    <source>c:/Users/Administrator/source/repos/LunaticPanel/src/</source>
+    <source>c:/Users/Administrator/source/repos/LunaticPanel/</source>
   </sources>
   <packages>
     <package name="LunaticPanel.Core.Utils.Abstraction" line-rate="0.06134969325153374" branch-rate="0.00992063492063492" complexity="724">

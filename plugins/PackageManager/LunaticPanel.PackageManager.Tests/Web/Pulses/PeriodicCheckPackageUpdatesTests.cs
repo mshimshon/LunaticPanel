@@ -3,7 +3,7 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 using LunaticPanel.PackageManager.Pulses.States;
-using LunaticPanel.PackageManager.Tests.Application.Mock;
+using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mock;
 using StatePulse.Net;
 using System;
 using LunaticPanel.Core.Utils.Logging;
@@ -14,7 +14,7 @@ using LunaticPanel.PackageManager.Application.Payloads;
 using NSubstitute;
 using NSubstitute.Extensions;
 using LunaticPanel.Core.Abstraction.Exceptions;
-using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 using NSubstitute.ExceptionExtensions;
 using LunaticPanel.PackageManager.Pulses.Effects;
 using LunaticPanel.PackageManager.Pulses.Actions;
@@ -29,7 +29,7 @@ using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using static LunaticPanel.Engine.Keys.System.PluginKeys;
 using System.Text.Json.Nodes;
 using LunaticPanel.Core.Abstraction.Messaging.Common;
-namespace LunaticPanel.PackageManager.Tests.Application.Pulses;
+namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Web.Pulses;
 
 public class PeriodicCheckPackageUpdatesTests : PulsesBaseTests
 {

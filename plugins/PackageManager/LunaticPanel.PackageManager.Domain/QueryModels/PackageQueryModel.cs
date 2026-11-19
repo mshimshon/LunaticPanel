@@ -4,7 +4,7 @@ using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels.Enums;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 
-namespace LunaticPanel.PackageManager.Domain.QueryCriterias;
+namespace LunaticPanel.PackageManager.Domain.QueryModels;
 
 public sealed record PackageQueryModel : QueryModel, IPackageQueryModel
 {

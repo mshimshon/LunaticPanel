@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Web.Bootstraper;
+﻿using LunaticPanel.Engine.Bootstraper;
 
 namespace LunaticPanel.Engine.Services;
 

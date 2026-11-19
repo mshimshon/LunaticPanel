@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
-namespace LunaticPanel.Engine.Web.Extensions;
+namespace LunaticPanel.Engine.Extensions;
 
 internal static class RenderFragmentExt
 {

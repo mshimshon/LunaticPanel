@@ -5,14 +5,14 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.Logging;
 using LunaticPanel.Engine.Plugin;
 
-using LunaticPanel.Engine.Web.Bootstraper.Discovery;
+using LunaticPanel.Engine.Bootstraper.Discovery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System;
 
-namespace LunaticPanel.Engine.Web.Bootstraper.Engine;
+namespace LunaticPanel.Engine.Bootstraper.Engine;
 
 public class PluginLifespanController : IPluginLifespanController
 {

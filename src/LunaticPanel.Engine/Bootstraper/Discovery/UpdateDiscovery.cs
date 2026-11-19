@@ -3,7 +3,7 @@ using NuGet.Versioning;
 using System;
 using System.Reflection;
 
-namespace LunaticPanel.Engine.Web.Bootstraper.Discovery;
+namespace LunaticPanel.Engine.Bootstraper.Discovery;
 
 public class UpdateDiscovery : IUpdateDiscovery
 {

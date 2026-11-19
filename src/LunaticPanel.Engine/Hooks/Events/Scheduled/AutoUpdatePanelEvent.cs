@@ -5,11 +5,11 @@ using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.Engine.Web.Services;
+using LunaticPanel.Engine.Services;
 using NuGet.Versioning;
 using System.Reflection;
 
-namespace LunaticPanel.Engine.Web.Hooks.Events.Scheduled;
+namespace LunaticPanel.Engine.Hooks.Events.Scheduled;
 
 [EventScheduledBusKey(PanelKeys.Events.ScheduledEvents.AUTO_UPDATE_CYCLE, 1, 0, 0, 0, 0, RunAtStartup = true)]
 internal class PackageUpdateScheduled : IEventScheduledBusHandler

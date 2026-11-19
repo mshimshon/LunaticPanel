@@ -1,7 +1,11 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <GlobalVersion>0.5.12</GlobalVersion>
+    <VersionRelease></VersionRelease>
+    <VersionMajor>0</VersionMajor>
+    <VersionMinor>5</VersionMinor>
+    <VersionPatch>12</VersionPatch>
+    <GlobalVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch)$(VersionRelease)</GlobalVersion>
     <GlobalCompany>Maksim Shimshon</GlobalCompany>
     <GlobalAuthors>Maksim Shimshon</GlobalAuthors>
     <GlobalCopyright>Maksim Shimshon © 2026</GlobalCopyright>

@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries;
-using LunaticPanel.Engine.Web.Layout.Menu.Pulses.Actions;
+using LunaticPanel.Engine.Layout.Menu.Pulses.Actions;
 using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Layout.Menu.Pulses.Effects;
+namespace LunaticPanel.Engine.Layout.Menu.Pulses.Effects;
 
 public class FetchMenuElementsEffect : IEffect<FetchMenuElementsAction>
 {

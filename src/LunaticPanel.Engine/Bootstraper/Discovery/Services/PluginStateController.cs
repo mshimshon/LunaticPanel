@@ -1,9 +1,9 @@
 using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Web.Services;
+using LunaticPanel.Engine.Services;
 using System;
 using System.Text.Json;
 
-namespace LunaticPanel.Engine.Web.Bootstraper.Discovery.Services;
+namespace LunaticPanel.Engine.Bootstraper.Discovery.Services;
 
 public class PluginStateController : IPluginStateController
 {

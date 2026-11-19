@@ -2,7 +2,7 @@ using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.Enums;
 using LunaticPanel.PackageManager.Domain.Entities.Exceptions;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
-using LunaticPanel.PackageManager.Domain.QueryCriterias;
+using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels.Enums;
 using LunaticPanel.PackageManager.Domain.Respositories.Exceptions;
@@ -11,7 +11,7 @@ using System;
 using System.Runtime;
 using System.Security.Cryptography.X509Certificates;
 
-namespace LunaticPanel.PackageManager.Tests.Domain;
+namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Domain;
 
 public class VersionTests
 {

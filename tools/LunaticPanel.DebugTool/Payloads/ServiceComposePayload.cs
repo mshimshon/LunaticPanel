@@ -5,8 +5,9 @@ internal sealed record ServiceComposePayload
     public string? ImportFrom { get; set; }
     public string? ServiceName { get; set; }
     public string? StartupParameters { get; set; }
-    public List<string> Environment { get; set; } = new List<string>();
+    public List<string> Environment { get; set; } = [];
     public string? DotnetProject { get; set; }
+    public string? Version { get; set; }
     public string? DebUrl { get; set; }
     public string? ExecStart { get; set; }
     public string? WorkingDir { get; set; }

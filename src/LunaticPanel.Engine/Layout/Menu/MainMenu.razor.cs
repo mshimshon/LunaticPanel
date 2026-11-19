@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Core.Abstraction.Widgets;
-using LunaticPanel.Engine.Web.Extensions;
+using LunaticPanel.Engine.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
-namespace LunaticPanel.Engine.Web.Layout.Menu;
+namespace LunaticPanel.Engine.Layout.Menu;
 
 public partial class MainMenu : ComponentBase, IAsyncDisposable
 {

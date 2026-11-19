@@ -12,7 +12,7 @@ using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
 
-using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 using MaksimShimshon.Mediator;
 using NSubstitute;
 using NSubstitute.Core.Arguments;
@@ -20,7 +20,7 @@ using NuGet.Versioning;
 using StatePulse.Net;
 using System.Diagnostics.CodeAnalysis;
 
-namespace LunaticPanel.PackageManager.Tests.Application.Mediator;
+namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator;
 
 public class PeriodicCheckPackageUpdatesQueryHandlerTests
 {

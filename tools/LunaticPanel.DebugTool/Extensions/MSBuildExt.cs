@@ -1,8 +1,10 @@
-﻿namespace LunaticPanel.DebugTool.Extensions;
+﻿using NuGet.Versioning;
+
+namespace LunaticPanel.DebugTool.Extensions;
 
 internal static class MSBuildExt
 {
-    public static async Task PublishProjectAsync(string project, bool selfContained)
+    public static async Task PublishProjectAsync(string project, bool selfContained, NuGetVersion? version)
     {
         Console.Out.WriteLine($"PublishProjectAsync ");
         Console.Out.WriteLine($"Publishing '{project}'");
@@ -18,6 +20,10 @@ internal static class MSBuildExt
         if (Directory.Exists(cliProjectOutput))
             Directory.Delete(cliProjectOutput, true);
         string cmd = $"publish \"{project}\" -c Debug -r linux-x64 {(selfContained ? "--self-contained true" : "")} -o \"{cliProjectOutput}\" /p:Optimize=false /p:Configuration=Debug /p:DebugType=portable /p:CopyOutputSymbolsToPublishDirectory=true";
+        if (version != default)
+            cmd += $"/p:InformationalVersion={version} /p:Version={version} /p:FileVersion={version.Version.ToString(3)} /p:AssemblyVersion={version.Major}.0.0";
+
+
         Console.Out.WriteLine($"dotnet {cmd}");
 
         await ProcessExt.RunProcessAsync("dotnet", cmd);

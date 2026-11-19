@@ -2,7 +2,7 @@
 using LunaticPanel.Core.Abstraction.Tools;
 using LunaticPanel.Engine.Keys.System;
 
-namespace LunaticPanel.Engine.Web.Hooks.Events;
+namespace LunaticPanel.Engine.Hooks.Events;
 
 [EventBusKey(PanelKeys.Events.PANEL_SHUTDOWN)]
 internal class ShutdownPanelEvent : IEventBusHandler

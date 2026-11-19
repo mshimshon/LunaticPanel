@@ -2,9 +2,9 @@
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Application.Circuit.Contracts;
 using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Web.Layout;
+using LunaticPanel.Engine.Layout;
 
-namespace LunaticPanel.Engine.Web.Services.Circuit;
+namespace LunaticPanel.Engine.Services.Circuit;
 
 public sealed class CircuitRegistry : ICircuitRegistry
 {

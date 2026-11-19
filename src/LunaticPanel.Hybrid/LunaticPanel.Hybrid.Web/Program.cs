@@ -1,6 +1,6 @@
-using LunaticPanel.Engine.Web;
-using LunaticPanel.Engine.Web.Bootstraper;
-using LunaticPanel.Engine.Web.Bootstraper.Engine;
+using LunaticPanel.Engine;
+using LunaticPanel.Engine.Bootstraper;
+using LunaticPanel.Engine.Bootstraper.Engine;
 using MudBlazor;
 using System.Diagnostics;
 using App = LunaticPanel.Hybrid.Web.App;

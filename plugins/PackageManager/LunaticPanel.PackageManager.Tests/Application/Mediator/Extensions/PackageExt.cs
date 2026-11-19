@@ -4,7 +4,7 @@ using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.Enums;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 
-namespace LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 
 public static class PackageExt
 {
