@@ -1,4 +1,4 @@
-﻿@using LunaticPanel.Engine.Web.ExceptionHandlers
+﻿@using LunaticPanel.Engine.ExceptionHandlers
 @inherits LayoutComponentBase
 <MudThemeProvider IsDarkMode=true />
 <MudPopoverProvider />
@@ -31,7 +31,7 @@ else
             <MudGrid>
                 <MudItem>
                     <MudStack>
-                        <MudText Align=Align.Center >Booting...</MudText>
+                        <MudText Align=Align.Center>Booting...</MudText>
                         <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
                     </MudStack>
                 </MudItem>
@@ -39,6 +39,3 @@ else
         </MudMainContent>
     </MudLayout>
 }
-
-
-

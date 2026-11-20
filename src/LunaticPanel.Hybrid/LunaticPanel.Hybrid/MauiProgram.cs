@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Web.Boostrap;
+﻿using LunaticPanel.Engine.Boostrap;
 using Microsoft.Extensions.Configuration;
 
 namespace LunaticPanel.Hybrid;

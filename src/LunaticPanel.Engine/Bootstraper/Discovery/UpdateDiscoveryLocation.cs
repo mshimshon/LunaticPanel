@@ -1,6 +1,5 @@
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
-
 using System;
 
 namespace LunaticPanel.Engine.Bootstraper.Discovery;

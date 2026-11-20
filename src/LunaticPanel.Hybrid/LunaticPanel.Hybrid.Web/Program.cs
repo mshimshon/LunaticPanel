@@ -21,7 +21,7 @@ if (waitForDebugger)
         System.Console.WriteLine("Quit Debugger is Detached");
         Environment.Exit(0);
     });
-    Debugger.Break();
+
 
 }
 

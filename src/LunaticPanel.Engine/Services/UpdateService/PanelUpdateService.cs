@@ -9,6 +9,7 @@ using LunaticPanel.Engine.Keys.System;
 using NuGet.Versioning;
 using System.Reflection;
 using LunaticPanel.Engine.Plugin;
+using LunaticPanel.Engine.Services;
 
 namespace LunaticPanel.Engine.Services.UpdateService;
 

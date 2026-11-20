@@ -1,7 +1,7 @@
 using StatePulse.Net;
 using System;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mock;
+namespace LunaticPanel.PackageManager.Tests.Application.Mock;
 
 public class StateAccessor<TState> : IStateAccessor<TState> where TState : IStateFeature
 {

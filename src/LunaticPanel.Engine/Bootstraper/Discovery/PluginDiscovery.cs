@@ -1,7 +1,10 @@
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Services;
+using Microsoft.Extensions.Configuration;
+using MudBlazor;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
@@ -51,6 +54,9 @@ public class PluginDiscovery : IPluginDiscovery, IDisposable
         Commit_Apply();
         Commit_Install();
         Commit_Runtime();
+        CrazyReportConsole.ReportInfo("Loaded Plugin Cycle");
+        CrazyReportConsole.ReportInfo($"Installed Found: {_installed.Count}");
+        CrazyReportConsole.ReportInfo($"Mandatory PreInstalled Found: {_preInstalled.Count}");
     }
     public List<PluginManifestEntity> DiscoverPackages(string path)
     {
@@ -275,37 +281,53 @@ public class PluginDiscovery : IPluginDiscovery, IDisposable
     }
 
 
-    public void Load_Runtime()
+    public async Task Load_Runtime(IConfiguration configuration, CancellationToken ct = default)
     {
-        _bootstrapState = _pluginStateController.LoadFile().GetAwaiter().GetResult();
+        _bootstrapState = await _pluginStateController.LoadFile();
         foreach (var toLoad in _runtimeTargets)
         {
             var runtimeManifestFile = Path.Combine(toLoad, "manifest.json");
             var manifestContent = File.ReadAllText(runtimeManifestFile);
             var runtimeManifest = PluginScannerExt.ParseManifest(manifestContent);
-            var lastState = _bootstrapState.SingleOrDefault(p => p.Id.Equals(runtimeManifest.Id, StringComparison.OrdinalIgnoreCase));
-            if (lastState == default)
-                _bootstrapState.Add(new BootstrapStatusEntity(runtimeManifest, BootstrapStartupState.Disabled, null));
-            if (lastState == default || lastState.StartupState == BootstrapStartupState.Disabled)
+            var mandatory = _preInstalled.Any(p => p.Id.Equals(runtimeManifest.Id, StringComparison.OrdinalIgnoreCase));
+            var committedState = _bootstrapState.SingleOrDefault(p => p.Id.Equals(runtimeManifest.Id, StringComparison.OrdinalIgnoreCase));
+            if (committedState == default)
             {
-                System.Console.WriteLine($"{runtimeManifest.Id} is disabled at startup.".Red());
+                committedState = new BootstrapStatusEntity(runtimeManifest, mandatory ? BootstrapStartupState.Enabled : BootstrapStartupState.Disabled, null);
+                _bootstrapState.Add(committedState);
+            }
+
+            if (committedState.StartupState == BootstrapStartupState.Disabled)
+            {
+                CrazyReportConsole.ReportWarning($"{runtimeManifest.Id} is disabled at startup.");
                 continue;
+            }
+            // Force Enable PreInstalled
+            if (committedState.StartupState == BootstrapStartupState.Disabled && mandatory)
+            {
+                CrazyReportConsole.ReportWarning($"{runtimeManifest.Id} is mandatory and cannot be disabled.");
+                _bootstrapState.Remove(committedState);
+                _bootstrapState.Add(committedState with { StartupState = mandatory ? BootstrapStartupState.Enabled : committedState.StartupState });
             }
 
             try
             {
+                CrazyReportConsole.Report($"Creating Reference Loader for {runtimeManifest.Id}");
                 var reference = PluginScannerExt.LoadPLugin(toLoad, [], DependencySettings.ScanSharedFrameworkNames());
+                reference.Entry.Configure(configuration);
                 _loadedPlugins.Add(reference);
+                CrazyReportConsole.ReportInfo($"{runtimeManifest.Id} has loaded reference.");
             }
             catch (System.Exception ex)
             {
-                var currentState = lastState with { Failure = ex.Message };
-                _bootstrapState.Remove(lastState);
-                _bootstrapState.Add(currentState);
+                CrazyReportConsole.ReportError($"Error Loading {runtimeManifest.Id} with {ex.Message}");
+                _bootstrapState.Remove(committedState);
+                committedState = committedState with { Failure = ex.Message };
+                _bootstrapState.Add(committedState);
                 continue;
             }
         }
-        _pluginStateController.SaveAsync(_bootstrapState).GetAwaiter().GetResult();
+        await _pluginStateController.SaveAsync(_bootstrapState);
     }
 
     protected virtual void Dispose(bool disposing)

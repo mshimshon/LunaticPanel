@@ -1,6 +1,7 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Engine.Keys;
 
 namespace LunaticPanel.Engine.Infrastructure.Plugin;
@@ -13,7 +14,12 @@ internal class HostInfo : IPluginInfo
     public HostInfo()
     {
         var keys = typeof(LPEngineKeys).Assembly.ScanKeyPackageForKeys().ToList();
-        Console.WriteLine("HOSTINFO -> " + string.Join(',', keys.Select(p => p.ToString())));
+        CrazyReportConsole.ReportInfo("HOSTINFO -> ");
+        foreach (var key in keys.Select(p => p.ToString()))
+        {
+            CrazyReportConsole.ReportInfo($"{key}");
+        }
+        CrazyReportConsole.ReportInfo("<- HOSTINFO ");
         Keys = keys;
     }
 }

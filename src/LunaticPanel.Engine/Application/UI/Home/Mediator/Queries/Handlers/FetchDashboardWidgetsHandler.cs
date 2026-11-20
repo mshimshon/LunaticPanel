@@ -1,7 +1,8 @@
-﻿using CoreMap;
-using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries;
 using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto;
+using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto.Mapping;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Keys.UI;
 using MaksimShimshon.Mediator;
@@ -11,12 +12,10 @@ namespace LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Handlers;
 internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidgetsQuery, List<EngineBusMsgResponseWithData<WidgetElementEntity>>?>
 {
     private readonly IEngineBus _engineBus;
-    private readonly ICoreMap _coreMap;
 
-    public FetchDashboardWidgetsHandler(IEngineBus engineBus, ICoreMap coreMap)
+    public FetchDashboardWidgetsHandler(IEngineBus engineBus)
     {
         _engineBus = engineBus;
-        _coreMap = coreMap;
     }
     public async Task<List<EngineBusMsgResponseWithData<WidgetElementEntity>>?> HandleAsync(FetchDashboardWidgetsQuery request, CancellationToken cancellationToken)
     {
@@ -26,7 +25,7 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
             var responses =
                 await _engineBus
                 .Execute(DashboardKeys.UI.GET_WIDGETS)
-                .ReadWithData((EngineBusResponse response) => _coreMap.MapTo<WidgetElementResponse, WidgetElementEntity>(response.Data?.GetDataAs<WidgetElementResponse>() ?? new()),
+                .ReadWithData((EngineBusResponse response) => (response.Data?.GetDataAs<WidgetElementResponse>() ?? new()).ToEntity(),
                 p => p);
             result = responses.OrderBy(p => p.Data.Position).ToList();
 

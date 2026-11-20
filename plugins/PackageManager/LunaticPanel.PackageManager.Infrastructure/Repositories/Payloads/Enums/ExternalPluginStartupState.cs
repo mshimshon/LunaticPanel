@@ -1,6 +1,6 @@
 ﻿namespace LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Enums;
 
-public enum ExternalPluginEntityLifecycleStartupState
+public enum ExternalPluginStartupState
 {
     /// <summary>
     /// Plugin will be loaded at boot up

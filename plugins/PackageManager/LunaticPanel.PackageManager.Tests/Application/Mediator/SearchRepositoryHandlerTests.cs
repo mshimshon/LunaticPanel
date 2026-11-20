@@ -17,7 +17,7 @@ using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 using LunaticPanel.PackageManager.Domain.Respositories;
 
-using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 using NSubstitute;
 using NSubstitute.Core.Arguments;
 using NSubstitute.ExceptionExtensions;
@@ -25,7 +25,7 @@ using NSubstitute.Extensions;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator;
+namespace LunaticPanel.PackageManager.Tests.Application.Mediator;
 
 public class SearchRepositoryHandlerTests
 {

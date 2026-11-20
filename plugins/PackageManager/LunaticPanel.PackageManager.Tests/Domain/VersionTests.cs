@@ -11,7 +11,7 @@ using System;
 using System.Runtime;
 using System.Security.Cryptography.X509Certificates;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Domain;
+namespace LunaticPanel.PackageManager.Tests.Domain;
 
 public class VersionTests
 {

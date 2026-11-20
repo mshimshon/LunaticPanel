@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System;
+using LunaticPanel.Engine.Bootstraper;
 
 namespace LunaticPanel.Engine.Bootstraper.Engine;
 
@@ -61,12 +62,6 @@ public class PluginLifespanController : IPluginLifespanController
         AssetStaticDir = Pathf.CombineEnsureCreated(_publicReadPermission, PluginDir, "wwwroot");
         PluginVarDir = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", "plugins", Manifest.FolderId);
         AssetDynamicDir = Pathf.CombineEnsureCreated(_publicReadPermission, PluginVarDir, "wwwroot");
-
-        Configure();
-    }
-    private void Configure()
-    {
-
     }
 
     public void ConfigureStaticAssets()
@@ -102,15 +97,13 @@ public class PluginLifespanController : IPluginLifespanController
     public void PrintPluginInfo()
     {
         string border = new string('-', 50);
-        CrazyReportConsole.ReportInfo($"+{border}+");
-        CrazyReportConsole.ReportInfo($"| {"Plugin Information",-48} |");
-        CrazyReportConsole.ReportInfo($"+{border}+");
-        CrazyReportConsole.ReportInfo($"| {"Name:",-12} {Manifest.Title,-35} |");
-        CrazyReportConsole.ReportInfo($"| {"Id:",-12} {Manifest.Id,-35} |");
-        CrazyReportConsole.ReportInfo($"| {"Version:",-12} {Manifest.Version,-35} |");
-        CrazyReportConsole.ReportInfo($"| {"Panel SDK:",-12} {Manifest.PanelVersion,-35} |");
-        CrazyReportConsole.ReportInfo($"| {"Location:",-12} {PluginDir,-35} |");
-        CrazyReportConsole.ReportInfo($"+{border}+");
+        CrazyReportConsole.ReportInfo(border);
+        CrazyReportConsole.ReportInfo($"Name:       {Manifest.Title}");
+        CrazyReportConsole.ReportInfo($"Id:         {Manifest.Id}");
+        CrazyReportConsole.ReportInfo($"Version:    {Manifest.Version}");
+        CrazyReportConsole.ReportInfo($"Panel SDK:  {Manifest.PanelVersion}");
+        CrazyReportConsole.ReportInfo($"Location:   {PluginDir}");
+        CrazyReportConsole.ReportInfo(border);
     }
 
     public async Task SignalBeforeRuntimeAsync()

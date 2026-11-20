@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Package.Tool.Exceptions;
+﻿using LunaticPanel.Engine.Plugin;
+using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Exceptions.InfoExceptions;
 using LunaticPanel.Package.Tool.Extensions;
 using LunaticPanel.Package.Tool.Payloads;
@@ -19,7 +20,7 @@ internal static class InfoCommandExt
         return root.WithSubCommand(command);
     }
 
-    private static Task<PluginManifestPayload> ValidateInfo(ParseResult parseResult, CancellationToken ct = default)
+    private static Task<PluginManifestEntity> ValidateInfo(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
         bool missingParams = input == default;

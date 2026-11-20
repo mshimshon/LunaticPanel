@@ -3,7 +3,7 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
 using LunaticPanel.PackageManager.Pulses.States;
-using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mock;
+using LunaticPanel.PackageManager.Tests.Application.Mock;
 using StatePulse.Net;
 using System;
 using LunaticPanel.Core.Utils.Logging;
@@ -15,7 +15,7 @@ using NSubstitute;
 using NSubstitute.Extensions;
 using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.PackageManager.Components.ViewModels;
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Web;
+namespace LunaticPanel.PackageManager.Tests.Web;
 
 public class PackageSearchViewModelTests
 {

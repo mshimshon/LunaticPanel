@@ -1,10 +1,9 @@
-﻿using CoreMap;
-using LunaticPanel.Core.Abstraction.Messaging.Common;
+﻿using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Bootstraper;
 using LunaticPanel.Engine.Hooks.Queries.Payloads.Responses;
+using LunaticPanel.Engine.Services;
 
 
 namespace LunaticPanel.Engine.Hooks.Queries;
@@ -13,12 +12,10 @@ namespace LunaticPanel.Engine.Hooks.Queries;
 internal class FetchPluginsQuery : IQueryBusHandler
 {
     private readonly IPluginRegistry _pluginRegistry;
-    private readonly ICoreMap _coreMap;
 
-    public FetchPluginsQuery(IPluginRegistry pluginRegistry, ICoreMap coreMap)
+    public FetchPluginsQuery(IPluginRegistry pluginRegistry)
     {
         _pluginRegistry = pluginRegistry;
-        _coreMap = coreMap;
     }
 
     public Task<QueryBusMessageResponse> HandleAsync(IQueryBusMessage qry)

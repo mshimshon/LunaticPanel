@@ -10,13 +10,13 @@ using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.Respositories;
-using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 using MaksimShimshon.Mediator;
 using NSubstitute;
 using StatePulse.Net;
 using System;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator;
+namespace LunaticPanel.PackageManager.Tests.Application.Mediator;
 
 public class PackageRollbackCommandHandlerTests
 {
