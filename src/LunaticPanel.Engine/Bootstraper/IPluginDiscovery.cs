@@ -3,6 +3,7 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
 
 using LunaticPanel.Engine.Services;
+using Microsoft.Extensions.Configuration;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
@@ -28,6 +29,6 @@ public interface IPluginDiscovery
     void Commit_Apply();
     void Commit_Install();
     void Commit_Runtime();
-    void Load_Runtime();
+    Task Load_Runtime(IConfiguration configuration, CancellationToken ct = default);
     void Commit_All();
 }

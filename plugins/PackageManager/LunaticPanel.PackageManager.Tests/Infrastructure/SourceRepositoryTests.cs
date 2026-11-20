@@ -5,11 +5,11 @@ using LunaticPanel.PackageManager.Application.Services;
 using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Infrastructure.Repositories;
-using LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
+using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 using NSubstitute;
 using System;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Infrastructure;
+namespace LunaticPanel.PackageManager.Tests.Infrastructure;
 
 public class SourceRepositoryTests
 {

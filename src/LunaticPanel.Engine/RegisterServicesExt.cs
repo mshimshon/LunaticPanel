@@ -15,21 +15,23 @@ using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils;
-using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Bootstraper;
 using LunaticPanel.Engine.Bootstraper.Engine;
-using LunaticPanel.Engine.Layout;
-using LunaticPanel.Engine.Layout.Menu;
-using LunaticPanel.Engine.Pages.Dashboard;
-using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Services.Circuit;
-using LunaticPanel.Engine.Services.PanelControl;
-using LunaticPanel.Engine.Services.UpdateService;
 using MaksimShimshon.Mediator;
 using Microsoft.AspNetCore.Builder;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
+using LunaticPanel.Engine.Pages.Dashboard;
+using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Layout;
+using LunaticPanel.Engine.Infrastructure;
+using LunaticPanel.Engine.Bootstraper;
+using LunaticPanel.Engine.Services.UpdateService;
+using LunaticPanel.Engine.Layout.Menu;
+using LunaticPanel.Engine.Services.PanelControl;
+using LunaticPanel.Engine.Services.Circuit;
+using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Handlers;
+using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Handlers;
 namespace LunaticPanel.Engine;
 
 public static class RegisterServicesExt
@@ -45,6 +47,8 @@ public static class RegisterServicesExt
     }
     public static IServiceCollection AddLunaticPanelServices(this IServiceCollection services)
     {
+        services.AddScoped<FetchMenuElementHandler>();
+        services.AddScoped<FetchDashboardWidgetsHandler>();
         services.AddEngineInfrastructure();
         services.AddCrazyReportUtilityService();
         services.AddLinuxCommandUtilityService();

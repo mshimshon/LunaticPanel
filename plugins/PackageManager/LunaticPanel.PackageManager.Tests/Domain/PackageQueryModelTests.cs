@@ -5,7 +5,7 @@ using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels.Enums;
 using System;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Domain;
+namespace LunaticPanel.PackageManager.Tests.Domain;
 
 public class PackageQueryModelTests
 {

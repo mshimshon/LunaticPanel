@@ -1,5 +1,6 @@
 using LunaticPanel.Engine.Plugin;
 using NuGet.Versioning;
+using System.Text.Json.Serialization;
 
 namespace LunaticPanel.Engine.Bootstraper;
 
@@ -12,7 +13,9 @@ public sealed record BootstrapStatusEntity
         Failure = failure;
     }
     public string Id => Manifest.Id;
+
     private NuGetVersion? _version;
+    [JsonIgnore]
     public NuGetVersion Version
     {
         get
@@ -24,6 +27,7 @@ public sealed record BootstrapStatusEntity
     }
 
     private NuGetVersion? _panelVersion;
+    [JsonIgnore]
     public NuGetVersion PanelVersion
     {
         get

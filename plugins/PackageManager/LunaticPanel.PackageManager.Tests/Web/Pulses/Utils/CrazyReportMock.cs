@@ -2,7 +2,7 @@ using LunaticPanel.Core.Utils.Abstraction.Logging;
 using NSubstitute;
 using System;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Web.Pulses.Utils;
+namespace LunaticPanel.PackageManager.Tests.Web.Pulses.Utils;
 
 public class CrazyReportMock<T> : ICrazyReport<T> where T : class
 {

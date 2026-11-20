@@ -3,10 +3,10 @@ using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Tests.Extensions;
 using LunaticPanel.Engine.Bootstraper.Engine;
-using LunaticPanel.Engine.Bootstraper.Discovery;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
+using LunaticPanel.Engine.Bootstraper.Discovery;
 
 namespace LunaticPanel.Engine.Tests.Bootstraper;
 

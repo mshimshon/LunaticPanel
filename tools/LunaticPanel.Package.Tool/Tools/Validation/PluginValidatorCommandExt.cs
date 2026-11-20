@@ -23,7 +23,7 @@ internal static class PluginValidatorCommandExt
 
         return root.WithSubCommand(command);
     }
-    private static async Task<PluginManifestPayload> ValidateAction(ParseResult parseResult, CancellationToken ct = default)
+    private static async Task<PluginManifestEntity> ValidateAction(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
         bool missingParams = input == default;
@@ -35,13 +35,13 @@ internal static class PluginValidatorCommandExt
 
     }
 
-    public static async Task<PluginManifestPayload> ValidatePackageAsync(string input)
+    public static async Task<PluginManifestEntity> ValidatePackageAsync(string input)
     {
         bool isPackage = !Directory.Exists(input) && File.Exists(input);
         var inputFolder = input;
         string? outputPackageTmp = default;
         PluginScannedEntity? entity = default;
-        PluginManifestPayload? manifest = default;
+        PluginManifestEntity? manifest = default;
         if (isPackage)
         {
             Console.Out.WriteLine($"Validating Package for {input}");

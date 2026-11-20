@@ -2,13 +2,15 @@ using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Engine.Tests.Extensions;
 using LunaticPanel.Engine.Bootstraper.Engine;
-using LunaticPanel.Engine.Bootstraper.Discovery;
 using NuGet.Versioning;
 using System;
 using System.Reflection;
 using LunaticPanel.Engine.Bootstraper;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Bootstraper.Discovery.Services;
+using LunaticPanel.Engine.Bootstraper.Discovery;
+using Microsoft.Extensions.Configuration;
+using NSubstitute;
 
 namespace LunaticPanel.Engine.Tests.Bootstraper;
 
@@ -23,12 +25,12 @@ public class PluginDiscoveryTests : IDisposable
     private readonly NuGetVersion _panelMinorDiff;
     private readonly NuGetVersion _panelMajorDiff;
     private readonly PluginDiscovery _pluginDiscovery;
-
+    private readonly IConfiguration _configuration;
     private bool _disposedValue;
 
     public PluginDiscoveryTests()
     {
-
+        _configuration = Substitute.For<IConfiguration>();
         _pluginDiscoveryLocation = new PluginDiscoveryLocation();
         _pluginStateController = new PluginStateController();
         _pluginDiscoveryLocation.Initialize();
@@ -58,7 +60,7 @@ public class PluginDiscoveryTests : IDisposable
         _pluginDiscovery._bootstrapState.Add(new BootstrapStatusEntity(manifest, BootstrapStartupState.Disabled, null));
         _pluginDiscovery._bootstrapState.Add(new BootstrapStatusEntity(manifest2, BootstrapStartupState.Enabled, null));
         await _pluginStateController.SaveAsync(_pluginDiscovery._bootstrapState, TestContext.Current.CancellationToken);
-        _pluginDiscovery.Load_Runtime();
+        await _pluginDiscovery.Load_Runtime(_configuration, TestContext.Current.CancellationToken);
         _pluginDiscovery._bootstrapState = await _pluginStateController.LoadFile(TestContext.Current.CancellationToken);
         var currentState1 = _pluginDiscovery._bootstrapState.Single(p => p.Id == manifest.Id);
         var currentState2 = _pluginDiscovery._bootstrapState.Single(p => p.Id == manifest2.Id);

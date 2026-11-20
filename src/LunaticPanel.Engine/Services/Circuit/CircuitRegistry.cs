@@ -1,8 +1,8 @@
 ﻿using LunaticPanel.Core.Abstraction.Circuit;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Engine.Application.Circuit.Contracts;
-using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Layout;
+using LunaticPanel.Engine.Services;
 
 namespace LunaticPanel.Engine.Services.Circuit;
 

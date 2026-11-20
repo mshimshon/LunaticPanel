@@ -17,7 +17,7 @@
             ],
             "problemMatcher": [],
             "presentation": {
-                "close": true // <-- This automatically closes the terminal window on successful completion
+                "close": true
             }
         },
         {
@@ -26,11 +26,11 @@
             "command": "wsl",
             "args": [
                 "--terminate",
-                "lpcli_deploy",
+                "lpcli_deploy"
             ],
             "problemMatcher": [],
             "presentation": {
-                "close": true // <-- This automatically closes the terminal window on successful completion
+                "close": true
             }
         },
         {
@@ -43,9 +43,10 @@
                 "-u",
                 "root",
                 "--",
-                "bash",
-                "-c",
-                "journalctl -u lunaticpanel -n 100 -f"
+                "script",
+                "-qefc",
+                "journalctl -u lunaticpanel -n 1000 -f -o cat",
+                "/dev/null"
             ],
             "problemMatcher": {
                 "owner": "custom",
@@ -59,9 +60,9 @@
                 }
             },
             "presentation": {
-                "reveal": "always", // Focus and open the terminal panel automatically
-                "panel": "dedicated", // Use the same terminal tab every time you run it
-                "clear": true, // Clear the terminal screen before running
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
                 "showReuseMessage": false,
                 "group": "Lunatic Panel Server"
             },
@@ -95,17 +96,18 @@
                 "-u",
                 "root",
                 "--",
-                "bash",
-                "-c",
-                "journalctl -u lpkg_localserver -n 100 -f"
+                "script",
+                "-qefc",
+                "journalctl -u lpkg_localserver -n 1000 -f -o cat",
+                "/dev/null"
             ],
             "presentation": {
-                "reveal": "always", // Focus and open the terminal panel automatically
-                "panel": "dedicated", // Use the same terminal tab every time you run it
-                "clear": true, // Clear the terminal screen before running
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
                 "showReuseMessage": false,
                 "group": "LunaPackage Server"
-            },
+            }
         },
         {
             "label": "Publish DebugTool",
@@ -147,9 +149,9 @@
             "label": "LPCLI with Plugins (Full Build)",
             "command": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.exe",
             "type": "shell",
-            "dependsOrder": "sequence", // Ensures they run in order, not at the same time
+            "dependsOrder": "sequence",
             "dependsOn": [
-                "Publish DebugTool",
+                "Publish DebugTool"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/plugins"
@@ -170,9 +172,9 @@
             "label": "LPCLI with Plugins (Skip Service Build)",
             "command": "${workspaceFolder}/tools/LunaticPanel.DebugTool/bin/Debug/net10.0/win-x64/LunaticPanel.DebugTool.exe",
             "type": "shell",
-            "dependsOrder": "sequence", // Ensures they run in order, not at the same time
+            "dependsOrder": "sequence",
             "dependsOn": [
-                "Publish DebugTool",
+                "Publish DebugTool"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/plugins"
@@ -191,24 +193,24 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Deploying Dev Envrionement (Partial Rebuild)", // <-- This is your empty parent task
-            "dependsOrder": "sequence", // Ensures child tasks run one after another
+            "label": "Deploying Dev Envrionement (Partial Rebuild)",
+            "dependsOrder": "sequence",
             "dependsOn": [
                 "LPCLI with Plugins (Skip Service Build)",
                 "Install VSCODE Debugger",
                 "Open Panel Logging",
-                "Open LunaPackage Server Logging",
+                "Open LunaPackage Server Logging"
             ],
             "problemMatcher": []
         },
         {
-            "label": "Deploying Dev Envrionement (Full Rebuild)", // <-- This is your empty parent task
-            "dependsOrder": "sequence", // Ensures child tasks run one after another
+            "label": "Deploying Dev Envrionement (Full Rebuild)",
+            "dependsOrder": "sequence",
             "dependsOn": [
                 "LPCLI with Plugins (Full Build)",
                 "Install VSCODE Debugger",
                 "Open Panel Logging",
-                "Open LunaPackage Server Logging",
+                "Open LunaPackage Server Logging"
             ],
             "problemMatcher": []
         },
@@ -223,7 +225,7 @@
                 "--artifact-server-path",
                 ".\\.bin\\.artifacts",
                 "-e",
-                ".github/workflows/event-dev.json",
+                ".github/workflows/event-dev.json"
             ],
             "problemMatcher": "$msCompile"
         },
@@ -238,13 +240,13 @@
                 "-e",
                 ".github/workflows/event-dev.json",
                 "--artifact-server-path",
-                ".\\.bin\\.artifacts",
+                ".\\.bin\\.artifacts"
             ],
             "problemMatcher": "$msCompile",
             "dependsOn": [
-                "Act Workflow Preview Build",
-            ],
-        },
+                "Act Workflow Preview Build"
+            ]
+        }
     ]
 }
 // $GITHUB_WORKSPACE/src/LunaticPanel.Hybrid/LunaticPanel.Hybrid.Web/LunaticPanel.Hybrid.Web.csproj \

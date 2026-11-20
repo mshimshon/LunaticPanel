@@ -13,7 +13,7 @@ using NSubstitute;
 using StatePulse.Net;
 using System;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mediator;
+namespace LunaticPanel.PackageManager.Tests.Application.Mediator;
 
 public class DisableSourceCommandHandlerTests
 {

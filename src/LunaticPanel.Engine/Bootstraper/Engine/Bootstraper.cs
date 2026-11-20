@@ -3,16 +3,15 @@ using LunaticPanel.Core.Utils.Abstraction.IO;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using LunaticPanel.Core.Utils.IO;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Bootstraper.Discovery;
 using LunaticPanel.Engine.Bootstraper.Discovery.Services;
-using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Services.Circuit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Reflection;
+using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Bootstraper.Discovery;
+using LunaticPanel.Engine.Services.Circuit;
 
 namespace LunaticPanel.Engine.Bootstraper.Engine;
 
@@ -75,7 +74,7 @@ public class Bootstraper : IBootstrap, IPluginRegistry, IDisposable
         MasterSp = _masterScope.ServiceProvider;
         try
         {
-            await UpgradeDiscovery.ApplyUpgrade();
+            await UpgradeDiscovery.StartUpgrade();
         }
         catch (System.Exception ex)
         {
@@ -84,6 +83,8 @@ public class Bootstraper : IBootstrap, IPluginRegistry, IDisposable
             throw;
         }
         PluginDiscovery.Commit_All();
+        await _pluginStateController.LoadFile();
+        await PluginDiscovery.Load_Runtime(_configuration);
         _activePlugins = PluginDiscovery.LoadedPlugins.Select(p => BindController(p, webApp, MasterSp)).ToList();
         FailedPlugins = _pluginDiscovery.BootstrapState.Where(p => p.Failure != default).ToDictionary(p => p.Manifest.Id, p => p.Failure!, StringComparer.OrdinalIgnoreCase);
 
@@ -125,26 +126,26 @@ public class Bootstraper : IBootstrap, IPluginRegistry, IDisposable
         CrazyReportConsole.ReportSuccess("Finished Plugin Degradation Process");
     }
 
-    internal async Task ProcessPlugins()
-    {
-        Console.WriteLine($"Configure Active Plugins ({ActivePlugins.Count})");
-        foreach (IPluginLifespanController plugin in ActivePlugins)
-            await plugin.InitializeAsync();
 
-        await SetupGracefulDegradation();
-
-
-        await MasterSp.RuntimeStartupBeforePluginsAsync();
-
-        foreach (IPluginLifespanController plugin in ActivePlugins)
-            await plugin.SignalBeforeRuntimeAsync();
-    }
     public async Task RunAsync(IServiceProvider serviceProvider)
     {
+        // CRITICAL ORDER
+        // Initialize Plugin = Register all Redirected Services and PluginContext Service Containers Required Later
+        // Master Circuit, Trigger Regular Workflow of creating a circuit (outside blazor, UI dead not working within that server and never will)
+        // Perform Before Runtime Lifecycle
+        Console.WriteLine($"Configure Active Plugins ({ActivePlugins.Count})");
+
+        foreach (IPluginLifespanController plugin in ActivePlugins)
+            await plugin.InitializeAsync();
+        await SetupGracefulDegradation();
+        await MasterSp.RuntimeStartupBeforePluginsAsync();
 
         var circuitRegistry = MasterSp.GetRequiredService<CircuitRegistry>();
         circuitRegistry.SelfCircuitRegistration(Guid.NewGuid(), default);
-        await ProcessPlugins();
+
+        foreach (IPluginLifespanController plugin in ActivePlugins)
+            await plugin.SignalBeforeRuntimeAsync();
+
         await MasterSp.RuntimeStartupAfterPluginsAsync();
         await MasterSp.RuntimeHostStartup();
     }

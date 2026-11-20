@@ -1,12 +1,12 @@
-﻿using CoreMap;
+﻿using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using LunaticPanel.Engine.Domain.UI.Dashboard.Enums;
 
 namespace LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Dto.Mapping;
 
-internal class WidgetElementResponseToWidgetElementEntity : ICoreMapHandler<WidgetElementResponse, WidgetElementEntity>
+public static class WidgetElementMappingExt
 {
-    public WidgetElementEntity Handler(WidgetElementResponse data, ICoreMap alsoMap)
+    internal static WidgetElementEntity ToEntity(this WidgetElementResponse data)
         => new WidgetElementEntity()
         {
             Position = data.Position,

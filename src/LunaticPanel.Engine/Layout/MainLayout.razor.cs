@@ -36,9 +36,6 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
         }
     }
 
-
-
-
     public ValueTask DisposeAsync()
     {
         ViewModel.SpreadChanges -= ShouldUpdate;

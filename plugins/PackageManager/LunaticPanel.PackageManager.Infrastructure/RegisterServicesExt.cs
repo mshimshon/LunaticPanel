@@ -15,6 +15,7 @@ public static class RegisterServicesExt
     {
         services.Services.AddMediatorService();
         services.AddApplicationServices();
+        services.Services.BuildMediatorRouting();
         services.Services.AddStatePulseServices(p =>
         {
             p.PulseTrackingPerformance = StatePulse.Net.Configuration.PulseTrackingModel.BlazorServerSafe;
@@ -28,5 +29,6 @@ public static class RegisterServicesExt
         services.AddTransient<IPackageRepository, HostDiskPackageService>();
         services.AddTransient<ISourceOrderingService, SourceOrderingService>();
         services.AddSingleton<IPackageFileReader, PackageFileReader>();
+
     }
 }

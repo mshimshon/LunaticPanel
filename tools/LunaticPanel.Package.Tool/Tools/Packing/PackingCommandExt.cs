@@ -1,5 +1,6 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Exceptions.PackExceptions;
 using LunaticPanel.Package.Tool.Exceptions.UnpackExceptions;
@@ -70,7 +71,7 @@ internal static class PackingCommandExt
         await UnpackToLocation(manifest, input, output, rootUnpack);
     }
 
-    public static async Task UnpackToLocation(PluginManifestPayload manifest, string input, string outputFolder, bool rootUnpack)
+    public static async Task UnpackToLocation(PluginManifestEntity manifest, string input, string outputFolder, bool rootUnpack)
     {
         var linuxId = manifest.Id.Replace('.', '_').ToLower();
         var targetExtraction = rootUnpack ? outputFolder : Path.Combine(outputFolder, linuxId);
@@ -103,7 +104,7 @@ internal static class PackingCommandExt
 
     }
 
-    private static async Task<PluginManifestPayload> PackingAction(ParseResult parseResult, CancellationToken ct = default)
+    private static async Task<PluginManifestEntity> PackingAction(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
         var output = parseResult.GetValue<string>("--output");
@@ -119,7 +120,7 @@ internal static class PackingCommandExt
         return await PackAsync(input, output!, version);
 
     }
-    public static async Task<PluginManifestPayload> PackAsync(string input, string output, string? version)
+    public static async Task<PluginManifestEntity> PackAsync(string input, string output, string? version)
     {
         Console.Out.WriteLine($"Trying to Pack {input}");
 
@@ -153,7 +154,7 @@ internal static class PackingCommandExt
     }
 
 
-    public static string CreateManifestInformationFile(PluginManifestPayload manifest)
+    public static string CreateManifestInformationFile(PluginManifestEntity manifest)
     {
         var tmp = Path.GetTempFileName();
         string json = JsonSerializer.Serialize(manifest, _jsonSerializerOptions);
@@ -161,7 +162,7 @@ internal static class PackingCommandExt
         return tmp;
     }
 
-    public static async Task<PluginManifestPayload> PackToFile(List<string> files, string inputFolder, string outputFolder)
+    public static async Task<PluginManifestEntity> PackToFile(List<string> files, string inputFolder, string outputFolder)
     {
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
@@ -194,7 +195,7 @@ internal static class PackingCommandExt
         if (!File.Exists(outputPackage))
             throw new HostUnkownException();
         Console.Out.WriteLine($"Package Created at {outputPackage}".Green());
-        return JsonSerializer.Deserialize<PluginManifestPayload>(File.ReadAllText(manifestFileTmp), _jsonSerializerOptions)!;
+        return JsonSerializer.Deserialize<PluginManifestEntity>(File.ReadAllText(manifestFileTmp), _jsonSerializerOptions)!;
     }
     private static bool IsDirectoryPath(string path)
     {

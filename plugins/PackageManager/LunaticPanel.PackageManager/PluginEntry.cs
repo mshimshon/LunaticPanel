@@ -35,7 +35,11 @@ public class PluginEntry : PluginBase, IPlugin
     }
 
     public override MessageKey[] GetMyPackageKeys()
-        => typeof(LPPackageManagerKeys).Assembly.ScanKeyPackageForKeys();
+    {
+        var t = typeof(LPPackageManagerKeys);
+        var asm = t.Assembly;
+        return asm.ScanKeyPackageForKeys();
+    }
 
     protected override void RegisterPluginServices(IPluginServiceCollection services, CircuitIdentity circuit)
     {
