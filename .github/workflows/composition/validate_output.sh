@@ -2,6 +2,10 @@
 set -euo pipefail
 
 VERSION="${VERSION_NEXT:-}"
+if [ -z "${VERSION:-}" ]; then
+    echo "ERROR: VERSION is not set"
+    exit 1
+fi
 VERSION_NS="${VERSION_NOSUFFIX:-}"
 if [ -z "$VERSION_NS" ]; then
     VERSION_NS="$VERSION" # IF NOT PREVIEW SAY THE VERSION NO SUFFIX, IF PREVIEW YOU GET A x.x.x HERE
