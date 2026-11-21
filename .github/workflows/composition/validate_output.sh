@@ -32,8 +32,14 @@ ALLOWED_FILES=(
   "/tmp/artifacts/output/lunaticpanel_$VERSION.tar.gz"
   "/tmp/artifacts/output/lunapackage_server_$VERSION.tar.gz"
   "/tmp/artifacts/output/lunaticpanel_plugins_$VERSION.tar.gz"
-  "/tmp/artifacts/output/stable.txt"
 )
+
+if [ "$BRANCH" = "main-dev" ]; then
+  ALLOWED_FILES+=("/tmp/artifacts/output/preview.txt")
+else
+  ALLOWED_FILES+=("/tmp/artifacts/output/stable.txt")
+fi
+
 # Fail immediately if a required file is missing
 for file in "${ALLOWED_FILES[@]}"; do
   if [ ! -f "$file" ]; then
