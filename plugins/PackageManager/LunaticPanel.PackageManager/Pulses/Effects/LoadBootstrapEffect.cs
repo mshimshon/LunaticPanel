@@ -31,15 +31,15 @@ internal class LoadBootstrapEffect : IEffect<LoadBootstrapAction>
             var resultObj = queryResponse.Data?.GetData();
             if (resultObj == default || resultObj.GetType() != typeof(JsonArray))
                 throw new Exception("Cannot be null"); // TODO: USE REAL ERROR
-            JsonArray result = (JsonArray)resultObj;
-            List<string> enabled = result
-                .Where(x => x?["Entity"]!["Lifecycle"]!["StartupState"]?.GetValue<int>() == 1)
-                .Select(x => x!["Entity"]!["Identity"]!["PackageId"]!.GetValue<string>())
+            var result = (JsonArray)resultObj;
+            var enabled = result
+                .Where(x => x?["StartupState"]?.GetValue<int>() == 1)
+                .Select(x => x!["Manifest"]!["Id"]!.GetValue<string>())
                 .ToList();
 
-            List<string> disabled = result
-                .Where(x => x?["Entity"]!["Lifecycle"]!["StartupState"]?.GetValue<int>() == 0)
-                .Select(x => x!["Entity"]!["Identity"]!["PackageId"]!.GetValue<string>())
+            var disabled = result
+                .Where(x => x?["StartupState"]?.GetValue<int>() == 0)
+                .Select(x => x!["Manifest"]!["Id"]!.GetValue<string>())
                 .ToList();
             await dispatcher.Prepare<LoadBootstrapDoneAction>()
                 .With(p => p.Enabled, enabled)

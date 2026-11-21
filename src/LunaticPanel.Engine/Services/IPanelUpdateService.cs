@@ -1,5 +1,4 @@
 using LunaticPanel.Engine.Plugin;
-
 using NuGet.Versioning;
 using System;
 

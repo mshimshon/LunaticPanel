@@ -1,4 +1,5 @@
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Bootstraper;
 using LunaticPanel.Engine.Plugin;
 using System;
 

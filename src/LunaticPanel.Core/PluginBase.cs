@@ -291,6 +291,7 @@ public abstract class PluginBase : IPlugin
     public void Configure(IConfiguration configuration)
     {
         CrazyReportConsole.Report($"{PluginId} Configuring...");
+
         lock (_pluginKeysLock)
         {
             if (!_pluginKeys.ContainsKey(PluginId))
@@ -374,7 +375,11 @@ public abstract class PluginBase : IPlugin
         services.AddScoped<IEventScheduledBusReceiver, EventScheduledBusReceiver>();
 
         services.AddScoped<QueryBus>();
-        services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
+        services.AddScoped<IQueryBus>((sp) =>
+        {
+
+            return sp.GetRequiredService<QueryBus>();
+        });
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
         services.AddScoped(sp => new PluginContext(sp, circuit));

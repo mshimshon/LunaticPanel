@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.PackageManager.Domain.Entities;
 using LunaticPanel.PackageManager.Domain.Respositories;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Domain.Mock;
+namespace LunaticPanel.PackageManager.Tests.Domain.Mock;
 
 internal class SourceRepository : ISourceRepository
 {

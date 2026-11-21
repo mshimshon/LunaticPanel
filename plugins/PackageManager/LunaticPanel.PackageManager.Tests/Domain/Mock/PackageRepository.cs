@@ -5,7 +5,7 @@ using LunaticPanel.PackageManager.Domain.QueryModels.Interfaces;
 using LunaticPanel.PackageManager.Domain.Respositories;
 using LunaticPanel.PackageManager.Domain.Respositories.Exceptions;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Domain.Mock;
+namespace LunaticPanel.PackageManager.Tests.Domain.Mock;
 
 internal class PackageRepository : IPackageRepository
 {

@@ -1,4 +1,5 @@
-﻿using LunaticPanel.Package.Tool.Exceptions;
+﻿using LunaticPanel.Engine.Plugin;
+using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Extensions;
 using LunaticPanel.Package.Tool.Payloads;
 using LunaticPanel.Package.Tool.Tools.Validation;
@@ -28,7 +29,7 @@ public static class PushCommandExt
             .SetExecuteCommand(PushingAction);
         return root.WithSubCommand(command);
     }
-    private static async Task<PluginManifestPayload> PushingAction(ParseResult parseResult, CancellationToken ct = default)
+    private static async Task<PluginManifestEntity> PushingAction(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
         var source = parseResult.GetValue<string>("--source");
@@ -51,14 +52,14 @@ public static class PushCommandExt
             throw new PushHeadersIncorrectException();
         }
 
-        PluginManifestPayload manifest = await PluginValidatorCommandExt.ValidatePackageAsync(input);
+        PluginManifestEntity manifest = await PluginValidatorCommandExt.ValidatePackageAsync(input);
         PackagePushAccessPayload uploadPermissionAccess = await RequestUploadPermission(manifest, sourceUrl!, requestHeaders);
         await UploadFile(input, sourceUrl!, uploadPermissionAccess, uploadPermissionAccess.Headers);
         await CompleteUpload(uploadPermissionAccess.UploadId, sourceUrl!, requestHeaders);
         return manifest;
     }
 
-    private static async Task<PackagePushAccessPayload> RequestUploadPermission(PluginManifestPayload manifest, Uri source, Dictionary<string, string> headers)
+    private static async Task<PackagePushAccessPayload> RequestUploadPermission(PluginManifestEntity manifest, Uri source, Dictionary<string, string> headers)
     {
         using HttpClient? client = new HttpClient();
         Console.WriteLine($"Requesting Access '{source}'");

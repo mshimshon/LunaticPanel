@@ -3,7 +3,7 @@ using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels;
 using System;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Domain;
+namespace LunaticPanel.PackageManager.Tests.Domain;
 
 public class RespositorySourceQueryModelTest
 {

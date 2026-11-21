@@ -32,9 +32,9 @@
   "Projects": {
     "_": "Lunatic Panel",
     "tools\\LunaticPanel.DebugTool\\LunaticPanel.DebugTool.csproj": "Debug Tool",
-    "tools\\LunaticPanel.DebugTool\\LunaticPanel.Package.Tool.csproj": "Packing Tool",
-    "tools\\LunaticPanel.DebugTool\\LunaticPanel.Package.Server\\LunaticPanel.Package.Server.csproj": "LunaPackage Server Lib",
-    "tools\\LunaticPanel.DebugTool\\LunaticPanel.Package.LocalServer\\LunaticPanel.Package.LocalServer.csproj": "LunaPackage Local Server"
+    "tools\\LunaticPanel.Package.Tool\\LunaticPanel.Package.Tool.csproj": "Packing Tool",
+    "tools\\LunaticPanel.Package.Server\\LunaticPanel.Package.Server.csproj": "LunaPackage Server Lib",
+    "tools\\LunaticPanel.Package.LocalServer\\LunaticPanel.Package.LocalServer.csproj": "LunaPackage Local Server"
   },
   "TagMarkdownExamplesComment": "Following are examples in commit message you use then as such {SOCIAL MEDIA;USERNAME OR ID;Display Name}",
   "TagMarkdownExamples": {

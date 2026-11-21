@@ -2,7 +2,7 @@
 using LunaticPanel.PackageManager.Application.Payloads.Requests;
 using LunaticPanel.PackageManager.Application.Services;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mock;
+namespace LunaticPanel.PackageManager.Tests.Application.Mock;
 
 internal class PackageService : IPackageService
 {

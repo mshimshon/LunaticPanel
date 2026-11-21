@@ -58,6 +58,7 @@ public static class PluginScannerExt
         }
         return default;
     }
+
     /// <summary>
     /// Specify plugin runtime root, it will read manifest and load up the plugin reference safely or throw.
     /// </summary>
@@ -93,10 +94,6 @@ public static class PluginScannerExt
         }
         catch (Exception)
         {
-            throw;
-        }
-        finally
-        {
             if (permanentLoader != default && permanentLoader.IsUnloadable)
             {
                 permanentLoader.Dispose();
@@ -104,6 +101,11 @@ public static class PluginScannerExt
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
             }
+            throw;
+        }
+        finally
+        {
+
 
 
         }

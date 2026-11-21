@@ -5,7 +5,7 @@ using LunaticPanel.PackageManager.Domain.Entities.Enums;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
 using LunaticPanel.PackageManager.Domain.QueryModels;
 
-namespace LunaticPanel.PackageManager....LunaticPanel.PackageManager.Tests.Application.Mapping;
+namespace LunaticPanel.PackageManager.Tests.Application.Mapping;
 
 public class SearchMappingTests
 {
