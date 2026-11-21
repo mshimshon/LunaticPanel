@@ -69,7 +69,7 @@ jobs:
           tag_name: v${{ steps.version_control.outputs.version_next }}
           fail_on_unmatched_files: true
           body_path: "/tmp/artifacts/output/changelog.md"
-          prerelease: ${{ steps.version_control.outputs.trigger_branch == 'main-dev' }} # Mark as preview is preview
+          prerelease: ${{ steps.version_control.outputs.trigger_branch == 'main-dev' }} # Mark as preview is preview s
           files: |
             /tmp/artifacts/output/*.tar.gz
 
