@@ -39,8 +39,8 @@ jobs:
         id: version_control
         shell: bash
         run: |
-          ls -laR /tmp/artifacts || echo "no /tmp/artifacts"
-          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/artifacts/output/build.env | tr -d '\r' >> "$GITHUB_OUTPUT"w
+          ls -laR /tmp/artifacts || exit 1
+          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/artifacts/output/build.env | tr -d '\r' >> "$GITHUB_OUTPUT"
 
       - name: Use the Passed Versions
         shell: bash
