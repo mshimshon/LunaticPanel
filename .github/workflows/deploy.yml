@@ -84,9 +84,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version_control.outputs.version_next }}
+          fail_on_unmatched_files: true
           body_path: "/tmp/artifacts/output/changelog.md"
+          prerelease: ${{ steps.version_control.outputs.trigger_branch == 'main-dev' }} # Mark as preview is preview
           files: |
-            /tmp/artifacts/output/*.*
+            /tmp/artifacts/output/*.tar.gz
 
 
       - name: Push all NuGet packages with retry
