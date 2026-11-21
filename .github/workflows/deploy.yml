@@ -39,26 +39,9 @@ jobs:
         id: version_control
         shell: bash
         run: |
-          ls -laR /tmp/artifacts || echo "no /tmp/artifacts"
-          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/artifacts/output/build.env | tr -d '\r' >> "$GITHUB_OUTPUT"w
+          ls -laR /tmp/artifacts || exit 1
+          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/artifacts/output/build.env | tr -d '\r' >> "$GITHUB_OUTPUT"
 
-      - name: Use the Passed Versions
-        shell: bash
-        id: release_version
-        run: |
-          if [ "${{ steps.version_control.outputs.trigger_branch }}" = "main-dev" ]; then
-              echo "This is a Preview Release";
-              echo "Next Natural to version: ${{ steps.version_control.outputs.version_next }}"
-              echo "The current version: ${{ steps.version_control.outputs.version_current }}"
-              echo "Next Actual to version: ${{ steps.version_control.outputs.version_next_preview }}"
-              echo "The current preview version: ${{ steps.version_control.outputs.version_current_preview }}"
-              echo "release_version=${{ steps.version_control.outputs.version_next_preview }}" >> "$GITHUB_OUTPUT"
-          else
-              echo "This is a Stable Release";
-              echo "Next Actual to version: ${{ steps.version_control.outputs.version_next }}"
-              echo "The current version: ${{ steps.version_control.outputs.version_current }}"
-              echo "release_version=${{ steps.version_control.outputs.version_next }}" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Checkout triggering branch
         uses: actions/checkout@v4
@@ -84,9 +67,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version_control.outputs.version_next }}
+          fail_on_unmatched_files: true
           body_path: "/tmp/artifacts/output/changelog.md"
+          prerelease: ${{ steps.version_control.outputs.trigger_branch == 'main-dev' }} # Mark as preview is preview
           files: |
-            /tmp/artifacts/output/*.*
+            /tmp/artifacts/output/*.tar.gz
 
 
       - name: Push all NuGet packages with retry
