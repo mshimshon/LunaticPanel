@@ -50,17 +50,18 @@ jobs:
           fetch-depth: 0
 
       - name: Preparing CDN Files
+        shell: bash
         run: |
           mkdir -p /tmp/artifacts/cdn
           cp /tmp/artifacts/output/lunaticpanel_${{ steps.version_control.outputs.version_next }}.tar.gz /tmp/artifacts/cdn
           cp /tmp/artifacts/output/lunapackage_server_${{ steps.version_control.outputs.version_next }}.tar.gz /tmp/artifacts/cdn
           cp /tmp/artifacts/output/lunaticpanel_plugins_${{ steps.version_control.outputs.version_next }}.tar.gz /tmp/artifacts/cdn
-          if [ -f /tmp/artifacts/output/stable.txt ]; then
-              cp /tmp/artifacts/output/stable.txt /tmp/artifacts/cdn/
-          fi
-
-          if [ -f /tmp/artifacts/output/preview.txt ]; then
-              cp /tmp/artifacts/output/preview.txt /tmp/artifacts/cdn/
+          if [[ "${{ steps.version_control.outputs.version_next }}" == *-* ]]; then
+              # prerelease
+              echo "${{ steps.version_control.outputs.version_next }}" > /tmp/artifacts/cdn/preview.txt
+          else
+              # stable release
+              echo "${{ steps.version_control.outputs.version_next }}" > /tmp/artifacts/cdn/stable.txt
           fi
 
       - name: NuGet login (OIDC → temp API key)
