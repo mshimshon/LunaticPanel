@@ -75,7 +75,12 @@ public static class Pathf
     public static string ResetDirectory(string path)
     {
         if (Directory.Exists(path))
+        {
             Directory.Delete(path, true);
+            if (!path.EndsWith(DirectorySeparatorChar))
+                path += DirectorySeparatorChar;
+        }
+
         return EnsureCreated(path);
     }
 

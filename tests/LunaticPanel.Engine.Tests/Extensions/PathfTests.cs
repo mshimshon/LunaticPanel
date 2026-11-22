@@ -3,8 +3,13 @@ using System;
 
 namespace LunaticPanel.Engine.Tests.Extensions;
 
-public class PathfTests
+[Collection("NoParallel")]
+
+public class PathfTests : IDisposable
 {
+    private bool _disposedValue;
+
+
     [Fact]
     public void SimulationBase_ShouldPass()
     {
@@ -151,4 +156,38 @@ public class PathfTests
         Assert.True(File.Exists(path));
     }
 
+    private void CleanUpJob()
+    {
+        if (!OperatingSystem.IsLinux() && Directory.Exists(Pathf.SimulatorBasePath))
+            Directory.Delete(Pathf.SimulatorBasePath, true);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                CleanUpJob();
+            }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
+            _disposedValue = true;
+        }
+    }
+
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~PluginDiscoveryTests()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 }
