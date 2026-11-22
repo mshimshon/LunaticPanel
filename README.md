@@ -3,8 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mshimshon/LunaticPanel/blob/main/LICENSE)
 [![NuGet Version](https://img.shields.io/nuget/v/LunaticPanel.Core)](https://www.nuget.org/packages/LunaticPanel.Core)
 [![](https://img.shields.io/nuget/dt/LunaticPanel.Core?label=Downloads)](https://www.nuget.org/packages/LunaticPanel.Core)
-[![Preview](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_preview.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_preview.yml)
-[![Stable](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_release.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build_release.yml)
+[![Build](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/build.yml)
 [![Deploy](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml/badge.svg)](https://github.com/mshimshon/LunaticPanel/actions/workflows/deploy.yml)
 
 # ⚠️ WARNING: NOT PRODUCTION READY
