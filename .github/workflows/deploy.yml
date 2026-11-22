@@ -49,6 +49,20 @@ jobs:
           ref: ${{ steps.version_control.outputs.trigger_branch }}
           fetch-depth: 0
 
+      - name: Preparing CDN Files
+        run: |
+          mkdir -p /tmp/artifacts/cdn
+          cp /tmp/artifacts/output/lunaticpanel_${{ steps.version_control.outputs.version_next }}.tar.gz /tmp/artifacts/cdn
+          cp /tmp/artifacts/output/lunapackage_server_${{ steps.version_control.outputs.version_next }}.tar.gz /tmp/artifacts/cdn
+          cp /tmp/artifacts/output/lunaticpanel_plugins_${{ steps.version_control.outputs.version_next }}.tar.gz /tmp/artifacts/cdn
+          if [ -f /tmp/artifacts/output/stable.txt ]; then
+              cp /tmp/artifacts/output/stable.txt /tmp/artifacts/cdn/
+          fi
+
+          if [ -f /tmp/artifacts/output/preview.txt ]; then
+              cp /tmp/artifacts/output/preview.txt /tmp/artifacts/cdn/
+          fi
+
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login
@@ -73,6 +87,16 @@ jobs:
           files: |
             /tmp/artifacts/output/*.tar.gz
 
+      - name: Upload to Cloudflare R2
+        if: ${{ !env.ACT }}
+        uses: ryand56/r2-upload-action@v1
+        with:
+          r2-account-id: ${{ secrets.CF_R2_ACCOUNT_ID }}
+          r2-access-key-id: ${{ secrets.CF_R2_ACCESS_ID }}
+          r2-secret-access-key: ${{ secrets.CF_R2_SECRET_KEY }}
+          r2-bucket: 'lunaticpanel'
+          source-dir: '/tmp/artifacts/cdn' # The folder you want to upload
+          destination-dir: 'release'
 
       - name: Push all NuGet packages with retry
         uses: nick-invision/retry@v2
