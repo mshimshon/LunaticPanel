@@ -1,4 +1,5 @@
 using LunaticPanel.Core.Abstraction.Circuit;
+using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
@@ -16,18 +17,18 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
     private readonly ICrazyReport<PackageUpdateScheduled> _crazyReport;
     private readonly IPanelUpdateService _panelUpdateService;
     private readonly ICircuitRegistry _circuitRegistry;
-
+    private readonly IEventBus _eventBus;
     private static bool _isExecuting = false;
     private static readonly Lock _lock = new();
     private TimeSpan _configuredTiming = new(1, 0, 0, 0);
     private NuGetVersion _panelVersion = default!;
-    public PackageUpdateScheduled(ICrazyReport<PackageUpdateScheduled> crazyReport, IPanelUpdateService panelUpdateService, ICircuitRegistry circuitRegistry)
+    public PackageUpdateScheduled(ICrazyReport<PackageUpdateScheduled> crazyReport, IPanelUpdateService panelUpdateService, ICircuitRegistry circuitRegistry, IEventBus eventBus)
     {
         // PackageUpdateState
         _crazyReport = crazyReport;
         _panelUpdateService = panelUpdateService;
         _circuitRegistry = circuitRegistry;
-
+        _eventBus = eventBus;
         _crazyReport.SetModule("Scheduler");
         _panelVersion = new(typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
         string? hoursCheck = Environment.GetEnvironmentVariable("LP_UPDATE_HOURS");
@@ -64,6 +65,9 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
             if (_panelUpdateService.Staged != default) return;
             var latestVersion = await _panelUpdateService.GetLatestVersion();
             if (latestVersion <= _panelVersion) return;
+
+            await _eventBus.PublishDataAsync(PanelKeys.Events.ON_PANEL_UPDATE_AVAILABLE, latestVersion);
+
             // Get the Latest Update
             await _panelUpdateService.DownloadUpdateAsync();
             // Check if upgrade folder contains same plugins versions as installed/applied compatible with the upcoming upgrade.
@@ -73,7 +77,7 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
                 return;
             // All plugins are compatible with the next major panel upgrade, auto upgrade is ready to deploy.
             if (_panelUpdateService.Downloaded != default && _panelUpdateService.Install == default)
-                await _panelUpdateService.InstallUpdateAsync();
+                await _panelUpdateService.StageUpdateAsync();
 
         }
         catch (Exception ex)

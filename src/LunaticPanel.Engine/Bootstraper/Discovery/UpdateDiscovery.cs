@@ -229,13 +229,7 @@ public class UpdateDiscovery : IUpdateDiscovery
             File.Delete(file);
     }
 
-    private string EnsureCreated(string path)
-    {
 
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-        return path;
-    }
     public async Task FailSafeRestoring()
     {
         if (File.Exists(_failSafePanelFile))

@@ -44,6 +44,7 @@ internal class PanelUpdateService : IPanelUpdateService
     private readonly Uri _previewCheckUrl;
     private readonly Uri _stableCheckUrl;
     private readonly string _downloadLocation;
+    private readonly TimeSpan _fendOffSetting = new(1, 0, 0, 0);
     public PanelUpdateService(
         IHttpClientFactory httpClientFactory,
         IAtomicFileSystem AtomicFileSystem,
@@ -66,6 +67,9 @@ internal class PanelUpdateService : IPanelUpdateService
         _currentPanelVersion = NuGetVersion.Parse(typeof(IPlugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion);
         if (bool.TryParse(Environment.GetEnvironmentVariable("LP_UPGRADE_AUTO_RESTART"), out var autoRestart))
             _autoRestart = autoRestart;
+
+        if (TimeSpan.TryParse(Environment.GetEnvironmentVariable("LP_UPDATE_FEND_OFF"), out var updateFendOff))
+            _fendOffSetting = updateFendOff;
 
         if (bool.TryParse(Environment.GetEnvironmentVariable("LP_OPT_OUT_PREVIEW"), out var previewOptOut))
             _previewEnabled = !previewOptOut;
@@ -223,26 +227,34 @@ internal class PanelUpdateService : IPanelUpdateService
             _crazyReport.ReportWarning($"Update {_updateDiscovery.UpgradeTo} More Recent and Already Downloaded.");
             return;
         }
+
         string lastDownloaded = Path.Combine(_downloadLocation, "cache.txt");
         string officialPanel = Path.Combine(_downloadLocation, "lunaticpanel_latest.tar.gz");
         string officialPanelPlugins = Path.Combine(_downloadLocation, "lunaticpanel_plugins_latest.tar.gz");
         await DownloadFile(client, $"lunaticpanel_{version}.tar.gz", officialPanel, ct);
         await DownloadFile(client, $"lunaticpanel_plugins_{version}.tar.gz", officialPanelPlugins, ct);
+
+
         Pathf.ResetDirectory(_updateDiscoveryLocator.UpgradePluginCache);
         await ArchiveUtilityExt.ExtractTo(officialPanelPlugins, _updateDiscoveryLocator.UpgradePluginCache, ArchiveType.TarGz);
         await _atomicFileSystem.WriteAtomicAsync(lastDownloaded, version.ToString());
         Downloaded = version;
+        await _eventBus.PublishDataAsync(PanelKeys.Events.ON_PANEL_UPDATE_DOWNLOADED, version.ToString());
         await CheckPluginsAsync(ct);
     }
 
     public async Task StageUpdateAsync(CancellationToken ct = default)
     {
+
         if (Installing != default || Downloaded == default)
         {
             _crazyReport.Report($"Installing Version {(Installing != default ? Installing : "NO")} Staged Folder {(Staged != default ? Staged : "NO")} Skip InstallUpdate.");
             return;
         }
+
+
         Installing = Downloaded;
+
         string upgradeVersionCache = Pathf.Combine(_updateDiscoveryLocator.UpgradeReadyApply, "version.txt");
         string binPanelPath = _updateDiscoveryLocator.BinaryPathRoot;
         var downloadedPanel = Pathf.Combine(_downloadLocation, "lunaticpanel_latest.tar.gz");
@@ -251,6 +263,7 @@ internal class PanelUpdateService : IPanelUpdateService
         var applyPreInstalledFolderLocation = _updateDiscoveryLocator.UpgradePluginPreinstalled;
         try
         {
+
             SafeToUpgrade();
             if (BlockedByPlugin)
             {
@@ -267,6 +280,13 @@ internal class PanelUpdateService : IPanelUpdateService
             {
                 _crazyReport.ReportError("Panel cannot upgrade as there is a mismatch between preinstalled and upgraded package folder.");
                 return;
+            }
+            var releaseDate = await ArchiveUtilityExt.GetTimeOfTarGzFile(downloadedPanel);
+            var fendOffExpiry = releaseDate.Add(_fendOffSetting);
+            if (DateTime.UtcNow <= fendOffExpiry)
+            {
+                _crazyReport.ReportWarning("Panel Cannot Upgrade yet, still waiting for security fend off time to pass.");
+
             }
             File.Move(downloadedPanel, applyPanelFileLocation, true);
             if (PluginUpgradeDownloaded != default)
@@ -287,17 +307,22 @@ internal class PanelUpdateService : IPanelUpdateService
             Staged = Installing;
             _crazyReport.ReportInfo($"Auto Restart ? {_autoRestart} ");
             _crazyReport.ReportInfo($"Active Circuits ? {_circuitRegistry.GetActiveCircuits().Count} ");
+            bool restart = _autoRestart && _circuitRegistry.GetActiveCircuits().Count <= 1;
 
-            if (_autoRestart && _circuitRegistry.GetActiveCircuits().Count <= 1)
+            if (_autoRestart && !restart)
+                _crazyReport.Report("Auto Restart is enabled but active circuits always prevent auto restart to avoid losing data.");
+            else if (!_autoRestart)
+                _crazyReport.Report("Auto Restart is disabled you must restart the panel manually.");
+
+            if (restart)
             {
                 _crazyReport.ReportInfo("Auto Restart is active and no one is using the panel, therefore let's restart.");
                 await _eventBus.PublishDatalessAsync(PanelKeys.Events.PANEL_SHUTDOWN);
             }
-            else if (_autoRestart && _circuitRegistry.GetActiveCircuits().Count > 1)
-                _crazyReport.Report("Auto Restart is enabled but active circuits always prevent auto restart to avoid losing data.");
-
-            if (!_autoRestart)
-                _crazyReport.Report("Auto Restart is disabled you must restart the panel manually.");
+            else
+            {
+                await _eventBus.PublishDataAsync(PanelKeys.Events.ON_PANEL_UPDATE_STAGED, Installing.ToString());
+            }
 
         }
         catch (System.Exception ex)
@@ -351,4 +376,5 @@ internal class PanelUpdateService : IPanelUpdateService
         File.Move(destinationPathDownload, targetLocation, true); // Final Move.
     }
 
+    public Task<NuGetVersion> GetLatestVersion(CancellationToken ct = default) => GetLatestVersion(_httpClientFactory.CreateClient(), ct);
 }
