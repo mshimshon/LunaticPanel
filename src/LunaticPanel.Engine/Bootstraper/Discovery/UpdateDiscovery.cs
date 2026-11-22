@@ -85,7 +85,7 @@ public class UpdateDiscovery : IUpdateDiscovery
         bool hasNoDeletePending = Directory.GetFiles(_pluginDiscoveryLocation.PluginLifecycleDeleteLocation, "*.lpkg", SearchOption.TopDirectoryOnly).Count() <= 0;
         return haveAllMarks && hasNoUpdatePending && hasNoDeletePending;
     }
-    internal void LoadVersionFile()
+    public void LoadVersionFile()
     {
         if (!File.Exists(_upgradeMarkerFile))
         {
@@ -142,13 +142,13 @@ public class UpdateDiscovery : IUpdateDiscovery
         {
             System.Console.WriteLine("Updating Binary...".Cyan());
             LockAssemblies();
-            ResetDirectory(_updateDiscoveryLocation.BinaryPathRoot);
-            ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleApplyLocation);
-            ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleDeleteLocation);
-            ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleInstalledLocation);
-            ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleRollbackLocation);
-            ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleRuntimeLocation);
-            ResetDirectory(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
+            Pathf.ResetDirectory(_updateDiscoveryLocation.BinaryPathRoot);
+            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleApplyLocation);
+            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleDeleteLocation);
+            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleInstalledLocation);
+            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleRollbackLocation);
+            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleRuntimeLocation);
+            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
             System.Console.WriteLine("Directories Resetted".Green());
 
             System.Console.WriteLine("Installing New Panel".Yellow());
@@ -228,12 +228,7 @@ public class UpdateDiscovery : IUpdateDiscovery
         if (File.Exists(file))
             File.Delete(file);
     }
-    private void ResetDirectory(string path)
-    {
-        if (Directory.Exists(path))
-            Directory.Delete(path, true);
-        EnsureCreated(path);
-    }
+
     private string EnsureCreated(string path)
     {
 
@@ -247,7 +242,7 @@ public class UpdateDiscovery : IUpdateDiscovery
         {
             System.Console.WriteLine("Restoring Panel.".Yellow());
             if (Directory.Exists(_updateDiscoveryLocation.BinaryPathRoot))
-                ResetDirectory(_updateDiscoveryLocation.BinaryPathRoot);
+                Pathf.ResetDirectory(_updateDiscoveryLocation.BinaryPathRoot);
             await ArchiveUtilityExt.ExtractTo(_failSafePanelFile, _updateDiscoveryLocation.BinaryPathRoot, ArchiveType.TarGz);
             File.Delete(_failSafePanelFile);
         }
@@ -256,7 +251,7 @@ public class UpdateDiscovery : IUpdateDiscovery
         {
             System.Console.WriteLine("Restoring PLugins.".Yellow());
             if (Directory.Exists(_pluginDiscoveryLocation.PluginLifecycleLocation))
-                ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleLocation);
+                Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleLocation);
             await ArchiveUtilityExt.ExtractTo(_failSafePluginFile, _pluginDiscoveryLocation.PluginLifecycleLocation, ArchiveType.TarGz);
             File.Delete(_failSafePluginFile);
         }
@@ -264,5 +259,10 @@ public class UpdateDiscovery : IUpdateDiscovery
 
     }
 
+    public Task ClearStageAsync()
+    {
+        Pathf.ResetDirectory(_updateDiscoveryLocation.UpgradeRoot);
+        return Task.CompletedTask;
+    }
 
 }

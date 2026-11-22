@@ -24,4 +24,5 @@ public interface IUpdateDiscoveryLocator
     string RuntimeBackupRoot { get; }
     string UpgradePluginCache { get; }
     void Initialize();
+
 }

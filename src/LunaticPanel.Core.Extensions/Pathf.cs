@@ -62,6 +62,22 @@ public static class Pathf
         var combined = Combine(parts);
         return EnsureCreated(combined, unixCreateMode);
     }
+    /// <summary>
+    /// Delete Directory and Recreate (Always Recursive)
+    /// </summary>
+    public static string ResetDirectory(UnixFileMode unixCreateMode, string path)
+    {
+        if (Directory.Exists(path))
+            Directory.Delete(path, true);
+        return EnsureCreated(path, unixCreateMode);
+    }
+
+    public static string ResetDirectory(string path)
+    {
+        if (Directory.Exists(path))
+            Directory.Delete(path, true);
+        return EnsureCreated(path);
+    }
 
 
 }

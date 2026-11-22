@@ -51,10 +51,16 @@ public class Bootstraper : IBootstrap, IPluginRegistry, IDisposable
         _pluginStateController = new PluginStateController();
         services.AddSingleton<IBootstrap>((sp) => this);
         services.AddSingleton<IPluginRegistry>((sp) => this);
+
         _discoveryLocation = new PluginDiscoveryLocation();
         _pluginDiscovery = new PluginDiscovery(DiscoveryLocation, _pluginStateController);
         _upgradeLocation = new UpdateDiscoveryLocation();
         _upgradeDiscovery = new UpdateDiscovery(UpgradeLocation, DiscoveryLocation);
+        services.AddSingleton<IPluginDiscoveryLocator>((sp) => _discoveryLocation);
+        services.AddSingleton<IUpdateDiscoveryLocator>((sp) => _upgradeLocation);
+        services.AddSingleton<IPluginDiscovery>((sp) => _pluginDiscovery);
+        services.AddSingleton<IUpdateDiscovery>((sp) => _upgradeDiscovery);
+
         _services = services;
         _configuration = configuration;
         _redirectHostService = RegisterServicesExt

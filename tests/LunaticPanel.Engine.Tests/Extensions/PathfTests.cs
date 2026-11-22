@@ -89,4 +89,66 @@ public class PathfTests
         Assert.True(Directory.Exists(dir));
         Assert.False(File.Exists(expected));
     }
+
+    [Fact]
+    public void ResetDirectory_ShouldPass()
+    {
+        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        if (!OperatingSystem.IsLinux())
+            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
+
+        var path = Pathf.CombineEnsureCreated(args);
+        File.WriteAllText(path, "whatever");
+        Assert.True(File.Exists(path));
+        var dir = Path.GetDirectoryName(path);
+        Pathf.ResetDirectory(dir!);
+        Assert.False(File.Exists(path));
+
+    }
+
+    [Fact]
+    public void ResetDirectory_WithUnixPermission_ShouldPass()
+    {
+        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        if (!OperatingSystem.IsLinux())
+            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
+
+        var path = Pathf.CombineEnsureCreated(args);
+        File.WriteAllText(path, "whatever");
+        Assert.True(File.Exists(path));
+        var dir = Path.GetDirectoryName(path);
+        Pathf.ResetDirectory(UnixFileMode.UserWrite | UnixFileMode.UserRead, dir!);
+        Assert.False(File.Exists(path));
+
+    }
+
+    [Fact]
+    public void ResetDirectory_DoNotWhenFilePath_ShouldPass()
+    {
+        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        if (!OperatingSystem.IsLinux())
+            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
+
+        var path = Pathf.CombineEnsureCreated(args);
+        File.WriteAllText(path, "whatever");
+        Assert.True(File.Exists(path));
+        Pathf.ResetDirectory(path);
+        Assert.True(File.Exists(path));
+    }
+
+
+    [Fact]
+    public void ResetDirectory_DoNotWhenFilePath_WithUnixPermission_ShouldPass()
+    {
+        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        if (!OperatingSystem.IsLinux())
+            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
+
+        var path = Pathf.CombineEnsureCreated(args);
+        File.WriteAllText(path, "whatever");
+        Assert.True(File.Exists(path));
+        Pathf.ResetDirectory(UnixFileMode.UserWrite | UnixFileMode.UserRead, path);
+        Assert.True(File.Exists(path));
+    }
+
 }
