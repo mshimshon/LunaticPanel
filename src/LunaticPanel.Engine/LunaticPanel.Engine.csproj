@@ -5,13 +5,14 @@
     <Nullable>enable</Nullable>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
-	<Title>LunaticPanel.Engine.Web</Title>
-	<AssemblyName>LunaticPanel.Engine.Web</AssemblyName>
-	<RootNamespace>LunaticPanel.Engine.Web</RootNamespace>
+	<Title>LunaticPanel.Engine</Title>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<PackageProjectUrl>https://github.com/mshimshon/LunaticPanel</PackageProjectUrl>
-	<Product>LunaticPanel.Engine.Web</Product>
+	<Product>LunaticPanel.Engine</Product>
 	<Version>$(GlobalVersion)</Version>
+  	<InformationalVersion>$(GlobalVersion)</InformationalVersion>
+  	<FileVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch)</FileVersion>
+  	<AssemblyVersion>$(VersionMajor).0.0</AssemblyVersion>
 	<Company>$(GlobalCompany)</Company>
 	<Copyright>$(GlobalCopyright)</Copyright>
 	<Authors>$(GlobalAuthors)</Authors>
@@ -24,7 +25,6 @@
 
 <ItemGroup>
 	<PackageReference Include="CommandLineParser" />
-	<PackageReference Include="CoreMap" />
 	<PackageReference Include="DotNetCore.CAP" />
 	<PackageReference Include="DotNetCore.CAP.Dashboard" />
 	<PackageReference Include="DotNetCore.CAP.InMemoryStorage" />
@@ -51,6 +51,9 @@
 </ItemGroup>
 
 
-
+  <ItemGroup>
+	<InternalsVisibleTo Include="LunaticPanel.Engine.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
 
 </Project>

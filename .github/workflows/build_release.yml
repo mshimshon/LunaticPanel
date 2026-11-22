@@ -60,6 +60,13 @@ jobs:
         with:
           fetch-depth: 0 # 👈 This forces GitHub to pull ALL history and tags
 
+      - name: Installing libicu Dependency!
+        if: ${{ env.ACT }}
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y libicu-dev
+
       - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -78,6 +85,7 @@ jobs:
         shell: bash
         run: |
           depitsmart GetCurrentReleaseVersionRunner --ghOutput
+          HEAD_REF=$"${{ github.event.pull_request.head.ref }}"
           if [ "$HEAD_REF" = "main-dev" ]; then
             echo "Releasing Next Stable from Main Development"
             depitsmart CalculateNextReleaseVersionRunner --ghOutput
@@ -86,7 +94,8 @@ jobs:
             depitsmart CalculateNextReleaseVersionRunner --ghOutput --patchStableOnly
           fi
 
-      - name: Building Release
+      - name: Building Shipping Release DeployItSmart ;)
+        shell: bash
         run: bash -e .github/workflows/composition/compile_output.sh
         env:
           VERSION_NEXT: ${{ steps.version_control.outputs.version_next }}
@@ -95,18 +104,12 @@ jobs:
       - name: Generate Release Notes
         shell: bash
         run: |
+          HEAD_REF=$"${{ github.event.pull_request.head.ref }}"
           if [ "$HEAD_REF" = "main-dev" ]; then
             depitsmart GenerateChangeLogRunner --output "/tmp/artifacts/output"  --linkCommits
           else
             depitsmart GenerateChangeLogRunner --output "/tmp/artifacts/output"  --linkCommits --patchStableOnly
           fi
-
-      - name: Validating Output
-        shell: bash
-        run: bash -e .github/workflows/composition/validate_output.sh
-        env:
-          VERSION_NEXT: ${{ steps.version_control.outputs.version_next }}
-          BRANCH:  ${{ github.ref_name }}
 
       - name: Save Variables for Deploy
         shell: bash
@@ -116,6 +119,15 @@ jobs:
           echo "version_current=${{ steps.version_control.outputs.version_current }}" >> /tmp/artifacts/output/build.env
           echo "trigger_branch=${{ github.ref_name }}" >> /tmp/artifacts/output/build.env
           ls -laR /tmp/artifacts/output || echo "no /tmp/artifacts/output"
+
+      - name: Validating Output
+        shell: bash
+        run: bash -e .github/workflows/composition/validate_output.sh
+        env:
+          VERSION_NEXT: ${{ steps.version_control.outputs.version_next }}
+          BRANCH:  ${{ github.ref_name }}
+
+
 
       - name: Upload Build Output
         uses: actions/upload-artifact@v4

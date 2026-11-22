@@ -20,7 +20,7 @@ internal static class PluginUtilitiesExt
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
         PropertyNameCaseInsensitive = true,
     };
-    public static PluginManifestPayload ReadManifestFromArchive(string input)
+    public static PluginManifestEntity ReadManifestFromArchive(string input)
     {
         Console.Out.WriteLine($"Trying Read Manifest From {input}".Cyan());
 
@@ -31,10 +31,10 @@ internal static class PluginUtilitiesExt
         if (entry == null)
             throw new FileNotFoundException("manifest.json not found in package");
         using var stream = entry.Open();
-        return JsonSerializer.Deserialize<PluginManifestPayload>(stream, _jsonSerializerOptions)!;
+        return JsonSerializer.Deserialize<PluginManifestEntity>(stream, _jsonSerializerOptions)!;
     }
 
-    public static PluginManifestPayload GetManifestInformation(string inputFolder)
+    public static PluginManifestEntity GetManifestInformation(string inputFolder)
     {
         if (!Directory.Exists(inputFolder))
             throw new DirectoryNotFoundException(inputFolder);
@@ -45,6 +45,7 @@ internal static class PluginUtilitiesExt
         var meta = LibraryValidatorExt.ExtractMetadata(dll);
         foreach (var item in meta)
             Console.Out.WriteLine($"{item.Key}:{item.Value}".Cyan());
+
         Console.Out.WriteLine($"Extract Manifest".Cyan());
         Console.Out.WriteLine($"Extracting Manifest Information for {dll}".Cyan());
         var pluginId = meta[ManifestMeta.Id];
@@ -62,15 +63,15 @@ internal static class PluginUtilitiesExt
 
         var title = meta[ManifestMeta.Title];
         Console.Out.WriteLine($"title:{title}".Magenta());
-        var version = meta[ManifestMeta.Version]!.Split('-', '+')[0];
+        var version = meta[ManifestMeta.Version]!.Split('+')[0];
         Console.Out.WriteLine($"version:{version}".Magenta());
         if (version == default)
             throw new PluginVersionNotFoundException(pluginId);
-
+        var entryClassName = LibraryValidatorExt.GetEntryClass(dll);
         var copyright = meta[ManifestMeta.Copyright];
         Console.Out.WriteLine($"copyright:{copyright}".Magenta());
 
-        return new PluginManifestPayload()
+        return new PluginManifestEntity()
         {
             Id = pluginId,
             Title = title ?? pluginId,
@@ -81,7 +82,8 @@ internal static class PluginUtilitiesExt
             Version = version,
             PanelVersion = PackSettings.lunaticPanelVersion.ToString(),
             DotnetVersion = PackSettings.dotNetVersion.ToString(),
-            PluginEntryFile = Path.GetFileName(dll)
+            PluginEntryFile = Path.GetFileName(dll),
+            EntryClass = entryClassName
         };
 
     }

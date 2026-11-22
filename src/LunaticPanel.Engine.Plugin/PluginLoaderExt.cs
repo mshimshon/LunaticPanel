@@ -1,5 +1,4 @@
 ﻿using LunaticPanel.Core.Abstraction.Plugin;
-using LunaticPanel.Engine.Plugin.Entities;
 using System.Reflection;
 
 namespace LunaticPanel.Engine.Plugin;

@@ -45,6 +45,7 @@ public static class LibraryValidatorExt
         var info = new Dictionary<ManifestMeta, string?>();
         var valueReader = reader.GetBlobReader(customAttribute.Value);
         var value = ReadStringArg(valueReader);
+        // System.Console.WriteLine($"{name}={value}");
         switch (name)
         {
             case "AssemblyProductAttribute":
@@ -183,6 +184,67 @@ public static class LibraryValidatorExt
         }
         return count;
     }
+
+    public static string GetEntryClass(string dll)
+    {
+        Console.WriteLine($"[START] Scanning file: '{dll}'");
+        using var stream = File.OpenRead(dll);
+        using var pe = new PEReader(stream);
+        if (!pe.HasMetadata)
+            throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' has no metadata.");
+        var reader = pe.GetMetadataReader();
+        if (!reader.IsAssembly)
+            throw new PluginMetadataExtractionMalformedException("Format", $"'{dll}' is not a managed assembly.");
+
+
+        var comparer = reader.StringComparer;
+        var asmDefinition = reader.GetAssemblyDefinition();
+        Console.WriteLine($"[INFO] Metadata Assembly Name: {reader.GetString(asmDefinition.Name)}");
+        int typeIndex = 0;
+        foreach (var typeHandle in reader.TypeDefinitions)
+        {
+            typeIndex++;
+            var typeDef = reader.GetTypeDefinition(typeHandle);
+            string typeName = reader.GetString(typeDef.Name);
+            string typeNamespace = reader.GetString(typeDef.Namespace);
+            if (comparer.Equals(typeDef.Name, "<Module>"))
+                continue;
+            if ((typeDef.Attributes & TypeAttributes.Interface) != 0)
+                continue;
+            if ((typeDef.Attributes & TypeAttributes.Abstract) != 0)
+                continue;
+
+
+            var interfaces = typeDef.GetInterfaceImplementations();
+            int ifaceIndex = 0;
+            foreach (var ifaceHandle in interfaces)
+            {
+                ifaceIndex++;
+                var iface = reader.GetInterfaceImplementation(ifaceHandle);
+                var tokenKind = iface.Interface.Kind;
+                if (tokenKind == HandleKind.TypeReference)
+                {
+                    var tr = reader.GetTypeReference((TypeReferenceHandle)iface.Interface);
+                    string trName = reader.GetString(tr.Name);
+                    string trNamespace = reader.GetString(tr.Namespace);
+                    if (comparer.Equals(tr.Name, CORE_ABSTRACT_PLUGIN) && comparer.Equals(tr.Namespace, CORE_ABSTRACT_NAMESPACE))
+                    {
+                        string className = reader.GetString(typeDef.Name);
+                        string namespaceName = reader.GetString(typeDef.Namespace);
+
+                        string fullTypeName = string.IsNullOrEmpty(namespaceName)
+                            ? className
+                            : $"{namespaceName}.{className}";
+
+                        Console.WriteLine($"Found plugin: {fullTypeName}");
+
+                        return fullTypeName;
+                    }
+                }
+            }
+        }
+        throw new Exception($"Entry Point not Found. {dll}");
+    }
     public static Version ReadAssemblyVersion(string dll)
     {
         using var stream = File.OpenRead(dll);
@@ -285,7 +347,7 @@ public static class LibraryValidatorExt
 
         var fileVersion = meta[ManifestMeta.FileVersion] ?? throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag not found.");
         var tFileVersion = NuGetVersion.Parse(fileVersion);
-        if (tFileVersion.Version == tVersion.Version)
+        if (tFileVersion.Version != tVersion.Version)
             throw new PluginMetadataExtractionMalformedException(ManifestMeta.FileVersion.ToString(), $"'{dll}' FileVersion tag '{tFileVersion.Version}' must be equal to '{tVersion.Version}'.");
 
 

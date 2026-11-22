@@ -2,7 +2,7 @@
 using LunaticPanel.Core.Utils.Abstraction.Logging;
 using MudBlazor;
 
-namespace LunaticPanel.Engine.Web.Services;
+namespace LunaticPanel.Engine.Services;
 
 internal class HostExceptionHandler : IHostExceptionHandler
 {

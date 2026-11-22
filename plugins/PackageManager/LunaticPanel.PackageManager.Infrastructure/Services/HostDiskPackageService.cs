@@ -16,7 +16,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using static LunaticPanel.PackageManager.Infrastructure.Extensions.PackageFileExt;
 namespace LunaticPanel.PackageManager.Infrastructure.Services;
-
+// TODO: Fix Broken due to Rebuilt Bootstraper
 internal class HostDiskPackageService : IHostDiskPackageService
 {
     private readonly ICrazyReport<HostDiskPackageService> _crazyReport;
@@ -26,7 +26,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
     private readonly string _deleteLocation;
     private readonly string _preInstalledFolder;
 
-    private const string BOOTSTRAP_LOCATION = "/var/lib/lunaticpanel/config/bootstrap.json";
+    private const string BOOTSTRAP_LOCATION = "/var/lib/lunaticpanel/bootstrap.v1.json";
     private readonly string _sourceCached;
     private readonly string _sourceApiCached;
 
@@ -52,7 +52,7 @@ internal class HostDiskPackageService : IHostDiskPackageService
         _installedLocation = Path.Combine(tempRoot, "installed");
         _rollbackLocation = Path.Combine(tempRoot, "rollbacks");
         _deleteLocation = Path.Combine(tempRoot, "delete");
-        _preInstalledFolder = Path.Combine(Environment.CurrentDirectory, "plugins_preinstalled");
+        _preInstalledFolder = Path.Combine(Environment.CurrentDirectory, "plugins");
 
         _sourceCached = pluginLocation.GetAppDataBase(".pkg_source_cache");
         _sourceApiCached = pluginLocation.GetAppDataBase(".pkg_api_cache");
@@ -103,13 +103,13 @@ internal class HostDiskPackageService : IHostDiskPackageService
     }
 
 
-    private ExternalBootstrapPayload Loadbootstrap(string content)
+    private List<ExternalPluginPayload> Loadbootstrap(string content)
     {
         _crazyReport.Report("Reading Bootstrap File");
 
         try
         {
-            var bootstrap = JsonSerializer.Deserialize<ExternalBootstrapPayload>(content, _jsonSerializerOptions);
+            var bootstrap = JsonSerializer.Deserialize<List<ExternalPluginPayload>>(content, _jsonSerializerOptions);
             if (bootstrap == default) throw new BootstrapCorruptedException();
             return bootstrap;
         }
@@ -147,86 +147,36 @@ internal class HostDiskPackageService : IHostDiskPackageService
     }
     public async Task DisableAsync(PackageId id, CancellationToken ct = default)
     {
-        await _atomicFileSystem.WriteAtomicAsync(BOOTSTRAP_LOCATION, (content) =>
-        {
-            var bootstrap = Loadbootstrap(content);
-            var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
-            if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
-            bootstrap.KnownPlugins.Remove(entry);
-            entry = entry with
-            {
-                Entity = entry.Entity with
-                {
-                    Lifecycle = entry.Entity.Lifecycle with
-                    {
-                        StartupState = ExternalPluginEntityLifecycleStartupState.Disabled
-                    }
-                }
-            };
-            bootstrap.KnownPlugins.Add(entry);
-            return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
-        }, ct);
+        await _atomicFileSystem.WriteAtomicAsync(BOOTSTRAP_LOCATION,
+             (content) => ChangeStartupState(id, ExternalPluginStartupState.Disabled, content), ct);
+    }
+    internal string ChangeStartupState(PackageId id, ExternalPluginStartupState startupState, string jsonContent)
+    {
+        var bootstrap = Loadbootstrap(jsonContent);
+        var entry = bootstrap.SingleOrDefault(p => p.Id.Equals(id.Value, StringComparison.OrdinalIgnoreCase));
+        if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
+        bootstrap.Remove(entry);
+        entry = entry with { StartupState = startupState };
+        bootstrap.Add(entry);
+        return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
     }
     public async Task EnableAsync(PackageId id, CancellationToken ct = default)
     {
-        await _atomicFileSystem.WriteAtomicAsync(BOOTSTRAP_LOCATION, (content) =>
-        {
-            var bootstrap = Loadbootstrap(content);
-            var entry = bootstrap.KnownPlugins.SingleOrDefault(p => p.Entity.Identity.PackageId == id.Value);
-            if (entry == default) throw new BootstrapPackageNotFoundException(id.Value);
-            bootstrap.KnownPlugins.Remove(entry);
-            entry = entry with
-            {
-                Entity = entry.Entity with
-                {
-                    Lifecycle = entry.Entity.Lifecycle with
-                    {
-                        StartupState = ExternalPluginEntityLifecycleStartupState.Disabled
-                    }
-                }
-            };
-            bootstrap.KnownPlugins.Add(entry);
-            return JsonSerializer.Serialize(bootstrap, _jsonSerializerOptions);
-        }, ct);
+        await _atomicFileSystem.WriteAtomicAsync(BOOTSTRAP_LOCATION,
+             (content) => ChangeStartupState(id, ExternalPluginStartupState.Enabled, content), ct);
     }
 
     public Task<ICollection<PackageEntity>> GetAll(CancellationToken ct = default)
     {
         var bootstrap = Loadbootstrap(File.ReadAllText(BOOTSTRAP_LOCATION));
-        var validPlugins = bootstrap.KnownPlugins
-            .Select(p =>
-            {
-                string manifestFile = Path.Combine(p.PluginDir, "manifest.json");
-                if (!File.Exists(manifestFile)) return null;
-                PluginManifestExtPayload? manifest = JsonSerializer.Deserialize<PluginManifestExtPayload>(File.ReadAllText(manifestFile));
-                if (manifest == default) return null;
-                var result = p with
-                {
-                    Entity = p.Entity with
-                    {
-                        Identity = p.Entity.Identity with
-                        {
-                            Description = manifest.Description,
-                            Author = manifest.Author,
-                            CompanyName = manifest.Company,
-                            Copyright = manifest.Copyright,
-                            DisplayName = manifest.Title,
-                            PakageVersion = manifest.Version,
-                            PackageId = manifest.Id,
-                            PanelVersion = manifest.PanelVersion,
-                        }
-                    }
-                };
-                return result;
-            })
-            .ToList();
+
         // Create Local/Fake Source for PAckage as we don't save the source along the plugin.
         var mockRepos = new RepositorySourceInfo(new RepositorySourceLocal("local"), Domain.Entities.Enums.RepositorySourceType.Local);
-        ICollection<PackageEntity> result = validPlugins?
+        ICollection<PackageEntity> result = bootstrap?
             .Where(p => p != null)
             .Select(p =>
             {
-                return p!.Entity.MapToDomainEntity(mockRepos);
+                return p.MapToDomainEntity(mockRepos);
             })
             .ToList() ?? Array.Empty<PackageEntity>().ToList();
         return Task.FromResult(result);

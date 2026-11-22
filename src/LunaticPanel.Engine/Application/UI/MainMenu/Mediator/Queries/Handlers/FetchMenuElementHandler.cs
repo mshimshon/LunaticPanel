@@ -1,7 +1,8 @@
-﻿using CoreMap;
-using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries;
 using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Dto.Responses;
+using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Dto.Responses.Mapping;
 using LunaticPanel.Engine.Domain.UI.Menu.Entites;
 using LunaticPanel.Engine.Keys.UI;
 using MaksimShimshon.Mediator;
@@ -9,12 +10,10 @@ namespace LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Handlers;
 
 internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, List<EngineBusMsgResponseWithData<MenuElementEntity>>>
 {
-    private readonly ICoreMap _coreMap;
     private readonly IEngineBus _engineBus;
 
-    public FetchMenuElementHandler(ICoreMap coreMap, IEngineBus engineBus)
+    public FetchMenuElementHandler(IEngineBus engineBus)
     {
-        _coreMap = coreMap;
         _engineBus = engineBus;
     }
     public async Task<List<EngineBusMsgResponseWithData<MenuElementEntity>>> HandleAsync(FetchMenuElementQuery request, CancellationToken cancellationToken)
@@ -24,7 +23,7 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
         { // _coreMap.MapTo<MenuElementResponse, MenuElementEntity>
             var responses = await _engineBus
                 .Execute(MainMenuKeys.UI.GET_ELEMENTS)
-                .ReadWithData((response) => _coreMap.MapTo<MenuElementResponse, MenuElementEntity>((response.Data?.GetDataAs<MenuElementResponse>() ?? new())), p => p);
+                .ReadWithData((response) => (response.Data?.GetDataAs<MenuElementResponse>() ?? new()).ToEntity(), p => p);
             result = responses
                 .OrderBy(p => p.Data.Position)
                 .ToList();

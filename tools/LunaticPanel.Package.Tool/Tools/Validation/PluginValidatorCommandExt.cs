@@ -1,7 +1,6 @@
 ﻿using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Plugin.Entities;
 using LunaticPanel.Engine.Plugin.Validation;
 using LunaticPanel.Package.Tool.Exceptions;
 using LunaticPanel.Package.Tool.Exceptions.ValidateExceptions;
@@ -24,7 +23,7 @@ internal static class PluginValidatorCommandExt
 
         return root.WithSubCommand(command);
     }
-    private static async Task<PluginManifestPayload> ValidateAction(ParseResult parseResult, CancellationToken ct = default)
+    private static async Task<PluginManifestEntity> ValidateAction(ParseResult parseResult, CancellationToken ct = default)
     {
         var input = parseResult.GetValue<string>("--input");
         bool missingParams = input == default;
@@ -36,20 +35,20 @@ internal static class PluginValidatorCommandExt
 
     }
 
-    public static async Task<PluginManifestPayload> ValidatePackageAsync(string input)
+    public static async Task<PluginManifestEntity> ValidatePackageAsync(string input)
     {
         bool isPackage = !Directory.Exists(input) && File.Exists(input);
         var inputFolder = input;
         string? outputPackageTmp = default;
         PluginScannedEntity? entity = default;
-        PluginManifestPayload? manifest = default;
+        PluginManifestEntity? manifest = default;
         if (isPackage)
         {
             Console.Out.WriteLine($"Validating Package for {input}");
             manifest = PluginUtilitiesExt.ReadManifestFromArchive(input);
             var rootTmp = Path.GetTempPath();
             var tmpFolder = Path.GetFileNameWithoutExtension(Path.GetTempFileName());
-            outputPackageTmp = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{PackSettings.lunaticPanelVersion}", tmpFolder);
+            outputPackageTmp = Path.Combine(rootTmp, $"lunaticpanel.lpkg.{manifest.Version}", tmpFolder);
             await PackingCommandExt.UnpackToLocation(manifest, input, outputPackageTmp, true);
             inputFolder = outputPackageTmp;
         }

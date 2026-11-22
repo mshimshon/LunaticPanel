@@ -2,6 +2,10 @@
 set -euo pipefail
 
 VERSION="${VERSION_NEXT:-}"
+if [ -z "${VERSION:-}" ]; then
+    echo "ERROR: VERSION is not set"
+    exit 1
+fi
 VERSION_NS="${VERSION_NOSUFFIX:-}"
 if [ -z "$VERSION_NS" ]; then
     VERSION_NS="$VERSION" # IF NOT PREVIEW SAY THE VERSION NO SUFFIX, IF PREVIEW YOU GET A x.x.x HERE
@@ -32,8 +36,14 @@ ALLOWED_FILES=(
   "/tmp/artifacts/output/lunaticpanel_$VERSION.tar.gz"
   "/tmp/artifacts/output/lunapackage_server_$VERSION.tar.gz"
   "/tmp/artifacts/output/lunaticpanel_plugins_$VERSION.tar.gz"
-  "/tmp/artifacts/output/stable.txt"
 )
+
+if [ "$BRANCH" = "main-dev" ]; then
+  ALLOWED_FILES+=("/tmp/artifacts/output/preview.txt")
+else
+  ALLOWED_FILES+=("/tmp/artifacts/output/stable.txt")
+fi
+
 # Fail immediately if a required file is missing
 for file in "${ALLOWED_FILES[@]}"; do
   if [ ! -f "$file" ]; then

@@ -2,7 +2,7 @@
 using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Actions;
+namespace LunaticPanel.Engine.Pages.Dashboard.Pulses.Actions;
 
 public class FetchedDashboardWidgetAction : ISafeAction
 {

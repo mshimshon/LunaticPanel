@@ -42,6 +42,7 @@ jobs:
           ls -laR /tmp/artifacts || exit 1
           grep -E '^[A-Za-z_][A-Za-z0-9_]*=' /tmp/artifacts/output/build.env | tr -d '\r' >> "$GITHUB_OUTPUT"
 
+<<<<<<< HEAD
       - name: Use the Passed Versions
         shell: bash
         id: release_version
@@ -59,6 +60,8 @@ jobs:
               echo "The current version: ${{ steps.version_control.outputs.version_current }}"
               echo "release_version=${{ steps.version_control.outputs.version_next }}" >> "$GITHUB_OUTPUT"
           fi
+=======
+>>>>>>> main-dev
 
       - name: Checkout triggering branch
         uses: actions/checkout@v4
@@ -86,7 +89,11 @@ jobs:
           tag_name: v${{ steps.version_control.outputs.version_next }}
           fail_on_unmatched_files: true
           body_path: "/tmp/artifacts/output/changelog.md"
+<<<<<<< HEAD
           prerelease: ${{ steps.version_control.outputs.trigger_branch == 'main-dev' }} # Mark as preview is preview
+=======
+          prerelease: ${{ steps.version_control.outputs.trigger_branch == 'main-dev' }} # Mark as preview is preview s
+>>>>>>> main-dev
           files: |
             /tmp/artifacts/output/*.tar.gz
 

@@ -1,4 +1,5 @@
 ﻿using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Plugin;
 using LunaticPanel.Package.Tool.Payloads;
 using Microsoft.Extensions.DependencyInjection;
 using NuGet.Versioning;
@@ -16,7 +17,7 @@ public sealed class ConsoleApplicationBuilder
         Services = new ServiceCollection();
         _args = args;
         Console.WriteLine($"ARGS = {string.Join(' ', args)}");
-        var sdkVersion = typeof(PluginManifestPayload).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        var sdkVersion = typeof(PluginManifestEntity).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         Console.Out.WriteLine($"sdkVersion:{sdkVersion}".Magenta());
         var sdkVersionObj = NuGetVersion.Parse(sdkVersion!);
         PackSettings.lunaticPanelVersion = $"{sdkVersionObj}";

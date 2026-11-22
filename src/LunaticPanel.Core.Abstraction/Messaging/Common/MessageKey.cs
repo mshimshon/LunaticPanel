@@ -17,7 +17,7 @@ public sealed record MessageKey
         if (!MessageKeyValidator.ValidateKeyPattern(fullname))
             throw new BusKeySchematicPatternViolationException(fullname);
     }
-
+    public static MessageKey Create(string fullename) => new(fullename);
     public MessageKey(string prefix, string plugin, string action) : this($"{prefix}.[{plugin}].{action}") { }
     public MessageKey(string prefix, string plugin, string version, string action) : this(prefix, plugin, $"v{version}.{action}") { }
     public MessageKey(string prefix, Func<string> plugin, string version, string action) : this(prefix, plugin(), version, action) { }

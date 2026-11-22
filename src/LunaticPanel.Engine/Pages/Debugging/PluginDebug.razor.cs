@@ -1,7 +1,11 @@
-﻿namespace LunaticPanel.Engine.Web.Pages.Debugging;
+﻿using LunaticPanel.Engine.Services;
+using Microsoft.AspNetCore.Components;
 
-public partial class PluginDebug
+namespace LunaticPanel.Engine.Pages.Debugging;
+
+public partial class PluginDebug : ComponentBase
 {
+    [Inject] public IPluginRegistry PluginRegistry { get; set; } = default!;
     protected override void OnInitialized()
     {
 

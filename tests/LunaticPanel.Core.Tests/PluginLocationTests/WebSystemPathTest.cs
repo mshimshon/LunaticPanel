@@ -17,7 +17,7 @@ public class WebSystemPathTest
     {
         ///usr/lib/lunaticpanel/plugins/gamehost
         var path = _pluginConfiguration.GetStaticWebContentBase();
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "wwwroot");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly", "wwwroot");
         Assert.Equal(path, correctPath);
     }
 
@@ -27,7 +27,7 @@ public class WebSystemPathTest
     {
         ///usr/lib/lunaticpanel/plugins/gamehost
         var path = _pluginConfiguration.GetStaticWebContentBase(["mypath"]);
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "wwwroot", "mypath");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly", "wwwroot", "mypath");
         Assert.Equal(path, correctPath);
     }
     [Fact]
@@ -35,7 +35,7 @@ public class WebSystemPathTest
     {
         ///usr/lib/lunaticpanel/plugins/gamehost
         var path = _pluginConfiguration.GetStaticWebContentBase("Module");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "wwwroot", "module");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly", "wwwroot", "module");
         Assert.Equal(path, correctPath);
     }
 
@@ -44,7 +44,7 @@ public class WebSystemPathTest
     {
         ///usr/lib/lunaticpanel/plugins/gamehost
         var path = _pluginConfiguration.GetStaticWebContentBase("Module", ["mypath"]);
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "wwwroot", "module", "mypath");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly", "wwwroot", "module", "mypath");
         Assert.Equal(path, correctPath);
     }
 
@@ -53,7 +53,7 @@ public class WebSystemPathTest
     {
         ///usr/lib/lunaticpanel/plugins/gamehost
         var path = _pluginConfiguration.GetStaticWebContentFor("Module", ["mypath"], "myfile.ss");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "wwwroot", "module", "mypath", "myfile.ss");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly", "wwwroot", "module", "mypath", "myfile.ss");
         Assert.Equal(path, correctPath);
     }
 
@@ -63,7 +63,7 @@ public class WebSystemPathTest
     {
         ///usr/lib/lunaticpanel/plugins/gamehost
         var path = _pluginConfiguration.GetStaticWebContentFor(["mypath"], "myfile.ss");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "wwwroot", "mypath", "myfile.ss");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly", "wwwroot", "mypath", "myfile.ss");
         Assert.Equal(path, correctPath);
     }
 
@@ -72,7 +72,7 @@ public class WebSystemPathTest
     {
         ///usr/lib/lunaticpanel/plugins/gamehost
         var path = _pluginConfiguration.GetStaticWebContentFor("Module", "myfile.ss");
-        var correctPath = Path.Combine($"{Path.DirectorySeparatorChar}", "srv", "lunaticpanel", "plugins", "test_assembly", "wwwroot", "module", "myfile.ss");
+        var correctPath = Path.Combine(BashPathTests._baseRuntime, "test_assembly", "wwwroot", "module", "myfile.ss");
         Assert.Equal(path, correctPath);
     }
 

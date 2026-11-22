@@ -22,7 +22,7 @@ DESCRIPTION="LunaticPanel Lightweight package serving."
 WORKING_DIR="${TARGET_DIR}"
 EXEC_START="/usr/bin/dotnet"
 STARTUP_PARAMETERS="${TARGET_DIR}/LunaticPanel.Hybrid.Web.dll --urls \"http://localhost:10001;\""
-DEPENDS_ON=() 
+DEPENDS_ON=()
 ENVIRONMENT=()
 
 if systemctl list-unit-files | grep -q "^${SERVICE_NAME}.service"; then
@@ -54,11 +54,11 @@ cp -r "$SETUP_DIR/extracted"/. "$WORKING_DIR"/ || exit 1
 ls  "$WORKING_DIR"
 
 lpkg_files=("${SETUP_DIR}/preinstalled"/*.lpkg)
-mkdir -p "$WORKING_DIR/plugins_preinstalled"
+mkdir -p "$WORKING_DIR/plugins"
 
 if [ -f "${lpkg_files[0]}" ]; then
     echo "Found plugins. Copying modules..."
-    cp "${SETUP_DIR}/preinstalled"/*.lpkg "$WORKING_DIR/plugins_preinstalled"/ || exit 1
+    cp "${SETUP_DIR}/preinstalled"/*.lpkg "$WORKING_DIR/plugins"/ || exit 1
 else
     echo "Preinstalled directory is empty or has no .lpkg files. Skipping safely."
 fi

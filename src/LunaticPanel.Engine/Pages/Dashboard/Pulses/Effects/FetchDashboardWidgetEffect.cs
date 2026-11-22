@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries;
-using LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Actions;
+using LunaticPanel.Engine.Pages.Dashboard.Pulses.Actions;
 using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Pages.Dashboard.Pulses.Effects;
+namespace LunaticPanel.Engine.Pages.Dashboard.Pulses.Effects;
 
 public class FetchDashboardWidgetEffect : IEffect<FetchDashboardWidgetAction>
 {

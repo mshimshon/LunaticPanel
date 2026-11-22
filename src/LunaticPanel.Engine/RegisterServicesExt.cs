@@ -15,19 +15,24 @@ using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils;
-using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Web.Layout;
-using LunaticPanel.Engine.Web.Layout.Menu;
-using LunaticPanel.Engine.Web.Pages.Dashboard;
-using LunaticPanel.Engine.Web.Services;
-using LunaticPanel.Engine.Web.Services.Circuit;
-using LunaticPanel.Engine.Web.Services.PanelControl;
-using LunaticPanel.Engine.Web.Services.UpdateService;
+using LunaticPanel.Engine.Bootstraper.Engine;
 using MaksimShimshon.Mediator;
+using Microsoft.AspNetCore.Builder;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
-namespace LunaticPanel.Engine.Web;
+using LunaticPanel.Engine.Pages.Dashboard;
+using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Layout;
+using LunaticPanel.Engine.Infrastructure;
+using LunaticPanel.Engine.Bootstraper;
+using LunaticPanel.Engine.Services.UpdateService;
+using LunaticPanel.Engine.Layout.Menu;
+using LunaticPanel.Engine.Services.PanelControl;
+using LunaticPanel.Engine.Services.Circuit;
+using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Handlers;
+using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Handlers;
+namespace LunaticPanel.Engine;
 
 public static class RegisterServicesExt
 {
@@ -35,8 +40,15 @@ public static class RegisterServicesExt
     private readonly static EventBusRegistry _eventBusRegistry = new();
     private readonly static EventScheduledBusRegistry _eventScheduledBusRegistry = new();
     private readonly static QueryBusRegistry _queryBusRegistry = new();
+    public static IBootstrap BuildBootstrap(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddLunaticPanelServices();
+        return new Bootstraper.Engine.Bootstraper(builder.Services, builder.Configuration);
+    }
     public static IServiceCollection AddLunaticPanelServices(this IServiceCollection services)
     {
+        services.AddScoped<FetchMenuElementHandler>();
+        services.AddScoped<FetchDashboardWidgetsHandler>();
         services.AddEngineInfrastructure();
         services.AddCrazyReportUtilityService();
         services.AddLinuxCommandUtilityService();

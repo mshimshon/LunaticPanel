@@ -22,6 +22,13 @@ jobs:
         with:
           fetch-depth: 0 # 👈 This forces GitHub to pull ALL history and tags
 
+      - name: Installing libicu Dependency!
+        if: ${{ env.ACT }}
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y libicu-dev
+
       - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -42,7 +49,8 @@ jobs:
           depitsmart GetCurrentPreReleaseVersionRunner --ghOutput
           depitsmart CalculateNextReleaseVersionRunner --ghOutput --previewMode
 
-      - name: Building Preview ;)
+      - name: Building Shipping Release DeployItSmart ;)
+        shell: bash
         run: bash -e .github/workflows/composition/compile_output.sh
         env:
           VERSION_NEXT: ${{ steps.version_control.outputs.version_next_preview }}
@@ -54,14 +62,6 @@ jobs:
         run: |
             depitsmart GenerateChangeLogRunner --output "/tmp/artifacts/output"  --linkCommits --previewMode
 
-      - name: Validating Output
-        shell: bash
-        run: bash -e .github/workflows/composition/validate_output.sh
-        env:
-          VERSION_NEXT: ${{ steps.version_control.outputs.version_next_preview }}
-          VERSION_NOSUFFIX: ${{ steps.version_control.outputs.version_next_preview_v }}
-          BRANCH:  ${{ github.ref_name }}
-
       - name: Save Variables for Deploy
         shell: bash
         run: |
@@ -70,6 +70,14 @@ jobs:
           echo "version_current=${{ steps.version_control.outputs.version_current_preview }}" >> /tmp/artifacts/output/build.env
           echo "trigger_branch=${{ github.ref_name }}" >> /tmp/artifacts/output/build.env
           ls -laR /tmp/artifacts/output || echo "no /tmp/artifacts/output"
+
+      - name: Validating Output
+        shell: bash
+        run: bash -e .github/workflows/composition/validate_output.sh
+        env:
+          VERSION_NEXT: ${{ steps.version_control.outputs.version_next_preview }}
+          VERSION_NOSUFFIX: ${{ steps.version_control.outputs.version_next_preview_v }}
+          BRANCH:  ${{ github.ref_name }}
 
       - name: Upload Build Output
         uses: actions/upload-artifact@v4

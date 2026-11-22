@@ -1,35 +1,38 @@
+using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.Core.Abstraction.Messaging.EventBus;
+using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Abstraction.Tools;
+using LunaticPanel.Core.Extensions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.Core.Utils.Logging;
+using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.PackageManager.Application.Mediator.Commands;
 using LunaticPanel.PackageManager.Application.Mediator.Commands.Handlers;
+using LunaticPanel.PackageManager.Application.Mediator.Queries;
+using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Payloads.Enums;
+using LunaticPanel.PackageManager.Application.Payloads.Mapping;
+using LunaticPanel.PackageManager.Domain.Entities;
+using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads;
+using LunaticPanel.PackageManager.Infrastructure.Repositories.Payloads.Enums;
+using LunaticPanel.PackageManager.Pulses.Actions;
+using LunaticPanel.PackageManager.Pulses.Effects;
 using LunaticPanel.PackageManager.Pulses.States;
+using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
 using LunaticPanel.PackageManager.Tests.Application.Mock;
+using LunaticPanel.PackageManager.Tests.Web.Pulses.Utils;
+using MaksimShimshon.Mediator;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+using NSubstitute.Extensions;
+using NuGet.Versioning;
 using StatePulse.Net;
 using System;
-using LunaticPanel.Core.Utils.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using MaksimShimshon.Mediator;
-using NuGet.Versioning;
-using LunaticPanel.PackageManager.Application.Payloads;
-using NSubstitute;
-using NSubstitute.Extensions;
-using LunaticPanel.Core.Abstraction.Exceptions;
-using LunaticPanel.PackageManager.Tests.Application.Mediator.Extensions;
-using NSubstitute.ExceptionExtensions;
-using LunaticPanel.PackageManager.Pulses.Effects;
-using LunaticPanel.PackageManager.Pulses.Actions;
-using LunaticPanel.PackageManager.Application.Payloads.Enums;
-using LunaticPanel.PackageManager.Domain.Entities;
-using LunaticPanel.PackageManager.Application.Payloads.Mapping;
-using LunaticPanel.PackageManager.Application.Mediator.Queries;
-using LunaticPanel.Core.Abstraction.Messaging.EventBus;
-using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
-using static LunaticPanel.Engine.Keys.System.PluginKeys;
 using System.Text.Json.Nodes;
-using LunaticPanel.Core.Abstraction.Messaging.Common;
-namespace LunaticPanel.PackageManager.Tests.Application.Pulses;
+using static LunaticPanel.Engine.Keys.System.PluginKeys;
+namespace LunaticPanel.PackageManager.Tests.Web.Pulses;
 
 public class LoadBootstrapTests : PulsesBaseTests
 {
@@ -50,66 +53,37 @@ public class LoadBootstrapTests : PulsesBaseTests
     }
 
 
-    private JsonArray _jsonArrayMock = new JsonArray(
-        new JsonObject
-        {
-            ["Entity"] = new JsonObject
-            {
-                ["Identity"] = new JsonObject
-                {
-                    ["PackageId"] = "com.example.enabledapp"
-                },
-                ["Lifecycle"] = new JsonObject
-                {
-                    ["StartupState"] = 1
-                }
+    private readonly List<ExternalPluginPayload> _mockResult = [
+        new ExternalPluginPayload() {
+            StartupState = ExternalPluginStartupState.Enabled ,
+            Manifest = new(){
+                Id = "Balooo"
             }
         },
-        new JsonObject
-        {
-            ["Entity"] = new JsonObject
-            {
-                ["Identity"] = new JsonObject
-                {
-                    ["PackageId"] = "com.example.disabledapp"
-                },
-                ["Lifecycle"] = new JsonObject
-                {
-                    ["StartupState"] = 0
-                }
-            }
-        },
-        new JsonObject
-        {
-            ["Entity"] = new JsonObject
-            {
-                ["Identity"] = new JsonObject
-                {
-                    ["PackageId"] = "com.example.otherstate"
-                },
-                ["Lifecycle"] = new JsonObject
-                {
-                    ["StartupState"] = 2
-                }
+        new ExternalPluginPayload() {
+            StartupState = ExternalPluginStartupState.Disabled ,
+            Manifest = new(){
+                Id = "Boolaaaa"
             }
         }
-    );
+    ];
+
     [Fact]
     public async Task LoadBootstrapAction_ShouldPass()
     {
-        List<string> enabled = _jsonArrayMock
-            .Where(x => x?["Entity"]!["Lifecycle"]!["StartupState"]?.GetValue<int>() == 1)
-            .Select(x => x!["Entity"]!["Identity"]!["PackageId"]!.GetValue<string>())
+        List<string> enabled = _mockResult
+            .Where(x => x.StartupState == ExternalPluginStartupState.Enabled)
+            .Select(x => x.Id)
             .ToList();
 
-        List<string> disabled = _jsonArrayMock
-            .Where(x => x?["Entity"]!["Lifecycle"]!["StartupState"]?.GetValue<int>() == 0)
-            .Select(x => x!["Entity"]!["Identity"]!["PackageId"]!.GetValue<string>())
+        List<string> disabled = _mockResult
+            .Where(x => x.StartupState == ExternalPluginStartupState.Disabled)
+            .Select(x => x.Id)
             .ToList();
 
         _queryBus
             .QueryAsync(Arg.Is<QueryBusMessage>(m => m.Key.SameAs(Queries.FETCH_BOOTSTRAP_FILE)), Arg.Any<CancellationToken>())
-            .Returns(c => new QueryBusMessageResponse(new(_jsonArrayMock)));
+            .Returns(c => new QueryBusMessageResponse(new(_mockResult)));
         await _dispatcher.Prepare<LoadBootstrapAction>()
             .Await()
             .DispatchAsync(TestContext.Current.CancellationToken);

@@ -1,9 +1,10 @@
-﻿using LunaticPanel.Engine.Web.Layout.Menu.Pulses.Actions;
-using LunaticPanel.Engine.Web.Layout.Menu.Pulses.States;
-using LunaticPanel.Engine.Web.Services.PanelControl;
+﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.Engine.Layout.Menu.Pulses.Actions;
+using LunaticPanel.Engine.Layout.Menu.Pulses.States;
+using LunaticPanel.Engine.Services.PanelControl;
 using StatePulse.Net;
 
-namespace LunaticPanel.Engine.Web.Layout.Menu;
+namespace LunaticPanel.Engine.Layout.Menu;
 
 public class MainMenuViewModel
 {
@@ -35,7 +36,7 @@ public class MainMenuViewModel
         _dispatcher = dispatcher;
         _panelControl = panelControl;
         panelControl.MenuStateHasChanged += OnUpdate;
-        PanelVersion = panelControl.PanelVersion;
+        PanelVersion = panelControl.PanelVersion.Split('+')[0];
     }
 
     public async Task LoadAsync()
@@ -52,7 +53,7 @@ public class MainMenuViewModel
         }
         catch (Exception ex)
         {
-
+            CrazyReportConsole.ReportError($"ERROR GetPluginMenuItems {ex.Message}");
             throw;
         }
     }

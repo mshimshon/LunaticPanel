@@ -1,4 +1,5 @@
 #!/bin/sh
 dotnet tool install -g DeployItSmart
 depitsmart LocalTrashCommitCleanerRunner
+# d
 

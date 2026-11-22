@@ -1,9 +1,9 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.Engine.Web.Services;
+using LunaticPanel.Engine.Services;
 
-namespace LunaticPanel.Engine.Web.Hooks.Queries;
+namespace LunaticPanel.Engine.Hooks.Queries;
 
 [QueryBusKey(PluginKeys.Queries.FETCH_BOOTSTRAP_FILE, ServiceLifetime = Core.Abstraction.Messaging.Common.EBusLifetime.Scoped)]
 internal class GetBootstrapFileQuery : IQueryBusHandler
@@ -18,6 +18,6 @@ internal class GetBootstrapFileQuery : IQueryBusHandler
     {
         Console.WriteLine("Loading Bootstrap File");
         var result = await _bootstrapFileController.LoadFile();
-        return await qry.ReplyWith(result.KnownPlugins);
+        return await qry.ReplyWith(result);
     }
 }

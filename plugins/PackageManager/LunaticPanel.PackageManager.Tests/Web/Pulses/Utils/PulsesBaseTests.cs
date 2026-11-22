@@ -20,7 +20,7 @@ using LunaticPanel.PackageManager.Pulses.Effects;
 using LunaticPanel.PackageManager.Pulses.Actions;
 using LunaticPanel.PackageManager.Application.Payloads.Enums;
 using LunaticPanel.PackageManager.Pulses;
-namespace LunaticPanel.PackageManager.Tests.Application.Pulses;
+namespace LunaticPanel.PackageManager.Tests.Web.Pulses.Utils;
 
 [CollectionDefinition("NoParallel", DisableParallelization = true)]
 public class NoParallelCollection { }

@@ -1,5 +1,4 @@
-﻿using CoreMap;
-using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
+﻿using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
@@ -11,7 +10,6 @@ using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils.Logging;
-using LunaticPanel.Engine.Application.Plugin;
 using LunaticPanel.Engine.Infrastructure.Logging;
 using LunaticPanel.Engine.Infrastructure.Messaging.EngineBus;
 using LunaticPanel.Engine.Infrastructure.Messaging.Event;
@@ -19,6 +17,8 @@ using LunaticPanel.Engine.Infrastructure.Messaging.EventScheduled;
 using LunaticPanel.Engine.Infrastructure.Messaging.Query;
 using LunaticPanel.Engine.Infrastructure.Plugin;
 using LunaticPanel.Engine.Infrastructure.Services;
+using MaksimShimshon.Mediator;
+using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Infrastructure;
 
@@ -48,11 +48,8 @@ public static class RegisterServicesExt
         services.AddScoped<IQueryBus, QueryBus>();
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
-        services.AddSingleton<IPluginRegistry, PluginRegistry>();
-        //TODO: Get Rid of CoreMap
-        services.AddCoreMap(o => { o.Scope = CoreMap.Enums.ServiceScope.Scoped; }, [
-            typeof(RegisterServicesExt)
-            ]);
+        // services.AddSingleton<IPluginRegistry, PluginRegistry>();
+
 
         return services;
     }
@@ -65,7 +62,6 @@ public static class RegisterServicesExt
         services.AddScoped<IEventBusExchange>(sp => sp.GetRequiredService<EventBusExchange>());
         services.AddScoped<IQueryBusExchange>(sp => sp.GetRequiredService<QueryBusExchange>());
         services.AddSingleton<IGlobalTicker>(sp => sp.GetRequiredService<GlobalTickerService>());
-
         services.AddScoped<IEventScheduler>(sp => sp.GetRequiredService<EventScheduler>());
         return services;
     }

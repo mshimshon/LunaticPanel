@@ -2,9 +2,9 @@
 using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys.UI;
-using LunaticPanel.Engine.Web.Services.Circuit;
+using LunaticPanel.Engine.Services.Circuit;
 using Microsoft.AspNetCore.Components;
-namespace LunaticPanel.Engine.Web.Layout;
+namespace LunaticPanel.Engine.Layout;
 
 public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
 {
@@ -35,9 +35,6 @@ public partial class MainLayout : LayoutComponentBase, IAsyncDisposable
             InvokeAsync(StateHasChanged);
         }
     }
-
-
-
 
     public ValueTask DisposeAsync()
     {

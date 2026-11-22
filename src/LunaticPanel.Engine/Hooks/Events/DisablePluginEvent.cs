@@ -2,9 +2,9 @@
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.Engine.Web.Services;
+using LunaticPanel.Engine.Services;
 
-namespace LunaticPanel.Engine.Web.Hooks.Events;
+namespace LunaticPanel.Engine.Hooks.Events;
 
 [EventBusKey(PluginKeys.Events.DISABLE_PLUGIN, ServiceLifetime = EBusLifetime.Scoped)]
 internal class DisablePluginEvent : IEventBusHandler

@@ -18,6 +18,7 @@ using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.PluginValidator;
 using LunaticPanel.Core.Utils;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -51,15 +52,16 @@ public abstract class PluginBase : IPlugin
     protected IServiceProvider? _crossCircuitSingletonProvider;
     private readonly string _pluginId;
     public string PluginId => _pluginId;
-    public IReadOnlyList<string> Keys { get; private set; } = new List<string>();
+    public IReadOnlyList<MessageKey> Keys { get; private set; } = new List<MessageKey>();
 
-    private readonly static Dictionary<string, List<string>> _pluginKeys = new(StringComparer.OrdinalIgnoreCase);
+    private readonly static Dictionary<string, List<MessageKey>> _pluginKeys = new(StringComparer.OrdinalIgnoreCase);
     private readonly static object _pluginKeysLock = new object();
     private bool _hasStarted;
     private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors = default!;
     protected PluginBase()
     {
         _pluginId = GetType().Namespace!;
+        CrazyReportConsole.ReportInfo($"{_pluginId} Instantiated.");
 
     }
     /// <summary>
@@ -68,7 +70,7 @@ public abstract class PluginBase : IPlugin
     /// typeof(BaseInfo).Assembly.ScanKeyPackageForKeys();
     /// </summary>
     /// <returns></returns>
-    public abstract string[] GetMyPackageKeys();
+    public abstract MessageKey[] GetMyPackageKeys();
 
     /// <summary>
     /// Two Parts
@@ -76,24 +78,23 @@ public abstract class PluginBase : IPlugin
     /// 2. Remove if available from Self Available Key List and Return the new list.
     /// disabling handlers for external events has no ramification for others only for ourselves
     /// </summary>
-    protected void DisableBusFeature(string key)
+    protected void DisableBusFeature(string fullname)
     {
-        _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors
-          .Where(p => !string.Equals(key, p.Key, StringComparison.OrdinalIgnoreCase))
-          .ToList();
+        MessageKey key = MessageKey.Create(fullname);
+        _cacheBusHandlersDescriptors = _cacheBusHandlersDescriptors.Where(p => !key.SameAs(p.Key)).ToList();
         lock (_pluginKeysLock)
         {
             if (_pluginKeys.ContainsKey(PluginId))
             {
-                _pluginKeys[PluginId] = _pluginKeys[PluginId].Where(p => !string.Equals(key, p, StringComparison.OrdinalIgnoreCase)).ToList();
+                _pluginKeys[PluginId] = _pluginKeys[PluginId].Where(p => !key.SameAs(p)).ToList();
                 Keys = _pluginKeys[PluginId].AsReadOnly();
-                Console.WriteLine($"{PluginId} disabled feature {key}");
+                CrazyReportConsole.Report($"{PluginId} disabled feature {key}");
 
             }
         }
     }
 
-    public IReadOnlyList<string> CheckDependencyGracefully(Func<string, bool> isBusAvailable)
+    public IReadOnlyList<MessageKey> CheckDependencyGracefully(Func<string, bool> isBusAvailable)
     {
         CheckFeatureDegradation(isBusAvailable);
         return Keys;
@@ -115,7 +116,7 @@ public abstract class PluginBase : IPlugin
     {
         PluginContextIdentifier identity = new(circuit.CircuitId, PluginId);
         if (HasActiveCircuitFor(circuit.CircuitId)) return;
-        Console.WriteLine($"OnCircuitStart for {identity.PluginId}->{identity.CircuitId}");
+        CrazyReportConsole.Report($"OnCircuitStart for {identity.PluginId}->{identity.CircuitId}");
         SetScannedHandlersCache();
         CreateBusRegistry(circuit);
 
@@ -149,7 +150,7 @@ public abstract class PluginBase : IPlugin
     {
         foreach (var item in services)
         {
-            Console.WriteLine($"{PluginId} -> {item.ServiceType}");
+            CrazyReportConsole.ReportInfo($"{PluginId} -> {item.ServiceType}");
         }
     }
     private void CreateBusRegistry(CircuitIdentity circuit)
@@ -187,12 +188,12 @@ public abstract class PluginBase : IPlugin
         {
             if (item.ServiceType.IsGenericTypeDefinition)
             {
-                Console.WriteLine($"Cannot Redirect Generic Type for {item.ServiceType.Name}");
+                CrazyReportConsole.ReportWarning($"Cannot Redirect Generic Type for {item.ServiceType.Name}");
                 continue;
             }
             if (item.Lifetime == ServiceLifetime.Singleton)
             {
-                Console.WriteLine($"Redirection For {item.ServiceType.Name} as Singleton OK!");
+                CrazyReportConsole.ReportInfo($"Redirection For {item.ServiceType.Name} as Singleton OK!");
 
                 result.AddSingleton(item.ServiceType, (sp) =>
                     {
@@ -201,12 +202,12 @@ public abstract class PluginBase : IPlugin
             }
             else if (item.Lifetime == ServiceLifetime.Scoped)
             {
-                Console.WriteLine($"Redirection For {item.ServiceType.Name} as Scoped OK!");
+                CrazyReportConsole.ReportInfo($"Redirection For {item.ServiceType.Name} as Scoped OK!");
                 result.AddScoped(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
             }
             else if (item.Lifetime == ServiceLifetime.Transient)
             {
-                Console.WriteLine($"Redirection For {item.ServiceType.Name} as Transient OK!");
+                CrazyReportConsole.ReportInfo($"Redirection For {item.ServiceType.Name} as Transient OK!");
                 result.AddTransient(item.ServiceType, (sp) => circuit.HostServiceProvider.GetRequiredService(item.ServiceType));
             }
         }
@@ -215,7 +216,7 @@ public abstract class PluginBase : IPlugin
     {
         foreach (var d in _crossCircuitSingletonProviderCollection)
         {
-            Console.WriteLine($"{PluginId} redirects {d.ServiceType} to Cross Circuit Service");
+            CrazyReportConsole.ReportInfo($"{PluginId} redirects {d.ServiceType} to Cross Circuit Service");
             services.Collection.AddSingleton(d.ServiceType, sp => _crossCircuitSingletonProvider!.GetRequiredService(d.ServiceType));
         }
     }
@@ -231,7 +232,7 @@ public abstract class PluginBase : IPlugin
             bool isStatePulseState = t.FullName.StartsWith("StatePulse.Net.IStateAccessor`1");
             if (!isStatePulseState) continue;
             if (item.Lifetime != ServiceLifetime.Singleton) continue;
-            Console.WriteLine($"{t.FullName} Singleton SP Detected.");
+            CrazyReportConsole.ReportInfo($"{t.FullName} Singleton SP Detected.");
             _crossCircuitSingletonProviderCollection.Add(item);
         }
     }
@@ -289,18 +290,19 @@ public abstract class PluginBase : IPlugin
     }
     public void Configure(IConfiguration configuration)
     {
-        Console.WriteLine($"{PluginId} Configuring...");
+        CrazyReportConsole.Report($"{PluginId} Configuring...");
+
         lock (_pluginKeysLock)
         {
             if (!_pluginKeys.ContainsKey(PluginId))
             {
-                var keys = GetMyPackageKeys().Select(p => p.ToLower()).ToList();
-                Console.WriteLine($"{PluginId} found {keys.Count} Bus Keys");
+                var keys = GetMyPackageKeys().ToList();
+                CrazyReportConsole.Report($"{PluginId} found {keys.Count} Bus Keys");
                 _pluginKeys[PluginId] = keys;
                 Keys = _pluginKeys[PluginId].AsReadOnly();
                 foreach (var key in Keys)
                 {
-                    Console.WriteLine($"{PluginId} owns {key}");
+                    CrazyReportConsole.ReportInfo($"{PluginId} owns {key}");
                 }
             }
         }
@@ -373,7 +375,11 @@ public abstract class PluginBase : IPlugin
         services.AddScoped<IEventScheduledBusReceiver, EventScheduledBusReceiver>();
 
         services.AddScoped<QueryBus>();
-        services.AddScoped<IQueryBus>((sp) => sp.GetRequiredService<QueryBus>());
+        services.AddScoped<IQueryBus>((sp) =>
+        {
+
+            return sp.GetRequiredService<QueryBus>();
+        });
         services.AddScoped<IQueryBusReceiver, QueryBusReceiver>();
 
         services.AddScoped(sp => new PluginContext(sp, circuit));
@@ -427,7 +433,7 @@ public abstract class PluginBase : IPlugin
     {
         foreach (var d in services.CrossCircuitRedirected)
         {
-            Console.WriteLine($"{PluginId} adds to cross circuit service {d.ServiceType}");
+            CrazyReportConsole.Report($"{PluginId} adds to cross circuit service {d.ServiceType}");
             singletonCrossCircuit.Add(d);
         }
     }
@@ -451,6 +457,7 @@ public abstract class PluginBase : IPlugin
     /// relies on additional Razor Class Libraries or other internal assemblies,
     /// they should be added to the returned array alongside the primary assembly.
     /// </summary>
+    [Obsolete("Only the IPlugin's implementing assembly is allow as additional assembly, unused")]
     protected virtual Assembly[] GetPluginInternalAssemblies() { return [GetType().Assembly]; }
 
     /// <summary>
@@ -523,7 +530,7 @@ public abstract class PluginBase : IPlugin
     {
         if (_hasStarted)
         {
-            Console.WriteLine($"BeforeRuntimeStart for {PluginId} already executed.");
+            CrazyReportConsole.ReportError($"BeforeRuntimeStart for {PluginId} already executed.");
             return;
         }
         _hasStarted = true;

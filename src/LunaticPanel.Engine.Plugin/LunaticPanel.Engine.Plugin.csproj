@@ -4,7 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	  <Version>$(GlobalVersion)</Version>
+	<Version>$(GlobalVersion)</Version>
+  	<InformationalVersion>$(GlobalVersion)</InformationalVersion>
+  	<FileVersion>$(VersionMajor).$(VersionMinor).$(VersionPatch)</FileVersion>
+  	<AssemblyVersion>$(VersionMajor).0.0</AssemblyVersion>
+
 	  <Company>$(GlobalCompany)</Company>
 	  <Copyright>$(GlobalCopyright)</Copyright>
 	  <Authors>$(GlobalAuthors)</Authors>

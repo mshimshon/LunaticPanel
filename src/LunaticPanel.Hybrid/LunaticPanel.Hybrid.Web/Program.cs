@@ -1,4 +1,6 @@
-using LunaticPanel.Engine.Web.Boostrap;
+using LunaticPanel.Engine;
+using LunaticPanel.Engine.Bootstraper;
+using LunaticPanel.Engine.Bootstraper.Engine;
 using MudBlazor;
 using System.Diagnostics;
 using App = LunaticPanel.Hybrid.Web.App;
@@ -19,20 +21,23 @@ if (waitForDebugger)
         System.Console.WriteLine("Quit Debugger is Detached");
         Environment.Exit(0);
     });
-    Debugger.Break();
+
 
 }
+
 builder.Services.AddRazorComponents().AddInteractiveServerComponents().AddCircuitOptions(o => o.DetailedErrors = true);
 builder.WebHost.UseKestrel();
 builder.Services.AddHttpContextAccessor();
 
-await Bootstrap.BootstrapBuilder(builder.Services, builder.Configuration);
-
+IBootstrap boostraper = builder.BuildBootstrap();
 WebApplication app = builder.Build();
 
+await boostraper.SetupAsync(app, app.Services);
 app.UseStaticFiles();
 app.MapStaticAssets();
-await Bootstrap.BootstrapRunAsync(app, app.Services, app.Configuration);
+await boostraper.RunAsync(app.Services);
+
+// await Bootstrap.BootstrapRunAsync(app, app.Services, app.Configuration);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -46,7 +51,7 @@ app.UseAntiforgery();
 app.UseStatusCodePagesWithRedirects("/errors/{0}");
 app.MapRazorComponents<App>()
 .AddInteractiveServerRenderMode()
-.AddAdditionalAssemblies([.. Bootstrap.AdditionalAssemblies]);
+.AddAdditionalAssemblies([.. boostraper.AdditionalAssemblies]);
 
 
 

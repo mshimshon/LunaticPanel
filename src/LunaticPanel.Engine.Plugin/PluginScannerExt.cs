@@ -1,14 +1,21 @@
 ﻿using LunaticPanel.Core.PluginValidator;
-using LunaticPanel.Engine.Plugin.Entities;
+
 using McMaster.NETCore.Plugins;
 using NuGet.Versioning;
+using System.ComponentModel;
+using System.IO.Compression;
 using System.Reflection;
+using System.Text.Json;
 
 namespace LunaticPanel.Engine.Plugin;
 
 public static class PluginScannerExt
 {
-
+    internal static JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions()
+    {
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true
+    };
     public static IReadOnlyList<string> ScanAndFindPlugins(string locationForPlugins, Type[] sharedType, AssemblyName[] sharedAssemblies)
     {
         var results = new List<string>();
@@ -52,6 +59,57 @@ public static class PluginScannerExt
         return default;
     }
 
+    /// <summary>
+    /// Specify plugin runtime root, it will read manifest and load up the plugin reference safely or throw.
+    /// </summary>
+    public static IPluginReference LoadPLugin(string pluginRoot, Type[] sharedType, AssemblyName[] sharedAssemblies)
+    {
+        PluginLoader? permanentLoader = default;
+        try
+        {
+
+            var manifestFile = Path.Combine(pluginRoot, "manifest.json");
+            var manifest = ParseManifest(File.ReadAllText(manifestFile));
+            var entryFile = Path.Combine(pluginRoot, manifest.PluginEntryFile);
+            var entryClass = manifest.EntryClass;
+            permanentLoader = PluginLoader.CreateFromAssemblyFile(entryFile, sharedTypes: sharedType,
+               c =>
+               {
+                   c.IsUnloadable = true;
+                   foreach (var item in sharedAssemblies)
+                       c.SharedAssemblies.Add(item);
+               }
+           );
+            var pluginLoaderInfo = new PluginReferenceEntity(manifest, permanentLoader);
+            pluginLoaderInfo.Load();
+            // Perform Internal Blazor Validation
+            var validationResult = pluginLoaderInfo.Entry.PerformValidation();
+            if (validationResult.Any(p => !p.Passed))
+            {
+                foreach (var error in validationResult.Where(p => !p.Passed).SelectMany(p => p.Errors!))
+                    System.Console.WriteLine($"[ERROR]::{error.Origin} :: {error.Message}");
+                throw new Exception("Plugin Internal Validation Failure, See log.");
+            }
+            return pluginLoaderInfo;
+        }
+        catch (Exception)
+        {
+            if (permanentLoader != default && permanentLoader.IsUnloadable)
+            {
+                permanentLoader.Dispose();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+            throw;
+        }
+        finally
+        {
+
+
+
+        }
+    }
     public static PluginScannedEntity? LoadPluginInformation(string dllFile, Type[] sharedType, AssemblyName[] sharedAssemblies)
     {
         PluginLoader? tmpLoader = default;
@@ -137,6 +195,57 @@ public static class PluginScannerExt
         return default;
     }
 
+    public static PluginManifestEntity ParseManifest(string json)
+    {
+        var result = JsonSerializer.Deserialize<PluginManifestEntity>(json, _jsonSerializerOptions);
+        if (result == null)
+            throw new FileNotFoundException($"manifest.json corrupted in '{json}'");
+        return result;
+    }
+
+    public static PluginManifestEntity ReadManifestFromPackage(string path)
+    {
+        using var archive = ZipFile.OpenRead(path);
+
+        var entry = archive.GetEntry("manifest.json");
+        if (entry == null)
+            throw new FileNotFoundException($"manifest.json not found in {path}");
+
+        using (var stream = entry.Open())
+        {
+            using (var reader = new StreamReader(stream))
+            {
+                var manifest = ParseManifest(reader.ReadToEnd());
+                manifest.PackageFileLocation = path;
+                return manifest;
+            }
+        }
+
+    }
+
+    public static void ExtractPackage(string zipPath, string targetRoot)
+    {
+        if (!Directory.Exists(targetRoot))
+            Directory.CreateDirectory(targetRoot);
+        using (var zip = ZipFile.OpenRead(zipPath))
+        {
+            foreach (var entry in zip.Entries)
+            {
+                if (string.IsNullOrEmpty(entry.Name))
+                    continue;
+                string outputPath = Path.Combine(targetRoot, entry.FullName);
+                Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+                using (var input = entry.Open())
+                {
+                    using (var output = File.Create(outputPath))
+                    {
+                        input.CopyTo(output);
+                    }
+                }
+
+            }
+        }
+    }
 }
 
 

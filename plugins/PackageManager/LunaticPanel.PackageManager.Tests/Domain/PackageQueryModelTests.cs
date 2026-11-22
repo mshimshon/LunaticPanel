@@ -1,6 +1,6 @@
 using LunaticPanel.PackageManager.Domain.Entities.Enums;
 using LunaticPanel.PackageManager.Domain.Entities.ValueObjects;
-using LunaticPanel.PackageManager.Domain.QueryCriterias;
+using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels;
 using LunaticPanel.PackageManager.Domain.QueryModels.Enums;
 using System;

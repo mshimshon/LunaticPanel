@@ -1,11 +1,11 @@
 ﻿using LunaticPanel.Core.Abstraction.Exceptions;
 using LunaticPanel.Core.Utils.Abstraction.Logging;
-using LunaticPanel.Engine.Web.Services.Circuit;
+using LunaticPanel.Engine.Services.Circuit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
-namespace LunaticPanel.Engine.Web.ExceptionHandlers;
+namespace LunaticPanel.Engine.ExceptionHandlers;
 
 public class GlobalErrorCodedBoundary : ErrorBoundary
 {
