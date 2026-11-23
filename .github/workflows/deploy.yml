@@ -83,7 +83,7 @@ jobs:
         with:
           tag_name: v${{ steps.version_control.outputs.version_next }}
           fail_on_unmatched_files: true
-          body_path: "/tmp/artifacts/output/changelog.md"
+          body_path: "/tmp/artifacts/output/_.${{ steps.version_control.outputs.version_next }}.md"
           prerelease: ${{ contains(steps.version_control.outputs.version_next, '-') }}
           files: |
             /tmp/artifacts/output/*.tar.gz
