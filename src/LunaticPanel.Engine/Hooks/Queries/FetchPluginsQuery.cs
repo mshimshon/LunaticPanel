@@ -2,8 +2,8 @@
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
 using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.Engine.Bootstraper;
-using LunaticPanel.Engine.Hooks.Queries.Payloads.Responses;
-using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Hooks.Payloads.Responses;
+using LunaticPanel.Engine.Infrastructure.Interfaces;
 
 
 namespace LunaticPanel.Engine.Hooks.Queries;

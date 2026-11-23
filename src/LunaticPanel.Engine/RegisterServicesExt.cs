@@ -15,23 +15,20 @@ using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils;
+using LunaticPanel.Engine.Bootstraper;
 using LunaticPanel.Engine.Bootstraper.Engine;
+using LunaticPanel.Engine.Infrastructure;
+using LunaticPanel.Engine.Infrastructure.Implementations;
+using LunaticPanel.Engine.Infrastructure.Interfaces;
+using LunaticPanel.Engine.Layout;
+using LunaticPanel.Engine.Layout.Menu;
+using LunaticPanel.Engine.Mediator.Queries.Handlers;
+using LunaticPanel.Engine.Pages.Dashboard;
 using MaksimShimshon.Mediator;
 using Microsoft.AspNetCore.Builder;
 using MudBlazor;
 using MudBlazor.Services;
 using StatePulse.Net;
-using LunaticPanel.Engine.Pages.Dashboard;
-using LunaticPanel.Engine.Services;
-using LunaticPanel.Engine.Layout;
-using LunaticPanel.Engine.Infrastructure;
-using LunaticPanel.Engine.Bootstraper;
-using LunaticPanel.Engine.Services.UpdateService;
-using LunaticPanel.Engine.Layout.Menu;
-using LunaticPanel.Engine.Services.PanelControl;
-using LunaticPanel.Engine.Services.Circuit;
-using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries.Handlers;
-using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries.Handlers;
 namespace LunaticPanel.Engine;
 
 public static class RegisterServicesExt
@@ -49,7 +46,7 @@ public static class RegisterServicesExt
     {
         services.AddScoped<FetchMenuElementHandler>();
         services.AddScoped<FetchDashboardWidgetsHandler>();
-        services.AddEngineInfrastructure();
+        services.AddInfrastructureServices();
         services.AddCrazyReportUtilityService();
         services.AddLinuxCommandUtilityService();
         services.AddPluginLocationUtilityService("lunaticpanel");
@@ -118,7 +115,7 @@ public static class RegisterServicesExt
     /// <returns></returns>
     public static IServiceCollection AddHostRedirectedServices(this IServiceCollection services)
     {
-        services.AddEngineInfrastructureRedirected();
+        services.AddInfrastructureRedirected();
         services.AddScoped<ICircuitRegistry>((sp) => sp.GetRequiredService<CircuitRegistry>());
         services.AddScoped<IPanelControl>((sp) => sp.GetRequiredService<PanelControl>());
         services.AddScoped<IHostControl>((sp) => sp.GetRequiredService<PanelControl>());
@@ -157,12 +154,12 @@ public static class RegisterServicesExt
     }
     public static async Task RuntimeStartupBeforePluginsAsync(this IServiceProvider services)
     {
-        await services.EngineInfrastructureRuntimeBeforePlugins();
+        await services.InfrastructureRuntimeBeforePlugins();
     }
 
     public static async Task RuntimeStartupAfterPluginsAsync(this IServiceProvider services)
     {
-        await services.EngineInfrastructureRuntimeAfterPlugins();
+        await services.InfrastructureRuntimeAfterPlugins();
 
     }
 }

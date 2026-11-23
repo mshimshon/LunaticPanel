@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Services;
+﻿using LunaticPanel.Engine.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Components;
 
 namespace LunaticPanel.Engine.Pages.Debugging;

@@ -45,11 +45,6 @@
   <ProjectReference Include="..\LunaticPanel.Engine.Plugin\LunaticPanel.Engine.Plugin.csproj" />
 </ItemGroup>
 
-<ItemGroup>
-  <Folder Include="Domain\Messaging\Entities\" />
-  <Folder Include="Domain\Messaging\Enums\" />
-</ItemGroup>
-
 
   <ItemGroup>
 	<InternalsVisibleTo Include="LunaticPanel.Engine.Tests" />

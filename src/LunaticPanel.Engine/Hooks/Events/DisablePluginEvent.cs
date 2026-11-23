@@ -1,8 +1,8 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Infrastructure.Interfaces;
 using LunaticPanel.Engine.Keys.System;
-using LunaticPanel.Engine.Services;
 
 namespace LunaticPanel.Engine.Hooks.Events;
 

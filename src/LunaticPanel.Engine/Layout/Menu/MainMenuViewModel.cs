@@ -1,7 +1,7 @@
 ﻿using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.Engine.Infrastructure.Implementations;
 using LunaticPanel.Engine.Layout.Menu.Pulses.Actions;
 using LunaticPanel.Engine.Layout.Menu.Pulses.States;
-using LunaticPanel.Engine.Services.PanelControl;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Layout.Menu;

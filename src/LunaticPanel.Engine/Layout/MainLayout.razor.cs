@@ -1,8 +1,8 @@
 ﻿using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Widgets;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Infrastructure.Implementations;
 using LunaticPanel.Engine.Keys.UI;
-using LunaticPanel.Engine.Services.Circuit;
 using Microsoft.AspNetCore.Components;
 namespace LunaticPanel.Engine.Layout;
 

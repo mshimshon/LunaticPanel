@@ -56,7 +56,24 @@ public static class ArchiveUtilityExt
             }
         }
     }
+    public static async Task<DateTime> GetTimeOfTarGzFile(string archivePath)
+    {
 
+        using var fs = new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var gzip = new GZipStream(fs, CompressionMode.Decompress);
+
+        using var tar = new TarReader(gzip);
+        TarEntry entry;
+        while ((entry = await tar.GetNextEntryAsync()) != null)
+        {
+            if (entry.DataStream != null)
+            {
+                return entry.ModificationTime.UtcDateTime;
+            }
+        }
+
+        throw new FileNotFoundException($"tar.gz package empty.");
+    }
     private static async Task<Stream> ReadFileFromTarGz(string archivePath, string relativePath)
     {
         using var fs = new FileStream(archivePath, FileMode.Open, FileAccess.Read, FileShare.Read);

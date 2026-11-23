@@ -1,10 +1,10 @@
 ﻿using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Domain.UI.Menu.Entites;
+using LunaticPanel.Engine.Models.Menu;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Layout.Menu.Pulses.Actions;
 
 public record FetchedMenuElementsAction() : IAction
 {
-    public List<EngineBusMsgResponseWithData<MenuElementEntity>> MenuElements { get; set; } = default!;
+    public List<EngineBusMsgResponseWithData<MenuElementModel>> MenuElements { get; set; } = default!;
 }
