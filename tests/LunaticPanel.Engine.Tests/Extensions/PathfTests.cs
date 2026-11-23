@@ -13,7 +13,7 @@ public class PathfTests : IDisposable
     [Fact]
     public void SimulationBase_ShouldPass()
     {
-        var expected = "/tmp/lunaticpanel/pathf";
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, "tmp", "lunaticpanel", "pathf"]);
         if (!OperatingSystem.IsLinux())
             expected = Path.Combine(Path.GetTempPath(), "lunaticpanel", "pathf");
         Assert.Equal(expected, Pathf.SimulatorBasePath);
@@ -26,7 +26,7 @@ public class PathfTests : IDisposable
     [Fact]
     public void Combine_ShouldPass()
     {
-        var expected = "/tmp/my/path";
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, "tmp", "my", "path"]);
         if (!OperatingSystem.IsLinux())
             expected = Path.Combine(Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path");
         var actual = Pathf.Combine(Pathf.DirectorySeparatorChar, "tmp", "my", "path");
@@ -43,118 +43,176 @@ public class PathfTests : IDisposable
 
 
     [Fact]
-    public void CombineEnsureCreated_ShouldPass()
+    public void CombineReady_ShouldPass()
     {
-        var expected = "/tmp/my/path";
+        string[] targetPath = ["tmp", "my", "path"];
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath]);
         if (!OperatingSystem.IsLinux())
-            expected = Path.Combine(Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path");
-        var actual = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "tmp", "my", "path");
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath]);
+        var actual = Pathf.CombineReady([Pathf.DirectorySeparatorChar, .. targetPath]);
         Assert.Equal(expected, actual);
         Assert.True(Directory.Exists(expected));
     }
 
 
     [Fact]
-    public void CombineEnsureCreated_WithUnixPermission_ShouldPass()
+    public void CombineReady_WithUnixPermission_ShouldPass()
     {
         // Pass Permission, Only Apply on Linux without Crashing on Windows
-        var expected = "/tmp/my/path";
+        var expected = Path.Combine(Pathf.DirectorySeparatorChar, "tmp", "my", "path");
         if (!OperatingSystem.IsLinux())
             expected = Path.Combine(Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path");
-        var actual = Pathf.CombineEnsureCreated(UnixFileMode.UserWrite | UnixFileMode.UserRead, Pathf.DirectorySeparatorChar, "tmp", "my", "path");
+        var actual = Pathf.CombineReady(UnixFileMode.UserWrite | UnixFileMode.UserRead, Pathf.DirectorySeparatorChar, "tmp", "my", "path");
         Assert.Equal(expected, actual);
         Assert.True(Directory.Exists(expected));
     }
 
 
     [Fact]
-    public void EnsureCreated_ShouldPass()
+    public void CombineReadyFile_WithUnixPermission_ShouldPass()
     {
-        string[] args = ["/", "tmp", "my", "path"];
+        // Pass Permission, Only Apply on Linux without Crashing on Windows
+        string[] targetPath = ["tmp", "my", "path"];
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath, "file.me"]);
         if (!OperatingSystem.IsLinux())
-            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path"];
-
-        var actual = Pathf.EnsureCreated(args);
-        var expected = Path.Combine(args);
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath, "file.me"]);
+        var actual = Pathf.CombineReadyFile([Pathf.DirectorySeparatorChar, "tmp", "my", "path"], "file.me", UnixFileMode.UserWrite | UnixFileMode.UserRead);
         Assert.Equal(expected, actual);
-        Assert.True(Directory.Exists(expected));
+        Assert.True(Directory.Exists(Pathf.Combine(targetPath)));
     }
+
+
+
 
     [Fact]
     public void EnsureCreatedFile_ShouldPass()
     {
-        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        string[] args = [Pathf.DirectorySeparatorChar, "tmp", "my", "path", "filename.net"];
         if (!OperatingSystem.IsLinux())
             args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
 
         var expected = Pathf.Combine(args);
-        var actual = Pathf.EnsureCreated(expected);
+        var actual = Pathf.EnsureCreated(Path.GetDirectoryName(expected)!, Path.GetFileName(expected));
         var dir = Path.GetDirectoryName(expected);
         Assert.Equal(expected, actual);
         Assert.True(Directory.Exists(dir));
         Assert.False(File.Exists(expected));
     }
 
+
+    [Fact]
+    public void EnsureCreatedFileLikePath_ShouldPass()
+    {
+        string[] targetPath = ["tmp", "my", ".path"];
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath]);
+        if (!OperatingSystem.IsLinux())
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath]);
+
+        var actual = Pathf.CombineReady([Pathf.DirectorySeparatorChar, .. targetPath]);
+        Assert.Equal(expected, actual);
+    }
+
+
+
+    [Fact]
+    public void RemoveExistingFile_ShouldPass()
+    {
+
+
+        string[] targetPath = ["tmp", "my", "path"];
+        var filename = "filename.net";
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath, filename]);
+        if (!OperatingSystem.IsLinux())
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath, filename]);
+        var actual = Pathf.CombineReadyFile([Pathf.DirectorySeparatorChar, .. targetPath], filename);
+        Assert.True(Directory.Exists(Path.GetDirectoryName(actual)!));
+        File.WriteAllText(expected, "whatever");
+        Assert.True(File.Exists(actual));
+        Pathf.DeleteFile(expected);
+        Assert.False(File.Exists(expected));
+    }
+
+
+    [Fact]
+    public void RemoveExistingFile_NonExistant_ShouldPass()
+    {
+        string[] targetPath = ["tmp", "my", "path"];
+        var filename = "filename.net";
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath, filename]);
+        if (!OperatingSystem.IsLinux())
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath, filename]);
+        var actual = Pathf.CombineReadyFile([Pathf.DirectorySeparatorChar, .. targetPath], filename);
+        Assert.True(Directory.Exists(Path.GetDirectoryName(actual)!));
+        Assert.False(File.Exists(actual));
+        Pathf.DeleteFile(expected);
+        Assert.False(File.Exists(expected));
+    }
+
     [Fact]
     public void ResetDirectory_ShouldPass()
     {
-        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        string[] targetPath = ["tmp", "my", ".path"];
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath]);
         if (!OperatingSystem.IsLinux())
-            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
-
-        var path = Pathf.CombineEnsureCreated(args);
-        File.WriteAllText(path, "whatever");
-        Assert.True(File.Exists(path));
-        var dir = Path.GetDirectoryName(path);
-        Pathf.ResetDirectory(dir!);
-        Assert.False(File.Exists(path));
-
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath]);
+        var file = Pathf.CombineReadyFile(expected, "file.net");
+        File.WriteAllText(file, "whatever");
+        Assert.True(Directory.Exists(expected));
+        Assert.True(File.Exists(file));
+        Pathf.ResetDir(expected);
+        Assert.False(File.Exists(file));
+        Assert.True(Directory.Exists(expected));
     }
 
     [Fact]
     public void ResetDirectory_WithUnixPermission_ShouldPass()
     {
-        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        string[] targetPath = ["tmp", "my", ".path"];
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath]);
         if (!OperatingSystem.IsLinux())
-            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
-
-        var path = Pathf.CombineEnsureCreated(args);
-        File.WriteAllText(path, "whatever");
-        Assert.True(File.Exists(path));
-        var dir = Path.GetDirectoryName(path);
-        Pathf.ResetDirectory(UnixFileMode.UserWrite | UnixFileMode.UserRead, dir!);
-        Assert.False(File.Exists(path));
-
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath]);
+        var file = Pathf.CombineReadyFile(expected, "file.net");
+        File.WriteAllText(file, "whatever");
+        Assert.True(Directory.Exists(expected));
+        Assert.True(File.Exists(file));
+        Pathf.ResetDir(UnixFileMode.UserWrite | UnixFileMode.UserRead, expected);
+        Assert.False(File.Exists(file));
+        Assert.True(Directory.Exists(expected));
     }
 
     [Fact]
-    public void ResetDirectory_DoNotWhenFilePath_ShouldPass()
+    public void DeleteFile_ShouldPass()
     {
-        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        string[] targetPath = ["tmp", "my", ".path"];
+        var filename = "filename.net";
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath, filename]);
         if (!OperatingSystem.IsLinux())
-            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
-
-        var path = Pathf.CombineEnsureCreated(args);
-        File.WriteAllText(path, "whatever");
-        Assert.True(File.Exists(path));
-        Pathf.ResetDirectory(path);
-        Assert.True(File.Exists(path));
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath, filename]);
+        var file = Pathf.CombineReadyFile([Pathf.DirectorySeparatorChar, .. targetPath], filename);
+        Assert.Equal(expected, file);
+        File.WriteAllText(file, "whatever");
+        Assert.True(File.Exists(file));
+        Pathf.DeleteFile(file);
+        Assert.False(File.Exists(file));
     }
 
 
     [Fact]
-    public void ResetDirectory_DoNotWhenFilePath_WithUnixPermission_ShouldPass()
+    public void DeleteFile_NoFileNoCrash_ShouldPass()
     {
-        string[] args = ["/", "tmp", "my", "path", "filename.net"];
+        string[] targetPath = ["tmp", "my", ".path"];
+        var filename = "filename.net";
+        var expected = Path.Combine([Pathf.DirectorySeparatorChar, .. targetPath, filename]);
         if (!OperatingSystem.IsLinux())
-            args = [Path.GetTempPath(), "lunaticpanel", "pathf", "tmp", "my", "path", "filename.net"];
-
-        var path = Pathf.CombineEnsureCreated(args);
-        File.WriteAllText(path, "whatever");
-        Assert.True(File.Exists(path));
-        Pathf.ResetDirectory(UnixFileMode.UserWrite | UnixFileMode.UserRead, path);
-        Assert.True(File.Exists(path));
+            expected = Path.Combine([Path.GetTempPath(), "lunaticpanel", "pathf", .. targetPath, filename]);
+        var file = Pathf.CombineReadyFile([Pathf.DirectorySeparatorChar, .. targetPath], filename);
+        Assert.Equal(expected, file);
+        Assert.False(File.Exists(file));
+        Pathf.DeleteFile(file);
+        Assert.False(File.Exists(file));
     }
+
+
 
     private void CleanUpJob()
     {

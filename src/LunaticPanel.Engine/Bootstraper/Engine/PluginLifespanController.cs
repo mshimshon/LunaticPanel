@@ -58,10 +58,10 @@ public class PluginLifespanController : IPluginLifespanController
         _masterSp = masterSp;
         _hostPluginServices = hostPluginServices;
 
-        PluginDir = Path.Combine(_pluginDiscoveryLocation.PluginLifecycleRuntimeLocation, Manifest.FolderId);
-        AssetStaticDir = Pathf.CombineEnsureCreated(_publicReadPermission, PluginDir, "wwwroot");
-        PluginVarDir = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", "plugins", Manifest.FolderId);
-        AssetDynamicDir = Pathf.CombineEnsureCreated(_publicReadPermission, PluginVarDir, "wwwroot");
+        PluginDir = Pathf.CombineReady(_pluginDiscoveryLocation.PluginLifecycleRuntimeLocation, Manifest.FolderId);
+        AssetStaticDir = Pathf.CombineReady(_publicReadPermission, PluginDir, "wwwroot");
+        PluginVarDir = Pathf.CombineReady(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", "plugins", Manifest.FolderId);
+        AssetDynamicDir = Pathf.CombineReady(_publicReadPermission, PluginVarDir, "wwwroot");
     }
 
     public void ConfigureStaticAssets()

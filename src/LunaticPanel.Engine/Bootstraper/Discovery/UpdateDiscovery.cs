@@ -38,14 +38,14 @@ public class UpdateDiscovery : IUpdateDiscovery
     {
         _updateDiscoveryLocation = updateDiscoveryLocation;
         _pluginDiscoveryLocation = pluginDiscoveryLocation;
-        _upgradePanelFile = Path.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
-        _failSafePanelFile = Path.Combine(_updateDiscoveryLocation.RuntimeBackupRoot, "panel.tar.gz");
-        _failSafePluginFile = Path.Combine(_updateDiscoveryLocation.RuntimeBackupRoot, "plugins.tar.gz");
+        _upgradePanelFile = Pathf.CombineReadyFile(_updateDiscoveryLocation.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
+        _failSafePanelFile = Pathf.CombineReadyFile(_updateDiscoveryLocation.RuntimeBackupRoot, "panel.tar.gz");
+        _failSafePluginFile = Pathf.CombineReadyFile(_updateDiscoveryLocation.RuntimeBackupRoot, "plugins.tar.gz");
 
-        _upgradeMarkerFile = Path.Combine(_updateDiscoveryLocation.UpgradeReadyApply, "version.txt");
-        _accessBinMark = Path.Combine(_updateDiscoveryLocation.BinaryPathRoot, "access.test");
-        _accessUpgradeRootAccessMark = Path.Combine(_updateDiscoveryLocation.UpgradeRoot, "access.test");
-        _accessPluginRootMark = Path.Combine(_pluginDiscoveryLocation.PluginLifecycleLocation, "access.test");
+        _upgradeMarkerFile = Pathf.CombineReadyFile(_updateDiscoveryLocation.UpgradeReadyApply, "version.txt");
+        _accessBinMark = Pathf.CombineReadyFile(_updateDiscoveryLocation.BinaryPathRoot, "access.test");
+        _accessUpgradeRootAccessMark = Pathf.CombineReadyFile(_updateDiscoveryLocation.UpgradeRoot, "access.test");
+        _accessPluginRootMark = Pathf.CombineReadyFile(_pluginDiscoveryLocation.PluginLifecycleLocation, "access.test");
         LoadVersionFile();
     }
     private bool CheckAccessMark(string file, string name)
@@ -142,13 +142,13 @@ public class UpdateDiscovery : IUpdateDiscovery
         {
             System.Console.WriteLine("Updating Binary...".Cyan());
             LockAssemblies();
-            Pathf.ResetDirectory(_updateDiscoveryLocation.BinaryPathRoot);
-            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleApplyLocation);
-            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleDeleteLocation);
-            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleInstalledLocation);
-            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleRollbackLocation);
-            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleRuntimeLocation);
-            Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
+            Pathf.ResetDir(_updateDiscoveryLocation.BinaryPathRoot);
+            Pathf.ResetDir(_pluginDiscoveryLocation.PluginLifecycleApplyLocation);
+            Pathf.ResetDir(_pluginDiscoveryLocation.PluginLifecycleDeleteLocation);
+            Pathf.ResetDir(_pluginDiscoveryLocation.PluginLifecycleInstalledLocation);
+            Pathf.ResetDir(_pluginDiscoveryLocation.PluginLifecycleRollbackLocation);
+            Pathf.ResetDir(_pluginDiscoveryLocation.PluginLifecycleRuntimeLocation);
+            Pathf.ResetDir(_pluginDiscoveryLocation.PluginLifecyclePreInstalledLocation);
             System.Console.WriteLine("Directories Resetted".Green());
 
             System.Console.WriteLine("Installing New Panel".Yellow());
@@ -236,7 +236,7 @@ public class UpdateDiscovery : IUpdateDiscovery
         {
             System.Console.WriteLine("Restoring Panel.".Yellow());
             if (Directory.Exists(_updateDiscoveryLocation.BinaryPathRoot))
-                Pathf.ResetDirectory(_updateDiscoveryLocation.BinaryPathRoot);
+                Pathf.ResetDir(_updateDiscoveryLocation.BinaryPathRoot);
             await ArchiveUtilityExt.ExtractTo(_failSafePanelFile, _updateDiscoveryLocation.BinaryPathRoot, ArchiveType.TarGz);
             File.Delete(_failSafePanelFile);
         }
@@ -245,7 +245,7 @@ public class UpdateDiscovery : IUpdateDiscovery
         {
             System.Console.WriteLine("Restoring PLugins.".Yellow());
             if (Directory.Exists(_pluginDiscoveryLocation.PluginLifecycleLocation))
-                Pathf.ResetDirectory(_pluginDiscoveryLocation.PluginLifecycleLocation);
+                Pathf.ResetDir(_pluginDiscoveryLocation.PluginLifecycleLocation);
             await ArchiveUtilityExt.ExtractTo(_failSafePluginFile, _pluginDiscoveryLocation.PluginLifecycleLocation, ArchiveType.TarGz);
             File.Delete(_failSafePluginFile);
         }
@@ -255,7 +255,7 @@ public class UpdateDiscovery : IUpdateDiscovery
 
     public Task ClearStageAsync()
     {
-        Pathf.ResetDirectory(_updateDiscoveryLocation.UpgradeRoot);
+        Pathf.ResetDir(_updateDiscoveryLocation.UpgradeRoot);
         return Task.CompletedTask;
     }
 

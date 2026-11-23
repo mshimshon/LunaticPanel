@@ -19,7 +19,7 @@ public class UpdaterDiscoveryTests : IDisposable
     private readonly PluginDiscoveryLocation _pluginDiscoveryLocation;
     private readonly UpdateDiscoveryLocation _updateDiscoveryLocation;
     private bool _disposedValue;
-    private string _fakePanelRoot = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "tmp", "lunaticpanel", "xunit", "fakePanel");
+    private string _fakePanelRoot = Pathf.CombineReady(Pathf.DirectorySeparatorChar, "tmp", "lunaticpanel", "xunit", "fakePanel");
     public UpdaterDiscoveryTests()
     {
 

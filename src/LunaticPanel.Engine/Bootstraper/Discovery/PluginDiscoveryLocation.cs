@@ -25,14 +25,14 @@ public class PluginDiscoveryLocation : IPluginDiscoveryLocator
     public void Initialize()
     {
         string baseLoc = Path.Combine(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", ".plugins");
-        PluginLifecycleLocation = Pathf.CombineEnsureCreated(baseLoc);
-        PluginLifecyclePreInstalledLocation = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel", "plugins");
-        PluginBootstrapStateLocation = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", "config");
-        PluginLifecycleRuntimeLocation = Pathf.CombineEnsureCreated(baseLoc, "runtime");
-        PluginLifecycleApplyLocation = Pathf.CombineEnsureCreated(baseLoc, "apply");
-        PluginLifecycleDeleteLocation = Pathf.CombineEnsureCreated(baseLoc, "delete");
-        PluginLifecycleRollbackLocation = Pathf.CombineEnsureCreated(baseLoc, "rollbacks");
-        PluginLifecycleInstalledLocation = Pathf.CombineEnsureCreated(baseLoc, "installed");
+        PluginLifecycleLocation = Pathf.CombineReady(baseLoc);
+        PluginLifecyclePreInstalledLocation = Pathf.CombineReady(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel", "plugins");
+        PluginBootstrapStateLocation = Pathf.CombineReady(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", "config");
+        PluginLifecycleRuntimeLocation = Pathf.CombineReady(baseLoc, "runtime");
+        PluginLifecycleApplyLocation = Pathf.CombineReady(baseLoc, "apply");
+        PluginLifecycleDeleteLocation = Pathf.CombineReady(baseLoc, "delete");
+        PluginLifecycleRollbackLocation = Pathf.CombineReady(baseLoc, "rollbacks");
+        PluginLifecycleInstalledLocation = Pathf.CombineReady(baseLoc, "installed");
     }
 
 
