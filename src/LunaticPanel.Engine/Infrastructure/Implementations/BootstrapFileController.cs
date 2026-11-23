@@ -14,7 +14,7 @@ internal class BootstrapFileController : IBootstrapFileController
 
     public BootstrapFileController(IAtomicFileSystem AtomicFileSystem)
     {
-        _bootstrapLocation = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", IBootstrapFileController.BootstrapFilename);
+        _bootstrapLocation = Pathf.CombineReadyFile([Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel"], IBootstrapFileController.BootstrapFilename);
         _atomicFileSystem = AtomicFileSystem;
     }
     public async Task DisablePlugin(string id, CancellationToken ct = default)

@@ -11,7 +11,7 @@ public class PluginStateController : IPluginStateController
 
     public PluginStateController()
     {
-        _fileLocation = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel", IBootstrapFileController.BootstrapFilename);
+        _fileLocation = Pathf.CombineReadyFile([Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel"], IBootstrapFileController.BootstrapFilename);
 
         EnsureCreated();
 

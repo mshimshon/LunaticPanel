@@ -24,15 +24,15 @@ public class UpdateDiscoveryLocation : IUpdateDiscoveryLocator
     }
     public void Initialize()
     {
-        BinaryPathRoot = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel");
-        VarLibRoot = Pathf.CombineEnsureCreated(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel");
-        UpgradeRoot = Pathf.CombineEnsureCreated(VarLibRoot, ".upgrade");
+        BinaryPathRoot = Pathf.CombineReady(Pathf.DirectorySeparatorChar, "srv", "lunaticpanel");
+        VarLibRoot = Pathf.CombineReady(Pathf.DirectorySeparatorChar, "var", "lib", "lunaticpanel");
+        UpgradeRoot = Pathf.CombineReady(VarLibRoot, ".upgrade");
 
-        UpgradePluginCache = Pathf.CombineEnsureCreated(UpgradeRoot, "plugins");
-        UpgradeReadyApply = Pathf.CombineEnsureCreated(UpgradeRoot, "apply");
-        UpgradePluginInstalled = Pathf.CombineEnsureCreated(UpgradeRoot, "apply", "installed");
-        UpgradePluginPreinstalled = Pathf.CombineEnsureCreated(UpgradeRoot, "apply", "preinstalled");
-        RuntimeBackupRoot = Pathf.CombineEnsureCreated(VarLibRoot, "upgrade_backup");
+        UpgradePluginCache = Pathf.CombineReady(UpgradeRoot, "plugins");
+        UpgradeReadyApply = Pathf.CombineReady(UpgradeRoot, "apply");
+        UpgradePluginInstalled = Pathf.CombineReady(UpgradeRoot, "apply", "installed");
+        UpgradePluginPreinstalled = Pathf.CombineReady(UpgradeRoot, "apply", "preinstalled");
+        RuntimeBackupRoot = Pathf.CombineReady(VarLibRoot, "upgrade_backup");
     }
 
 

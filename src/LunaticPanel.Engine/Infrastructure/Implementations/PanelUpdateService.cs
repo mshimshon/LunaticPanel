@@ -75,7 +75,7 @@ internal class PanelUpdateService : IPanelUpdateService
         _baseRemoteUrl = new Uri("https://update.lunaticpanel.com/release/");
         _previewCheckUrl = new Uri(_baseRemoteUrl, "preview.txt");
         _stableCheckUrl = new Uri(_baseRemoteUrl, "stable.txt");
-        _downloadLocation = Pathf.CombineEnsureCreated(_updateDiscoveryLocator.UpgradeRoot, "download");
+        _downloadLocation = Pathf.CombineReady(_updateDiscoveryLocator.UpgradeRoot, "download");
         SafeToUpgrade();
     }
 
@@ -234,7 +234,7 @@ internal class PanelUpdateService : IPanelUpdateService
         await DownloadFile(client, $"lunaticpanel_plugins_{version}.tar.gz", officialPanelPlugins, ct);
 
 
-        Pathf.ResetDirectory(_updateDiscoveryLocator.UpgradePluginCache);
+        Pathf.ResetDir(_updateDiscoveryLocator.UpgradePluginCache);
         await ArchiveUtilityExt.ExtractTo(officialPanelPlugins, _updateDiscoveryLocator.UpgradePluginCache, ArchiveType.TarGz);
         await _atomicFileSystem.WriteAtomicAsync(lastDownloaded, version.ToString());
         Downloaded = version;
@@ -296,7 +296,7 @@ internal class PanelUpdateService : IPanelUpdateService
                         File.Move(item.Key, Path.Combine(applyUserInstalledolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"), true);
 
             // Clear Working Files
-            Pathf.ResetDirectory(_downloadLocation);
+            Pathf.ResetDir(_downloadLocation);
             await _updateDiscovery.ClearStageAsync();
             await _atomicFileSystem.WriteAtomicAsync(upgradeVersionCache, Installing.ToString());
             await _atomicFileSystem.WriteAtomicAsync(Pathf.Combine(binPanelPath, "access.test"), Installing.ToString());
