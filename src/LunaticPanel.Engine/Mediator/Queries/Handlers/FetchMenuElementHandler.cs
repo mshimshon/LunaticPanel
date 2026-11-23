@@ -20,7 +20,7 @@ internal class FetchMenuElementHandler : IRequestHandler<FetchMenuElementQuery, 
     {
         List<EngineBusMsgResponseWithData<MenuElementModel>> result = new();
         try
-        { // _coreMap.MapTo<MenuElementResponse, MenuElementEntity>
+        {
             var responses = await _engineBus
                 .Execute(MainMenuKeys.UI.GET_ELEMENTS)
                 .ReadWithData((response) => (response.Data?.GetDataAs<MenuElementResponse>() ?? new()).ToModel(), p => p);

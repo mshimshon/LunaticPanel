@@ -6,22 +6,7 @@ namespace LunaticPanel.Core.Extensions;
 
 public static class EngineBusExt
 {
-    //var responses = await _engineBus.Execute(MainMenuQueries.GetElements).ReadWithData(msg=>_coreMap.Map(msg).To<MenuElementEntity>());
-    //var responsePair =
-    //    responses.Select(p => (p.RenderFragment, p.Data!.GetDataAs<MenuElementResponse>()!));
-    //        foreach (var item in responses)
-    //        {
-    //            try
-    //            {
-    //                var data = item.Data!.GetDataAs<MenuElementResponse>()!;
-    //var menuItem = _coreMap.Map(data).To<MenuElementEntity>() with { Render = item.RenderFragment };
-    //result.Add(menuItem);
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                Console.WriteLine(ex.Message);
-    //            }
-    //        }
+
     public static async Task<EngineBusResponse[]> Execute(this IEngineBus engineBus, string key, object? data = default)
     {
         var message = data != default ? new EngineBusMessage(new(key), data) : new EngineBusMessage(new(key));

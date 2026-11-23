@@ -22,7 +22,7 @@ internal class FetchDashboardWidgetsHandler : IRequestHandler<FetchDashboardWidg
     {
         List<EngineBusMsgResponseWithData<WidgetElementModel>> result = new List<EngineBusMsgResponseWithData<WidgetElementModel>>();
         try
-        { // _coreMap.MapTo<WidgetElementResponse, WidgetElementEntity>
+        {
             var responses =
                 await _engineBus
                 .Execute(DashboardKeys.UI.GET_WIDGETS)
