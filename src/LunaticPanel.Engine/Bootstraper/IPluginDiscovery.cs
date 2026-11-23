@@ -2,7 +2,6 @@ using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Plugin;
 
-using LunaticPanel.Engine.Services;
 using Microsoft.Extensions.Configuration;
 using NuGet.Versioning;
 using System;

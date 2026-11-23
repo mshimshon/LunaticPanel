@@ -1,5 +1,5 @@
 ﻿using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
+using LunaticPanel.Engine.Models.Dashboard;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Pages.Dashboard.Pulses.States;
@@ -7,5 +7,5 @@ namespace LunaticPanel.Engine.Pages.Dashboard.Pulses.States;
 public record DashboardState : IStateFeature
 {
     public bool IsLoading { get; init; }
-    public IReadOnlyCollection<EngineBusMsgResponseWithData<WidgetElementEntity>>? Widgets { get; init; } = new List<EngineBusMsgResponseWithData<WidgetElementEntity>>().AsReadOnly();
+    public IReadOnlyCollection<EngineBusMsgResponseWithData<WidgetElementModel>>? Widgets { get; init; } = new List<EngineBusMsgResponseWithData<WidgetElementModel>>().AsReadOnly();
 }

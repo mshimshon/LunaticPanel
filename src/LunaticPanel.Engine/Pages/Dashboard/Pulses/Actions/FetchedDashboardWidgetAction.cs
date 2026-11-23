@@ -1,10 +1,10 @@
 ﻿using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Domain.UI.Dashboard.Entites;
+using LunaticPanel.Engine.Models.Dashboard;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Pages.Dashboard.Pulses.Actions;
 
 public class FetchedDashboardWidgetAction : ISafeAction
 {
-    public List<EngineBusMsgResponseWithData<WidgetElementEntity>>? Widgets { get; set; }
+    public List<EngineBusMsgResponseWithData<WidgetElementModel>>? Widgets { get; set; }
 }

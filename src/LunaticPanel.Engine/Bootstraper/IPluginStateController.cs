@@ -1,8 +1,8 @@
 using LunaticPanel.Core.Abstraction.DependencyInjection;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Infrastructure.Interfaces;
 using LunaticPanel.Engine.Plugin;
-using LunaticPanel.Engine.Services;
 using NuGet.Versioning;
 using System;
 using System.Reflection;

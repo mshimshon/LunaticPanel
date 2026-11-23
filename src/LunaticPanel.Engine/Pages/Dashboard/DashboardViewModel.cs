@@ -1,6 +1,6 @@
-﻿using LunaticPanel.Engine.Pages.Dashboard.Pulses.Actions;
+﻿using LunaticPanel.Engine.Infrastructure.Implementations;
+using LunaticPanel.Engine.Pages.Dashboard.Pulses.Actions;
 using LunaticPanel.Engine.Pages.Dashboard.Pulses.States;
-using LunaticPanel.Engine.Services.PanelControl;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Pages.Dashboard;

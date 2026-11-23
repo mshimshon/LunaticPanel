@@ -1,5 +1,5 @@
 using LunaticPanel.Core.Extensions;
-using LunaticPanel.Engine.Services;
+using LunaticPanel.Engine.Infrastructure.Interfaces;
 using System;
 using System.Text.Json;
 

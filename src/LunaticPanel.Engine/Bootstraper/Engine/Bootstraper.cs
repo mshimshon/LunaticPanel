@@ -9,9 +9,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Reflection;
-using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Bootstraper.Discovery;
-using LunaticPanel.Engine.Services.Circuit;
+using LunaticPanel.Engine.Infrastructure.Interfaces;
+using LunaticPanel.Engine.Infrastructure.Implementations;
 
 namespace LunaticPanel.Engine.Bootstraper.Engine;
 

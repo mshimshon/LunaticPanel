@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Application.UI.Home.Mediator.Queries;
+﻿using LunaticPanel.Engine.Mediator.Queries;
 using LunaticPanel.Engine.Pages.Dashboard.Pulses.Actions;
 using MaksimShimshon.Mediator;
 using StatePulse.Net;

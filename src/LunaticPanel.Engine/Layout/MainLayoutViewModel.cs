@@ -1,4 +1,4 @@
-﻿using LunaticPanel.Engine.Services.PanelControl;
+﻿using LunaticPanel.Engine.Infrastructure.Implementations;
 using StatePulse.Net;
 
 namespace LunaticPanel.Engine.Layout;

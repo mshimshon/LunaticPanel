@@ -1,9 +1,9 @@
 using LunaticPanel.Core.Extensions;
 using LunaticPanel.Engine.Tests.Extensions;
 using System;
-using LunaticPanel.Engine.Services;
 using LunaticPanel.Engine.Bootstraper.Discovery.Services;
 using LunaticPanel.Engine.Bootstraper;
+using LunaticPanel.Engine.Infrastructure.Interfaces;
 
 namespace LunaticPanel.Engine.Tests.Bootstraper.Services;
 

@@ -10,22 +10,17 @@ using LunaticPanel.Core.Messaging.EventBus;
 using LunaticPanel.Core.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Messaging.QuerySystem;
 using LunaticPanel.Core.Utils.Logging;
-using LunaticPanel.Engine.Infrastructure.Logging;
-using LunaticPanel.Engine.Infrastructure.Messaging.EngineBus;
-using LunaticPanel.Engine.Infrastructure.Messaging.Event;
-using LunaticPanel.Engine.Infrastructure.Messaging.EventScheduled;
-using LunaticPanel.Engine.Infrastructure.Messaging.Query;
-using LunaticPanel.Engine.Infrastructure.Plugin;
-using LunaticPanel.Engine.Infrastructure.Services;
-using MaksimShimshon.Mediator;
-using StatePulse.Net;
+using LunaticPanel.Engine.Infrastructure.Implementations;
+using LunaticPanel.Engine.Infrastructure.Implementations.Messaging;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace LunaticPanel.Engine.Infrastructure;
 
-public static class RegisterServicesExt
+internal static class RegisterServicesExt
 {
-
-    public static IServiceCollection AddEngineInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddScoped<EngineBusExchange>();
         services.AddScoped<EventBusExchange>();
@@ -54,7 +49,7 @@ public static class RegisterServicesExt
         return services;
     }
 
-    public static IServiceCollection AddEngineInfrastructureRedirected(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureRedirected(this IServiceCollection services)
     {
         services.AddScoped<ICrazyReportCircuit>((sp) => sp.GetRequiredService<CrazyReportCircuit>());
         services.AddScoped<IEngineBusExchange>(sp => sp.GetRequiredService<EngineBusExchange>());
@@ -65,15 +60,13 @@ public static class RegisterServicesExt
         services.AddScoped<IEventScheduler>(sp => sp.GetRequiredService<EventScheduler>());
         return services;
     }
-    public static Task EngineInfrastructureRuntimeBeforePlugins(this IServiceProvider services)
+    public static Task InfrastructureRuntimeBeforePlugins(this IServiceProvider services)
     => Task.CompletedTask;
-    public static Task EngineInfrastructureRuntimeAfterPlugins(this IServiceProvider services)
+    public static Task InfrastructureRuntimeAfterPlugins(this IServiceProvider services)
     {
 
         var scheduler = services.GetRequiredService<EventScheduler>();
         Task.Run(() => scheduler.Cycle());
-
-
         return Task.CompletedTask;
     }
 }

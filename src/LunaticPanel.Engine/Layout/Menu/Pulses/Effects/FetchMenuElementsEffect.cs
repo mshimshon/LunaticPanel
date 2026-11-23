@@ -1,5 +1,5 @@
-﻿using LunaticPanel.Engine.Application.UI.MainMenu.Mediator.Queries;
-using LunaticPanel.Engine.Layout.Menu.Pulses.Actions;
+﻿using LunaticPanel.Engine.Layout.Menu.Pulses.Actions;
+using LunaticPanel.Engine.Mediator.Queries;
 using MaksimShimshon.Mediator;
 using StatePulse.Net;
 
