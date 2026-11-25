@@ -200,6 +200,9 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         return versions.FirstOrDefault(p => NuGetVersion.Parse(p.Version) == lastVersion);
     }
 
+    public Task<PackageManifestPayload?> FindMostRecentPackage(string id, string panelVersion, CancellationToken ct = default)
+     => throw new NotImplementedException();
+
     public async Task<PackageManifestPayload?> FindMostRecentPackage(string id, CancellationToken ct = default)
     {
         string sourceJson = File.ReadAllText(_sourceFile);
@@ -211,11 +214,11 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
         PluginManifestExtPayload? result = default;
         foreach (var item in configSources)
         {
-            if (item.State != Repositories.Payloads.Enums.ExternalSourceRepositoryStatePayload.Enabled)
+            if (item.State != ExternalSourceRepositoryStatePayload.Enabled)
                 continue;
 
             PluginManifestExtPayload? package = default;
-            if (item.SourceType == Repositories.Payloads.Enums.ExternalSourceRepositoryTypePayload.Remote)
+            if (item.SourceType == ExternalSourceRepositoryTypePayload.Remote)
                 package = await GetRemoteLatestVersionFromAsync(id, item, ct);
             else
                 package = await GetLocalLatestVersionFromAsync(id, item, ct);
@@ -429,4 +432,7 @@ internal class ExternalSourceService : IExternalSourceService, IDisposable
 
         return versions;
     }
+
+
+
 }

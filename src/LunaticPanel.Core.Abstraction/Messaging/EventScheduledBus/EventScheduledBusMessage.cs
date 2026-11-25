@@ -21,7 +21,10 @@ public sealed class EventScheduledBusMessage : IEventScheduledBusMessage
             Data = new BusMessageData(data);
         _messageKey = messageKey;
     }
-
+    public static IEventScheduledBusMessage Create(string key)
+        => new EventScheduledBusMessage(MessageKey.Create(key));
+    public static IEventScheduledBusMessage Create(string key, object data)
+        => new EventScheduledBusMessage(MessageKey.Create(key), data);
     public string GetKey() => $"{_messageKey}";
 
     public BusMessageData? GetData() => Data;

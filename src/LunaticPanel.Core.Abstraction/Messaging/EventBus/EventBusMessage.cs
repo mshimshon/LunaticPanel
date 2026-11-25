@@ -21,7 +21,10 @@ public sealed class EventBusMessage : IEventBusMessage
             Data = new BusMessageData(data);
         _messageKey = messageKey;
     }
-
+    public static IEventBusMessage Create(string key)
+        => new EventBusMessage(MessageKey.Create(key));
+    public static IEventBusMessage Create(string key, object data)
+        => new EventBusMessage(MessageKey.Create(key), data);
     public string GetKey() => $"{_messageKey}";
 
     public BusMessageData? GetData() => Data;

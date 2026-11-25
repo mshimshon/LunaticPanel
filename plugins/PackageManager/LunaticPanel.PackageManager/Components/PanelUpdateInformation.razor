@@ -1,0 +1,28 @@
+﻿@using LunaticPanel.PackageManager.Components.ViewModels
+@inherits WidgetComponentBase<PluginEntry, IPanelUpdateInformationViewModel>
+@if (ViewModel.HasUpdateAvailable)
+{
+    <MudGrid>
+        <MudItem xs=12>
+            @if (ViewModel.StagedVersion != default)
+            {
+                <MudAlert Severity=@Severity.Info>
+                    @string.Format(FOUND_STAGE, ViewModel.StagedVersion)
+                </MudAlert>
+            }
+            else if (ViewModel.DownloadedVersion != default)
+            {
+                <MudAlert Severity=@Severity.Warning>
+                    @string.Format(FOUND_UPDATE, ViewModel.DownloadedVersion)
+                </MudAlert>
+            }
+            else
+            {
+                <MudAlert Severity=@Severity.Normal>
+                    @string.Format(FOUND_UPDATE, ViewModel.DownloadedVersion)
+                </MudAlert>
+            }
+        </MudItem>
+    </MudGrid>
+}
+

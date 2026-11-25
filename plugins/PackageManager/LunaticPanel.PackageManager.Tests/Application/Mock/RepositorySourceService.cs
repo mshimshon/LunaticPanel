@@ -2,6 +2,7 @@
 using LunaticPanel.PackageManager.Application.Payloads.Requests;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
 using LunaticPanel.PackageManager.Application.Services;
+using NuGet.Versioning;
 
 namespace LunaticPanel.PackageManager.Tests.Application.Mock;
 
@@ -74,4 +75,6 @@ internal class RepositorySourceService : IPackageDownloader
     public Task<IEnumerable<string>> GetVersionsAsync(string packageId, CancellationToken ct = default) => throw new NotImplementedException();
     public Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default) => throw new NotImplementedException();
     public Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageManifestPayload>>> SearchAsync(SearchRequest data, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<string> DownloadAsync(PackageManifestPayload data, string downloadTo, CancellationToken ct = default) => throw new NotImplementedException();
+    public Task<IEnumerable<PackageManifestPayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, NuGetVersion panelVersion, CancellationToken ct = default) => throw new NotImplementedException();
 }

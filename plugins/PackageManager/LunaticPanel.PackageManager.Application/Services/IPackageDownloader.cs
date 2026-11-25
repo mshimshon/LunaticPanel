@@ -1,12 +1,15 @@
 ﻿using LunaticPanel.PackageManager.Application.Payloads;
 using LunaticPanel.PackageManager.Application.Payloads.Requests;
 using LunaticPanel.PackageManager.Application.Payloads.Responses;
+using NuGet.Versioning;
 
 namespace LunaticPanel.PackageManager.Application.Services;
 
 public interface IPackageDownloader
 {
     Task<string> DownloadAsync(PackageManifestPayload data, CancellationToken ct = default);
+    Task<string> DownloadAsync(PackageManifestPayload data, string downloadTo, CancellationToken ct = default);
+    Task<IEnumerable<PackageManifestPayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, NuGetVersion panelVersion, CancellationToken ct = default);
     Task<IEnumerable<PackageManifestPayload>> GetLatestVersionAsync(IEnumerable<string> packageIds, CancellationToken ct = default);
     Task<IEnumerable<string>> GetVersionsAsync(string packageId, CancellationToken ct = default);
     Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default);
