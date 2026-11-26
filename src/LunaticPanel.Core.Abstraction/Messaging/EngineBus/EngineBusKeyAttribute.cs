@@ -2,7 +2,7 @@
 
 namespace LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class EngineBusKeyAttribute : BusKeyAttribute
 {
     public EngineBusKeyAttribute(string plugin, string action) : base("enginekey", plugin, action) { }
