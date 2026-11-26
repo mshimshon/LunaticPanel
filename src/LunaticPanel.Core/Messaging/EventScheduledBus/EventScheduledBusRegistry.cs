@@ -47,21 +47,11 @@ public sealed class EventScheduledBusRegistry : IEventScheduledBusRegistry
 
     public void Register(string id, BusHandlerDescriptor handlerEntity)
     {
-        var attr = handlerEntity.HandlerType.GetCustomAttribute<EventScheduledBusKeyAttribute>(inherit: false);
-        if (attr == default)
-            throw new InvalidOperationException($"Type {handlerEntity.HandlerType.FullName} MUST implements {nameof(EventBusKeyAttribute)}.");
-
         lock (_lock)
         {
             if (!_internalRegistryEventTypes.TryGetValue(id, out var exst))
             {
-                _internalRegistryEventTypes[id] = new EventScheduledBusHandlerDescriptor(id, handlerEntity.HandlerType, handlerEntity.BusLifetime)
-                {
-                    Timing = attr.GetTiming(),
-                    RunAtStartup = attr.RunAtStartup,
-                    RunOnlyOnce = attr.RunOnlyOnce,
-                    ScheduleAtStartup = attr.ScheduleAtStartup
-                };
+                _internalRegistryEventTypes[id] = EventScheduledBusHandlerDescriptor.Create(handlerEntity);
             }
         }
     }

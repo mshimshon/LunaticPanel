@@ -11,6 +11,8 @@ using System.Reflection;
 namespace LunaticPanel.PackageManager.Hooks.Events;
 
 [EventBusKey(PanelKeys.Events.ON_PANEL_UPDATE_AVAILABLE, CrossCircuitReceiver = EventBusSpreadType.SelfContained)]
+[EventBusKey(PanelKeys.Events.ON_PANEL_UPDATE_DOWNLOADED, CrossCircuitReceiver = EventBusSpreadType.SelfContained)]
+[EventBusKey(PanelKeys.Events.ON_PANEL_UPDATE_STAGED, CrossCircuitReceiver = EventBusSpreadType.SelfContained)]
 internal class OnPanelUpdateVersionChanged : IEventBusHandler
 {
     private readonly IDispatcher _dispatcher;
@@ -32,8 +34,8 @@ internal class OnPanelUpdateVersionChanged : IEventBusHandler
         var action = new UpdatePanelStateDoneAction()
         {
             Found = incomingVersion,
-            Downloaded = _panelUpdateState.State.DownloadedVersion,
-            Staged = _panelUpdateState.State.StagedVersion
+            Downloaded = evt.Key.SameAs(PanelKeys.Events.ON_PANEL_UPDATE_DOWNLOADED) ? incomingVersion : _panelUpdateState.State.DownloadedVersion,
+            Staged = evt.Key.SameAs(PanelKeys.Events.ON_PANEL_UPDATE_DOWNLOADED) ? incomingVersion : _panelUpdateState.State.StagedVersion
         };
         await _dispatcher.Prepared(action).DispatchAsync();
     }

@@ -3,7 +3,9 @@
 public record BusHandlerDescriptor(
         string Key,
         Type HandlerType,
-        EBusType BusType, EBusLifetime BusLifetime
+        EBusType BusType,
+        EBusLifetime BusLifetime,
+        BusKeyAttribute Attribute
     )
 {
 }

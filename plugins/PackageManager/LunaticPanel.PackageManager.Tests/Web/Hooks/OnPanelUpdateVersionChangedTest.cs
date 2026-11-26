@@ -2,6 +2,7 @@ using LunaticPanel.Core.Abstraction.Messaging.Common;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Plugin;
 using LunaticPanel.Core.Extensions;
+using LunaticPanel.Engine.Keys.System;
 using LunaticPanel.PackageManager.Hooks.Events;
 using LunaticPanel.PackageManager.Pulses.Actions;
 using LunaticPanel.PackageManager.Pulses.States;
@@ -50,6 +51,7 @@ public class OnPanelUpdateVersionChangedTest
     {
         var latest = new NuGetVersion(_panelCurrent.Major, _panelCurrent.Minor + 1, _panelCurrent.Patch, _panelCurrent.Release, _panelCurrent.Metadata);
         _eventBusMessage.GetData().Returns(new BusMessageData(latest.ToString()));
+        _eventBusMessage.Key.Returns(MessageKey.Create(PanelKeys.Events.ON_PANEL_UPDATE_DOWNLOADED));
         await _onPanelUpdateVersionChanged.HandleAsync(_eventBusMessage);
 
     }

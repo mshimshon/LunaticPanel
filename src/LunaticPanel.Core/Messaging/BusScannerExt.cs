@@ -3,12 +3,16 @@ using LunaticPanel.Core.Abstraction.Messaging.EngineBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventBus;
 using LunaticPanel.Core.Abstraction.Messaging.EventScheduledBus;
 using LunaticPanel.Core.Abstraction.Messaging.QuerySystem;
+using System.Dynamic;
 using System.Reflection;
 
 namespace LunaticPanel.Core.Messaging;
 
 public static class BusScannerExt
 {
+
+
+
     public static List<BusHandlerDescriptor> ScanBusHandlers(Action<BusHandlerDescriptor> onDescriptor, params Type[] typesToScan)
     {
         var engineBusType = typeof(IEngineBusHandler);
@@ -25,7 +29,7 @@ public static class BusScannerExt
         List<BusHandlerDescriptor> toRegister = new();
         foreach (var t in busesClass)
         {
-            var attr = t.GetCustomAttributes<BusKeyAttribute>(inherit: false);
+            var attr = t.GetCustomAttributes<BusKeyAttribute>(inherit: false).ToArray();
             if (attr == default || attr.Count() <= 0)
                 throw new InvalidOperationException($"Type {t.FullName} MUST implements {nameof(BusKeyAttribute)}.");
             bool isValidEngineBus = attr.Any(p => p.GetType() == typeof(EngineBusKeyAttribute)) && engineBusType.IsAssignableFrom(t);
@@ -40,7 +44,7 @@ public static class BusScannerExt
                 if (isValidEventBus) eventType = EBusType.EventBus;
                 else if (isValidQueryBus) eventType = EBusType.QueryBus;
                 else if (isValidEventScheduleBus) eventType = EBusType.EventScheduledBus;
-                var result = new BusHandlerDescriptor(busAttribute.Key.ToString(), t, eventType, busAttribute.ServiceLifetime);
+                var result = new BusHandlerDescriptor(busAttribute.Key.ToString(), t, eventType, busAttribute.ServiceLifetime, busAttribute);
                 onDescriptor.Invoke(result);
                 toRegister.Add(result);
             }

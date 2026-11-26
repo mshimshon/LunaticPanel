@@ -29,11 +29,11 @@ public class EventBusReceiver : IEventBusReceiver
 
         List<Task> handlerTasks = new();
         foreach (var handler in handlers)
-            if (handler.CrossCircuitType == EventBusSpreadType.SelfContained && circuitIdOrigin == _circuitRegistry.CurrentCircuit.CircuitId)
+            if (handler.Setting.CrossCircuitReceiver == EventBusSpreadType.SelfContained && circuitIdOrigin == _circuitRegistry.CurrentCircuit.CircuitId)
                 handlerTasks.Add(ExecuteHandler(eventBusMessage, _serviceProvider, handler.HandlerType));
-            else if (handler.CrossCircuitType == EventBusSpreadType.CrossCircuitExcludeSender && circuitIdOrigin != _circuitRegistry.CurrentCircuit.CircuitId)
+            else if (handler.Setting.CrossCircuitReceiver == EventBusSpreadType.CrossCircuitExcludeSender && circuitIdOrigin != _circuitRegistry.CurrentCircuit.CircuitId)
                 handlerTasks.Add(ExecuteHandler(eventBusMessage, _serviceProvider, handler.HandlerType));
-            else if (handler.CrossCircuitType == EventBusSpreadType.CrossCircuitAll)
+            else if (handler.Setting.CrossCircuitReceiver == EventBusSpreadType.CrossCircuitAll)
                 handlerTasks.Add(ExecuteHandler(eventBusMessage, _serviceProvider, handler.HandlerType));
             else
                 continue;
