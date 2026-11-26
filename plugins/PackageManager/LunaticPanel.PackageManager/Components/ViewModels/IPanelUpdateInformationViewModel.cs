@@ -8,10 +8,8 @@ namespace LunaticPanel.PackageManager.Components.ViewModels;
 public interface IPanelUpdateInformationViewModel : IWidgetViewModel
 {
     PanelUpdateState PanelUpdateState { get; }
-    NuGetVersion? UpdateFound { get; }
-    NuGetVersion? StagedVersion { get; }
-    NuGetVersion? DownloadedVersion { get; }
-    string AvailableVersion { get; }
+    NuGetVersion? Version { get; }
     bool HasUpdateAvailable { get; }
-
+    public bool HasDownloaded { get; }
+    public bool HasStaged { get; }
 }

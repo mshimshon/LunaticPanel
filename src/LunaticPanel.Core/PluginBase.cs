@@ -548,13 +548,13 @@ public abstract class PluginBase : IPlugin
         var schEventRegistry = contextServices.GetRequired<IEventScheduledBusRegistry>();
         foreach (var d in schEventRegistry.GetAllAvailable())
         {
-            if (!d.ScheduleAtStartup) continue;
+            if (!d.Setting.ScheduleAtStartup) continue;
             var t = new EventScheduleObject(d.Key, d.Timing)
             {
-                RunOnceOnly = d.RunOnlyOnce
+                RunOnceOnly = d.Setting.RunOnlyOnce
             };
 
-            evtSchService.Register(t, d.RunAtStartup);
+            evtSchService.Register(t, d.Setting.RunAtStartup);
         }
 
         return Task.CompletedTask;

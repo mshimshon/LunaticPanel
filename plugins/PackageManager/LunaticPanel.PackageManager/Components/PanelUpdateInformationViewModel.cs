@@ -14,8 +14,12 @@ public class PanelUpdateInformationViewModel : WidgetViewModelBase, IPanelUpdate
     public NuGetVersion? UpdateFound => PanelUpdateState.AvailableVersion;
     public NuGetVersion? StagedVersion => PanelUpdateState.StagedVersion;
     public NuGetVersion? DownloadedVersion => PanelUpdateState.DownloadedVersion;
-    public string AvailableVersion => UpdateFound?.ToString() ?? StagedVersion?.ToString() ?? DownloadedVersion?.ToString() ?? "No Version Found";
-    public bool HasUpdateAvailable => AvailableVersion != default;
+    public bool HasUpdateAvailable => HasFoundUpdate || HasDownloaded || HasStaged;
+    public bool HasDownloaded => DownloadedVersion != default;
+    public bool HasStaged => StagedVersion != default;
+    public bool HasFoundUpdate => UpdateFound != default;
+    public NuGetVersion? Version => UpdateFound ?? StagedVersion ?? DownloadedVersion;
+
     public PanelUpdateInformationViewModel(IStatePulse statePulse)
     {
         _statePulse = statePulse;

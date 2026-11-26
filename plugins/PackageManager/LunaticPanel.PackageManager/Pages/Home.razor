@@ -25,9 +25,7 @@
         }
     else
         {
-            <MudItem xs=12 md=6>
-                <PanelUpdateInformation OnParentStateHasChanged=@OnParentStateHasChanged />
-            </MudItem>
+            <PanelUpdateInformation OnParentStateHasChanged=@OnParentStateHasChanged />
             <MudItem xs=12 md=6>
                 @if (ViewModel.InstallState.RestartRequired)
                 {
