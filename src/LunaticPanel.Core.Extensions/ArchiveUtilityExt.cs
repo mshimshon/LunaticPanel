@@ -100,8 +100,12 @@ public static class ArchiveUtilityExt
         try
         {
             var stream = await ReadFile(archivePath, relativePath, type);
+            using (var sr = new StreamReader(stream))
+            {
+                var text = await sr.ReadToEndAsync();
+                return JsonSerializer.Deserialize<T>(text, _jsonSerializerOptions);
+            }
 
-            return JsonSerializer.Deserialize<T>(stream, _jsonSerializerOptions);
         }
         catch (System.Exception ex)
         {

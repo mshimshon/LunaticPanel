@@ -55,20 +55,22 @@ internal sealed class AtomicFileSystem : IAtomicFileSystem
         int cycleTimeout = 0;
         while (true)
         {
-            if (cycleTimeout >= 200)
-            {
-                // TODO: Throw
-            }
+
             cycleTimeout++;
 
             try
             {
                 return File.Open($"{file}.lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                if (cycleTimeout >= 100)
+                {
+                    throw;
+                }
                 // lock is held by someone else
-                await Task.Delay(50, ct);
+                await Task.Delay(100, ct);
+
             }
         }
     }

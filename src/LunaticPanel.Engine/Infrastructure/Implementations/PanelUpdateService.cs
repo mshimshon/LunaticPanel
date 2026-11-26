@@ -134,7 +134,7 @@ internal class PanelUpdateService : IPanelUpdateService
             }
             if (validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
             {
-                _crazyReport.ReportWarning($"'{item}' failed to extract manifest.");
+                _crazyReport.ReportWarning($"'{item}' another valid version is already selected.");
                 File.Delete(item);
                 _crazyReport.ReportWarning($"'{item}' Deleted.");
                 continue;
@@ -230,8 +230,10 @@ internal class PanelUpdateService : IPanelUpdateService
         string lastDownloaded = Path.Combine(_downloadLocation, "cache.txt");
         string officialPanel = Path.Combine(_downloadLocation, "lunaticpanel_latest.tar.gz");
         string officialPanelPlugins = Path.Combine(_downloadLocation, "lunaticpanel_plugins_latest.tar.gz");
-        await DownloadFile(client, $"lunaticpanel_{version}.tar.gz", officialPanel, ct);
-        await DownloadFile(client, $"lunaticpanel_plugins_{version}.tar.gz", officialPanelPlugins, ct);
+        var panelUrl = new Uri(_baseRemoteUrl, $"lunaticpanel_{version}.tar.gz");
+        var pluginUrl = new Uri(_baseRemoteUrl, $"lunaticpanel_plugins_{version}.tar.gz");
+        await DownloadFile(client, panelUrl.ToString(), officialPanel, ct);
+        await DownloadFile(client, pluginUrl.ToString(), officialPanelPlugins, ct);
 
 
         Pathf.ResetDir(_updateDiscoveryLocator.UpgradePluginCache);
@@ -346,6 +348,7 @@ internal class PanelUpdateService : IPanelUpdateService
         var responseStable = await client.GetAsync(_stableCheckUrl);
         responseStable.EnsureSuccessStatusCode();
         string versionStableRaw = await responseStable.Content.ReadAsStringAsync();
+        versionStableRaw = versionStableRaw.ClearNewLines().ClearSpaces();
         var latest = NuGetVersion.Parse(versionStableRaw);
         _crazyReport.Report($"Remote Panel Version is {versionStableRaw}");
         if (_previewEnabled)
@@ -359,8 +362,10 @@ internal class PanelUpdateService : IPanelUpdateService
         }
         return latest;
     }
+
     public async Task DownloadFile(HttpClient client, string remoteFile, string targetLocation, CancellationToken ct = default)
     {
+        _crazyReport.Report($"Download '{remoteFile}' to '{targetLocation}'");
         string destinationPathDownload = Path.GetTempFileName();
         using var response = await client.GetAsync(remoteFile, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
