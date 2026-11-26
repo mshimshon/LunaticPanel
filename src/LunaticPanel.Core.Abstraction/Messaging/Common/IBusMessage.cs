@@ -2,6 +2,7 @@
 
 public interface IBusMessage
 {
+    MessageKey Key { get; }
     string GetKey();
     BusMessageData? GetData();
     Guid GetMessageId();

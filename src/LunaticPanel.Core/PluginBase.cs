@@ -30,23 +30,23 @@ namespace LunaticPanel.Core;
 public abstract class PluginBase : IPlugin
 {
     private readonly static Dictionary<PluginContextIdentifier, IServiceScope> _circuitServiceProviders = new();
-    private readonly static object _lockCircuitRegistry = new object();
+    private readonly static Lock _lockCircuitRegistry = new Lock();
 
     private readonly static Dictionary<string, IReadOnlyCollection<BusHandlerDescriptor>> _scannedCachedBusHandlers = new();
-    private readonly static object _lockScannedCachedBusHandlers = new object();
+    private readonly static Lock _lockScannedCachedBusHandlers = new Lock();
 
     private List<HostRedirectionService> _hostRedirectedServices = new();
     private readonly static Dictionary<PluginContextIdentifier, EventBusRegistry> _eventBusRegistry = new();
-    private readonly static object _lockEventBusRegistry = new object();
+    private readonly static Lock _lockEventBusRegistry = new Lock();
 
     private readonly static Dictionary<PluginContextIdentifier, QueryBusRegistry> _queryBusRegistry = new();
-    private readonly static object _lockQueryBusRegistry = new object();
+    private readonly static Lock _lockQueryBusRegistry = new Lock();
 
     private readonly static Dictionary<PluginContextIdentifier, EngineBusRegistry> _engineBusRegistry = new();
-    private readonly static object _lockEngineBusRegistry = new object();
+    private readonly static Lock _lockEngineBusRegistry = new Lock();
 
     private readonly static Dictionary<PluginContextIdentifier, EventScheduledBusRegistry> _eventScheduledBusRegistry = new();
-    private readonly static object _lockEventScheduledBusRegistry = new object();
+    private readonly static Lock _lockEventScheduledBusRegistry = new Lock();
 
     private ServiceCollection _crossCircuitSingletonProviderCollection = new();
     protected IServiceProvider? _crossCircuitSingletonProvider;
@@ -55,7 +55,7 @@ public abstract class PluginBase : IPlugin
     public IReadOnlyList<MessageKey> Keys { get; private set; } = new List<MessageKey>();
 
     private readonly static Dictionary<string, List<MessageKey>> _pluginKeys = new(StringComparer.OrdinalIgnoreCase);
-    private readonly static object _pluginKeysLock = new object();
+    private readonly static Lock _pluginKeysLock = new Lock();
     private bool _hasStarted;
     private List<BusHandlerDescriptor> _cacheBusHandlersDescriptors = default!;
     protected PluginBase()
@@ -548,13 +548,13 @@ public abstract class PluginBase : IPlugin
         var schEventRegistry = contextServices.GetRequired<IEventScheduledBusRegistry>();
         foreach (var d in schEventRegistry.GetAllAvailable())
         {
-            if (!d.ScheduleAtStartup) continue;
+            if (!d.Setting.ScheduleAtStartup) continue;
             var t = new EventScheduleObject(d.Key, d.Timing)
             {
-                RunOnceOnly = d.RunOnlyOnce
+                RunOnceOnly = d.Setting.RunOnlyOnce
             };
 
-            evtSchService.Register(t, d.RunAtStartup);
+            evtSchService.Register(t, d.Setting.RunAtStartup);
         }
 
         return Task.CompletedTask;

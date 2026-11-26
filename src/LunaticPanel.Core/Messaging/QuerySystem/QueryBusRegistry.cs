@@ -52,7 +52,7 @@ public sealed class QueryBusRegistry : IQueryBusRegistry
         {
             if (_internalRegistryEventTypes.ContainsKey(id))
                 throw new QueryBusMultipleHandlerException(id);
-            _internalRegistryEventTypes[id] = new(id, handlerEntity.HandlerType, handlerEntity.BusLifetime);
+            _internalRegistryEventTypes[id] = QueryBusHandlerDescriptor.Create(handlerEntity);
         }
     }
 

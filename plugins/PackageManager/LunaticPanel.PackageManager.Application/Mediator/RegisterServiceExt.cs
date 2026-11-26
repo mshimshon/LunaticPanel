@@ -32,6 +32,7 @@ internal static class RegisterServiceExt
         services.AddScoped<AutoUpdatePackagesCommandHandler>();
         services.AddScoped<PackageCancelInstallCommandHandler>();
         services.AddScoped<PackageRollbackCommandHandler>();
-        // AI APPEND ABOVE
+        services.AddScoped<GetPanelUpdateCompatiblePluginsHandler>();
+        // AI APPEND ABOVE GetPanelUpdateCompatiblePluginsHandler
     }
 }

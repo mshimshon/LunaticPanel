@@ -3,7 +3,7 @@
 namespace LunaticPanel.Core.Abstraction.Messaging.EventBus;
 
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class EventBusKeyAttribute : BusKeyAttribute
 {
 

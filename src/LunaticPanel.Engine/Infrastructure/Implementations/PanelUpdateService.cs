@@ -134,7 +134,7 @@ internal class PanelUpdateService : IPanelUpdateService
             }
             if (validForNextUpgrade.Any(p => p.Value.Id == manifest.Id))
             {
-                _crazyReport.ReportWarning($"'{item}' failed to extract manifest.");
+                _crazyReport.ReportWarning($"'{item}' another valid version is already selected.");
                 File.Delete(item);
                 _crazyReport.ReportWarning($"'{item}' Deleted.");
                 continue;
@@ -230,8 +230,10 @@ internal class PanelUpdateService : IPanelUpdateService
         string lastDownloaded = Path.Combine(_downloadLocation, "cache.txt");
         string officialPanel = Path.Combine(_downloadLocation, "lunaticpanel_latest.tar.gz");
         string officialPanelPlugins = Path.Combine(_downloadLocation, "lunaticpanel_plugins_latest.tar.gz");
-        await DownloadFile(client, $"lunaticpanel_{version}.tar.gz", officialPanel, ct);
-        await DownloadFile(client, $"lunaticpanel_plugins_{version}.tar.gz", officialPanelPlugins, ct);
+        var panelUrl = new Uri(_baseRemoteUrl, $"lunaticpanel_{version}.tar.gz");
+        var pluginUrl = new Uri(_baseRemoteUrl, $"lunaticpanel_plugins_{version}.tar.gz");
+        await DownloadFile(client, panelUrl.ToString(), officialPanel, ct);
+        await DownloadFile(client, pluginUrl.ToString(), officialPanelPlugins, ct);
 
 
         Pathf.ResetDir(_updateDiscoveryLocator.UpgradePluginCache);
@@ -254,10 +256,10 @@ internal class PanelUpdateService : IPanelUpdateService
 
         Installing = Downloaded;
 
-        string upgradeVersionCache = Pathf.Combine(_updateDiscoveryLocator.UpgradeReadyApply, "version.txt");
+        string upgradeVersionCache = Pathf.CombineReadyFile(_updateDiscoveryLocator.UpgradeReadyApply, "version.txt");
         string binPanelPath = _updateDiscoveryLocator.BinaryPathRoot;
-        var downloadedPanel = Pathf.Combine(_downloadLocation, "lunaticpanel_latest.tar.gz");
-        var applyPanelFileLocation = Pathf.Combine(_updateDiscoveryLocator.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
+        var downloadedPanel = Pathf.CombineReadyFile(_downloadLocation, "lunaticpanel_latest.tar.gz");
+        var applyPanelFileLocation = Pathf.CombineReadyFile(_updateDiscoveryLocator.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
         var applyUserInstalledolderLocation = _updateDiscoveryLocator.UpgradePluginInstalled;
         var applyPreInstalledFolderLocation = _updateDiscoveryLocator.UpgradePluginPreinstalled;
         try
@@ -287,21 +289,25 @@ internal class PanelUpdateService : IPanelUpdateService
                 _crazyReport.ReportWarning("Panel Cannot Upgrade yet, still waiting for security fend off time to pass.");
 
             }
+
+            await _updateDiscovery.ClearStageAsync();
             File.Move(downloadedPanel, applyPanelFileLocation, true);
             if (PluginUpgradeDownloaded != default)
                 foreach (var item in PluginUpgradeDownloaded)
+                {
+                    var moveTo = Pathf.CombineReadyFile(applyPreInstalledFolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg");
                     if (PreInstalled.Contains(item.Value.Id))
-                        File.Move(item.Key, Path.Combine(applyPreInstalledFolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"), true);
+                        File.Move(item.Key, moveTo, true);
                     else
-                        File.Move(item.Key, Path.Combine(applyUserInstalledolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"), true);
+                        File.Move(item.Key, moveTo, true);
+                }
 
             // Clear Working Files
             Pathf.ResetDir(_downloadLocation);
-            await _updateDiscovery.ClearStageAsync();
             await _atomicFileSystem.WriteAtomicAsync(upgradeVersionCache, Installing.ToString());
-            await _atomicFileSystem.WriteAtomicAsync(Pathf.Combine(binPanelPath, "access.test"), Installing.ToString());
-            await _atomicFileSystem.WriteAtomicAsync(Pathf.Combine(_updateDiscoveryLocator.UpgradeRoot, "access.test"), Installing.ToString());
-            await _atomicFileSystem.WriteAtomicAsync(Pathf.Combine(_pluginDiscoveryLocator.PluginLifecycleLocation, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Pathf.CombineReadyFile(binPanelPath, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Pathf.CombineReadyFile(_updateDiscoveryLocator.UpgradeRoot, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Pathf.CombineReadyFile(_pluginDiscoveryLocator.PluginLifecycleLocation, "access.test"), Installing.ToString());
 
             Staged = Installing;
             _crazyReport.ReportInfo($"Auto Restart ? {_autoRestart} ");
@@ -346,6 +352,7 @@ internal class PanelUpdateService : IPanelUpdateService
         var responseStable = await client.GetAsync(_stableCheckUrl);
         responseStable.EnsureSuccessStatusCode();
         string versionStableRaw = await responseStable.Content.ReadAsStringAsync();
+        versionStableRaw = versionStableRaw.ClearNewLines().ClearSpaces();
         var latest = NuGetVersion.Parse(versionStableRaw);
         _crazyReport.Report($"Remote Panel Version is {versionStableRaw}");
         if (_previewEnabled)
@@ -357,10 +364,14 @@ internal class PanelUpdateService : IPanelUpdateService
             if (previewLatest > latest)
                 latest = previewLatest;
         }
+        if (_currentPanelVersion < latest)
+            await _eventBus.PublishDataAsync(PanelKeys.Events.ON_PANEL_UPDATE_AVAILABLE, latest);
         return latest;
     }
+
     public async Task DownloadFile(HttpClient client, string remoteFile, string targetLocation, CancellationToken ct = default)
     {
+        _crazyReport.Report($"Download '{remoteFile}' to '{targetLocation}'");
         string destinationPathDownload = Path.GetTempFileName();
         using var response = await client.GetAsync(remoteFile, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();

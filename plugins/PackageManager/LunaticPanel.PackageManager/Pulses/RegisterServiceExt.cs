@@ -12,6 +12,7 @@ internal static class RegisterServiceExt
 {
     public static void AddPulseServices(this IServiceCollection services)
     {
+        services.AddStatePulseService<PanelUpdateState>();
         services.AddStatePulseService<SearchPackageState>();
         services.AddStatePulseService<RepositorySourceState>();
         services.AddStatePulseService<PackageInstallState>();
@@ -127,6 +128,9 @@ internal static class RegisterServiceExt
         services.AddStatePulseService<PackageRollbackEffect>();
         services.AddStatePulseService<PackageRollbackReducer>();
         services.AddStatePulseService<PackageRollbackDoneReducer>();
+
+        services.AddStatePulseService<UpdatePanelStateDoneAction>();
+        services.AddStatePulseService<UpdatePanelStateDoneReducer>();
 
         // AI APPEND ABOVE
 

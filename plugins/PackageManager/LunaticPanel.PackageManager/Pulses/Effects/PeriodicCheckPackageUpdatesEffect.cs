@@ -16,12 +16,10 @@ internal class PeriodicCheckPackageUpdatesEffect : IEffect<PeriodicCheckPackageU
 {
     private readonly IMediator _mediator;
     private readonly ICrazyReport<PeriodicCheckPackageUpdatesEffect> _crazyReport;
-    private readonly IStateAccessor<PackageManagerDiskState> _packageManagerDiskState;
 
-    public PeriodicCheckPackageUpdatesEffect(IMediator mediator, ICrazyReport<PeriodicCheckPackageUpdatesEffect> crazyReport, IStateAccessor<PackageManagerDiskState> _packageManagerDiskState)
+    public PeriodicCheckPackageUpdatesEffect(IMediator mediator, ICrazyReport<PeriodicCheckPackageUpdatesEffect> crazyReport)
     {
         _crazyReport = crazyReport;
-        this._packageManagerDiskState = _packageManagerDiskState;
         _crazyReport.SetModule(LPPackageManagerKeys.MODULE_NAME);
         _crazyReport.Report("Initialized Class");
         _mediator = mediator;
@@ -32,11 +30,22 @@ internal class PeriodicCheckPackageUpdatesEffect : IEffect<PeriodicCheckPackageU
         try
         {
             _crazyReport.Report("Executing Effect");
-            var installed = _packageManagerDiskState.State.Installed.ToDictionary(p => p.Info.PackageId, p => NuGetVersion.Parse(p.Version));
-            ICollection<PackageManifestPayload> result = await _mediator.ExecuteAsync(new PeriodicCheckPackageUpdatesQuery(installed), dispatcher.CancelToken);
-            await dispatcher.Prepare<PeriodicCheckPackageUpdatesDoneAction>()
-                .With(p => p.AvailableUpdates, result)
-                .DispatchAsync();
+            var panelVersion = dispatcher.GetState<PanelUpdateState>().DownloadedVersion;
+            var missingPlugins = dispatcher.GetState<PanelUpdateState>().MissingPlugins.ToList();
+            if (panelVersion != default && missingPlugins.Count > 0)
+            {
+                var panelUpdate = await _mediator.ExecuteAsync(new GetPanelUpdateCompatiblePluginsQuery(missingPlugins, panelVersion), dispatcher.CancelToken);
+
+            }
+            else
+            {
+                var installed = dispatcher.GetState<PackageManagerDiskState>().Installed.ToDictionary(p => p.Info.PackageId, p => NuGetVersion.Parse(p.Version));
+                // dispatcher.GetState<PanelUpdateState>().
+                ICollection<PackageManifestPayload> result = await _mediator.ExecuteAsync(new PeriodicCheckPackageUpdatesQuery(installed), dispatcher.CancelToken);
+                await dispatcher.Prepare<PeriodicCheckPackageUpdatesDoneAction>()
+                    .With(p => p.AvailableUpdates, result)
+                    .DispatchAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -45,4 +54,6 @@ internal class PeriodicCheckPackageUpdatesEffect : IEffect<PeriodicCheckPackageU
         }
 
     }
+
+
 }

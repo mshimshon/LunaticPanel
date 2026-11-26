@@ -54,7 +54,7 @@ public sealed class EngineBusRegistry : IEngineBusRegistry
                 _internalRegistryEventTypes[id] = new List<EngineBusHandlerDescriptor>();
             }
             if (!list.Any(p => p.HandlerType.FullName == handlerEntity.HandlerType.FullName))
-                _internalRegistryEventTypes[id].Add(new(id, handlerEntity.HandlerType, handlerEntity.BusLifetime));
+                _internalRegistryEventTypes[id].Add(EngineBusHandlerDescriptor.Create(handlerEntity));
         }
     }
 }

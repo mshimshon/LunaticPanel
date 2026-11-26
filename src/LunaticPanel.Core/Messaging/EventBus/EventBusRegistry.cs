@@ -47,10 +47,6 @@ public sealed class EventBusRegistry : IEventBusRegistry
 
     public void Register(string id, BusHandlerDescriptor handlerEntity)
     {
-        var attr = handlerEntity.HandlerType.GetCustomAttribute<EventBusKeyAttribute>(inherit: false);
-        if (attr == default)
-            throw new InvalidOperationException($"Type {handlerEntity.HandlerType.FullName} MUST implements {nameof(EventBusKeyAttribute)}.");
-
         lock (_lock)
         {
             if (!_internalRegistryEventTypes.TryGetValue(id, out var list))
@@ -59,10 +55,7 @@ public sealed class EventBusRegistry : IEventBusRegistry
                 _internalRegistryEventTypes[id] = new List<EventBusHandlerDescriptor>();
             }
             if (!list.Any(p => p.HandlerType.FullName == handlerEntity.HandlerType.FullName))
-                _internalRegistryEventTypes[id].Add(new EventBusHandlerDescriptor(id, handlerEntity.HandlerType, handlerEntity.BusLifetime)
-                {
-                    CrossCircuitType = attr.CrossCircuitReceiver
-                });
+                _internalRegistryEventTypes[id].Add(EventBusHandlerDescriptor.Create(handlerEntity));
         }
     }
 }

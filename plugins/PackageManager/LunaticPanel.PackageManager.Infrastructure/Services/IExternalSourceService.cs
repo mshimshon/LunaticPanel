@@ -14,6 +14,7 @@ public interface IExternalSourceService
     Task<RepositorySourcePayload?> GetPackageCacheSourceForAsync(string id, string packageVersion, CancellationToken ct = default);
     Task<RepositorySourcePayload?> GetPackageSourceForAsync(string id, string packageVersion, CancellationToken ct = default);
     Task<PackageManifestPayload?> FindMostRecentPackage(string id, CancellationToken ct = default);
+    Task<PackageManifestPayload?> FindMostRecentPackage(string id, string panelVersion, CancellationToken ct = default);
     Task<NuGetVersion[]> FindAllVersionsForAsync(string id, CancellationToken ct = default);
     Task<Dictionary<RepositorySourcePayload, SearchResponse<PackageManifestPayload>>> SearchAllSourcesAsync(SearchRequest data, CancellationToken ct = default);
     Task<SearchResponse<PackageManifestPayload>> SearchAsync(SearchRequest data, RepositorySourcePayload source, CancellationToken ct = default);

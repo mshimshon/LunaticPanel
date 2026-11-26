@@ -18,6 +18,10 @@ public sealed class QueryBusMessage : IQueryBusMessage
             Data = new BusMessageData(data);
         _messageKey = messageKey;
     }
+    public static IQueryBusMessage Create(string key)
+        => new QueryBusMessage(MessageKey.Create(key));
+    public static IQueryBusMessage Create(string key, object data)
+        => new QueryBusMessage(MessageKey.Create(key), data);
 
     public string GetKey() => $"{_messageKey}";
 
