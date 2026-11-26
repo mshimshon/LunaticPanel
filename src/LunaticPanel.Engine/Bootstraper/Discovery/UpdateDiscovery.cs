@@ -255,7 +255,9 @@ public class UpdateDiscovery : IUpdateDiscovery
 
     public Task ClearStageAsync()
     {
-        Pathf.ResetDir(_updateDiscoveryLocation.UpgradeRoot);
+        Pathf.ResetDir(_updateDiscoveryLocation.UpgradePluginInstalled);
+        Pathf.ResetDir(_updateDiscoveryLocation.UpgradePluginPreinstalled);
+        Pathf.ResetDir(_updateDiscoveryLocation.UpgradeReadyApply);
         return Task.CompletedTask;
     }
 

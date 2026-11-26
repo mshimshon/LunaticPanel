@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using StatePulse.Net;
 using LunaticPanel.PackageManager.Pulses.Actions;
 using LunaticPanel.Core.Abstraction.Messaging.Common;
+using LunaticPanel.PackageManager.Components;
 
 namespace LunaticPanel.PackageManager;
 /*
@@ -50,6 +51,7 @@ public class PluginEntry : PluginBase, IPlugin
         services.AddScoped<IPackageSearchViewModel, PackageSearchViewModel>();
         services.AddTransient<IPackageSearchCardViewModel, PackageSearchCardViewModel>();
         services.AddScoped<ISourceViewModel, SourceViewModel>();
+        services.AddScoped<IPanelUpdateInformationViewModel, PanelUpdateInformationViewModel>();
         services.AddTransient<ISourceManagerCardViewModel, SourceManagerCardViewModel>();
         services.AddTransient<ISourceAddFormViewModel, SourceAddFormViewModel>();
         services.AddInfrasctructureServices();

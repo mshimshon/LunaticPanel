@@ -256,10 +256,10 @@ internal class PanelUpdateService : IPanelUpdateService
 
         Installing = Downloaded;
 
-        string upgradeVersionCache = Pathf.Combine(_updateDiscoveryLocator.UpgradeReadyApply, "version.txt");
+        string upgradeVersionCache = Pathf.CombineReadyFile(_updateDiscoveryLocator.UpgradeReadyApply, "version.txt");
         string binPanelPath = _updateDiscoveryLocator.BinaryPathRoot;
-        var downloadedPanel = Pathf.Combine(_downloadLocation, "lunaticpanel_latest.tar.gz");
-        var applyPanelFileLocation = Pathf.Combine(_updateDiscoveryLocator.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
+        var downloadedPanel = Pathf.CombineReadyFile(_downloadLocation, "lunaticpanel_latest.tar.gz");
+        var applyPanelFileLocation = Pathf.CombineReadyFile(_updateDiscoveryLocator.UpgradeReadyApply, "lunaticpanel_latest.tar.gz");
         var applyUserInstalledolderLocation = _updateDiscoveryLocator.UpgradePluginInstalled;
         var applyPreInstalledFolderLocation = _updateDiscoveryLocator.UpgradePluginPreinstalled;
         try
@@ -289,21 +289,25 @@ internal class PanelUpdateService : IPanelUpdateService
                 _crazyReport.ReportWarning("Panel Cannot Upgrade yet, still waiting for security fend off time to pass.");
 
             }
+
+            await _updateDiscovery.ClearStageAsync();
             File.Move(downloadedPanel, applyPanelFileLocation, true);
             if (PluginUpgradeDownloaded != default)
                 foreach (var item in PluginUpgradeDownloaded)
+                {
+                    var moveTo = Pathf.CombineReadyFile(applyPreInstalledFolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg");
                     if (PreInstalled.Contains(item.Value.Id))
-                        File.Move(item.Key, Path.Combine(applyPreInstalledFolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"), true);
+                        File.Move(item.Key, moveTo, true);
                     else
-                        File.Move(item.Key, Path.Combine(applyUserInstalledolderLocation, $"{item.Value.Id}.{item.Value.Version}.lpkg"), true);
+                        File.Move(item.Key, moveTo, true);
+                }
 
             // Clear Working Files
             Pathf.ResetDir(_downloadLocation);
-            await _updateDiscovery.ClearStageAsync();
             await _atomicFileSystem.WriteAtomicAsync(upgradeVersionCache, Installing.ToString());
-            await _atomicFileSystem.WriteAtomicAsync(Pathf.Combine(binPanelPath, "access.test"), Installing.ToString());
-            await _atomicFileSystem.WriteAtomicAsync(Pathf.Combine(_updateDiscoveryLocator.UpgradeRoot, "access.test"), Installing.ToString());
-            await _atomicFileSystem.WriteAtomicAsync(Pathf.Combine(_pluginDiscoveryLocator.PluginLifecycleLocation, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Pathf.CombineReadyFile(binPanelPath, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Pathf.CombineReadyFile(_updateDiscoveryLocator.UpgradeRoot, "access.test"), Installing.ToString());
+            await _atomicFileSystem.WriteAtomicAsync(Pathf.CombineReadyFile(_pluginDiscoveryLocator.PluginLifecycleLocation, "access.test"), Installing.ToString());
 
             Staged = Installing;
             _crazyReport.ReportInfo($"Auto Restart ? {_autoRestart} ");
@@ -360,6 +364,8 @@ internal class PanelUpdateService : IPanelUpdateService
             if (previewLatest > latest)
                 latest = previewLatest;
         }
+        if (_currentPanelVersion < latest)
+            await _eventBus.PublishDataAsync(PanelKeys.Events.ON_PANEL_UPDATE_AVAILABLE, latest);
         return latest;
     }
 

@@ -18,6 +18,7 @@ services:
       environment:
         - "ASPNETCORE_ENVIRONMENT=Development"
         - "LP_WAIT_FOR_DEBUGGER=true" # Force panel to await attached debugger
+        - "LP_UPGRADE_AUTO_RESTART=false" # Disable Panel Auto-Restart After Update.
         - "DOTNET_ENABLE_DIAGNOSTICS=1" # Open up the core diagnostics server pipeline
         - "DOTNET_EnableDiagnostics_Debugger=1" # Explicitly keep debugger subsystem hook active
         - "DOTNET_EnableDiagnostics_IPC=1" # Unblock Linux named pipes/inter-process communication

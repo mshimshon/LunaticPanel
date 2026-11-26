@@ -64,7 +64,6 @@ internal class PackageUpdateScheduled : IEventScheduledBusHandler
             var latestVersion = await _panelUpdateService.GetLatestVersion(ct);
             if (latestVersion <= _panelVersion) return;
 
-            await _eventBus.PublishDataAsync(PanelKeys.Events.ON_PANEL_UPDATE_AVAILABLE, latestVersion);
 
             // Get the Latest Update
             await _panelUpdateService.DownloadUpdateAsync(ct);
