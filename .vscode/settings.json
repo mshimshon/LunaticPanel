@@ -7,5 +7,6 @@
         "commit": true,
         "publish": false,
         "sync": false,
-    }
+    },
+    "folderTemplates.templateFolderPath": ".github/patterns"
 }

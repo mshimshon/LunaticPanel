@@ -1,0 +1,8 @@
+using MaksimShimshon.Mediator;
+
+namespace _NamespaceRoot_.Mediator.Queries;
+
+public sealed record _SourceName_Query : IRequest</* MY Payload */>
+{
+    // hey changed
+}

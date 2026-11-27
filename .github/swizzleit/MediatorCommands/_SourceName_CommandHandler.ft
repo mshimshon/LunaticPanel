@@ -1,0 +1,32 @@
+using LunaticPanel.Core.Abstraction.Exceptions;
+using LunaticPanel.Core.Utils.Abstraction.Logging;
+using LunaticPanel.PackageManager.Application.Payloads;
+using LunaticPanel.PackageManager.Application.Payloads.Mapping;
+using LunaticPanel.PackageManager.Application.Services;
+using LunaticPanel.PackageManager.Keys;
+using MaksimShimshon.Mediator;
+
+namespace _NamespaceRoot_.Mediator.Commands;
+internal class _SourceName_CommandHandler : IRequestHandler<_SourceName_Command>
+{
+    private readonly IHostDiskPackageService _hostDiskPackageService;
+    private readonly ICrazyReport<_SourceName_CommandHandler> _crazyReport;
+
+    public _SourceName_CommandHandler(ICrazyReport<_SourceName_CommandHandler> crazyReport)
+    {
+        _crazyReport = crazyReport;
+        _crazyReport.SetModule(/*MODULE*/);
+    }
+    public async Task HandleAsync(_SourceName_Command request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            //TODO: Implement
+            //TODO: HANDLE DOMAIN EXCEPTIONS
+        }
+        catch (Exception ex)
+        {
+            throw new HostUnkownException();
+        }
+    }
+}

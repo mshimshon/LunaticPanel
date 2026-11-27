@@ -1,0 +1,46 @@
+{
+    "$schema": "http://schemastore.org",
+    "author": "Internal",
+    "classifications": [
+        "C#",
+        "Mediator"
+    ],
+    "identity": "Internal.MediatorQuery",
+    "name": "Mediator Query",
+    "shortName": "MediatorQueryOnly",
+    "tags": {
+        "language": "C#",
+        "type": "item"
+    },
+    "sourceName": "_SourceName_",
+    "sources": [
+        {
+            "rename": {
+                "_SourceName_Query.ft": "Mediator/Queries/_SourceName_Query.cs",
+                "_SourceName_QueryHandler.ft": "Mediator/Queries/_SourceName_QueryHandler.cs"
+            }
+        }
+    ],
+    "symbols": {
+        "namespace": {
+            "type": "bind",
+            "binding": "msbuild:RootNamespace",
+            "replaces": "_NamespaceRoot_",
+            "defaultValue": "App"
+        }
+    },
+    "swizzleIt": {
+        "contextRule": {
+            "projectRequired": true,
+            "regexMatch": null
+        },
+        "postTemplate": {
+            "With Command": [
+                {
+                    "template": "MediatorCommands",
+                    "target": "."
+                }
+            ]
+        }
+    }
+}

@@ -1,0 +1,7 @@
+using MaksimShimshon.Mediator;
+
+namespace _NamespaceRoot_.Mediator.Commands;
+
+public sealed record _SourceName_Command : IRequest
+{
+}
